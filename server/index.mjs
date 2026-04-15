@@ -1,10 +1,11 @@
-import "dotenv/config";
+import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.join(__dirname, ".env") });
 const DIST = path.resolve(__dirname, "../dist");
 
 const { ANTHROPIC_API_KEY, PORT = 3000 } = process.env;
