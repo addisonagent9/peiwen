@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root { height: 100%; }
+body {
+  background: #0f0d0b;
+  color: #f0e4cc;
+  font-family: "Noto Serif SC", "Songti SC", "SimSun", serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.ink-card { background: #1a1613; border: 1px solid #2a2320; }
+.ink-divider { border-color: #2a2320; }
+.vgrid { writing-mode: vertical-rl; text-orientation: upright; }

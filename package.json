@@ -1,0 +1,28 @@
+{
+  "name": "poetry-checker",
+  "version": "0.1.0",
+  "private": true,
+  "source": "src/index.html",
+  "scripts": {
+    "data": "node scripts/build-pingshui.mjs && node scripts/build-cedict.mjs && node --max-old-space-size=4096 scripts/build-moedict.mjs",
+    "start": "npm run data && parcel src/index.html --port 1234",
+    "build": "npm run data && rm -rf dist && parcel build src/index.html --public-url ./ --no-source-maps --dist-dir dist && node scripts/inline-bundle.mjs"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "autoprefixer": "^10.4.16",
+    "parcel": "^2.12.0",
+    "postcss": "^8.4.32",
+    "process": "^0.11.10",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "opencc-js": "^1.0.5",
+    "pinyin-pro": "^3.28.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "browserslist": "> 0.5%, last 2 versions, not dead"
+}
