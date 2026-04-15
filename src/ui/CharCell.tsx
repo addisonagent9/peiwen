@@ -50,7 +50,7 @@ export function CharCell({ c, isRhyme, onClickChar, onClickRhyme }: Props) {
       </div>
       <button
         onClick={onClickChar}
-        className={`text-2xl leading-[1.1] font-serif ${charColor} hover:opacity-70 transition`}
+        className={`text-3xl leading-[1.1] font-serif ${charColor} hover:opacity-70 transition`}
         title={c.ambiguous ? "多音字" : ""}
       >
         {c.char || "　"}

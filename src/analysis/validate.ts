@@ -111,12 +111,20 @@ export function analyzeAgainst(lines: string[][], pattern: PoemPattern): Pattern
 
   // 押韻.
   const endChars: Array<{ char: string; lineIdx: number; isFirst: boolean }> = [];
+  let totalRhymeLines = 0;
+  const missingRhymeLines: number[] = [];
   for (let li = 0; li < pattern.lines.length; li++) {
     if (pattern.lines[li].rhymes) {
+      totalRhymeLines++;
       const row = chars[li];
       const ch = row[row.length - 1]?.char;
       if (ch) endChars.push({ char: ch, lineIdx: li, isFirst: li === 0 });
+      else missingRhymeLines.push(li);
     }
+  }
+  for (const li of missingRhymeLines) {
+    issues.push({ kind: "出律", severity: "error", lineIdx: li,
+      message: `第${li+1}句缺韻腳（此句未完成）` });
   }
   const rhyme = endChars.length ? checkRhymes(endChars, pattern.kind) : null;
   if (rhyme) {
@@ -137,12 +145,13 @@ export function analyzeAgainst(lines: string[][], pattern: PoemPattern): Pattern
   // Scores.
   const toneScore = fixedTotal ? fixedMatched / fixedTotal : 0;
   let rhymeScore = 0;
-  if (rhyme) {
-    const need = endChars.length;
-    const strict = need - rhyme.offending.length - (rhyme.firstLineNeighbor ? 1 : 0);
-    rhymeScore = need ? (strict + (rhyme.firstLineNeighbor ? 0.7 : 0)) / need : 0;
-  } else {
+  if (totalRhymeLines === 0) {
     rhymeScore = 1;
+  } else if (!rhyme) {
+    rhymeScore = 0;
+  } else {
+    const strict = endChars.length - rhyme.offending.length - (rhyme.firstLineNeighbor ? 1 : 0);
+    rhymeScore = (strict + (rhyme.firstLineNeighbor ? 0.7 : 0)) / totalRhymeLines;
   }
   const combined = 0.65 * toneScore + 0.35 * rhymeScore;
 

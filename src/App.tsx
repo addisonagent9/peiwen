@@ -20,11 +20,14 @@ export default function App() {
   const [raw, setRaw] = useState(SAMPLES["七絕"]);
   const [form, setForm] = useState<FormId | "auto">("auto");
   const [allowZe, setAllowZe] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [drawerRhyme, setDrawerRhyme] = useState<string | null>(null);
   const [editCell, setEditCell] = useState<{ li: number; pos: number } | null>(null);
 
   const lines = useMemo(() => {
-    return raw.split(/\r?\n/).map(s => Array.from(s.replace(/\s+/g, "")));
+    const arr = raw.split(/\r?\n/).map(s => Array.from(s.replace(/\s+/g, "")));
+    while (arr.length && arr[arr.length - 1].length === 0) arr.pop();
+    return arr;
   }, [raw]);
 
   const detect = useMemo(() => {
@@ -46,113 +49,147 @@ export default function App() {
   };
 
   const zeYunCaution = best?.pattern.kind === "仄韻";
+  const N = best?.pattern.lines[0]?.slots.length ?? 7;
+
+  // TODO: Google OAuth
+  const handleSignIn = () => {};
+  const handleSignUp = () => {};
+
+  const ScorePill = best && (
+    <div className="flex items-center justify-center">
+      <div className="inline-flex items-center gap-4 bg-ink-card/60 border border-ink-line rounded-full px-5 py-2 text-sm font-sans">
+        <span className="text-creamDim">平仄 <span className="text-gold">{Math.round(best.toneScore * 100)}%</span></span>
+        <span className="text-ink-line">·</span>
+        <span className="text-creamDim">押韻 <span className="text-gold">{Math.round(best.rhymeScore * 100)}%</span></span>
+        {best.rhyme?.baseRhyme && (
+          <>
+            <span className="text-ink-line">·</span>
+            <span className="text-creamDim">韻部：<span className="text-gold">{best.rhyme.baseRhyme}</span></span>
+          </>
+        )}
+        <span className="text-ink-line">·</span>
+        <span className="text-gold font-serif">{best.pattern.form}·{best.pattern.name}</span>
+      </div>
+    </div>
+  );
+
+  const SampleButtons = (
+    <div className="flex flex-wrap gap-2 text-xs font-sans">
+      {(Object.keys(SAMPLES) as FormId[]).map(f => (
+        <button key={f}
+                onClick={() => { setRaw(SAMPLES[f]); setForm(f); }}
+                className="px-3 py-1.5 rounded border border-ink-line text-creamDim hover:text-gold hover:border-gold">
+          {f}範例
+        </button>
+      ))}
+    </div>
+  );
 
   return (
-    <div className="min-h-full bg-ink-bg text-cream">
-      <header className="border-b border-ink-line px-6 py-4 flex items-baseline gap-6">
-        <div>
-          <div className="text-3xl font-serif text-gold tracking-widest">詩律析辨</div>
-          <div className="text-xs text-creamDim font-sans">Classical Chinese prosody analyzer · 平水韻 106 部</div>
-        </div>
-        <div className="ml-auto flex items-center gap-3 text-sm font-sans">
-          <label className="text-creamDim">體裁</label>
-          <select
-            value={form}
-            onChange={e => setForm(e.target.value as any)}
-            className="bg-ink-card border border-ink-line rounded px-2 py-1 text-cream"
-          >
-            <option value="auto">自動偵測</option>
-            <option value="七絕">七絕</option>
-            <option value="七律">七律</option>
-            <option value="五絕">五絕</option>
-            <option value="五律">五律</option>
-          </select>
-          <label className="flex items-center gap-1 text-creamDim">
+    <div className="min-h-full bg-ink-bg text-cream flex flex-col">
+      <header className="border-b border-ink-line px-6 py-4 grid grid-cols-[auto_1fr_auto] items-center gap-6">
+        <div className="flex flex-col gap-2 text-sm font-sans">
+          <label className="flex items-center gap-2 text-creamDim">
             <input type="checkbox" checked={allowZe} onChange={e => setAllowZe(e.target.checked)} />
             允許仄韻
           </label>
+          <div className="flex items-center gap-2">
+            <label className="text-creamDim">體裁</label>
+            <select
+              value={form}
+              onChange={e => setForm(e.target.value as any)}
+              className="bg-ink-card border border-ink-line rounded px-2 py-1 text-cream"
+            >
+              <option value="auto">自動偵測</option>
+              <option value="七絕">七絕</option>
+              <option value="七律">七律</option>
+              <option value="五絕">五絕</option>
+              <option value="五律">五律</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="text-center">
+          <div className="text-4xl font-serif text-gold tracking-widest">佩文・詩律析辨</div>
+          <div className="text-xs text-creamDim font-sans mt-1">Classical Chinese prosody analyzer · 平水韻 106 部</div>
+        </div>
+
+        <div className="flex items-center gap-3 text-sm font-sans">
+          <button
+            onClick={handleSignIn}
+            className="px-4 py-1.5 rounded border border-ink-line text-creamDim hover:text-cream hover:border-cream"
+          >Sign in</button>
+          <button
+            onClick={handleSignUp}
+            className="px-4 py-1.5 text-gold hover:opacity-80"
+          >Sign up</button>
         </div>
       </header>
 
-      <main className="grid grid-cols-[minmax(20rem,26rem)_1fr] gap-6 p-6">
-        <section className="flex flex-col gap-3">
-          <div className="text-xs text-creamDim font-sans">輸入詩句（每句一行）</div>
-          <textarea
-            value={raw}
-            onChange={e => setRaw(e.target.value)}
-            rows={12}
-            className="ink-card rounded p-4 font-serif text-xl text-cream leading-[1.8] outline-none focus:border-gold"
-          />
-          <div className="flex flex-wrap gap-2 text-xs font-sans">
-            {(Object.keys(SAMPLES) as FormId[]).map(f => (
-              <button key={f}
-                      onClick={() => { setRaw(SAMPLES[f]); setForm(f); }}
-                      className="px-2 py-1 rounded border border-ink-line text-creamDim hover:text-gold hover:border-gold">
-                {f}範例
-              </button>
-            ))}
+      {!submitted ? (
+        <main className="flex-1 flex flex-col items-center justify-center gap-6 px-6 py-10">
+          {ScorePill}
+          <div className="w-full max-w-3xl flex flex-col gap-3">
+            <div className="text-xs text-creamDim font-sans text-center">輸入詩句（每句一行）</div>
+            <textarea
+              value={raw}
+              onChange={e => setRaw(e.target.value)}
+              rows={8}
+              className="ink-card rounded p-6 font-serif text-2xl text-cream leading-[1.8] outline-none focus:border-gold text-center"
+            />
+            <div className="flex items-center justify-between gap-4 mt-2">
+              {SampleButtons}
+              <button
+                onClick={() => setSubmitted(true)}
+                className="px-6 py-2 bg-gold text-ink-bg rounded font-sans font-semibold hover:opacity-90"
+              >析辨</button>
+            </div>
+          </div>
+        </main>
+      ) : (
+        <main className="flex-1 flex flex-col gap-4 px-6 py-6">
+          {ScorePill}
+
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => setSubmitted(false)}
+              className="px-3 py-1.5 text-sm font-sans text-creamDim hover:text-gold"
+            >← 重新輸入</button>
+            {zeYunCaution && (
+              <div className="text-xs text-amber border border-amber/40 rounded px-3 py-1">
+                溫馨提示：仄韻七絕多為「古絕」，非近體詩正例
+              </div>
+            )}
           </div>
 
           {best && (
-            <div className="ink-card rounded p-4 text-sm font-sans space-y-2">
-              <div className="flex items-baseline justify-between">
-                <div className="text-gold text-lg font-serif">
-                  {best.pattern.form} · {best.pattern.kind} · {best.pattern.name}
+            <Grid
+              chars={best.chars}
+              lineTemplates={best.pattern.lines}
+              cols={N}
+              onPick={(li, pos) => setEditCell({ li, pos })}
+              onRhymeClick={r => setDrawerRhyme(r)}
+            />
+          )}
+
+          {best && (
+            <div className="ink-card rounded p-4 text-sm font-sans space-y-1 max-w-3xl w-full self-center">
+              <div className="text-creamDim text-xs mb-2">校驗結果</div>
+              {best.issues.length === 0 && <div className="text-teal">✓ 完全合格</div>}
+              {best.issues.map((it, i) => (
+                <div key={i} className={
+                  it.severity === "error" ? "text-rose" :
+                  it.severity === "warn" ? "text-amber" : "text-teal"
+                }>
+                  <span className="inline-block w-12 text-creamDim">[{it.kind}]</span> {it.message}
                 </div>
-                <div className="text-2xl font-serif text-cream">
-                  {Math.round(best.combined * 100)}<span className="text-sm text-creamDim">%</span>
-                </div>
-              </div>
-              <div className="flex gap-4 text-xs text-creamDim">
-                <span>平仄 {Math.round(best.toneScore * 100)}%</span>
-                <span>押韻 {Math.round(best.rhymeScore * 100)}%</span>
-                {best.rhyme?.baseRhyme && <span>主韻 <span className="text-gold">{best.rhyme.baseRhyme}</span></span>}
-              </div>
-              {zeYunCaution && (
-                <div className="text-xs text-amber border border-amber/40 rounded p-2">
-                  溫馨提示：仄韻七絕並非近體詩正例，傳統以平韻為主，此類作品多被視為「古絕」或「入律的古風」。
-                </div>
-              )}
+              ))}
             </div>
           )}
-        </section>
 
-        <section className="flex flex-col gap-4 min-w-0">
-          {best && (
-            <>
-              <Grid
-                chars={best.chars}
-                lineTemplates={best.pattern.lines}
-                onPick={(li, pos) => setEditCell({ li, pos })}
-                onRhymeClick={r => setDrawerRhyme(r)}
-              />
-              <div className="ink-card rounded p-4 text-sm font-sans space-y-1">
-                <div className="text-creamDim text-xs mb-2">校驗結果</div>
-                {best.issues.length === 0 && <div className="text-teal">✓ 完全合格</div>}
-                {best.issues.map((it, i) => (
-                  <div key={i} className={
-                    it.severity === "error" ? "text-rose" :
-                    it.severity === "warn" ? "text-amber" : "text-teal"
-                  }>
-                    <span className="inline-block w-12 text-creamDim">[{it.kind}]</span> {it.message}
-                  </div>
-                ))}
-              </div>
-              <details className="text-xs font-sans text-creamDim">
-                <summary className="cursor-pointer hover:text-gold">其他格式比對</summary>
-                <div className="mt-2 grid grid-cols-2 gap-1">
-                  {detect?.ranked.slice(1, 8).map((r, i) => (
-                    <div key={i} className="flex justify-between border-b border-ink-line py-1">
-                      <span>{r.pattern.form}·{r.pattern.name}</span>
-                      <span>{Math.round(r.combined * 100)}%</span>
-                    </div>
-                  ))}
-                </div>
-              </details>
-            </>
-          )}
-        </section>
-      </main>
+          <div className="flex justify-center mt-2">{SampleButtons}</div>
+        </main>
+      )}
 
       <RhymeDrawer rhyme={drawerRhyme} onClose={() => setDrawerRhyme(null)} />
       <EditModal
