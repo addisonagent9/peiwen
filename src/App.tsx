@@ -23,6 +23,7 @@ export default function App() {
   const [submitted, setSubmitted] = useState(false);
   const [drawerRhyme, setDrawerRhyme] = useState<string | null>(null);
   const [editCell, setEditCell] = useState<{ li: number; pos: number } | null>(null);
+  const [lockedPattern, setLockedPattern] = useState<string | null>(null);
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     if (typeof window === "undefined") return true;
     const stored = window.localStorage.getItem("theme");
@@ -52,7 +53,23 @@ export default function App() {
     return detectBest(lines, { form: detected ?? undefined, allowZeYun: allowZe });
   }, [lines, form, allowZe]);
 
-  const best = detect?.best ?? null;
+  const patternKey = (p: { form: string; kind: string; name: string }) =>
+    `${p.form}·${p.kind}·${p.name}`;
+
+  const best = useMemo(() => {
+    if (!detect) return null;
+    if (lockedPattern) {
+      const found = detect.ranked.find(r => patternKey(r.pattern) === lockedPattern);
+      if (found) return found;
+    }
+    return detect.best;
+  }, [detect, lockedPattern]);
+
+  const patternOptions = useMemo(() => {
+    if (!detect) return [];
+    const detectedForm = detect.best.pattern.form;
+    return detect.ranked.filter(r => r.pattern.form === detectedForm);
+  }, [detect]);
 
   const updateChar = (li: number, pos: number, ch: string) => {
     const next = raw.split(/\r?\n/);
@@ -182,12 +199,21 @@ export default function App() {
           {ScorePill}
           <div className="w-full max-w-3xl flex flex-col gap-3">
             <div className="text-xs text-creamDim font-sans text-center">輸入詩句（每句一行）</div>
-            <textarea
-              value={raw}
-              onChange={e => setRaw(e.target.value)}
-              rows={8}
-              className="ink-card rounded p-6 font-serif font-light text-2xl text-cream leading-loose tracking-widest outline-none focus:border-gold text-center"
-            />
+            <div className="relative">
+              <textarea
+                value={raw}
+                onChange={e => setRaw(e.target.value)}
+                rows={8}
+                className="ink-card rounded p-6 font-serif font-light text-2xl text-cream leading-loose tracking-widest outline-none focus:border-gold text-center w-full"
+              />
+              {raw && (
+                <button
+                  onClick={() => { setRaw(""); setSubmitted(false); setLockedPattern(null); }}
+                  aria-label="Clear"
+                  className="absolute top-2 right-2 text-creamDim hover:text-rose text-xl leading-none"
+                >×</button>
+              )}
+            </div>
             <div className="flex items-center justify-between gap-4 mt-2">
               {SampleButtons}
               <button
@@ -201,11 +227,35 @@ export default function App() {
         <main className="flex-1 flex flex-col gap-4 px-6 py-6">
           {ScorePill}
 
-          <div className="flex items-center justify-between">
-            <button
-              onClick={() => setSubmitted(false)}
-              className="px-3 py-1.5 text-sm font-sans text-creamDim hover:text-gold"
-            >← 重新輸入</button>
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-3 flex-wrap">
+              <button
+                onClick={() => { setSubmitted(false); setLockedPattern(null); }}
+                className="px-3 py-1.5 text-sm font-sans text-creamDim hover:text-gold whitespace-nowrap"
+              >← 重新輸入</button>
+              {patternOptions.length > 0 && (
+                <div className="flex items-center gap-2 flex-wrap text-xs font-sans">
+                  <span className="text-creamDim">格：</span>
+                  {patternOptions.map(r => {
+                    const key = patternKey(r.pattern);
+                    const active = best && patternKey(best.pattern) === key;
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => setLockedPattern(key)}
+                        className={`px-2 py-1 rounded-full border whitespace-nowrap transition ${
+                          active
+                            ? "border-gold text-gold"
+                            : "border-ink-line text-creamDim hover:text-gold hover:border-gold"
+                        }`}
+                      >
+                        {r.pattern.name} <span className="opacity-70">{Math.round(r.combined * 100)}%</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
             {zeYunCaution && (
               <div className="text-xs text-amber border border-amber/40 rounded px-3 py-1">
                 溫馨提示：仄韻七絕多為「古絕」，非近體詩正例
