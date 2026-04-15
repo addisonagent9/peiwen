@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Grid } from "./ui/Grid";
 import { RhymeDrawer } from "./ui/RhymeDrawer";
 import { EditModal } from "./ui/EditModal";
@@ -23,6 +23,20 @@ export default function App() {
   const [submitted, setSubmitted] = useState(false);
   const [drawerRhyme, setDrawerRhyme] = useState<string | null>(null);
   const [editCell, setEditCell] = useState<{ li: number; pos: number } | null>(null);
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+    if (typeof window === "undefined") return true;
+    const stored = window.localStorage.getItem("theme");
+    if (stored === "dark") return true;
+    if (stored === "light") return false;
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  });
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (darkMode) root.classList.add("dark");
+    else root.classList.remove("dark");
+    window.localStorage.setItem("theme", darkMode ? "dark" : "light");
+  }, [darkMode]);
 
   const lines = useMemo(() => {
     const arr = raw.split(/\r?\n/).map(s => Array.from(s.replace(/\s+/g, "")));
@@ -56,19 +70,19 @@ export default function App() {
   const handleSignUp = () => {};
 
   const ScorePill = best && (
-    <div className="flex items-center justify-center">
-      <div className="inline-flex items-center gap-4 bg-ink-card/60 border border-ink-line rounded-full px-5 py-2 text-sm font-sans">
-        <span className="text-creamDim">平仄 <span className="text-gold">{Math.round(best.toneScore * 100)}%</span></span>
-        <span className="text-ink-line">·</span>
-        <span className="text-creamDim">押韻 <span className="text-gold">{Math.round(best.rhymeScore * 100)}%</span></span>
+    <div className="flex items-center justify-center px-2">
+      <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 bg-ink-card/60 border border-ink-line rounded-2xl sm:rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-sans max-w-full">
+        <span className="text-creamDim whitespace-nowrap">平仄 <span className="text-gold">{Math.round(best.toneScore * 100)}%</span></span>
+        <span className="text-ink-line hidden sm:inline">·</span>
+        <span className="text-creamDim whitespace-nowrap">押韻 <span className="text-gold">{Math.round(best.rhymeScore * 100)}%</span></span>
         {best.rhyme?.baseRhyme && (
           <>
-            <span className="text-ink-line">·</span>
-            <span className="text-creamDim">韻部：<span className="text-gold">{best.rhyme.baseRhyme}</span></span>
+            <span className="text-ink-line hidden sm:inline">·</span>
+            <span className="text-creamDim whitespace-nowrap">韻部：<span className="text-gold">{best.rhyme.baseRhyme}</span></span>
           </>
         )}
-        <span className="text-ink-line">·</span>
-        <span className="text-gold font-serif">{best.pattern.form}·{best.pattern.name}</span>
+        <span className="text-ink-line hidden sm:inline">·</span>
+        <span className="text-gold font-serif whitespace-nowrap">{best.pattern.form}·{best.pattern.name}</span>
       </div>
     </div>
   );
@@ -87,42 +101,79 @@ export default function App() {
 
   return (
     <div className="min-h-full bg-ink-bg text-cream flex flex-col">
-      <header className="border-b border-ink-line px-6 py-4 grid grid-cols-[auto_1fr_auto] items-center gap-6">
-        <div className="flex flex-col gap-2 text-sm font-sans">
-          <label className="flex items-center gap-2 text-creamDim">
-            <input type="checkbox" checked={allowZe} onChange={e => setAllowZe(e.target.checked)} />
-            允許仄韻
-          </label>
-          <div className="flex items-center gap-2">
-            <label className="text-creamDim">體裁</label>
-            <select
-              value={form}
-              onChange={e => setForm(e.target.value as any)}
-              className="bg-ink-card border border-ink-line rounded px-2 py-1 text-cream"
-            >
-              <option value="auto">自動偵測</option>
-              <option value="七絕">七絕</option>
-              <option value="七律">七律</option>
-              <option value="五絕">五絕</option>
-              <option value="五律">五律</option>
-            </select>
+      <header className="border-b border-ink-line px-4 sm:px-6 py-3 sm:py-4 overflow-hidden">
+        {/* Mobile: 2-row stack (title row, controls row). Desktop (sm+): 3-col grid. */}
+        <div className="sm:hidden flex flex-col gap-3">
+          <div className="text-center">
+            <div className="text-xl font-serif font-bold text-gold tracking-[0.2em] whitespace-nowrap">佩文・詩律析辨</div>
+            <div className="text-[10px] text-creamDim font-sans mt-0.5">Classical Chinese prosody analyzer · 平水韻 106 部</div>
+          </div>
+          <div className="flex items-center justify-between gap-2 text-xs font-sans">
+            <div className="flex items-center gap-3 min-w-0">
+              <label className="flex items-center gap-1 text-creamDim whitespace-nowrap">
+                <input type="checkbox" checked={allowZe} onChange={e => setAllowZe(e.target.checked)} />
+                允許仄韻
+              </label>
+              <select
+                value={form}
+                onChange={e => setForm(e.target.value as any)}
+                className="bg-ink-card border border-ink-line rounded px-2 py-1 text-cream"
+              >
+                <option value="auto">自動偵測</option>
+                <option value="七絕">七絕</option>
+                <option value="七律">七律</option>
+                <option value="五絕">五絕</option>
+                <option value="五律">五律</option>
+              </select>
+            </div>
+            <div className="flex items-center gap-2 whitespace-nowrap">
+              <button
+                onClick={() => setDarkMode(d => !d)}
+                aria-label="Toggle theme"
+                className="px-2 py-1 rounded border border-ink-line text-creamDim"
+              >{darkMode ? "☀️" : "🌙"}</button>
+              <button onClick={handleSignIn} className="px-3 py-1 rounded border border-ink-line text-creamDim">Sign in</button>
+              <button onClick={handleSignUp} className="px-3 py-1 text-gold">Sign up</button>
+            </div>
           </div>
         </div>
 
-        <div className="text-center">
-          <div className="text-4xl font-serif text-gold tracking-widest">佩文・詩律析辨</div>
-          <div className="text-xs text-creamDim font-sans mt-1">Classical Chinese prosody analyzer · 平水韻 106 部</div>
-        </div>
+        <div className="hidden sm:grid grid-cols-[auto_1fr_auto] items-center gap-6">
+          <div className="flex flex-col gap-2 text-sm font-sans">
+            <label className="flex items-center gap-2 text-creamDim">
+              <input type="checkbox" checked={allowZe} onChange={e => setAllowZe(e.target.checked)} />
+              允許仄韻
+            </label>
+            <div className="flex items-center gap-2">
+              <label className="text-creamDim">體裁</label>
+              <select
+                value={form}
+                onChange={e => setForm(e.target.value as any)}
+                className="bg-ink-card border border-ink-line rounded px-2 py-1 text-cream"
+              >
+                <option value="auto">自動偵測</option>
+                <option value="七絕">七絕</option>
+                <option value="七律">七律</option>
+                <option value="五絕">五絕</option>
+                <option value="五律">五律</option>
+              </select>
+            </div>
+          </div>
 
-        <div className="flex items-center gap-3 text-sm font-sans">
-          <button
-            onClick={handleSignIn}
-            className="px-4 py-1.5 rounded border border-ink-line text-creamDim hover:text-cream hover:border-cream"
-          >Sign in</button>
-          <button
-            onClick={handleSignUp}
-            className="px-4 py-1.5 text-gold hover:opacity-80"
-          >Sign up</button>
+          <div className="text-center">
+            <div className="text-4xl font-serif font-bold text-gold tracking-[0.2em] whitespace-nowrap">佩文・詩律析辨</div>
+            <div className="text-xs text-creamDim font-sans mt-1">Classical Chinese prosody analyzer · 平水韻 106 部</div>
+          </div>
+
+          <div className="flex items-center gap-3 text-sm font-sans">
+            <button
+              onClick={() => setDarkMode(d => !d)}
+              aria-label="Toggle theme"
+              className="px-3 py-1.5 rounded border border-ink-line text-creamDim hover:text-cream hover:border-cream"
+            >{darkMode ? "☀️" : "🌙"}</button>
+            <button onClick={handleSignIn} className="px-4 py-1.5 rounded border border-ink-line text-creamDim hover:text-cream hover:border-cream">Sign in</button>
+            <button onClick={handleSignUp} className="px-4 py-1.5 text-gold hover:opacity-80">Sign up</button>
+          </div>
         </div>
       </header>
 
@@ -135,7 +186,7 @@ export default function App() {
               value={raw}
               onChange={e => setRaw(e.target.value)}
               rows={8}
-              className="ink-card rounded p-6 font-serif text-2xl text-cream leading-[1.8] outline-none focus:border-gold text-center"
+              className="ink-card rounded p-6 font-serif font-light text-2xl text-cream leading-loose tracking-widest outline-none focus:border-gold text-center"
             />
             <div className="flex items-center justify-between gap-4 mt-2">
               {SampleButtons}
