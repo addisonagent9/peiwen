@@ -5,23 +5,66 @@ import { cedictLookup, cedictContext, loadCedict, isCedictLoaded } from "../anal
 import { moedictLookup, loadMoedict, isMoedictLoaded } from "../analysis/moedict";
 import { pinyin } from "pinyin-pro";
 
+type Tone = "平" | "仄";
+
 interface Props {
   open: boolean;
   initial: string;
   prevChar?: string;
   nextChar?: string;
+  expectedTone?: Tone | null;
   lineIdx: number;
   pos: number;
   onClose: () => void;
   onCommit: (ch: string) => void;
 }
 
-export function EditModal({ open, initial, prevChar = "", nextChar = "", lineIdx, pos, onClose, onCommit }: Props) {
+interface Suggestion {
+  char: string;
+  rhyme: string;
+  definition: string;
+}
+
+async function callAnthropic(prompt: string): Promise<string> {
+  const res = await fetch("/api/suggest", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ prompt })
+  });
+  if (!res.ok) throw new Error(`API ${res.status}`);
+  const data = await res.json();
+  return data.text ?? "";
+}
+
+function parseSuggestions(text: string): Suggestion[] {
+  const out: Suggestion[] = [];
+  for (const raw of text.split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line) continue;
+    // Expected: 字 - 平水韻韻部 - 簡短釋義
+    const parts = line.split(/\s*[-—–]\s*/);
+    if (parts.length < 2) continue;
+    const char = Array.from(parts[0].replace(/^[\d.、）)]+\s*/, ""))[0] ?? "";
+    if (!char) continue;
+    out.push({
+      char,
+      rhyme: (parts[1] ?? "").trim(),
+      definition: (parts.slice(2).join(" - ") || "").trim()
+    });
+  }
+  return out;
+}
+
+export function EditModal({ open, initial, prevChar = "", nextChar = "", expectedTone = null, lineIdx, pos, onClose, onCommit }: Props) {
   const [val, setVal] = useState(initial);
   const [dictsReady, setDictsReady] = useState(isCedictLoaded() && isMoedictLoaded());
   const [dictError, setDictError] = useState<string | null>(null);
+  const [view, setView] = useState<"edit" | "suggest">("edit");
+  const [suggestions, setSuggestions] = useState<Suggestion[] | null>(null);
+  const [suggestLoading, setSuggestLoading] = useState(false);
+  const [suggestError, setSuggestError] = useState<string | null>(null);
 
-  useEffect(() => { setVal(initial); }, [initial, open]);
+  useEffect(() => { setVal(initial); setView("edit"); setSuggestions(null); setSuggestError(null); }, [initial, open]);
 
   useEffect(() => {
     if (!open || dictsReady) return;
@@ -36,6 +79,26 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", lineIdx
   if (!open) return null;
 
   const info = val ? lookup(val) : null;
+  const actualTone: Tone | null = info?.tone ?? null;
+  const mismatch = !!(expectedTone && actualTone && actualTone !== expectedTone);
+
+  const loadSuggestions = () => {
+    if (!expectedTone || !actualTone || !val) return;
+    setSuggestLoading(true);
+    setSuggestError(null);
+    setSuggestions(null);
+    const prompt = `「${val}」讀${actualTone}聲，現需替換為${expectedTone}聲字。請列出5個意思與「${val}」相近、可用於古典詩詞的${expectedTone}聲字。每個字用一行，格式：字 - 平水韻韻部 - 簡短釋義。只列字，不要其他說明。`;
+    callAnthropic(prompt)
+      .then(text => setSuggestions(parseSuggestions(text)))
+      .catch(err => setSuggestError(String(err.message ?? err)))
+      .finally(() => setSuggestLoading(false));
+  };
+
+  const openSuggest = () => {
+    setView("suggest");
+    if (suggestions === null && !suggestLoading) loadSuggestions();
+  };
+
   const trad = val ? toTraditional(val) : "";
   const simp = val ? toSimplified(val) : "";
   const sameForm = trad === simp;
@@ -60,103 +123,153 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", lineIdx
     <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
       <div className="absolute inset-0 bg-black/70" />
       <div className="relative ink-card rounded-lg px-6 py-5 w-[min(28rem,90vw)] max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-        <div className="text-xs text-creamDim font-sans mb-1">第{lineIdx+1}句 · 第{pos+1}字</div>
-        <input
-          autoFocus
-          value={val}
-          onChange={e => {
-            const s = Array.from(e.target.value);
-            setVal(s[s.length - 1] ?? "");
-          }}
-          maxLength={2}
-          className="w-full bg-ink-bg border border-ink-line rounded px-3 py-2 text-4xl font-serif text-cream text-center outline-none focus:border-gold"
-        />
 
-        {val && (
-          <div className="mt-4 text-sm font-sans space-y-3">
-            <div className="flex gap-4">
-              <div>
-                <div className="text-creamDim text-xs">繁體 / 簡體</div>
-                <div className="mt-1 font-serif text-lg text-cream">
-                  {sameForm ? trad : `${trad} / ${simp}`}
-                </div>
-              </div>
-              <div>
-                <div className="text-creamDim text-xs">漢語拼音</div>
-                <div className="mt-1 font-serif text-lg text-gold">{py}</div>
-              </div>
-            </div>
-
-            {info && !info.unknown && (
-              <div>
-                <div className="text-creamDim text-xs">讀音</div>
-                <div className="mt-1 flex flex-wrap gap-2">
-                  {info.entries.map((e, i) => (
-                    <span key={i} className="px-2 py-1 rounded bg-ink-bg border border-ink-line">
-                      <span className={e.tone === "平" ? "text-teal" : e.tone === "入" ? "text-amber" : "text-rose"}>
-                        {e.tone}
-                      </span>
-                      <span className="text-cream ml-1">{e.rhyme}</span>
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-            {info?.unknown && (
-              <div className="text-rose">「{val}」不在平水韻表</div>
-            )}
-
-            <div>
-              <div className="text-creamDim text-xs">字義</div>
-              {!dictsReady ? (
-                <div className="mt-1 text-creamDim">
-                  {dictError ? <span className="text-rose text-xs">{dictError}</span> : "載入中…"}
-                </div>
-              ) : (
-                <>
-                  {basicZhDefs.length > 0 && (
-                    <div className="mt-1 text-cream leading-[1.6]">
-                      <span className="text-creamDim">釋義：</span>
-                      {basicZhDefs.join("；")}
-                    </div>
-                  )}
-                  {basicEnDefs.length > 0 && (
-                    <div className="mt-1 text-cream leading-[1.6]">
-                      <span className="text-creamDim">English: </span>
-                      {basicEnDefs.join("; ")}
-                    </div>
-                  )}
-                </>
+        {view === "edit" ? (
+          <>
+            <div className="flex items-start justify-between mb-1">
+              <div className="text-xs text-creamDim font-sans">第{lineIdx+1}句 · 第{pos+1}字</div>
+              {mismatch && (
+                <button
+                  onClick={openSuggest}
+                  aria-label="建議"
+                  title={`建議意思相近的${expectedTone}聲字`}
+                  className="text-lg leading-none hover:opacity-80"
+                >🙏</button>
               )}
             </div>
+            <input
+              autoFocus
+              value={val}
+              onChange={e => {
+                const s = Array.from(e.target.value);
+                setVal(s[s.length - 1] ?? "");
+              }}
+              maxLength={2}
+              className="w-full bg-ink-bg border border-ink-line rounded px-3 py-2 text-4xl font-serif text-cream text-center outline-none focus:border-gold"
+            />
 
-            {showCtx && (
-              <div>
-                <div className="text-creamDim text-xs">詞語義（「{ctxWord}」）</div>
-                {ctxZhDefs.length > 0 && (
-                  <div className="mt-1 text-cream leading-[1.6]">
-                    <span className="text-creamDim">釋義：</span>
-                    {ctxZhDefs.join("；")}
+            {val && (
+              <div className="mt-4 text-sm font-sans space-y-3">
+                <div className="flex gap-4">
+                  <div>
+                    <div className="text-creamDim text-xs">繁體 / 簡體</div>
+                    <div className="mt-1 font-serif text-lg text-cream">
+                      {sameForm ? trad : `${trad} / ${simp}`}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-creamDim text-xs">漢語拼音</div>
+                    <div className="mt-1 font-serif text-lg text-gold">{py}</div>
+                  </div>
+                </div>
+
+                {info && !info.unknown && (
+                  <div>
+                    <div className="text-creamDim text-xs">讀音</div>
+                    <div className="mt-1 flex flex-wrap gap-2">
+                      {info.entries.map((e, i) => (
+                        <span key={i} className="px-2 py-1 rounded bg-ink-bg border border-ink-line">
+                          <span className={e.tone === "平" ? "text-teal" : e.tone === "入" ? "text-amber" : "text-rose"}>
+                            {e.tone}
+                          </span>
+                          <span className="text-cream ml-1">{e.rhyme}</span>
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 )}
-                {ctxEnDefs.length > 0 && (
-                  <div className="mt-1 text-cream leading-[1.6]">
-                    <span className="text-creamDim">English: </span>
-                    {ctxEnDefs.join("; ")}
+                {info?.unknown && (
+                  <div className="text-rose">「{val}」不在平水韻表</div>
+                )}
+
+                <div>
+                  <div className="text-creamDim text-xs">字義</div>
+                  {!dictsReady ? (
+                    <div className="mt-1 text-creamDim">
+                      {dictError ? <span className="text-rose text-xs">{dictError}</span> : "載入中…"}
+                    </div>
+                  ) : (
+                    <>
+                      {basicZhDefs.length > 0 && (
+                        <div className="mt-1 text-cream leading-[1.6]">
+                          <span className="text-creamDim">釋義：</span>
+                          {basicZhDefs.join("；")}
+                        </div>
+                      )}
+                      {basicEnDefs.length > 0 && (
+                        <div className="mt-1 text-cream leading-[1.6]">
+                          <span className="text-creamDim">English: </span>
+                          {basicEnDefs.join("; ")}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                {showCtx && (
+                  <div>
+                    <div className="text-creamDim text-xs">詞語義（「{ctxWord}」）</div>
+                    {ctxZhDefs.length > 0 && (
+                      <div className="mt-1 text-cream leading-[1.6]">
+                        <span className="text-creamDim">釋義：</span>
+                        {ctxZhDefs.join("；")}
+                      </div>
+                    )}
+                    {ctxEnDefs.length > 0 && (
+                      <div className="mt-1 text-cream leading-[1.6]">
+                        <span className="text-creamDim">English: </span>
+                        {ctxEnDefs.join("; ")}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
             )}
-          </div>
-        )}
 
-        <div className="mt-5 flex justify-end gap-2">
-          <button onClick={onClose} className="px-3 py-1.5 text-sm text-creamDim hover:text-cream">取消</button>
-          <button
-            onClick={() => { onCommit(val); onClose(); }}
-            className="px-3 py-1.5 text-sm bg-gold text-ink-bg rounded hover:opacity-90"
-          >確定</button>
-        </div>
+            <div className="mt-5 flex justify-end gap-2">
+              <button onClick={onClose} className="px-3 py-1.5 text-sm text-creamDim hover:text-cream">取消</button>
+              <button
+                onClick={() => { onCommit(val); onClose(); }}
+                className="px-3 py-1.5 text-sm bg-gold text-ink-bg rounded hover:opacity-90"
+              >確定</button>
+            </div>
+          </>
+        ) : (
+          <>
+            <button
+              onClick={() => setView("edit")}
+              className="text-sm font-sans text-creamDim hover:text-gold"
+            >← 返回</button>
+            <div className="mt-3 text-base font-serif text-cream">
+              「{val}」應為<span className="text-gold">{expectedTone}</span>聲，以下是意思相近的{expectedTone}聲字：
+            </div>
+
+            <div className="mt-4">
+              {suggestLoading && <div className="text-creamDim text-sm">載入中…</div>}
+              {suggestError && <div className="text-rose text-sm">{suggestError}</div>}
+              {!suggestLoading && !suggestError && suggestions && suggestions.length === 0 && (
+                <div className="text-creamDim text-sm">暫無建議</div>
+              )}
+              {suggestions && suggestions.length > 0 && (
+                <div className="flex flex-col gap-2">
+                  {suggestions.map((s, i) => (
+                    <button
+                      key={i}
+                      onClick={() => { onCommit(s.char); onClose(); }}
+                      className="flex items-center gap-4 px-3 py-2 rounded border border-ink-line hover:border-gold text-left transition"
+                    >
+                      <span className="text-3xl font-serif text-cream">{s.char}</span>
+                      <span className="flex flex-col min-w-0">
+                        {s.rhyme && <span className="text-xs text-gold font-sans">{s.rhyme}</span>}
+                        {s.definition && <span className="text-sm text-creamDim font-sans truncate">{s.definition}</span>}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

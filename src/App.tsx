@@ -298,6 +298,7 @@ export default function App() {
         initial={editCell ? (lines[editCell.li]?.[editCell.pos] ?? "") : ""}
         prevChar={editCell ? (lines[editCell.li]?.[editCell.pos - 1] ?? "") : ""}
         nextChar={editCell ? (lines[editCell.li]?.[editCell.pos + 1] ?? "") : ""}
+        expectedTone={editCell && best ? (best.chars[editCell.li]?.[editCell.pos]?.expected ?? null) : null}
         lineIdx={editCell?.li ?? 0}
         pos={editCell?.pos ?? 0}
         onClose={() => setEditCell(null)}
