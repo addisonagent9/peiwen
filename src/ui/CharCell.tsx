@@ -50,19 +50,19 @@ export function CharCell({ c, isRhyme, onClickChar, onClickRhyme }: Props) {
       </div>
       <button
         onClick={onClickChar}
-        className={`text-3xl leading-[1.1] font-serif font-normal ${charColor} hover:opacity-70 transition`}
+        className={`text-3xl leading-[1.1] font-serif font-medium ${charColor} hover:opacity-70 transition`}
         title={c.ambiguous ? "多音字" : ""}
       >
         {c.char || "　"}
       </button>
       <div className="flex flex-row items-center justify-center gap-1.5 w-full">
-        <div className={`text-[10px] leading-none font-sans font-light tracking-wide ${toneColor} select-none`}>
+        <div className={`text-[10px] leading-none font-sans font-normal tracking-wide ${toneColor} select-none`}>
           {c.isRu ? "入" : c.tone ?? (c.unknown ? "？" : "")}
         </div>
         {rhymeLabel ? (
           <button
             onClick={() => onClickRhyme(rhymeLabel)}
-            className="text-[10px] leading-none font-sans font-light tracking-wide text-creamDim hover:text-gold transition"
+            className="text-[10px] leading-none font-sans font-normal tracking-wide text-creamDim hover:text-gold transition"
           >
             {rhymeLabel}
           </button>

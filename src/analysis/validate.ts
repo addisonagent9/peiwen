@@ -82,7 +82,10 @@ export function analyzeAgainst(lines: string[][], pattern: PoemPattern): Pattern
         const endsPing = tones[N - 1] === "平";
         if (endsPing && pingCount <= 1) {
           // but check 孤平自救: 5th-position 平 rescues — covered by 拗救 matcher below.
-          issues.push({ kind: "孤平", severity: "error", lineIdx: li, message: `第${li+1}句孤平（非韻字僅${pingCount}個平聲）` });
+          const lonePos = nonRhyme.findIndex(t => t === "平");
+          const where = lonePos >= 0 ? `第${lonePos + 1}字` : "";
+          issues.push({ kind: "孤平", severity: "error", lineIdx: li,
+            message: `第${li+1}句${where}孤平（非韻字僅${pingCount}個平聲）` });
         }
       }
     }

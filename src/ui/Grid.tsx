@@ -19,12 +19,16 @@ export function Grid({ chars, lineTemplates, cols, onPick, onRhymeClick }: Props
   const M = cols;                  // chars per line = grid rows (after the label row)
 
   return (
-    <div className="w-full px-2 sm:px-0 box-border overflow-hidden">
+    <div
+      className="w-full px-2 sm:px-0 box-border overflow-x-auto"
+      style={{ WebkitOverflowScrolling: "touch" }}
+    >
       <div
-        className="mx-auto grid gap-1 sm:gap-2 w-full max-w-[42rem] box-border"
+        className="grid gap-1 sm:gap-2 mx-auto box-border"
         style={{
-          gridTemplateColumns: `repeat(${L}, minmax(0, 1fr))`,
-          gridTemplateRows: `auto repeat(${M}, auto)`
+          gridTemplateColumns: `repeat(${L}, minmax(3rem, 5rem))`,
+          gridTemplateRows: `auto repeat(${M}, auto)`,
+          width: "max-content"
         }}
       >
         {chars.map((row, li) => {

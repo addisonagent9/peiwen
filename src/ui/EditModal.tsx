@@ -114,14 +114,18 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", lineIdx
                 </div>
               ) : (
                 <>
-                  <div className="mt-1 text-cream leading-[1.6]">
-                    <span className="text-creamDim">釋義：</span>
-                    {basicZhDefs.length ? basicZhDefs.join("；") : <span className="text-creamDim">無釋義</span>}
-                  </div>
-                  <div className="mt-1 text-cream leading-[1.6]">
-                    <span className="text-creamDim">English: </span>
-                    {basicEnDefs.length ? basicEnDefs.join("; ") : <span className="text-creamDim">無釋義</span>}
-                  </div>
+                  {basicZhDefs.length > 0 && (
+                    <div className="mt-1 text-cream leading-[1.6]">
+                      <span className="text-creamDim">釋義：</span>
+                      {basicZhDefs.join("；")}
+                    </div>
+                  )}
+                  {basicEnDefs.length > 0 && (
+                    <div className="mt-1 text-cream leading-[1.6]">
+                      <span className="text-creamDim">English: </span>
+                      {basicEnDefs.join("; ")}
+                    </div>
+                  )}
                 </>
               )}
             </div>
@@ -129,14 +133,18 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", lineIdx
             {showCtx && (
               <div>
                 <div className="text-creamDim text-xs">詞語義（「{ctxWord}」）</div>
-                <div className="mt-1 text-cream leading-[1.6]">
-                  <span className="text-creamDim">釋義：</span>
-                  {ctxZhDefs.length ? ctxZhDefs.join("；") : <span className="text-creamDim">無釋義</span>}
-                </div>
-                <div className="mt-1 text-cream leading-[1.6]">
-                  <span className="text-creamDim">English: </span>
-                  {ctxEnDefs.length ? ctxEnDefs.join("; ") : <span className="text-creamDim">無釋義</span>}
-                </div>
+                {ctxZhDefs.length > 0 && (
+                  <div className="mt-1 text-cream leading-[1.6]">
+                    <span className="text-creamDim">釋義：</span>
+                    {ctxZhDefs.join("；")}
+                  </div>
+                )}
+                {ctxEnDefs.length > 0 && (
+                  <div className="mt-1 text-cream leading-[1.6]">
+                    <span className="text-creamDim">English: </span>
+                    {ctxEnDefs.join("; ")}
+                  </div>
+                )}
               </div>
             )}
           </div>
