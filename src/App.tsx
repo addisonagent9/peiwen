@@ -5,6 +5,7 @@ import { EditModal } from "./ui/EditModal";
 import { detectBest, formFromDims } from "./analysis/detect";
 import { toTraditional, toSimplified } from "./analysis/s2t";
 import { T, localizeIssue, type Locale, type Translations } from "./i18n";
+import { patternsForForm } from "./patterns/patterns";
 import type { FormId } from "./patterns/types";
 
 const SAMPLES: Record<FormId, string> = {
@@ -140,10 +141,26 @@ export default function App() {
   }, [detect, lockedPattern]);
 
   const patternOptions = useMemo(() => {
-    if (!detect) return [];
-    const detectedForm = detect.best.pattern.form;
-    return detect.ranked.filter(r => r.pattern.form === detectedForm);
-  }, [detect]);
+    if (detect) {
+      const detectedForm = detect.best.pattern.form;
+      return detect.ranked.filter(r => r.pattern.form === detectedForm);
+    }
+    const fallbackForm: FormId = form !== "auto" ? form : "七絕";
+    const patterns = [
+      ...patternsForForm(fallbackForm, "平韻"),
+      ...(allowZe ? patternsForForm(fallbackForm, "仄韻") : [])
+    ];
+    return patterns.map(p => ({
+      pattern: p,
+      combined: 0,
+      toneScore: 0,
+      rhymeScore: 0,
+      chars: [] as any,
+      issues: [],
+      rhyme: null,
+      nianDuiOk: false
+    }));
+  }, [detect, form, allowZe]);
 
   const updateChar = (li: number, pos: number, ch: string) => {
     const next = raw.split(/\r?\n/);
@@ -226,6 +243,32 @@ export default function App() {
         )}
         <span className="text-ink-line hidden sm:inline">·</span>
         <span className="text-gold font-serif whitespace-nowrap hidden sm:inline">{best.pattern.form}·{best.pattern.name}</span>
+      </div>
+    </div>
+  );
+
+  const PatternSelector = patternOptions.length > 0 && (
+    <div className="flex flex-col gap-1.5">
+      <span className="text-creamDim text-xs font-sans">{t.format}</span>
+      <div className="grid grid-cols-2 gap-1.5 sm:flex sm:flex-wrap sm:gap-2 text-xs font-sans">
+        {patternOptions.map(r => {
+          const key = patternKey(r.pattern);
+          const active = best && patternKey(best.pattern) === key;
+          const hasScore = r.combined > 0;
+          return (
+            <button
+              key={key}
+              onClick={() => setLockedPattern(key)}
+              className={`px-2 py-1 rounded-full border whitespace-nowrap transition text-center ${
+                active
+                  ? "border-gold text-gold"
+                  : "border-ink-line text-creamDim hover:text-gold hover:border-gold"
+              }`}
+            >
+              {r.pattern.name}{hasScore ? <span className="opacity-70"> {Math.round(r.combined * 100)}%</span> : null}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -339,6 +382,7 @@ export default function App() {
                 >×</button>
               )}
             </div>
+            {PatternSelector}
             <div className="flex items-center justify-between gap-4 mt-2">
               {SampleButtons}
               <button
@@ -381,30 +425,7 @@ export default function App() {
             </div>
           )}
 
-          {patternOptions.length > 0 && (
-            <div className="flex flex-col gap-1.5">
-              <span className="text-creamDim text-xs font-sans">{t.format}</span>
-              <div className="grid grid-cols-2 gap-1.5 sm:flex sm:flex-wrap sm:gap-2 text-xs font-sans">
-                {patternOptions.map(r => {
-                  const key = patternKey(r.pattern);
-                  const active = best && patternKey(best.pattern) === key;
-                  return (
-                    <button
-                      key={key}
-                      onClick={() => setLockedPattern(key)}
-                      className={`px-2 py-1 rounded-full border whitespace-nowrap transition text-center ${
-                        active
-                          ? "border-gold text-gold"
-                          : "border-ink-line text-creamDim hover:text-gold hover:border-gold"
-                      }`}
-                    >
-                      {r.pattern.name} <span className="opacity-70">{Math.round(r.combined * 100)}%</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+          {PatternSelector}
 
           {best && (
             <Grid
