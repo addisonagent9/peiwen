@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Grid } from "./ui/Grid";
 import { RhymeDrawer } from "./ui/RhymeDrawer";
 import { EditModal } from "./ui/EditModal";
@@ -17,6 +17,20 @@ const SAMPLES: Record<FormId, string> = {
     "國破山河在\n城春草木深\n感時花濺淚\n恨別鳥驚心\n" +
     "烽火連三月\n家書抵萬金\n白頭搔更短\n渾欲不勝簪"
 };
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  avatar: string;
+  is_premium: number;
+}
+
+interface SavedPoem {
+  id: number;
+  text: string;
+  saved_at: string;
+}
 
 function convertText(text: string, to: Locale): string {
   return Array.from(text).map(ch => {
@@ -46,6 +60,44 @@ export default function App() {
   });
   const t: Translations = T[locale];
 
+  // --- Auth state ---
+  const [user, setUser] = useState<User | null>(null);
+  const [savedMsg, setSavedMsg] = useState(false);
+  const [poemsOpen, setPoemsOpen] = useState(false);
+  const [poems, setPoems] = useState<SavedPoem[]>([]);
+
+  useEffect(() => {
+    fetch("/api/auth/me", { credentials: "same-origin" })
+      .then(r => r.json())
+      .then(d => { if (d.user) setUser(d.user); })
+      .catch(() => {});
+  }, []);
+
+  const loadPoems = useCallback(() => {
+    fetch("/api/poems", { credentials: "same-origin" })
+      .then(r => r.json())
+      .then(d => setPoems(d.poems ?? []))
+      .catch(() => {});
+  }, []);
+
+  const savePoem = () => {
+    if (!raw.trim()) return;
+    fetch("/api/poems", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      credentials: "same-origin",
+      body: JSON.stringify({ text: raw })
+    }).then(r => { if (r.ok) { setSavedMsg(true); setTimeout(() => setSavedMsg(false), 2000); } });
+  };
+
+  const deletePoem = (id: number) => {
+    fetch(`/api/poems/${id}`, { method: "DELETE", credentials: "same-origin" })
+      .then(r => { if (r.ok) setPoems(prev => prev.filter(p => p.id !== id)); });
+  };
+
+  const openPoems = () => { setPoemsOpen(true); loadPoems(); };
+
+  // --- Theme ---
   useEffect(() => {
     const root = document.documentElement;
     if (darkMode) root.classList.add("dark");
@@ -60,6 +112,7 @@ export default function App() {
     setRaw(prev => convertText(prev, next));
   };
 
+  // --- Analysis ---
   const lines = useMemo(() => {
     const arr = raw.split(/\r?\n/).map(s => Array.from(s.replace(/\s+/g, "")));
     while (arr.length && arr[arr.length - 1].length === 0) arr.pop();
@@ -110,10 +163,7 @@ export default function App() {
     return s;
   }, [best]);
 
-  // TODO: Google OAuth
-  const handleSignIn = () => {};
-  const handleSignUp = () => {};
-
+  // --- Header components ---
   const LocaleToggle = (
     <div className="flex items-center rounded border border-ink-line overflow-hidden text-xs font-sans">
       <button
@@ -126,6 +176,41 @@ export default function App() {
       >簡</button>
     </div>
   );
+
+  const UserAvatar = user && (
+    <div className="flex items-center gap-2">
+      {user.avatar ? (
+        <img src={user.avatar} alt="" className="w-6 h-6 rounded-full" referrerPolicy="no-referrer" />
+      ) : (
+        <div className="w-6 h-6 rounded-full bg-gold text-ink-bg text-xs flex items-center justify-center font-sans font-medium">
+          {(user.name || user.email)[0]}
+        </div>
+      )}
+      <span className="text-cream text-xs font-sans hidden sm:inline">{user.name}</span>
+    </div>
+  );
+
+  const AuthButtons = ({ mobile }: { mobile?: boolean }) => {
+    const sz = mobile ? "text-xs" : "text-sm";
+    const px = mobile ? "px-3 py-1" : "px-4 py-1.5";
+    if (user) {
+      return (
+        <div className={`flex items-center gap-2 ${sz} font-sans`}>
+          {UserAvatar}
+          <button onClick={openPoems} className={`${px} text-gold hover:opacity-80`}>{t.myPoems}</button>
+          <a href="/api/auth/logout" className={`${px} text-creamDim hover:text-cream`}>{t.signOut}</a>
+        </div>
+      );
+    }
+    return (
+      <div className={`flex items-center gap-2 ${sz} font-sans whitespace-nowrap`}>
+        <a href="/api/auth/google"
+          className={`${px} rounded border border-ink-line text-creamDim hover:text-cream hover:border-cream`}
+        >{t.signIn}</a>
+        <a href="/api/auth/google" className={`${px} text-gold hover:opacity-80`}>{t.signUp}</a>
+      </div>
+    );
+  };
 
   const ScorePill = best && (
     <div className="flex items-center justify-center px-2">
@@ -190,8 +275,7 @@ export default function App() {
                 aria-label="Toggle theme"
                 className="px-2 py-1 rounded border border-ink-line text-creamDim"
               >{darkMode ? "☀️" : "🌙"}</button>
-              <button onClick={handleSignIn} className="px-3 py-1 rounded border border-ink-line text-creamDim">{t.signIn}</button>
-              <button onClick={handleSignUp} className="px-3 py-1 text-gold">{t.signUp}</button>
+              <AuthButtons mobile />
             </div>
           </div>
         </div>
@@ -230,8 +314,7 @@ export default function App() {
               aria-label="Toggle theme"
               className="px-3 py-1.5 rounded border border-ink-line text-creamDim hover:text-cream hover:border-cream"
             >{darkMode ? "☀️" : "🌙"}</button>
-            <button onClick={handleSignIn} className="px-4 py-1.5 rounded border border-ink-line text-creamDim hover:text-cream hover:border-cream">{t.signIn}</button>
-            <button onClick={handleSignUp} className="px-4 py-1.5 text-gold hover:opacity-80">{t.signUp}</button>
+            <AuthButtons />
           </div>
         </div>
       </header>
@@ -275,6 +358,12 @@ export default function App() {
                 onClick={() => { setSubmitted(false); setLockedPattern(null); }}
                 className="px-3 py-1.5 text-sm font-sans text-creamDim hover:text-gold whitespace-nowrap"
               >{t.back}</button>
+              {user && (
+                <button
+                  onClick={savePoem}
+                  className="px-3 py-1.5 text-sm font-sans text-gold hover:opacity-80 whitespace-nowrap"
+                >{savedMsg ? t.saved : t.save}</button>
+              )}
               {patternOptions.length > 0 && (
                 <div className="flex items-center gap-2 flex-wrap text-xs font-sans">
                   <span className="text-creamDim">{t.format}</span>
@@ -336,6 +425,48 @@ export default function App() {
         </main>
       )}
 
+      {/* Poems slide-in panel */}
+      {poemsOpen && (
+        <div className="fixed inset-0 z-40" onClick={() => setPoemsOpen(false)}>
+          <div className="absolute inset-0 bg-black/60" />
+          <div
+            className="absolute top-0 right-0 h-full w-[min(24rem,90vw)] bg-ink-bg border-l border-ink-line overflow-y-auto"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-4 py-3 border-b border-ink-line">
+              <div className="text-lg font-serif text-gold">{t.myPoems}</div>
+              <button onClick={() => setPoemsOpen(false)} className="text-creamDim hover:text-cream text-xl leading-none">×</button>
+            </div>
+            {poems.length === 0 ? (
+              <div className="p-4 text-creamDim text-sm font-sans">{t.noSavedPoems}</div>
+            ) : (
+              <div className="flex flex-col">
+                {poems.map(p => {
+                  const firstLine = p.text.split(/\r?\n/)[0] ?? "";
+                  const date = p.saved_at?.replace("T", " ").slice(0, 16) ?? "";
+                  return (
+                    <div key={p.id} className="flex items-center justify-between gap-2 px-4 py-3 border-b border-ink-line hover:bg-ink-card/60 transition">
+                      <button
+                        className="flex-1 text-left min-w-0"
+                        onClick={() => { setRaw(p.text); setSubmitted(false); setLockedPattern(null); setPoemsOpen(false); }}
+                      >
+                        <div className="text-cream font-serif truncate">{firstLine}</div>
+                        <div className="text-[10px] text-creamDim font-sans mt-0.5">{date}</div>
+                      </button>
+                      <button
+                        onClick={() => deletePoem(p.id)}
+                        className="text-creamDim hover:text-rose text-sm flex-shrink-0"
+                        title="Delete"
+                      >🗑</button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       <RhymeDrawer rhyme={drawerRhyme} onClose={() => setDrawerRhyme(null)} />
       <EditModal
         open={!!editCell}
@@ -348,8 +479,8 @@ export default function App() {
               ?? best.chars[1]?.[best.chars[1].length - 1]?.entries[0]?.rhyme
               ?? null)
           : null}
-        isLoggedIn={false}
-        isAdmin={true}
+        isLoggedIn={!!user}
+        isAdmin={user?.is_premium === 1}
         lineIdx={editCell?.li ?? 0}
         pos={editCell?.pos ?? 0}
         t={t}

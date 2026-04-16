@@ -41,6 +41,10 @@ export const T = {
     ancientNote: "古 = 古字，現代字型或不支援",
     ancientChar: "此字為古字，釋義未收錄",
     aiMeaning: "古字・AI釋義",
+    save: "儲存",
+    saved: "已儲存 ✓",
+    signOut: "登出",
+    noSavedPoems: "尚無儲存詩句",
   },
   簡: {
     ...common,
@@ -71,6 +75,10 @@ export const T = {
     ancientNote: "古 = 古字，现代字型或不支援",
     ancientChar: "此字为古字，释义未收录",
     aiMeaning: "古字・AI释义",
+    save: "储存",
+    saved: "已储存 ✓",
+    signOut: "登出",
+    noSavedPoems: "尚无储存诗句",
   }
 } as const;
 

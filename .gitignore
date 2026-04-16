@@ -3,3 +3,5 @@ src/data/moedict.json
 src/data/cedict_ts.u8
 server/.env
 server/node_modules/
+server/data.db
+server/sessions.db
