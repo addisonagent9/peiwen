@@ -6,8 +6,7 @@ import { detectBest, formFromDims } from "./analysis/detect";
 import { toTraditional, toSimplified } from "./analysis/s2t";
 import { T, localizeIssue, type Locale, type Translations } from "./i18n";
 import { patternsForForm } from "./patterns/patterns";
-import type { FormId, PoemPattern } from "./patterns/types";
-import { PatternPreview } from "./ui/PatternPreview";
+import type { FormId } from "./patterns/types";
 
 const SAMPLES: Record<FormId, string> = {
   "七絕": "朝辭白帝彩雲間\n千里江陵一日還\n兩岸猿聲啼不住\n輕舟已過萬重山",
@@ -49,7 +48,6 @@ export default function App() {
   const [drawerRhyme, setDrawerRhyme] = useState<string | null>(null);
   const [editCell, setEditCell] = useState<{ li: number; pos: number } | null>(null);
   const [lockedPattern, setLockedPattern] = useState<string | null>(null);
-  const [previewPattern, setPreviewPattern] = useState<PoemPattern | null>(null);
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     if (typeof window === "undefined") return true;
     const stored = window.localStorage.getItem("theme");
@@ -257,7 +255,7 @@ export default function App() {
     </div>
   );
 
-  const renderPatternSelector = (withPreview: boolean) => patternOptions.length > 0 && (
+  const PatternSelector = patternOptions.length > 0 && (
     <div className="flex flex-col gap-1.5">
       <span className="text-creamDim text-xs font-sans">{t.format}</span>
       <div className="grid grid-cols-2 gap-1.5 sm:flex sm:flex-wrap sm:gap-2 text-xs font-sans">
@@ -268,14 +266,7 @@ export default function App() {
           return (
             <button
               key={key}
-              onClick={() => {
-                setLockedPattern(key);
-                if (withPreview) {
-                  setPreviewPattern(prev =>
-                    prev && patternKey(prev) === key ? null : r.pattern
-                  );
-                }
-              }}
+              onClick={() => setLockedPattern(key)}
               className={`px-2 py-1 rounded-full border whitespace-nowrap transition text-center ${
                 active
                   ? "border-gold text-gold"
@@ -399,7 +390,7 @@ export default function App() {
                 >×</button>
               )}
             </div>
-            {renderPatternSelector(false)}
+            {PatternSelector}
             <div className="flex items-center justify-between gap-4 mt-2">
               {SampleButtons}
               <button
@@ -442,8 +433,7 @@ export default function App() {
             </div>
           )}
 
-          {renderPatternSelector(true)}
-          {previewPattern && <PatternPreview pattern={previewPattern} t={t} />}
+          {PatternSelector}
 
           {best && (
             <Grid
