@@ -37,6 +37,7 @@ export const T = {
     notInTable: (ch: string) => `「${ch}」不在平水韻表`,
     nextPage: "下一頁 →",
     noMore: "已無更多建議",
+    allCharsLabel: (r: string) => `「${r}」韻部所有平聲字：`,
   },
   簡: {
     ...common,
@@ -63,6 +64,7 @@ export const T = {
     notInTable: (ch: string) => `「${ch}」不在平水韵表`,
     nextPage: "下一页 →",
     noMore: "已无更多建议",
+    allCharsLabel: (r: string) => `「${r}」韵部所有平声字：`,
   }
 } as const;
 

@@ -23,6 +23,12 @@ for (const grp of NEIGHBOR_GROUPS) {
   for (const r of grp) NEIGHBOR_INDEX.set(r, s);
 }
 
+export function charsInRhyme(rhyme: string): string[] {
+  const bucket = PINGSHUI_RHYME[rhyme];
+  if (!bucket || bucket.tone !== "平") return [];
+  return bucket.chars;
+}
+
 export function areNeighbors(a: string, b: string): boolean {
   if (a === b) return true;
   const g = NEIGHBOR_INDEX.get(a);

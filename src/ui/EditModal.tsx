@@ -4,7 +4,7 @@ import { toTraditional, toSimplified } from "../analysis/s2t";
 import { cedictLookup, cedictContext, loadCedict, isCedictLoaded } from "../analysis/cedict";
 import { moedictLookup, loadMoedict, isMoedictLoaded } from "../analysis/moedict";
 import { pinyin } from "pinyin-pro";
-import { rhymesOf } from "../analysis/rhyme";
+import { rhymesOf, charsInRhyme } from "../analysis/rhyme";
 import type { Translations } from "../i18n";
 
 type Tone = "平" | "仄";
@@ -108,9 +108,15 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
     callAnthropic(prompt)
       .then(text => {
         const raw = parseSuggestions(text);
+        const dedupSeen = new Set<string>();
+        const deduped = raw.filter(s => {
+          if (dedupSeen.has(s.char)) return false;
+          dedupSeen.add(s.char);
+          return true;
+        });
         const verified = requiredRhyme
-          ? raw.filter(s => rhymesOf(s.char).includes(requiredRhyme))
-          : raw;
+          ? deduped.filter(s => rhymesOf(s.char).includes(requiredRhyme))
+          : deduped;
         const fresh = verified.map(s => {
           const actual = rhymesOf(s.char);
           return { ...s, rhyme: actual.length ? actual.join("/") : s.rhyme };
@@ -313,7 +319,22 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
                 >{t.nextPage}</button>
               )}
               {exhausted && !suggestLoading && (
-                <div className="text-creamDim text-sm text-center py-2">{t.noMore}</div>
+                requiredRhyme ? (
+                  <div className="mt-2">
+                    <div className="text-creamDim text-xs mb-2">{t.allCharsLabel(requiredRhyme)}</div>
+                    <div className="flex flex-wrap gap-1">
+                      {charsInRhyme(requiredRhyme).map((ch, i) => (
+                        <button
+                          key={i}
+                          onClick={() => { onCommit(ch); onClose(); }}
+                          className="w-9 h-9 flex items-center justify-center rounded border border-ink-line text-lg font-serif text-cream hover:border-gold hover:text-gold transition"
+                        >{ch}</button>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-creamDim text-sm text-center py-2">{t.noMore}</div>
+                )
               )}
             </div>
           </>
