@@ -262,24 +262,36 @@ export default function App() {
     </div>
   );
 
-  const AuthButtons = ({ mobile }: { mobile?: boolean }) => {
-    const sz = mobile ? "text-xs" : "text-sm";
+  const HeaderLeft = ({ mobile }: { mobile?: boolean }) => {
     const px = mobile ? "px-3 py-1" : "px-4 py-1.5";
-    if (user) {
-      return (
-        <div className={`flex items-center gap-2 ${sz} font-sans`}>
-          {UserAvatar}
-          <button onClick={openPoems} className={`${px} text-gold hover:opacity-80`}>{t.myPoems}</button>
-          <a href="/api/auth/logout" className={`${px} text-creamDim hover:text-cream`}>{t.signOut}</a>
-        </div>
-      );
-    }
+    const sz = mobile ? "text-xs" : "text-sm";
+    if (!user) return <div />;
+    return (
+      <div className={`flex items-center gap-2 ${sz} font-sans`}>
+        {UserAvatar}
+        <button onClick={openPoems} className={`${px} text-gold hover:opacity-80`}>{t.myPoems}</button>
+      </div>
+    );
+  };
+
+  const HeaderRight = ({ mobile }: { mobile?: boolean }) => {
+    const px = mobile ? "px-3 py-1" : "px-4 py-1.5";
+    const sz = mobile ? "text-xs" : "text-sm";
     return (
       <div className={`flex items-center gap-2 ${sz} font-sans whitespace-nowrap`}>
-        <a href="/api/auth/google"
+        {LocaleToggle}
+        <button
+          onClick={() => setDarkMode(d => !d)}
+          aria-label="Toggle theme"
           className={`${px} rounded border border-ink-line text-creamDim hover:text-cream hover:border-cream`}
-        >{t.signIn}</a>
-        <a href="/api/auth/google" className={`${px} text-gold hover:opacity-80`}>{t.signUp}</a>
+        >{darkMode ? "☀️" : "🌙"}</button>
+        {user ? (
+          <a href="/api/auth/logout" className={`${px} text-creamDim hover:text-cream`}>{t.signOut}</a>
+        ) : (
+          <a href="/api/auth/google"
+            className={`${px} rounded border border-ink-line text-creamDim hover:text-cream hover:border-cream`}
+          >{t.signIn}</a>
+        )}
       </div>
     );
   };
@@ -372,51 +384,27 @@ export default function App() {
   return (
     <div className="min-h-screen bg-ink-bg text-cream flex flex-col">
       <header className="sticky top-0 z-10 bg-ink-bg border-b border-ink-line px-4 sm:px-6 py-3 sm:py-4 overflow-hidden">
-        <div className="sm:hidden flex flex-col gap-3">
+        <div className="sm:hidden flex flex-col gap-2">
           <div className="text-center">
             <div className="text-xl font-serif font-bold text-gold tracking-[0.2em] whitespace-nowrap">佩文・詩律析辨</div>
             <div className="text-[10px] text-creamDim font-sans mt-0.5">Classical Chinese prosody analyzer · 平水韻 106 部</div>
           </div>
-          <div className="flex items-center justify-between gap-2 text-xs font-sans">
-            <div className="flex items-center gap-3 min-w-0">
-              <label className="flex items-center gap-1 text-creamDim whitespace-nowrap">
-                <input type="checkbox" checked={allowZe} onChange={e => setAllowZe(e.target.checked)} />
-                {t.allowZe}
-              </label>
-            </div>
-            <div className="flex items-center gap-2 whitespace-nowrap">
-              {LocaleToggle}
-              <button
-                onClick={() => setDarkMode(d => !d)}
-                aria-label="Toggle theme"
-                className="px-2 py-1 rounded border border-ink-line text-creamDim"
-              >{darkMode ? "☀️" : "🌙"}</button>
-              <AuthButtons mobile />
-            </div>
+          <div className="flex items-center justify-between gap-2">
+            <HeaderLeft mobile />
+            <HeaderRight mobile />
           </div>
         </div>
 
-        <div className="hidden sm:grid grid-cols-[auto_1fr_auto] items-center gap-6">
-          <div className="flex flex-col gap-2 text-sm font-sans">
-            <label className="flex items-center gap-2 text-creamDim">
-              <input type="checkbox" checked={allowZe} onChange={e => setAllowZe(e.target.checked)} />
-              {t.allowZe}
-            </label>
-          </div>
+        <div className="hidden sm:grid grid-cols-[1fr_auto_1fr] items-center gap-6">
+          <HeaderLeft />
 
           <div className="text-center">
             <div className="text-4xl font-serif font-bold text-gold tracking-[0.2em] whitespace-nowrap">佩文・詩律析辨</div>
             <div className="text-xs text-creamDim font-sans mt-1">Classical Chinese prosody analyzer · 平水韻 106 部</div>
           </div>
 
-          <div className="flex items-center gap-3 text-sm font-sans">
-            {LocaleToggle}
-            <button
-              onClick={() => setDarkMode(d => !d)}
-              aria-label="Toggle theme"
-              className="px-3 py-1.5 rounded border border-ink-line text-creamDim hover:text-cream hover:border-cream"
-            >{darkMode ? "☀️" : "🌙"}</button>
-            <AuthButtons />
+          <div className="flex justify-end">
+            <HeaderRight />
           </div>
         </div>
       </header>
@@ -441,10 +429,21 @@ export default function App() {
                 >×</button>
               )}
             </div>
-            {FormSelector}
-            {PatternSelector}
-            <div className="flex items-center justify-between gap-4 mt-2">
-              {SampleButtons}
+            <div className="flex items-center gap-2 flex-wrap text-xs sm:text-sm font-sans mt-2">
+              <span className="text-creamDim whitespace-nowrap">{t.examples}</span>
+              {validForms.map(f => (
+                <button
+                  key={f}
+                  onClick={() => { setRaw(locale === "簡" ? convertText(SAMPLES[f], "簡") : SAMPLES[f]); setForm(f); }}
+                  className="px-3 py-1 rounded-full border border-ink-line text-creamDim hover:text-gold hover:border-gold whitespace-nowrap transition"
+                >{f}</button>
+              ))}
+              <label className="flex items-center gap-1 text-creamDim whitespace-nowrap ml-2">
+                <input type="checkbox" checked={allowZe} onChange={e => setAllowZe(e.target.checked)} />
+                {t.allowZe}
+              </label>
+            </div>
+            <div className="flex justify-end mt-2">
               <button
                 onClick={() => setSubmitted(true)}
                 className="px-6 py-2 bg-gold text-ink-bg rounded font-sans font-semibold hover:opacity-90"
