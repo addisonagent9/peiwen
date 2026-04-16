@@ -284,6 +284,33 @@ export default function App() {
     </div>
   );
 
+  const FORMS: FormId[] = ["五絕", "五律", "七絕", "七律"];
+  const activeForm: FormId = detect
+    ? detect.best.pattern.form as FormId
+    : form !== "auto" ? form : "七絕";
+
+  const FormSelector = (
+    <div className="flex flex-col gap-1.5">
+      <span className="text-creamDim text-xs font-sans">{t.poemForm}</span>
+      <div className="flex gap-1.5 sm:gap-2 text-xs sm:text-sm font-sans">
+        {FORMS.map(f => {
+          const active = form === f || (form === "auto" && activeForm === f);
+          return (
+            <button
+              key={f}
+              onClick={() => { setForm(f); setLockedPattern(null); }}
+              className={`px-3 py-1 rounded-full border whitespace-nowrap transition ${
+                active
+                  ? "border-gold text-gold"
+                  : "border-ink-line text-creamDim hover:text-gold hover:border-gold"
+              }`}
+            >{f}</button>
+          );
+        })}
+      </div>
+    </div>
+  );
+
   const PatternSelector = patternOptions.length > 0 && (
     <div className="flex flex-col gap-1.5">
       <span className="text-creamDim text-xs font-sans">{t.format}</span>
@@ -338,17 +365,6 @@ export default function App() {
                 <input type="checkbox" checked={allowZe} onChange={e => setAllowZe(e.target.checked)} />
                 {t.allowZe}
               </label>
-              <select
-                value={form}
-                onChange={e => setForm(e.target.value as any)}
-                className="bg-ink-card border border-ink-line rounded px-2 py-1 text-cream"
-              >
-                <option value="auto">{t.autoDetect}</option>
-                <option value="七絕">七絕</option>
-                <option value="七律">七律</option>
-                <option value="五絕">五絕</option>
-                <option value="五律">五律</option>
-              </select>
             </div>
             <div className="flex items-center gap-2 whitespace-nowrap">
               {LocaleToggle}
@@ -368,20 +384,6 @@ export default function App() {
               <input type="checkbox" checked={allowZe} onChange={e => setAllowZe(e.target.checked)} />
               {t.allowZe}
             </label>
-            <div className="flex items-center gap-2">
-              <label className="text-creamDim">{t.form}</label>
-              <select
-                value={form}
-                onChange={e => setForm(e.target.value as any)}
-                className="bg-ink-card border border-ink-line rounded px-2 py-1 text-cream"
-              >
-                <option value="auto">{t.autoDetect}</option>
-                <option value="七絕">七絕</option>
-                <option value="七律">七律</option>
-                <option value="五絕">五絕</option>
-                <option value="五律">五律</option>
-              </select>
-            </div>
           </div>
 
           <div className="text-center">
@@ -421,6 +423,7 @@ export default function App() {
                 >×</button>
               )}
             </div>
+            {FormSelector}
             {PatternSelector}
             <div className="flex items-center justify-between gap-4 mt-2">
               {SampleButtons}
@@ -464,6 +467,7 @@ export default function App() {
             </div>
           )}
 
+          {FormSelector}
           {PatternSelector}
 
           {best && (
