@@ -6,7 +6,8 @@ import { detectBest, formFromDims } from "./analysis/detect";
 import { toTraditional, toSimplified } from "./analysis/s2t";
 import { T, localizeIssue, type Locale, type Translations } from "./i18n";
 import { patternsForForm } from "./patterns/patterns";
-import type { FormId } from "./patterns/types";
+import type { FormId, PoemPattern } from "./patterns/types";
+import { PatternPreview } from "./ui/PatternPreview";
 
 const SAMPLES: Record<FormId, string> = {
   "七絕": "朝辭白帝彩雲間\n千里江陵一日還\n兩岸猿聲啼不住\n輕舟已過萬重山",
@@ -48,6 +49,7 @@ export default function App() {
   const [drawerRhyme, setDrawerRhyme] = useState<string | null>(null);
   const [editCell, setEditCell] = useState<{ li: number; pos: number } | null>(null);
   const [lockedPattern, setLockedPattern] = useState<string | null>(null);
+  const [previewPattern, setPreviewPattern] = useState<PoemPattern | null>(null);
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     if (typeof window === "undefined") return true;
     const stored = window.localStorage.getItem("theme");
@@ -266,7 +268,12 @@ export default function App() {
           return (
             <button
               key={key}
-              onClick={() => setLockedPattern(key)}
+              onClick={() => {
+                setLockedPattern(key);
+                setPreviewPattern(prev =>
+                  prev && patternKey(prev) === key ? null : r.pattern
+                );
+              }}
               className={`px-2 py-1 rounded-full border whitespace-nowrap transition text-center ${
                 active
                   ? "border-gold text-gold"
@@ -391,6 +398,7 @@ export default function App() {
               )}
             </div>
             {PatternSelector}
+            {previewPattern && <PatternPreview pattern={previewPattern} t={t} />}
             <div className="flex items-center justify-between gap-4 mt-2">
               {SampleButtons}
               <button
