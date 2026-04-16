@@ -158,7 +158,7 @@ export default function App() {
   );
 
   return (
-    <div className="min-h-screen bg-ink-bg text-cream flex flex-col">
+    <div className="h-screen bg-ink-bg text-cream flex flex-col overflow-hidden">
       <header className="border-b border-ink-line px-4 sm:px-6 py-3 sm:py-4 overflow-hidden">
         <div className="sm:hidden flex flex-col gap-3">
           <div className="text-center">
@@ -237,7 +237,8 @@ export default function App() {
       </header>
 
       {!submitted ? (
-        <main className="flex-1 flex flex-col items-center justify-center gap-6 px-6 py-10">
+        <main className="flex-1 flex flex-col items-center justify-center gap-6 px-6 py-10 overflow-y-auto"
+          style={{ overscrollBehavior: "none", WebkitOverflowScrolling: "touch" }}>
           {ScorePill}
           <div className="w-full max-w-3xl flex flex-col gap-3">
             <div className="text-xs text-creamDim font-sans text-center">{t.inputPlaceholder}</div>
@@ -266,7 +267,8 @@ export default function App() {
           </div>
         </main>
       ) : (
-        <main className="flex-1 flex flex-col gap-4 px-6 py-6 overflow-y-auto" style={{ overscrollBehaviorY: "none" }}>
+        <main className="flex-1 flex flex-col gap-4 px-6 py-6 overflow-y-auto"
+          style={{ overscrollBehavior: "none", WebkitOverflowScrolling: "touch" }}>
           {ScorePill}
 
           <div className="flex items-center justify-between gap-3 flex-wrap">

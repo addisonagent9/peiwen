@@ -32,14 +32,13 @@
   --c-amber-soft: #6b4f23;
 }
 
-html {
-  -webkit-overflow-scrolling: touch;
-  overflow-y: scroll;
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
 }
 body {
-  overscroll-behavior-y: none;
+  overscroll-behavior: none;
 }
-html, body, #root { height: 100%; }
 body {
   background: var(--c-bg);
   color: var(--c-text);
