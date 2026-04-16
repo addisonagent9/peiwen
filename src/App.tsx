@@ -158,8 +158,8 @@ export default function App() {
   );
 
   return (
-    <div className="h-screen bg-ink-bg text-cream flex flex-col overflow-hidden">
-      <header className="border-b border-ink-line px-4 sm:px-6 py-3 sm:py-4 overflow-hidden">
+    <div className="min-h-screen bg-ink-bg text-cream flex flex-col">
+      <header className="sticky top-0 z-10 bg-ink-bg border-b border-ink-line px-4 sm:px-6 py-3 sm:py-4 overflow-hidden">
         <div className="sm:hidden flex flex-col gap-3">
           <div className="text-center">
             <div className="text-xl font-serif font-bold text-gold tracking-[0.2em] whitespace-nowrap">佩文・詩律析辨</div>
@@ -237,8 +237,7 @@ export default function App() {
       </header>
 
       {!submitted ? (
-        <main className="flex-1 flex flex-col items-center justify-center gap-6 px-6 py-10 overflow-y-auto"
-          style={{ overscrollBehavior: "none", WebkitOverflowScrolling: "touch" }}>
+        <main className="flex-1 flex flex-col items-center justify-center gap-6 px-6 py-10">
           {ScorePill}
           <div className="w-full max-w-3xl flex flex-col gap-3">
             <div className="text-xs text-creamDim font-sans text-center">{t.inputPlaceholder}</div>
@@ -267,8 +266,7 @@ export default function App() {
           </div>
         </main>
       ) : (
-        <main className="flex-1 flex flex-col gap-4 px-6 py-6 overflow-y-auto"
-          style={{ overscrollBehavior: "none", WebkitOverflowScrolling: "touch" }}>
+        <main className="flex flex-col gap-4 px-6 py-6">
           {ScorePill}
 
           <div className="flex items-center justify-between gap-3 flex-wrap">

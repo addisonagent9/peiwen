@@ -32,13 +32,8 @@
   --c-amber-soft: #6b4f23;
 }
 
-html, body, #root {
-  height: 100%;
-  overflow: hidden;
-}
-body {
-  overscroll-behavior: none;
-}
+html, body, #root { height: 100%; }
+body { overscroll-behavior-y: none; }
 body {
   background: var(--c-bg);
   color: var(--c-text);
