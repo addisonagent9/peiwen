@@ -349,18 +349,7 @@ export default function App() {
           </div>
         </main>
       ) : (
-        <main className="relative flex flex-col gap-4 px-6 py-6">
-          {user && (
-            <div className="sticky top-[3.5rem] sm:top-[4.5rem] z-10 flex justify-end pointer-events-none">
-              <button
-                onClick={savePoem}
-                className={`pointer-events-auto p-2 text-lg leading-none rounded transition ${savedMsg ? "text-gold" : "text-creamDim hover:text-gold"}`}
-                title={savedMsg ? t.saved : t.save}
-              >
-                {savedMsg ? <span className="text-sm font-sans">{t.saved}</span> : "💾"}
-              </button>
-            </div>
-          )}
+        <main className="flex flex-col gap-4 px-6 py-6">
           {ScorePill}
 
           <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -392,11 +381,22 @@ export default function App() {
                 </div>
               )}
             </div>
-            {zeYunCaution && (
-              <div className="text-xs text-amber border border-amber/40 rounded px-3 py-1">
-                {t.zeYunCaution}
-              </div>
-            )}
+            <div className="flex items-center gap-3">
+              {zeYunCaution && (
+                <div className="text-xs text-amber border border-amber/40 rounded px-3 py-1">
+                  {t.zeYunCaution}
+                </div>
+              )}
+              {user && (
+                <button
+                  onClick={savePoem}
+                  className={`flex items-center gap-1 text-sm font-sans transition ${savedMsg ? "text-gold" : "text-creamDim hover:text-gold"}`}
+                >
+                  <span className="text-base leading-none">💾</span>
+                  <span>{savedMsg ? t.saved : t.save}</span>
+                </button>
+              )}
+            </div>
           </div>
 
           {best && (
