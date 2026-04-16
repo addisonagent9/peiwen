@@ -120,6 +120,25 @@ export default function App() {
     return arr;
   }, [raw]);
 
+  const validForms = useMemo((): FormId[] => {
+    const n = lines[0]?.length ?? 0;
+    if (n === 7) return ["七絕", "七律"];
+    if (n === 5) return ["五絕", "五律"];
+    return ["五絕", "五律", "七絕", "七律"];
+  }, [lines]);
+
+  useEffect(() => {
+    const n = lines[0]?.length ?? 0;
+    if (n === 7 && (form === "五絕" || form === "五律")) {
+      setForm("auto");
+      setLockedPattern(null);
+    }
+    if (n === 5 && (form === "七絕" || form === "七律")) {
+      setForm("auto");
+      setLockedPattern(null);
+    }
+  }, [lines]);
+
   const detect = useMemo(() => {
     if (!lines.length || !lines[0].length) return null;
     const detected = form === "auto"
@@ -284,7 +303,6 @@ export default function App() {
     </div>
   );
 
-  const FORMS: FormId[] = ["五絕", "五律", "七絕", "七律"];
   const activeForm: FormId = detect
     ? detect.best.pattern.form as FormId
     : form !== "auto" ? form : "七絕";
@@ -293,7 +311,7 @@ export default function App() {
     <div className="flex flex-col gap-1.5">
       <span className="text-creamDim text-xs font-sans">{t.poemForm}</span>
       <div className="flex gap-1.5 sm:gap-2 text-xs sm:text-sm font-sans">
-        {FORMS.map(f => {
+        {validForms.map(f => {
           const active = form === f || (form === "auto" && activeForm === f);
           return (
             <button
