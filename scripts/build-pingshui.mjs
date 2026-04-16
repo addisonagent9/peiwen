@@ -18,6 +18,7 @@ const files = [
 
 const charToEntries = new Map();
 const rhymeToBucket = new Map();
+let skipped = 0;
 
 for (const f of files) {
   const raw = fs.readFileSync(path.join(PW, f.path), "utf8");
@@ -28,6 +29,8 @@ for (const f of files) {
     const rhyme = rhymeRaw.replace(/^\uFEFF/, "").trim();
     const word = (wordRaw || "").trim();
     if (!rhyme || !word) continue;
+    const code = word.codePointAt(0) ?? 0;
+    if (code >= 0x20000) { skipped++; continue; }
     const arr = charToEntries.get(word) ?? [];
     arr.push({ tone: f.tone, group: f.group, rhyme });
     charToEntries.set(word, arr);
@@ -57,4 +60,4 @@ export const PINGSHUI_RHYME = data.rhymes as unknown as Record<string, PSRhymeBu
 `;
 fs.writeFileSync(path.join(outDir, "pingshui.ts"), ts);
 
-console.log(`wrote pingshui.json: ${charToEntries.size} chars, ${rhymeToBucket.size} rhymes`);
+console.log(`wrote pingshui.json: ${charToEntries.size} chars, ${rhymeToBucket.size} rhymes (filtered ${skipped} Extension B+ chars)`);
