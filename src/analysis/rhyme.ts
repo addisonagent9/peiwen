@@ -78,6 +78,21 @@ export function checkRhymes(
     if (c > bestCount) { bestCount = c; baseRhyme = r; }
   }
 
+  // No consensus among non-first rhyming lines: if more than one non-first
+  // line exists but no rhyme department appears on at least 2 of them, there
+  // is no agreed base — mark all as offending.
+  if (nonFirst.length > 1 && bestCount <= 1) {
+    for (const e of endChars) {
+      const rs = rhymesOf(e.char).filter(allowed);
+      offending.push({
+        lineIdx: e.lineIdx,
+        char: e.char,
+        reason: rs.length ? `韻部 ${rs.join("/")}，各韻句無共同韻部` : `「${e.char}」無${kind === "平韻" ? "平" : "仄"}聲讀`
+      });
+    }
+    return { ok: false, baseRhyme: null, firstLineNeighbor: false, offending, duplicates };
+  }
+
   if (!baseRhyme) {
     return { ok: false, baseRhyme: null, firstLineNeighbor: false, offending, duplicates };
   }

@@ -4,11 +4,12 @@ import type { CharAnalysis } from "../analysis/validate";
 interface Props {
   c: CharAnalysis;
   isRhyme: boolean;
+  isRhymeMismatch?: boolean;
   onClickChar: () => void;
   onClickRhyme: (rhyme: string) => void;
 }
 
-export function CharCell({ c, isRhyme, onClickChar, onClickRhyme }: Props) {
+export function CharCell({ c, isRhyme, isRhymeMismatch = false, onClickChar, onClickRhyme }: Props) {
   const toneColor =
     c.isRu ? "text-amber" :
     c.tone === "平" ? "text-teal" :
@@ -29,13 +30,13 @@ export function CharCell({ c, isRhyme, onClickChar, onClickRhyme }: Props) {
     c.expected === "平" ? "此位應為平聲" :
     c.expected === "仄" ? "此位應為仄聲" : "";
 
-  const borderClass = c.mismatch
+  const borderClass = c.mismatch || isRhymeMismatch
     ? "border-rose"
     : c.slotKind === "fixed"
       ? "border-ink-line"
       : "border-teal/30";
 
-  const charColor = isRhyme ? "text-gold" : "text-cream";
+  const charColor = isRhymeMismatch ? "text-rose" : isRhyme ? "text-gold" : "text-cream";
   const rhymeLabel = c.entries[0]?.rhyme ?? null;
 
   return (

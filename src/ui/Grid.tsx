@@ -7,6 +7,7 @@ interface Props {
   chars: CharAnalysis[][];
   lineTemplates: LineTemplate[];
   cols: number; // characters per line (rows in the visual grid)
+  offendingLines?: Set<number>;
   onPick: (lineIdx: number, pos: number) => void;
   onRhymeClick: (rhyme: string) => void;
 }
@@ -14,7 +15,7 @@ interface Props {
 /** Vertical RTL grid via CSS grid: each poem line is a column placed
  *  right-to-left (line 1 in the rightmost column). Cells are positioned
  *  explicitly via gridColumn/gridRow so they never overlap on narrow screens. */
-export function Grid({ chars, lineTemplates, cols, onPick, onRhymeClick }: Props) {
+export function Grid({ chars, lineTemplates, cols, offendingLines, onPick, onRhymeClick }: Props) {
   const L = chars.length;          // number of poem lines = grid columns
   const M = cols;                  // chars per line = grid rows (after the label row)
 
@@ -50,6 +51,7 @@ export function Grid({ chars, lineTemplates, cols, onPick, onRhymeClick }: Props
                   <CharCell
                     c={c}
                     isRhyme={lineTemplates[li].rhymes && i === row.length - 1}
+                    isRhymeMismatch={!!(lineTemplates[li].rhymes && i === row.length - 1 && offendingLines?.has(li))}
                     onClickChar={() => onPick(li, i)}
                     onClickRhyme={onRhymeClick}
                   />

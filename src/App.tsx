@@ -81,6 +81,13 @@ export default function App() {
 
   const zeYunCaution = best?.pattern.kind === "仄韻";
   const N = best?.pattern.lines[0]?.slots.length ?? 7;
+  const offendingLines = useMemo(() => {
+    const s = new Set<number>();
+    if (best?.rhyme?.offending) {
+      for (const o of best.rhyme.offending) s.add(o.lineIdx);
+    }
+    return s;
+  }, [best]);
 
   // TODO: Google OAuth
   const handleSignIn = () => {};
@@ -268,6 +275,7 @@ export default function App() {
               chars={best.chars}
               lineTemplates={best.pattern.lines}
               cols={N}
+              offendingLines={offendingLines}
               onPick={(li, pos) => setEditCell({ li, pos })}
               onRhymeClick={r => setDrawerRhyme(r)}
             />
