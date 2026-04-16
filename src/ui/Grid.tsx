@@ -21,7 +21,7 @@ export function Grid({ chars, lineTemplates, cols, offendingLines, t, onPick, on
   return (
     <div
       className="w-full px-2 sm:px-0 box-border overflow-x-auto"
-      style={{ WebkitOverflowScrolling: "touch" }}
+      style={{ WebkitOverflowScrolling: "touch", overscrollBehaviorX: "contain" }}
     >
       <div
         className="grid gap-1 sm:gap-2 mx-auto box-border"
