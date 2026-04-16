@@ -39,6 +39,8 @@ export const T = {
     noMore: "已無更多建議",
     allCharsLabel: (r: string) => `「${r}」韻部所有平聲字：`,
     ancientNote: "古 = 古字，現代字型或不支援",
+    ancientChar: "此字為古字，釋義未收錄",
+    aiMeaning: "古字・AI釋義",
   },
   簡: {
     ...common,
@@ -67,6 +69,8 @@ export const T = {
     noMore: "已无更多建议",
     allCharsLabel: (r: string) => `「${r}」韵部所有平声字：`,
     ancientNote: "古 = 古字，现代字型或不支援",
+    ancientChar: "此字为古字，释义未收录",
+    aiMeaning: "古字・AI释义",
   }
 } as const;
 

@@ -18,6 +18,8 @@ interface Props {
   requiredRhyme?: string | null;
   lineIdx: number;
   pos: number;
+  isLoggedIn?: boolean;
+  isAdmin?: boolean;
   t: Translations;
   onClose: () => void;
   onCommit: (ch: string) => void;
@@ -85,7 +87,7 @@ function classifyChar(ch: string): "common" | "rare" | "unrenderable" {
   return "rare";
 }
 
-export function EditModal({ open, initial, prevChar = "", nextChar = "", expectedTone = null, requiredRhyme = null, lineIdx, pos, t, onClose, onCommit }: Props) {
+export function EditModal({ open, initial, prevChar = "", nextChar = "", expectedTone = null, requiredRhyme = null, isLoggedIn = false, isAdmin = false, lineIdx, pos, t, onClose, onCommit }: Props) {
   const [val, setVal] = useState(initial);
   const [dictsReady, setDictsReady] = useState(isCedictLoaded() && isMoedictLoaded());
   const [dictError, setDictError] = useState<string | null>(null);
@@ -96,10 +98,12 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
   const [seenChars, setSeenChars] = useState<Set<string>>(new Set());
   const [exhausted, setExhausted] = useState(false);
   const [initialLoaded, setInitialLoaded] = useState(false);
+  const [ancientMeaning, setAncientMeaning] = useState<{ zh: string; en: string } | null>(null);
 
   useEffect(() => {
     setVal(initial); setView("edit"); setSuggestions([]); setSuggestError(null);
     setSeenChars(new Set()); setExhausted(false); setInitialLoaded(false);
+    setAncientMeaning(null);
   }, [initial, open]);
 
   useEffect(() => {
@@ -111,6 +115,29 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
       .catch(err => { if (!cancelled) setDictError(String(err.message ?? err)); });
     return () => { cancelled = true; };
   }, [open, dictsReady]);
+
+  useEffect(() => {
+    if (!open || !val || !dictsReady || !isAdmin) return;
+    if (classifyChar(val) !== "rare") return;
+    const zhDefs = moedictLookup(val);
+    const enEntry = cedictLookup(val);
+    if (zhDefs.length > 0 || (enEntry && enEntry.definitions.length > 0)) return;
+    let cancelled = false;
+    setAncientMeaning(null);
+    const prompt = `「${val}」是平水韻中的古字。請用簡短中文解釋此字的含義（30字以內），並給出英文釋義（15 words以內）。格式：\n中文：...\nEnglish: ...`;
+    callAnthropic(prompt)
+      .then(text => {
+        if (cancelled) return;
+        const zhMatch = text.match(/中文[：:]\s*(.+)/);
+        const enMatch = text.match(/English[：:]\s*(.+)/i);
+        setAncientMeaning({
+          zh: zhMatch?.[1]?.trim() ?? "",
+          en: enMatch?.[1]?.trim() ?? ""
+        });
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [open, val, isAdmin, dictsReady]);
 
   if (!open) return null;
 
@@ -262,7 +289,7 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
                     <div className="mt-1 text-creamDim">
                       {dictError ? <span className="text-rose text-xs">{dictError}</span> : t.loading}
                     </div>
-                  ) : (
+                  ) : basicZhDefs.length > 0 || basicEnDefs.length > 0 ? (
                     <>
                       {basicZhDefs.length > 0 && (
                         <div className="mt-1 text-cream leading-[1.6]">
@@ -277,7 +304,35 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
                         </div>
                       )}
                     </>
-                  )}
+                  ) : classifyChar(val) === "rare" ? (
+                    isAdmin ? (
+                      ancientMeaning ? (
+                        <div className="mt-1">
+                          <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-sans text-amber border border-amber/40 mb-1">{t.aiMeaning}</span>
+                          {ancientMeaning.zh && (
+                            <div className="text-cream leading-[1.6]">
+                              <span className="text-creamDim">{t.zhDef}：</span>{ancientMeaning.zh}
+                            </div>
+                          )}
+                          {ancientMeaning.en && (
+                            <div className="text-cream leading-[1.6]">
+                              <span className="text-creamDim">{t.enDef}: </span>{ancientMeaning.en}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="mt-1 text-creamDim">
+                          <div className="flex items-center gap-1 py-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" style={{animationDelay:'0ms'}} />
+                            <span className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" style={{animationDelay:'150ms'}} />
+                            <span className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" style={{animationDelay:'300ms'}} />
+                          </div>
+                        </div>
+                      )
+                    ) : (
+                      <div className="mt-1 text-creamDim text-sm">{t.ancientChar}</div>
+                    )
+                  ) : null}
                 </div>
 
                 {showCtx && (

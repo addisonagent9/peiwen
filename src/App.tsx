@@ -348,6 +348,8 @@ export default function App() {
               ?? best.chars[1]?.[best.chars[1].length - 1]?.entries[0]?.rhyme
               ?? null)
           : null}
+        isLoggedIn={false}
+        isAdmin={true}
         lineIdx={editCell?.li ?? 0}
         pos={editCell?.pos ?? 0}
         t={t}
