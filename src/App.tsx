@@ -257,7 +257,7 @@ export default function App() {
     </div>
   );
 
-  const PatternSelector = patternOptions.length > 0 && (
+  const renderPatternSelector = (withPreview: boolean) => patternOptions.length > 0 && (
     <div className="flex flex-col gap-1.5">
       <span className="text-creamDim text-xs font-sans">{t.format}</span>
       <div className="grid grid-cols-2 gap-1.5 sm:flex sm:flex-wrap sm:gap-2 text-xs font-sans">
@@ -270,9 +270,11 @@ export default function App() {
               key={key}
               onClick={() => {
                 setLockedPattern(key);
-                setPreviewPattern(prev =>
-                  prev && patternKey(prev) === key ? null : r.pattern
-                );
+                if (withPreview) {
+                  setPreviewPattern(prev =>
+                    prev && patternKey(prev) === key ? null : r.pattern
+                  );
+                }
               }}
               className={`px-2 py-1 rounded-full border whitespace-nowrap transition text-center ${
                 active
@@ -397,8 +399,7 @@ export default function App() {
                 >×</button>
               )}
             </div>
-            {PatternSelector}
-            {previewPattern && <PatternPreview pattern={previewPattern} t={t} />}
+            {renderPatternSelector(false)}
             <div className="flex items-center justify-between gap-4 mt-2">
               {SampleButtons}
               <button
@@ -441,7 +442,8 @@ export default function App() {
             </div>
           )}
 
-          {PatternSelector}
+          {renderPatternSelector(true)}
+          {previewPattern && <PatternPreview pattern={previewPattern} t={t} />}
 
           {best && (
             <Grid
