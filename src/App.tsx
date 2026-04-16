@@ -343,7 +343,11 @@ export default function App() {
         prevChar={editCell ? (lines[editCell.li]?.[editCell.pos - 1] ?? "") : ""}
         nextChar={editCell ? (lines[editCell.li]?.[editCell.pos + 1] ?? "") : ""}
         expectedTone={editCell && best ? (best.chars[editCell.li]?.[editCell.pos]?.expected ?? null) : null}
-        requiredRhyme={editCell && best && best.pattern.lines[editCell.li]?.rhymes ? (best.rhyme?.baseRhyme ?? null) : null}
+        requiredRhyme={editCell && best && best.pattern.lines[editCell.li]?.rhymes
+          ? (best.rhyme?.baseRhyme
+              ?? best.chars[1]?.[best.chars[1].length - 1]?.entries[0]?.rhyme
+              ?? null)
+          : null}
         lineIdx={editCell?.li ?? 0}
         pos={editCell?.pos ?? 0}
         t={t}
