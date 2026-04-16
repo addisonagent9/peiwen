@@ -225,7 +225,7 @@ export default function App() {
           </>
         )}
         <span className="text-ink-line hidden sm:inline">·</span>
-        <span className="text-gold font-serif whitespace-nowrap">{best.pattern.form}·{best.pattern.name}</span>
+        <span className="text-gold font-serif whitespace-nowrap hidden sm:inline">{best.pattern.form}·{best.pattern.name}</span>
       </div>
     </div>
   );
@@ -349,41 +349,17 @@ export default function App() {
           </div>
         </main>
       ) : (
-        <main className="flex flex-col gap-4 px-6 py-6">
+        <main className="flex flex-col gap-3 sm:gap-4 px-6 py-6">
           {ScorePill}
 
-          <div className="flex items-center justify-between gap-3 flex-wrap">
-            <div className="flex items-center gap-3 flex-wrap">
-              <button
-                onClick={() => { setSubmitted(false); setLockedPattern(null); }}
-                className="px-3 py-1.5 text-sm font-sans text-creamDim hover:text-gold whitespace-nowrap"
-              >{t.back}</button>
-              {patternOptions.length > 0 && (
-                <div className="flex items-center gap-2 flex-wrap text-xs font-sans">
-                  <span className="text-creamDim">{t.format}</span>
-                  {patternOptions.map(r => {
-                    const key = patternKey(r.pattern);
-                    const active = best && patternKey(best.pattern) === key;
-                    return (
-                      <button
-                        key={key}
-                        onClick={() => setLockedPattern(key)}
-                        className={`px-2 py-1 rounded-full border whitespace-nowrap transition ${
-                          active
-                            ? "border-gold text-gold"
-                            : "border-ink-line text-creamDim hover:text-gold hover:border-gold"
-                        }`}
-                      >
-                        {r.pattern.name} <span className="opacity-70">{Math.round(r.combined * 100)}%</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+          <div className="flex items-center justify-between gap-3">
+            <button
+              onClick={() => { setSubmitted(false); setLockedPattern(null); }}
+              className="px-3 py-1.5 text-sm font-sans text-creamDim hover:text-gold whitespace-nowrap"
+            >{t.back}</button>
             <div className="flex items-center gap-3">
               {zeYunCaution && (
-                <div className="text-xs text-amber border border-amber/40 rounded px-3 py-1">
+                <div className="text-xs text-amber border border-amber/40 rounded px-3 py-1 hidden sm:block">
                   {t.zeYunCaution}
                 </div>
               )}
@@ -398,6 +374,37 @@ export default function App() {
               )}
             </div>
           </div>
+
+          {zeYunCaution && (
+            <div className="text-xs text-amber border border-amber/40 rounded px-3 py-1 sm:hidden">
+              {t.zeYunCaution}
+            </div>
+          )}
+
+          {patternOptions.length > 0 && (
+            <div className="flex flex-col gap-1.5">
+              <span className="text-creamDim text-xs font-sans">{t.format}</span>
+              <div className="grid grid-cols-2 gap-1.5 sm:flex sm:flex-wrap sm:gap-2 text-xs font-sans">
+                {patternOptions.map(r => {
+                  const key = patternKey(r.pattern);
+                  const active = best && patternKey(best.pattern) === key;
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => setLockedPattern(key)}
+                      className={`px-2 py-1 rounded-full border whitespace-nowrap transition text-center ${
+                        active
+                          ? "border-gold text-gold"
+                          : "border-ink-line text-creamDim hover:text-gold hover:border-gold"
+                      }`}
+                    >
+                      {r.pattern.name} <span className="opacity-70">{Math.round(r.combined * 100)}%</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {best && (
             <Grid
