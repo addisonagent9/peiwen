@@ -63,17 +63,16 @@ function hasGlyph(ch: string): boolean {
   if (_glyphCache.has(ch)) return _glyphCache.get(ch)!;
   try {
     const canvas = document.createElement("canvas");
-    canvas.width = 20; canvas.height = 20;
+    canvas.width = 24; canvas.height = 24;
     const ctx = canvas.getContext("2d")!;
-    ctx.font = "16px serif";
-    ctx.fillText(ch, 0, 16);
-    const data1 = ctx.getImageData(0, 0, 20, 20).data;
-    ctx.clearRect(0, 0, 20, 20);
-    ctx.fillText("\uFFFF", 0, 16);
-    const data2 = ctx.getImageData(0, 0, 20, 20).data;
-    const same = data1.every((v, i) => v === data2[i]);
-    _glyphCache.set(ch, !same);
-    return !same;
+    ctx.font = "18px serif";
+    const blank = ctx.getImageData(0, 0, 24, 24).data;
+    ctx.fillStyle = "#000";
+    ctx.fillText(ch, 2, 18);
+    const filled = ctx.getImageData(0, 0, 24, 24).data;
+    const hasPixels = filled.some((v, i) => v !== blank[i]);
+    _glyphCache.set(ch, hasPixels);
+    return hasPixels;
   } catch {
     return true;
   }
@@ -335,7 +334,13 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
                   </button>
                 ))
               )}
-              {suggestLoading && <div className="text-creamDim text-sm text-center py-2">{t.loading}</div>}
+              {suggestLoading && (
+                <div className="flex items-center justify-center gap-1 py-4">
+                  <span className="w-2 h-2 rounded-full bg-gold animate-pulse" style={{animationDelay: '0ms'}} />
+                  <span className="w-2 h-2 rounded-full bg-gold animate-pulse" style={{animationDelay: '150ms'}} />
+                  <span className="w-2 h-2 rounded-full bg-gold animate-pulse" style={{animationDelay: '300ms'}} />
+                </div>
+              )}
               {suggestError && <div className="text-rose text-sm">{suggestError}</div>}
               {!suggestLoading && !suggestError && suggestions.length === 0 && initialLoaded && (
                 <div className="text-creamDim text-sm">{t.noSuggestion}</div>
