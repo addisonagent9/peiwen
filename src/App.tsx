@@ -141,25 +141,32 @@ export default function App() {
   }, [detect, lockedPattern]);
 
   const patternOptions = useMemo(() => {
-    if (detect) {
-      const detectedForm = detect.best.pattern.form;
-      return detect.ranked.filter(r => r.pattern.form === detectedForm);
-    }
-    const fallbackForm: FormId = form !== "auto" ? form : "七絕";
-    const patterns = [
-      ...patternsForForm(fallbackForm, "平韻"),
-      ...(allowZe ? patternsForForm(fallbackForm, "仄韻") : [])
+    const targetForm: FormId = detect
+      ? detect.best.pattern.form as FormId
+      : form !== "auto" ? form : "七絕";
+    const allPatterns = [
+      ...patternsForForm(targetForm, "平韻"),
+      ...(allowZe ? patternsForForm(targetForm, "仄韻") : [])
     ];
-    return patterns.map(p => ({
-      pattern: p,
-      combined: 0,
-      toneScore: 0,
-      rhymeScore: 0,
-      chars: [] as any,
-      issues: [],
-      rhyme: null,
-      nianDuiOk: false
-    }));
+    const rankedMap = new Map<string, typeof detect extends null ? never : NonNullable<typeof detect>["ranked"][number]>();
+    if (detect) {
+      for (const r of detect.ranked) {
+        rankedMap.set(patternKey(r.pattern), r);
+      }
+    }
+    return allPatterns.map(p => {
+      const key = patternKey(p);
+      return rankedMap.get(key) ?? {
+        pattern: p,
+        combined: 0,
+        toneScore: 0,
+        rhymeScore: 0,
+        chars: [] as any,
+        issues: [],
+        rhyme: null,
+        nianDuiOk: false
+      };
+    });
   }, [detect, form, allowZe]);
 
   const updateChar = (li: number, pos: number, ch: string) => {
@@ -229,7 +236,8 @@ export default function App() {
     );
   };
 
-  const ScorePill = best && (
+  const hasFullLine = lines.length > 0 && lines[0].length >= 5;
+  const ScorePill = best && hasFullLine && (
     <div className="flex items-center justify-center px-2">
       <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 bg-ink-card/60 border border-ink-line rounded-2xl sm:rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-sans max-w-full">
         <span className="text-creamDim whitespace-nowrap">平仄 <span className="text-gold">{Math.round(best.toneScore * 100)}%</span></span>
