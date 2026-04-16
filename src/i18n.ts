@@ -1,0 +1,95 @@
+export type Locale = "繁" | "簡";
+
+const common = {
+  submit: "析辨",
+  format: "格：",
+  signIn: "Sign in",
+  signUp: "Sign up",
+  enDef: "English",
+  lineLabel: (n: number) => `第${n}句`,
+  rhymeLabel: (n: number) => `第${n}句`,
+  charLabel: (n: number, p: number) => `第${n}句・第${p}字`,
+};
+
+export const T = {
+  繁: {
+    ...common,
+    inputPlaceholder: "輸入詩句（每句一行）",
+    back: "← 重新輸入",
+    form: "體裁",
+    autoDetect: "自動偵測",
+    allowZe: "允許仄韻",
+    verifyResult: "校驗結果",
+    rhymeLabel: (n: number) => `第${n}句（韻）`,
+    trad: "繁體", simp: "簡體", pinyin: "漢語拼音",
+    reading: "讀音", meaning: "字義", context: "詞語義",
+    zhDef: "釋義",
+    noEntry: "無釋義", loading: "載入中…",
+    suggest: "建議",
+    suggestHeading: (char: string, tone: string) =>
+      `「${char}」應為${tone}聲，以下是意思相近的${tone}聲字：`,
+    back2: "← 返回", noSuggestion: "暫無建議",
+    cancel: "取消", confirm: "確定",
+    savePoem: "儲存", myPoems: "我的詩",
+    allPass: "✓ 完全合格",
+    zeYunCaution: "溫馨提示：仄韻七絕多為「古絕」，非近體詩正例",
+    apiKeyMissing: "請先在瀏覽器主控台設定 API 金鑰",
+    notInTable: (ch: string) => `「${ch}」不在平水韻表`,
+    nextPage: "下一頁 →",
+    noMore: "已無更多建議",
+  },
+  簡: {
+    ...common,
+    inputPlaceholder: "输入诗句（每句一行）",
+    back: "← 重新输入",
+    form: "体裁",
+    autoDetect: "自动侦测",
+    allowZe: "允许仄韵",
+    verifyResult: "校验结果",
+    rhymeLabel: (n: number) => `第${n}句（韵）`,
+    trad: "繁体", simp: "简体", pinyin: "汉语拼音",
+    reading: "读音", meaning: "字义", context: "词语义",
+    zhDef: "释义",
+    noEntry: "无释义", loading: "载入中…",
+    suggest: "建议",
+    suggestHeading: (char: string, tone: string) =>
+      `「${char}」应为${tone}声，以下是意思相近的${tone}声字：`,
+    back2: "← 返回", noSuggestion: "暂无建议",
+    cancel: "取消", confirm: "确定",
+    savePoem: "储存", myPoems: "我的诗",
+    allPass: "✓ 完全合格",
+    zeYunCaution: "温馨提示：仄韵七绝多为「古绝」，非近体诗正例",
+    apiKeyMissing: "请先在浏览器主控台设定 API 金钥",
+    notInTable: (ch: string) => `「${ch}」不在平水韵表`,
+    nextPage: "下一页 →",
+    noMore: "已无更多建议",
+  }
+} as const;
+
+export type Translations = typeof T["繁"];
+
+const S2T_ISSUE: Array<[string, string]> = [
+  ["應為", "应为"], ["實為", "实为"], ["韻腳", "韵脚"],
+  ["失對", "失对"], ["失粘", "失粘"], ["非韻字僅", "非韵字仅"],
+  ["個平聲", "个平声"], ["三平尾", "三平尾"], ["三仄尾", "三仄尾"],
+  ["唐詩可見，可接受", "唐诗可见，可接受"], ["孤平自救", "孤平自救"],
+  ["特拗", "特拗"], ["錦鯉翻波", "锦鲤翻波"], ["合法", "合法"],
+  ["半拗", "半拗"], ["可不救", "可不救"], ["大拗", "大拗"],
+  ["非常規，建議避免", "非常规，建议避免"],
+  ["鄰韻", "邻韵"], ["允許", "允许"],
+  ["首句押鄰韻", "首句押邻韵"], ["孤雁出群格", "孤雁出群格"],
+  ["缺韻腳（此句未完成）", "缺韵脚（此句未完成）"],
+  ["韻部", "韵部"], ["主韻", "主韵"],
+  ["不合", "不合"], ["重韻", "重韵"],
+  ["無平聲讀", "无平声读"], ["無仄聲讀", "无仄声读"],
+  ["各韻句無共同韻部", "各韵句无共同韵部"],
+];
+
+export function localizeIssue(msg: string, locale: Locale): string {
+  if (locale === "繁") return msg;
+  let s = msg;
+  for (const [trad, simp] of S2T_ISSUE) {
+    s = s.replaceAll(trad, simp);
+  }
+  return s;
+}

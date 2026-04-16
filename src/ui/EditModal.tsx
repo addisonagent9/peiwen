@@ -4,6 +4,7 @@ import { toTraditional, toSimplified } from "../analysis/s2t";
 import { cedictLookup, cedictContext, loadCedict, isCedictLoaded } from "../analysis/cedict";
 import { moedictLookup, loadMoedict, isMoedictLoaded } from "../analysis/moedict";
 import { pinyin } from "pinyin-pro";
+import type { Translations } from "../i18n";
 
 type Tone = "平" | "仄";
 
@@ -13,8 +14,10 @@ interface Props {
   prevChar?: string;
   nextChar?: string;
   expectedTone?: Tone | null;
+  requiredRhyme?: string | null;
   lineIdx: number;
   pos: number;
+  t: Translations;
   onClose: () => void;
   onCommit: (ch: string) => void;
 }
@@ -41,7 +44,6 @@ function parseSuggestions(text: string): Suggestion[] {
   for (const raw of text.split(/\r?\n/)) {
     const line = raw.trim();
     if (!line) continue;
-    // Expected: 字 - 平水韻韻部 - 簡短釋義
     const parts = line.split(/\s*[-—–]\s*/);
     if (parts.length < 2) continue;
     const char = Array.from(parts[0].replace(/^[\d.、）)]+\s*/, ""))[0] ?? "";
@@ -55,16 +57,22 @@ function parseSuggestions(text: string): Suggestion[] {
   return out;
 }
 
-export function EditModal({ open, initial, prevChar = "", nextChar = "", expectedTone = null, lineIdx, pos, onClose, onCommit }: Props) {
+export function EditModal({ open, initial, prevChar = "", nextChar = "", expectedTone = null, requiredRhyme = null, lineIdx, pos, t, onClose, onCommit }: Props) {
   const [val, setVal] = useState(initial);
   const [dictsReady, setDictsReady] = useState(isCedictLoaded() && isMoedictLoaded());
   const [dictError, setDictError] = useState<string | null>(null);
   const [view, setView] = useState<"edit" | "suggest">("edit");
-  const [suggestions, setSuggestions] = useState<Suggestion[] | null>(null);
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [suggestLoading, setSuggestLoading] = useState(false);
   const [suggestError, setSuggestError] = useState<string | null>(null);
+  const [seenChars, setSeenChars] = useState<Set<string>>(new Set());
+  const [exhausted, setExhausted] = useState(false);
+  const [initialLoaded, setInitialLoaded] = useState(false);
 
-  useEffect(() => { setVal(initial); setView("edit"); setSuggestions(null); setSuggestError(null); }, [initial, open]);
+  useEffect(() => {
+    setVal(initial); setView("edit"); setSuggestions([]); setSuggestError(null);
+    setSeenChars(new Set()); setExhausted(false); setInitialLoaded(false);
+  }, [initial, open]);
 
   useEffect(() => {
     if (!open || dictsReady) return;
@@ -82,21 +90,47 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
   const actualTone: Tone | null = info?.tone ?? null;
   const mismatch = !!(expectedTone && actualTone && actualTone !== expectedTone);
 
-  const loadSuggestions = () => {
+  const fetchBatch = (prevSeen: Set<string>) => {
     if (!expectedTone || !actualTone || !val) return;
     setSuggestLoading(true);
     setSuggestError(null);
-    setSuggestions(null);
-    const prompt = `「${val}」讀${actualTone}聲，現需替換為${expectedTone}聲字。請列出5個意思與「${val}」相近、可用於古典詩詞的${expectedTone}聲字。每個字用一行，格式：字 - 平水韻韻部 - 簡短釋義。只列字，不要其他說明。`;
+    const rhymeClause = requiredRhyme
+      ? `，且必須屬於平水韻「${requiredRhyme}」韻部`
+      : "";
+    const rhymeFilter = requiredRhyme
+      ? `、屬於「${requiredRhyme}」韻部`
+      : "";
+    let prompt = `「${val}」讀${actualTone}聲，現需替換為${expectedTone}聲字${rhymeClause}。請列出5個意思與「${val}」相近、可用於古典詩詞${rhymeFilter}的${expectedTone}聲字。每個字用一行，格式：字 - 平水韻韻部 - 簡短釋義。只列字，不要其他說明。`;
+    if (prevSeen.size > 0) {
+      prompt += `\n請勿重複上一批：${Array.from(prevSeen).join("、")}`;
+    }
     callAnthropic(prompt)
-      .then(text => setSuggestions(parseSuggestions(text)))
+      .then(text => {
+        const raw = parseSuggestions(text);
+        const fresh = raw.filter(s => !prevSeen.has(s.char));
+        if (fresh.length === 0 || raw.length < 5) {
+          setExhausted(true);
+        }
+        const nextSeen = new Set(prevSeen);
+        for (const s of fresh) nextSeen.add(s.char);
+        setSeenChars(nextSeen);
+        setSuggestions(fresh);
+      })
       .catch(err => setSuggestError(String(err.message ?? err)))
       .finally(() => setSuggestLoading(false));
   };
 
   const openSuggest = () => {
     setView("suggest");
-    if (suggestions === null && !suggestLoading) loadSuggestions();
+    if (!initialLoaded && !suggestLoading) {
+      setInitialLoaded(true);
+      fetchBatch(seenChars);
+    }
+  };
+
+  const loadNextPage = () => {
+    if (suggestLoading || exhausted) return;
+    fetchBatch(seenChars);
   };
 
   const trad = val ? toTraditional(val) : "";
@@ -127,12 +161,12 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
         {view === "edit" ? (
           <>
             <div className="flex items-start justify-between mb-1">
-              <div className="text-xs text-creamDim font-sans">第{lineIdx+1}句 · 第{pos+1}字</div>
+              <div className="text-xs text-creamDim font-sans">{t.charLabel(lineIdx+1, pos+1)}</div>
               {mismatch && (
                 <button
                   onClick={openSuggest}
-                  aria-label="建議"
-                  title={`建議意思相近的${expectedTone}聲字`}
+                  aria-label={t.suggest}
+                  title={t.suggest}
                   className="text-lg leading-none hover:opacity-80"
                 >🙏</button>
               )}
@@ -152,20 +186,20 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
               <div className="mt-4 text-sm font-sans space-y-3">
                 <div className="flex gap-4">
                   <div>
-                    <div className="text-creamDim text-xs">繁體 / 簡體</div>
+                    <div className="text-creamDim text-xs">{t.trad} / {t.simp}</div>
                     <div className="mt-1 font-serif text-lg text-cream">
                       {sameForm ? trad : `${trad} / ${simp}`}
                     </div>
                   </div>
                   <div>
-                    <div className="text-creamDim text-xs">漢語拼音</div>
+                    <div className="text-creamDim text-xs">{t.pinyin}</div>
                     <div className="mt-1 font-serif text-lg text-gold">{py}</div>
                   </div>
                 </div>
 
                 {info && !info.unknown && (
                   <div>
-                    <div className="text-creamDim text-xs">讀音</div>
+                    <div className="text-creamDim text-xs">{t.reading}</div>
                     <div className="mt-1 flex flex-wrap gap-2">
                       {info.entries.map((e, i) => (
                         <span key={i} className="px-2 py-1 rounded bg-ink-bg border border-ink-line">
@@ -179,26 +213,26 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
                   </div>
                 )}
                 {info?.unknown && (
-                  <div className="text-rose">「{val}」不在平水韻表</div>
+                  <div className="text-rose">{t.notInTable(val)}</div>
                 )}
 
                 <div>
-                  <div className="text-creamDim text-xs">字義</div>
+                  <div className="text-creamDim text-xs">{t.meaning}</div>
                   {!dictsReady ? (
                     <div className="mt-1 text-creamDim">
-                      {dictError ? <span className="text-rose text-xs">{dictError}</span> : "載入中…"}
+                      {dictError ? <span className="text-rose text-xs">{dictError}</span> : t.loading}
                     </div>
                   ) : (
                     <>
                       {basicZhDefs.length > 0 && (
                         <div className="mt-1 text-cream leading-[1.6]">
-                          <span className="text-creamDim">釋義：</span>
+                          <span className="text-creamDim">{t.zhDef}：</span>
                           {basicZhDefs.join("；")}
                         </div>
                       )}
                       {basicEnDefs.length > 0 && (
                         <div className="mt-1 text-cream leading-[1.6]">
-                          <span className="text-creamDim">English: </span>
+                          <span className="text-creamDim">{t.enDef}: </span>
                           {basicEnDefs.join("; ")}
                         </div>
                       )}
@@ -208,16 +242,16 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
 
                 {showCtx && (
                   <div>
-                    <div className="text-creamDim text-xs">詞語義（「{ctxWord}」）</div>
+                    <div className="text-creamDim text-xs">{t.context}（「{ctxWord}」）</div>
                     {ctxZhDefs.length > 0 && (
                       <div className="mt-1 text-cream leading-[1.6]">
-                        <span className="text-creamDim">釋義：</span>
+                        <span className="text-creamDim">{t.zhDef}：</span>
                         {ctxZhDefs.join("；")}
                       </div>
                     )}
                     {ctxEnDefs.length > 0 && (
                       <div className="mt-1 text-cream leading-[1.6]">
-                        <span className="text-creamDim">English: </span>
+                        <span className="text-creamDim">{t.enDef}: </span>
                         {ctxEnDefs.join("; ")}
                       </div>
                     )}
@@ -227,11 +261,11 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
             )}
 
             <div className="mt-5 flex justify-end gap-2">
-              <button onClick={onClose} className="px-3 py-1.5 text-sm text-creamDim hover:text-cream">取消</button>
+              <button onClick={onClose} className="px-3 py-1.5 text-sm text-creamDim hover:text-cream">{t.cancel}</button>
               <button
                 onClick={() => { onCommit(val); onClose(); }}
                 className="px-3 py-1.5 text-sm bg-gold text-ink-bg rounded hover:opacity-90"
-              >確定</button>
+              >{t.confirm}</button>
             </div>
           </>
         ) : (
@@ -239,33 +273,40 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
             <button
               onClick={() => setView("edit")}
               className="text-sm font-sans text-creamDim hover:text-gold"
-            >← 返回</button>
+            >{t.back2}</button>
             <div className="mt-3 text-base font-serif text-cream">
-              「{val}」應為<span className="text-gold">{expectedTone}</span>聲，以下是意思相近的{expectedTone}聲字：
+              {t.suggestHeading(val, expectedTone ?? "")}
             </div>
 
-            <div className="mt-4">
-              {suggestLoading && <div className="text-creamDim text-sm">載入中…</div>}
-              {suggestError && <div className="text-rose text-sm">{suggestError}</div>}
-              {!suggestLoading && !suggestError && suggestions && suggestions.length === 0 && (
-                <div className="text-creamDim text-sm">暫無建議</div>
+            <div className="mt-4 flex flex-col gap-2">
+              {suggestions.length > 0 && (
+                suggestions.map((s, i) => (
+                  <button
+                    key={`${s.char}-${i}`}
+                    onClick={() => { onCommit(s.char); onClose(); }}
+                    className="flex items-center gap-4 px-3 py-2 rounded border border-ink-line hover:border-gold text-left transition"
+                  >
+                    <span className="text-3xl font-serif text-cream">{s.char}</span>
+                    <span className="flex flex-col min-w-0">
+                      {s.rhyme && <span className="text-xs text-gold font-sans">{s.rhyme}</span>}
+                      {s.definition && <span className="text-sm text-creamDim font-sans truncate">{s.definition}</span>}
+                    </span>
+                  </button>
+                ))
               )}
-              {suggestions && suggestions.length > 0 && (
-                <div className="flex flex-col gap-2">
-                  {suggestions.map((s, i) => (
-                    <button
-                      key={i}
-                      onClick={() => { onCommit(s.char); onClose(); }}
-                      className="flex items-center gap-4 px-3 py-2 rounded border border-ink-line hover:border-gold text-left transition"
-                    >
-                      <span className="text-3xl font-serif text-cream">{s.char}</span>
-                      <span className="flex flex-col min-w-0">
-                        {s.rhyme && <span className="text-xs text-gold font-sans">{s.rhyme}</span>}
-                        {s.definition && <span className="text-sm text-creamDim font-sans truncate">{s.definition}</span>}
-                      </span>
-                    </button>
-                  ))}
-                </div>
+              {suggestLoading && <div className="text-creamDim text-sm text-center py-2">{t.loading}</div>}
+              {suggestError && <div className="text-rose text-sm">{suggestError}</div>}
+              {!suggestLoading && !suggestError && suggestions.length === 0 && initialLoaded && (
+                <div className="text-creamDim text-sm">{t.noSuggestion}</div>
+              )}
+              {!suggestLoading && !exhausted && initialLoaded && (
+                <button
+                  onClick={loadNextPage}
+                  className="w-full border border-ink-line text-creamDim hover:text-gold hover:border-gold rounded py-2 text-sm font-sans transition"
+                >{t.nextPage}</button>
+              )}
+              {exhausted && !suggestLoading && (
+                <div className="text-creamDim text-sm text-center py-2">{t.noMore}</div>
               )}
             </div>
           </>

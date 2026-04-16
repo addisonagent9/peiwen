@@ -3,6 +3,8 @@ import { Grid } from "./ui/Grid";
 import { RhymeDrawer } from "./ui/RhymeDrawer";
 import { EditModal } from "./ui/EditModal";
 import { detectBest, formFromDims } from "./analysis/detect";
+import { toTraditional, toSimplified } from "./analysis/s2t";
+import { T, localizeIssue, type Locale, type Translations } from "./i18n";
 import type { FormId } from "./patterns/types";
 
 const SAMPLES: Record<FormId, string> = {
@@ -15,6 +17,13 @@ const SAMPLES: Record<FormId, string> = {
     "國破山河在\n城春草木深\n感時花濺淚\n恨別鳥驚心\n" +
     "烽火連三月\n家書抵萬金\n白頭搔更短\n渾欲不勝簪"
 };
+
+function convertText(text: string, to: Locale): string {
+  return Array.from(text).map(ch => {
+    if (ch === "\n" || ch === "\r" || /\s/.test(ch)) return ch;
+    return to === "簡" ? toSimplified(ch) : toTraditional(ch);
+  }).join("");
+}
 
 export default function App() {
   const [raw, setRaw] = useState(SAMPLES["七絕"]);
@@ -31,6 +40,11 @@ export default function App() {
     if (stored === "light") return false;
     return false;
   });
+  const [locale, setLocale] = useState<Locale>(() => {
+    if (typeof window === "undefined") return "繁";
+    return window.localStorage.getItem("locale") === "簡" ? "簡" : "繁";
+  });
+  const t: Translations = T[locale];
 
   useEffect(() => {
     const root = document.documentElement;
@@ -38,6 +52,13 @@ export default function App() {
     else root.classList.remove("dark");
     window.localStorage.setItem("theme", darkMode ? "dark" : "light");
   }, [darkMode]);
+
+  const toggleLocale = () => {
+    const next: Locale = locale === "繁" ? "簡" : "繁";
+    setLocale(next);
+    window.localStorage.setItem("locale", next);
+    setRaw(prev => convertText(prev, next));
+  };
 
   const lines = useMemo(() => {
     const arr = raw.split(/\r?\n/).map(s => Array.from(s.replace(/\s+/g, "")));
@@ -93,6 +114,19 @@ export default function App() {
   const handleSignIn = () => {};
   const handleSignUp = () => {};
 
+  const LocaleToggle = (
+    <div className="flex items-center rounded border border-ink-line overflow-hidden text-xs font-sans">
+      <button
+        onClick={locale === "繁" ? undefined : toggleLocale}
+        className={`px-2 py-1 ${locale === "繁" ? "bg-gold text-ink-bg font-medium" : "text-creamDim"}`}
+      >繁</button>
+      <button
+        onClick={locale === "簡" ? undefined : toggleLocale}
+        className={`px-2 py-1 ${locale === "簡" ? "bg-gold text-ink-bg font-medium" : "text-creamDim"}`}
+      >簡</button>
+    </div>
+  );
+
   const ScorePill = best && (
     <div className="flex items-center justify-center px-2">
       <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 bg-ink-card/60 border border-ink-line rounded-2xl sm:rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-sans max-w-full">
@@ -115,7 +149,7 @@ export default function App() {
     <div className="flex flex-wrap gap-2 text-xs font-sans">
       {(Object.keys(SAMPLES) as FormId[]).map(f => (
         <button key={f}
-                onClick={() => { setRaw(SAMPLES[f]); setForm(f); }}
+                onClick={() => { setRaw(locale === "簡" ? convertText(SAMPLES[f], "簡") : SAMPLES[f]); setForm(f); }}
                 className="px-3 py-1.5 rounded border border-ink-line text-creamDim hover:text-gold hover:border-gold">
           {f}範例
         </button>
@@ -126,7 +160,6 @@ export default function App() {
   return (
     <div className="min-h-full bg-ink-bg text-cream flex flex-col">
       <header className="border-b border-ink-line px-4 sm:px-6 py-3 sm:py-4 overflow-hidden">
-        {/* Mobile: 2-row stack (title row, controls row). Desktop (sm+): 3-col grid. */}
         <div className="sm:hidden flex flex-col gap-3">
           <div className="text-center">
             <div className="text-xl font-serif font-bold text-gold tracking-[0.2em] whitespace-nowrap">佩文・詩律析辨</div>
@@ -136,14 +169,14 @@ export default function App() {
             <div className="flex items-center gap-3 min-w-0">
               <label className="flex items-center gap-1 text-creamDim whitespace-nowrap">
                 <input type="checkbox" checked={allowZe} onChange={e => setAllowZe(e.target.checked)} />
-                允許仄韻
+                {t.allowZe}
               </label>
               <select
                 value={form}
                 onChange={e => setForm(e.target.value as any)}
                 className="bg-ink-card border border-ink-line rounded px-2 py-1 text-cream"
               >
-                <option value="auto">自動偵測</option>
+                <option value="auto">{t.autoDetect}</option>
                 <option value="七絕">七絕</option>
                 <option value="七律">七律</option>
                 <option value="五絕">五絕</option>
@@ -151,13 +184,14 @@ export default function App() {
               </select>
             </div>
             <div className="flex items-center gap-2 whitespace-nowrap">
+              {LocaleToggle}
               <button
                 onClick={() => setDarkMode(d => !d)}
                 aria-label="Toggle theme"
                 className="px-2 py-1 rounded border border-ink-line text-creamDim"
               >{darkMode ? "☀️" : "🌙"}</button>
-              <button onClick={handleSignIn} className="px-3 py-1 rounded border border-ink-line text-creamDim">Sign in</button>
-              <button onClick={handleSignUp} className="px-3 py-1 text-gold">Sign up</button>
+              <button onClick={handleSignIn} className="px-3 py-1 rounded border border-ink-line text-creamDim">{t.signIn}</button>
+              <button onClick={handleSignUp} className="px-3 py-1 text-gold">{t.signUp}</button>
             </div>
           </div>
         </div>
@@ -166,16 +200,16 @@ export default function App() {
           <div className="flex flex-col gap-2 text-sm font-sans">
             <label className="flex items-center gap-2 text-creamDim">
               <input type="checkbox" checked={allowZe} onChange={e => setAllowZe(e.target.checked)} />
-              允許仄韻
+              {t.allowZe}
             </label>
             <div className="flex items-center gap-2">
-              <label className="text-creamDim">體裁</label>
+              <label className="text-creamDim">{t.form}</label>
               <select
                 value={form}
                 onChange={e => setForm(e.target.value as any)}
                 className="bg-ink-card border border-ink-line rounded px-2 py-1 text-cream"
               >
-                <option value="auto">自動偵測</option>
+                <option value="auto">{t.autoDetect}</option>
                 <option value="七絕">七絕</option>
                 <option value="七律">七律</option>
                 <option value="五絕">五絕</option>
@@ -190,13 +224,14 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-3 text-sm font-sans">
+            {LocaleToggle}
             <button
               onClick={() => setDarkMode(d => !d)}
               aria-label="Toggle theme"
               className="px-3 py-1.5 rounded border border-ink-line text-creamDim hover:text-cream hover:border-cream"
             >{darkMode ? "☀️" : "🌙"}</button>
-            <button onClick={handleSignIn} className="px-4 py-1.5 rounded border border-ink-line text-creamDim hover:text-cream hover:border-cream">Sign in</button>
-            <button onClick={handleSignUp} className="px-4 py-1.5 text-gold hover:opacity-80">Sign up</button>
+            <button onClick={handleSignIn} className="px-4 py-1.5 rounded border border-ink-line text-creamDim hover:text-cream hover:border-cream">{t.signIn}</button>
+            <button onClick={handleSignUp} className="px-4 py-1.5 text-gold hover:opacity-80">{t.signUp}</button>
           </div>
         </div>
       </header>
@@ -205,7 +240,7 @@ export default function App() {
         <main className="flex-1 flex flex-col items-center justify-center gap-6 px-6 py-10">
           {ScorePill}
           <div className="w-full max-w-3xl flex flex-col gap-3">
-            <div className="text-xs text-creamDim font-sans text-center">輸入詩句（每句一行）</div>
+            <div className="text-xs text-creamDim font-sans text-center">{t.inputPlaceholder}</div>
             <div className="relative">
               <textarea
                 value={raw}
@@ -226,7 +261,7 @@ export default function App() {
               <button
                 onClick={() => setSubmitted(true)}
                 className="px-6 py-2 bg-gold text-ink-bg rounded font-sans font-semibold hover:opacity-90"
-              >析辨</button>
+              >{t.submit}</button>
             </div>
           </div>
         </main>
@@ -239,10 +274,10 @@ export default function App() {
               <button
                 onClick={() => { setSubmitted(false); setLockedPattern(null); }}
                 className="px-3 py-1.5 text-sm font-sans text-creamDim hover:text-gold whitespace-nowrap"
-              >← 重新輸入</button>
+              >{t.back}</button>
               {patternOptions.length > 0 && (
                 <div className="flex items-center gap-2 flex-wrap text-xs font-sans">
-                  <span className="text-creamDim">格：</span>
+                  <span className="text-creamDim">{t.format}</span>
                   {patternOptions.map(r => {
                     const key = patternKey(r.pattern);
                     const active = best && patternKey(best.pattern) === key;
@@ -265,7 +300,7 @@ export default function App() {
             </div>
             {zeYunCaution && (
               <div className="text-xs text-amber border border-amber/40 rounded px-3 py-1">
-                溫馨提示：仄韻七絕多為「古絕」，非近體詩正例
+                {t.zeYunCaution}
               </div>
             )}
           </div>
@@ -276,6 +311,7 @@ export default function App() {
               lineTemplates={best.pattern.lines}
               cols={N}
               offendingLines={offendingLines}
+              t={t}
               onPick={(li, pos) => setEditCell({ li, pos })}
               onRhymeClick={r => setDrawerRhyme(r)}
             />
@@ -283,14 +319,14 @@ export default function App() {
 
           {best && (
             <div className="ink-card rounded p-4 text-sm font-sans space-y-1 max-w-3xl w-full self-center">
-              <div className="text-creamDim text-xs mb-2">校驗結果</div>
-              {best.issues.length === 0 && <div className="text-teal">✓ 完全合格</div>}
+              <div className="text-creamDim text-xs mb-2">{t.verifyResult}</div>
+              {best.issues.length === 0 && <div className="text-teal">{t.allPass}</div>}
               {best.issues.map((it, i) => (
                 <div key={i} className={
                   it.severity === "error" ? "text-rose" :
                   it.severity === "warn" ? "text-amber" : "text-teal"
                 }>
-                  <span className="inline-block w-12 text-creamDim">[{it.kind}]</span> {it.message}
+                  <span className="inline-block w-12 text-creamDim">[{it.kind}]</span> {localizeIssue(it.message, locale)}
                 </div>
               ))}
             </div>
@@ -307,8 +343,10 @@ export default function App() {
         prevChar={editCell ? (lines[editCell.li]?.[editCell.pos - 1] ?? "") : ""}
         nextChar={editCell ? (lines[editCell.li]?.[editCell.pos + 1] ?? "") : ""}
         expectedTone={editCell && best ? (best.chars[editCell.li]?.[editCell.pos]?.expected ?? null) : null}
+        requiredRhyme={editCell && best && best.pattern.lines[editCell.li]?.rhymes ? (best.rhyme?.baseRhyme ?? null) : null}
         lineIdx={editCell?.li ?? 0}
         pos={editCell?.pos ?? 0}
+        t={t}
         onClose={() => setEditCell(null)}
         onCommit={ch => editCell && updateChar(editCell.li, editCell.pos, ch)}
       />

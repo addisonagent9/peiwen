@@ -1,23 +1,22 @@
 import React from "react";
 import type { CharAnalysis } from "../analysis/validate";
 import type { LineTemplate } from "../patterns/types";
+import type { Translations } from "../i18n";
 import { CharCell } from "./CharCell";
 
 interface Props {
   chars: CharAnalysis[][];
   lineTemplates: LineTemplate[];
-  cols: number; // characters per line (rows in the visual grid)
+  cols: number;
   offendingLines?: Set<number>;
+  t: Translations;
   onPick: (lineIdx: number, pos: number) => void;
   onRhymeClick: (rhyme: string) => void;
 }
 
-/** Vertical RTL grid via CSS grid: each poem line is a column placed
- *  right-to-left (line 1 in the rightmost column). Cells are positioned
- *  explicitly via gridColumn/gridRow so they never overlap on narrow screens. */
-export function Grid({ chars, lineTemplates, cols, offendingLines, onPick, onRhymeClick }: Props) {
-  const L = chars.length;          // number of poem lines = grid columns
-  const M = cols;                  // chars per line = grid rows (after the label row)
+export function Grid({ chars, lineTemplates, cols, offendingLines, t, onPick, onRhymeClick }: Props) {
+  const L = chars.length;
+  const M = cols;
 
   return (
     <div
@@ -33,14 +32,14 @@ export function Grid({ chars, lineTemplates, cols, offendingLines, onPick, onRhy
         }}
       >
         {chars.map((row, li) => {
-          const col = L - li; // li=0 → rightmost column
+          const col = L - li;
           return (
             <React.Fragment key={li}>
               <div
                 className="text-[10px] sm:text-xs text-creamDim font-sans text-center"
                 style={{ gridColumn: col, gridRow: 1 }}
               >
-                第{li + 1}句{lineTemplates[li].rhymes ? "（韻）" : ""}
+                {lineTemplates[li].rhymes ? t.rhymeLabel(li + 1) : t.lineLabel(li + 1)}
               </div>
               {row.map((c, i) => (
                 <div
