@@ -58,15 +58,32 @@ function parseSuggestions(text: string): Suggestion[] {
   return out;
 }
 
+const _glyphCache = new Map<string, boolean>();
+function hasGlyph(ch: string): boolean {
+  if (_glyphCache.has(ch)) return _glyphCache.get(ch)!;
+  try {
+    const canvas = document.createElement("canvas");
+    canvas.width = 20; canvas.height = 20;
+    const ctx = canvas.getContext("2d")!;
+    ctx.font = "16px serif";
+    ctx.fillText(ch, 0, 16);
+    const data1 = ctx.getImageData(0, 0, 20, 20).data;
+    ctx.clearRect(0, 0, 20, 20);
+    ctx.fillText("\uFFFF", 0, 16);
+    const data2 = ctx.getImageData(0, 0, 20, 20).data;
+    const same = data1.every((v, i) => v === data2[i]);
+    _glyphCache.set(ch, !same);
+    return !same;
+  } catch {
+    return true;
+  }
+}
+
 function classifyChar(ch: string): "common" | "rare" | "unrenderable" {
   const code = ch.codePointAt(0) ?? 0;
+  if (!hasGlyph(ch)) return "unrenderable";
   if (code >= 0x4E00 && code <= 0x9FFF) return "common";
-  if (
-    (code >= 0x3400 && code <= 0x4DBF) ||
-    (code >= 0xF900 && code <= 0xFAFF) ||
-    (code >= 0x20000 && code <= 0x2A6DF)
-  ) return "rare";
-  return "unrenderable";
+  return "rare";
 }
 
 export function EditModal({ open, initial, prevChar = "", nextChar = "", expectedTone = null, requiredRhyme = null, lineIdx, pos, t, onClose, onCommit }: Props) {
