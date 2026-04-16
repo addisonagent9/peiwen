@@ -290,7 +290,9 @@ export default function App() {
       <div className="grid grid-cols-2 gap-1.5 sm:flex sm:flex-wrap sm:gap-2 text-xs font-sans">
         {patternOptions.map(r => {
           const key = patternKey(r.pattern);
-          const active = best && patternKey(best.pattern) === key;
+          const active = lockedPattern
+            ? lockedPattern === key
+            : best && patternKey(best.pattern) === key;
           const hasScore = r.combined > 0;
           return (
             <button
