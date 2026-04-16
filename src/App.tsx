@@ -132,12 +132,41 @@ export default function App() {
     `${p.form}·${p.kind}·${p.name}`;
 
   const best = useMemo(() => {
-    if (!detect) return null;
-    if (lockedPattern) {
-      const found = detect.ranked.find(r => patternKey(r.pattern) === lockedPattern);
-      if (found) return found;
+    if (detect) {
+      if (lockedPattern) {
+        const found = detect.ranked.find(r => patternKey(r.pattern) === lockedPattern);
+        if (found) return found;
+      }
+      return detect.best;
     }
-    return detect.best;
+    if (lockedPattern) {
+      const allPatterns = [
+        ...patternsForForm("七絕", "平韻"),
+        ...patternsForForm("七絕", "仄韻"),
+        ...patternsForForm("七律", "平韻"),
+        ...patternsForForm("七律", "仄韻"),
+        ...patternsForForm("五絕", "平韻"),
+        ...patternsForForm("五絕", "仄韻"),
+        ...patternsForForm("五律", "平韻"),
+        ...patternsForForm("五律", "仄韻"),
+      ];
+      const p = allPatterns.find(pp => patternKey(pp) === lockedPattern);
+      if (p) return {
+        pattern: p,
+        combined: 0, toneScore: 0, rhymeScore: 0,
+        chars: p.lines.map(line =>
+          line.slots.map(() => ({
+            char: "", entries: [], chosen: null,
+            tone: null, isRu: false, ambiguous: false,
+            unknown: false, mismatch: false,
+            expected: null, slotKind: "free" as const,
+            pos: 0, lineIdx: 0
+          }))
+        ),
+        issues: [], rhyme: null, nianDuiOk: false
+      };
+    }
+    return null;
   }, [detect, lockedPattern]);
 
   const patternOptions = useMemo(() => {
