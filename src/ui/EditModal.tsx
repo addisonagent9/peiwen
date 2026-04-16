@@ -4,6 +4,7 @@ import { toTraditional, toSimplified } from "../analysis/s2t";
 import { cedictLookup, cedictContext, loadCedict, isCedictLoaded } from "../analysis/cedict";
 import { moedictLookup, loadMoedict, isMoedictLoaded } from "../analysis/moedict";
 import { pinyin } from "pinyin-pro";
+import { rhymesOf } from "../analysis/rhyme";
 import type { Translations } from "../i18n";
 
 type Tone = "平" | "仄";
@@ -107,7 +108,13 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
     callAnthropic(prompt)
       .then(text => {
         const raw = parseSuggestions(text);
-        const fresh = raw.filter(s => !prevSeen.has(s.char));
+        const verified = requiredRhyme
+          ? raw.filter(s => rhymesOf(s.char).includes(requiredRhyme))
+          : raw;
+        const fresh = verified.map(s => {
+          const actual = rhymesOf(s.char);
+          return { ...s, rhyme: actual.length ? actual.join("/") : s.rhyme };
+        }).filter(s => !prevSeen.has(s.char));
         if (fresh.length === 0 || raw.length < 5) {
           setExhausted(true);
         }
