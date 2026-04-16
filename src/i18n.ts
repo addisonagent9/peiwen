@@ -38,6 +38,7 @@ export const T = {
     nextPage: "下一頁 →",
     noMore: "已無更多建議",
     allCharsLabel: (r: string) => `「${r}」韻部所有平聲字：`,
+    ancientNote: "古 = 古字，現代字型或不支援",
   },
   簡: {
     ...common,
@@ -65,6 +66,7 @@ export const T = {
     nextPage: "下一页 →",
     noMore: "已无更多建议",
     allCharsLabel: (r: string) => `「${r}」韵部所有平声字：`,
+    ancientNote: "古 = 古字，现代字型或不支援",
   }
 } as const;
 

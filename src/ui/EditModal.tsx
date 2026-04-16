@@ -58,6 +58,17 @@ function parseSuggestions(text: string): Suggestion[] {
   return out;
 }
 
+function classifyChar(ch: string): "common" | "rare" | "unrenderable" {
+  const code = ch.codePointAt(0) ?? 0;
+  if (code >= 0x4E00 && code <= 0x9FFF) return "common";
+  if (
+    (code >= 0x3400 && code <= 0x4DBF) ||
+    (code >= 0xF900 && code <= 0xFAFF) ||
+    (code >= 0x20000 && code <= 0x2A6DF)
+  ) return "rare";
+  return "unrenderable";
+}
+
 export function EditModal({ open, initial, prevChar = "", nextChar = "", expectedTone = null, requiredRhyme = null, lineIdx, pos, t, onClose, onCommit }: Props) {
   const [val, setVal] = useState(initial);
   const [dictsReady, setDictsReady] = useState(isCedictLoaded() && isMoedictLoaded());
@@ -101,7 +112,7 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
     const rhymeFilter = requiredRhyme
       ? `、屬於「${requiredRhyme}」韻部`
       : "";
-    let prompt = `「${val}」讀${actualTone}聲，現需替換為${expectedTone}聲字${rhymeClause}。請列出5個意思與「${val}」相近、可用於古典詩詞${rhymeFilter}的${expectedTone}聲字。每個字用一行，格式：字 - 平水韻韻部 - 簡短釋義。只列字，不要其他說明。`;
+    let prompt = `「${val}」讀${actualTone}聲，現需替換為${expectedTone}聲字${rhymeClause}。請列出15個意思與「${val}」相近、可用於古典詩詞${rhymeFilter}的${expectedTone}聲字。每個字用一行，格式：字 - 平水韻韻部 - 簡短釋義。只列字，不要其他說明。`;
     if (prevSeen.size > 0) {
       prompt += `\n請勿重複上一批：${Array.from(prevSeen).join("、")}`;
     }
@@ -121,7 +132,7 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
           const actual = rhymesOf(s.char);
           return { ...s, rhyme: actual.length ? actual.join("/") : s.rhyme };
         }).filter(s => !prevSeen.has(s.char));
-        if (fresh.length === 0 || raw.length < 5) {
+        if (fresh.length === 0 || raw.length < 15) {
           setExhausted(true);
         }
         const nextSeen = new Set(prevSeen);
@@ -323,14 +334,31 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
                   <div className="mt-2">
                     <div className="text-creamDim text-xs mb-2">{t.allCharsLabel(requiredRhyme)}</div>
                     <div className="flex flex-wrap gap-1">
-                      {charsInRhyme(requiredRhyme).map((ch, i) => (
-                        <button
-                          key={i}
-                          onClick={() => { onCommit(ch); onClose(); }}
-                          className="w-9 h-9 flex items-center justify-center rounded border border-ink-line text-lg font-serif text-cream hover:border-gold hover:text-gold transition"
-                        >{ch}</button>
-                      ))}
+                      {charsInRhyme(requiredRhyme).map((ch, i) => {
+                        const cls = classifyChar(ch);
+                        const base = "relative w-9 h-9 flex items-center justify-center rounded border text-lg font-serif transition";
+                        const style =
+                          cls === "common"
+                            ? "border-ink-line text-cream hover:border-gold hover:text-gold"
+                            : cls === "rare"
+                              ? "border-amber/60 text-cream hover:border-amber"
+                              : "border-ink-line/40 text-creamDim";
+                        return (
+                          <button
+                            key={i}
+                            onClick={() => { onCommit(ch); onClose(); }}
+                            className={`${base} ${style}`}
+                            title={cls === "unrenderable" ? "此字字型或不支援，但屬平水韻正字" : undefined}
+                          >
+                            {ch}
+                            {cls !== "common" && (
+                              <span className="absolute -top-0.5 -right-0.5 text-[8px] text-amber font-sans leading-none">古</span>
+                            )}
+                          </button>
+                        );
+                      })}
                     </div>
+                    <div className="text-[10px] text-creamDim font-sans mt-2">{t.ancientNote}</div>
                   </div>
                 ) : (
                   <div className="text-creamDim text-sm text-center py-2">{t.noMore}</div>
