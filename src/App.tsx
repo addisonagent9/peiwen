@@ -6,7 +6,7 @@ import { detectBest, formFromDims } from "./analysis/detect";
 import { toTraditional, toSimplified } from "./analysis/s2t";
 import { T, localizeIssue, type Locale, type Translations } from "./i18n";
 import { patternsForForm } from "./patterns/patterns";
-import type { FormId } from "./patterns/types";
+import type { FormId, PoemPattern } from "./patterns/types";
 
 const SAMPLES: Record<FormId, string> = {
   "七絕": "朝辭白帝彩雲間\n千里江陵一日還\n兩岸猿聲啼不住\n輕舟已過萬重山",
@@ -139,88 +139,85 @@ export default function App() {
     }
   }, [lines]);
 
-  const detect = useMemo(() => {
-    if (!lines.length || !lines[0].length) return null;
-    const detected = form === "auto"
-      ? formFromDims(lines.length, lines[0].length)
-      : form;
-    return detectBest(lines, { form: detected ?? undefined, allowZeYun: allowZe });
-  }, [lines, form, allowZe]);
-
   const patternKey = (p: { form: string; kind: string; name: string }) =>
     `${p.form}·${p.kind}·${p.name}`;
 
-  const best = useMemo(() => {
-    if (detect) {
-      if (lockedPattern) {
-        const found = detect.ranked.find(r => patternKey(r.pattern) === lockedPattern);
-        if (found) return found;
-      }
-      return detect.best;
+  // --- Analysis result (set on submit, not reactive) ---
+  const [analysisResult, setAnalysisResult] = useState<ReturnType<typeof detectBest> | null>(null);
+
+  const handleSubmit = () => {
+    if (!lines.length || !lines[0].length) {
+      setAnalysisResult(null);
+      setSubmitted(true);
+      return;
+    }
+    const detected = form === "auto"
+      ? formFromDims(lines.length, lines[0].length)
+      : form;
+    const result = detectBest(lines, { form: detected ?? undefined, allowZeYun: allowZe });
+    setAnalysisResult(result);
+    setLockedPattern(null);
+    setSubmitted(true);
+  };
+
+  // --- Pattern resolution ---
+  const allPatterns = useMemo(() => [
+    ...patternsForForm("七絕", "平韻"), ...patternsForForm("七絕", "仄韻"),
+    ...patternsForForm("七律", "平韻"), ...patternsForForm("七律", "仄韻"),
+    ...patternsForForm("五絕", "平韻"), ...patternsForForm("五絕", "仄韻"),
+    ...patternsForForm("五律", "平韻"), ...patternsForForm("五律", "仄韻"),
+  ], []);
+
+  const makeStub = (p: PoemPattern) => ({
+    pattern: p, combined: 0, toneScore: 0, rhymeScore: 0,
+    chars: p.lines.map((line, li) => line.slots.map((slot, si) => {
+      const expected = (slot === "P" ? "平" : slot === "Z" ? "仄" : null) as "平" | "仄" | null;
+      return {
+        char: "", entries: [], chosen: null,
+        tone: null, isRu: false, ambiguous: false,
+        unknown: false, mismatch: !!expected,
+        expected,
+        slotKind: (slot === "P" || slot === "Z" ? "fixed" : slot === "f" ? "free" : "constrained") as "fixed" | "free" | "constrained",
+        pos: si + 1, lineIdx: li
+      };
+    })),
+    issues: [] as any[], rhyme: null, nianDuiOk: false
+  });
+
+  const selectedPattern = useMemo(() => {
+    const targetKey = lockedPattern ?? (analysisResult ? patternKey(analysisResult.best.pattern) : null);
+
+    if (!targetKey) {
+      const fallbackForm: FormId = form !== "auto" ? form : "七絕";
+      const p = patternsForForm(fallbackForm, "平韻")[0];
+      return p ? makeStub(p) : null;
     }
 
-    const makeStub = (p: { form: string; kind: string; name: string; lines: { slots: string[]; rhymes: boolean }[] }) => ({
-      pattern: p, combined: 0, toneScore: 0, rhymeScore: 0,
-      chars: p.lines.map((line, li) => line.slots.map((slot, si) => {
-        const expected = (slot === "P" ? "平" : slot === "Z" ? "仄" : null) as "平" | "仄" | null;
-        return {
-          char: "", entries: [], chosen: null,
-          tone: null, isRu: false, ambiguous: false,
-          unknown: false, mismatch: !!expected,
-          expected,
-          slotKind: (slot === "P" || slot === "Z" ? "fixed" : slot === "f" ? "free" : "constrained") as "fixed" | "free" | "constrained",
-          pos: si + 1, lineIdx: li
-        };
-      })),
-      issues: [], rhyme: null, nianDuiOk: false
-    });
-
-    if (lockedPattern) {
-      const allPatterns = [
-        ...patternsForForm("七絕", "平韻"), ...patternsForForm("七絕", "仄韻"),
-        ...patternsForForm("七律", "平韻"), ...patternsForForm("七律", "仄韻"),
-        ...patternsForForm("五絕", "平韻"), ...patternsForForm("五絕", "仄韻"),
-        ...patternsForForm("五律", "平韻"), ...patternsForForm("五律", "仄韻"),
-      ];
-      const p = allPatterns.find(pp => patternKey(pp) === lockedPattern);
-      if (p) return makeStub(p);
+    if (analysisResult) {
+      const found = analysisResult.ranked.find(r => patternKey(r.pattern) === targetKey);
+      if (found) return found;
     }
 
-    const fallbackForm: FormId = form !== "auto" ? form : "七絕";
-    const fallback = patternsForForm(fallbackForm, "平韻")[0];
-    if (fallback) return makeStub(fallback);
-
-    return null;
-  }, [detect, lockedPattern, form]);
+    const p = allPatterns.find(pp => patternKey(pp) === targetKey);
+    return p ? makeStub(p) : null;
+  }, [analysisResult, lockedPattern, form, allPatterns]);
 
   const patternOptions = useMemo(() => {
     const targetForm: FormId = form !== "auto"
       ? form
-      : detect ? detect.best.pattern.form as FormId : "七絕";
-    const allPatterns = [
+      : analysisResult ? analysisResult.best.pattern.form as FormId : "七絕";
+    const allPats = [
       ...patternsForForm(targetForm, "平韻"),
       ...(allowZe ? patternsForForm(targetForm, "仄韻") : [])
     ];
-    const rankedMap = new Map<string, typeof detect extends null ? never : NonNullable<typeof detect>["ranked"][number]>();
-    if (detect) {
-      for (const r of detect.ranked) {
-        rankedMap.set(patternKey(r.pattern), r);
-      }
-    }
-    return allPatterns.map(p => {
-      const key = patternKey(p);
-      return rankedMap.get(key) ?? {
-        pattern: p,
-        combined: 0,
-        toneScore: 0,
-        rhymeScore: 0,
-        chars: [] as any,
-        issues: [],
-        rhyme: null,
-        nianDuiOk: false
-      };
+    const rankedMap = new Map(
+      (analysisResult?.ranked ?? []).map(r => [patternKey(r.pattern), r])
+    );
+    return allPats.map(p => rankedMap.get(patternKey(p)) ?? {
+      pattern: p, combined: 0, toneScore: 0, rhymeScore: 0,
+      chars: [] as any, issues: [], rhyme: null, nianDuiOk: false
     });
-  }, [detect, form, allowZe]);
+  }, [analysisResult, form, allowZe]);
 
   const updateChar = (li: number, pos: number, ch: string) => {
     const next = raw.split(/\r?\n/);
@@ -230,15 +227,15 @@ export default function App() {
     setRaw(next.join("\n"));
   };
 
-  const zeYunCaution = best?.pattern.kind === "仄韻";
-  const N = best?.pattern.lines[0]?.slots.length ?? 7;
+  const zeYunCaution = selectedPattern?.pattern.kind === "仄韻";
+  const N = selectedPattern?.pattern.lines[0]?.slots.length ?? 7;
   const offendingLines = useMemo(() => {
     const s = new Set<number>();
-    if (best?.rhyme?.offending) {
-      for (const o of best.rhyme.offending) s.add(o.lineIdx);
+    if (selectedPattern?.rhyme?.offending) {
+      for (const o of selectedPattern.rhyme.offending) s.add(o.lineIdx);
     }
     return s;
-  }, [best]);
+  }, [selectedPattern]);
 
   // --- Header components ---
   const LocaleToggle = (
@@ -301,26 +298,26 @@ export default function App() {
     );
   };
 
-  const ScorePill = best && (
+  const ScorePill = selectedPattern && selectedPattern.combined > 0 && (
     <div className="flex items-center justify-center px-2">
       <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 bg-ink-card/60 border border-ink-line rounded-2xl sm:rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-sans max-w-full">
-        <span className="text-creamDim whitespace-nowrap">平仄 <span className="text-gold">{Math.round(best.toneScore * 100)}%</span></span>
+        <span className="text-creamDim whitespace-nowrap">平仄 <span className="text-gold">{Math.round(selectedPattern.toneScore * 100)}%</span></span>
         <span className="text-ink-line hidden sm:inline">·</span>
-        <span className="text-creamDim whitespace-nowrap">押韻 <span className="text-gold">{Math.round(best.rhymeScore * 100)}%</span></span>
-        {best.rhyme?.baseRhyme && (
+        <span className="text-creamDim whitespace-nowrap">押韻 <span className="text-gold">{Math.round(selectedPattern.rhymeScore * 100)}%</span></span>
+        {selectedPattern.rhyme?.baseRhyme && (
           <>
             <span className="text-ink-line hidden sm:inline">·</span>
-            <span className="text-creamDim whitespace-nowrap">韻部：<span className="text-gold">{best.rhyme.baseRhyme}</span></span>
+            <span className="text-creamDim whitespace-nowrap">韻部：<span className="text-gold">{selectedPattern.rhyme.baseRhyme}</span></span>
           </>
         )}
         <span className="text-ink-line hidden sm:inline">·</span>
-        <span className="text-gold font-serif whitespace-nowrap hidden sm:inline">{best.pattern.form}·{best.pattern.name}</span>
+        <span className="text-gold font-serif whitespace-nowrap hidden sm:inline">{selectedPattern.pattern.form}·{selectedPattern.pattern.name}</span>
       </div>
     </div>
   );
 
-  const activeForm: FormId = detect
-    ? detect.best.pattern.form as FormId
+  const activeForm: FormId = analysisResult
+    ? analysisResult.best.pattern.form as FormId
     : form !== "auto" ? form : "七絕";
 
   const FormSelector = (
@@ -353,7 +350,7 @@ export default function App() {
           const key = patternKey(r.pattern);
           const active = lockedPattern
             ? lockedPattern === key
-            : best && patternKey(best.pattern) === key;
+            : selectedPattern && patternKey(selectedPattern.pattern) === key;
           const hasScore = r.combined > 0;
           return (
             <button
@@ -427,7 +424,7 @@ export default function App() {
               />
               {raw && (
                 <button
-                  onClick={() => { setRaw(""); setSubmitted(false); setLockedPattern(null); }}
+                  onClick={() => { setRaw(""); setSubmitted(false); setLockedPattern(null); setAnalysisResult(null); }}
                   aria-label="Clear"
                   className="absolute top-2 right-2 text-creamDim hover:text-rose text-xl leading-none"
                 >×</button>
@@ -449,7 +446,7 @@ export default function App() {
             </div>
             <div className="flex justify-end mt-2">
               <button
-                onClick={() => setSubmitted(true)}
+                onClick={handleSubmit}
                 className="px-6 py-2 bg-gold text-ink-bg rounded font-sans font-semibold hover:opacity-90"
               >{t.submit}</button>
             </div>
@@ -462,7 +459,7 @@ export default function App() {
 
             <div className="flex items-center justify-between gap-3">
               <button
-                onClick={() => { setSubmitted(false); setLockedPattern(null); }}
+                onClick={() => { setSubmitted(false); setLockedPattern(null); setAnalysisResult(null); }}
                 className="px-3 py-1.5 text-sm font-sans text-creamDim hover:text-gold whitespace-nowrap"
               >{t.back}</button>
               <div className="flex items-center gap-3">
@@ -493,10 +490,10 @@ export default function App() {
               {FormSelector}
               {PatternSelector}
 
-              {best && (
+              {selectedPattern && (
                 <Grid
-                  chars={best.chars}
-                  lineTemplates={best.pattern.lines}
+                  chars={selectedPattern.chars}
+                  lineTemplates={selectedPattern.pattern.lines}
                   cols={N}
                   offendingLines={offendingLines}
                   t={t}
@@ -506,11 +503,11 @@ export default function App() {
               )}
             </div>
 
-            {best && (
+            {selectedPattern && selectedPattern.issues.length > 0 && (
               <div className="ink-card rounded p-4 text-sm font-sans space-y-1">
                 <div className="text-creamDim text-xs mb-2">{t.verifyResult}</div>
-                {best.issues.length === 0 && <div className="text-teal">{t.allPass}</div>}
-                {best.issues.map((it, i) => (
+                {selectedPattern.issues.length === 0 && <div className="text-teal">{t.allPass}</div>}
+                {selectedPattern.issues.map((it, i) => (
                   <div key={i} className={
                     it.severity === "error" ? "text-rose" :
                     it.severity === "warn" ? "text-amber" : "text-teal"
@@ -518,6 +515,12 @@ export default function App() {
                     <span className="inline-block w-12 text-creamDim">[{it.kind}]</span> {localizeIssue(it.message, locale)}
                   </div>
                 ))}
+              </div>
+            )}
+
+            {selectedPattern && selectedPattern.issues.length === 0 && analysisResult && (
+              <div className="ink-card rounded p-4 text-sm font-sans">
+                <div className="text-teal">{t.allPass}</div>
               </div>
             )}
 
@@ -549,7 +552,7 @@ export default function App() {
                     <div key={p.id} className="flex items-center justify-between gap-2 px-4 py-3 border-b border-ink-line hover:bg-ink-card/60 transition">
                       <button
                         className="flex-1 text-left min-w-0"
-                        onClick={() => { setRaw(p.text); setSubmitted(false); setLockedPattern(null); setPoemsOpen(false); }}
+                        onClick={() => { setRaw(p.text); setSubmitted(false); setLockedPattern(null); setAnalysisResult(null); setPoemsOpen(false); }}
                       >
                         <div className="text-cream font-serif truncate">{firstLine}</div>
                         <div className="text-[10px] text-creamDim font-sans mt-0.5">{date}</div>
@@ -574,10 +577,10 @@ export default function App() {
         initial={editCell ? (lines[editCell.li]?.[editCell.pos] ?? "") : ""}
         prevChar={editCell ? (lines[editCell.li]?.[editCell.pos - 1] ?? "") : ""}
         nextChar={editCell ? (lines[editCell.li]?.[editCell.pos + 1] ?? "") : ""}
-        expectedTone={editCell && best ? (best.chars[editCell.li]?.[editCell.pos]?.expected ?? null) : null}
-        requiredRhyme={editCell && best && best.pattern.lines[editCell.li]?.rhymes
-          ? (best.rhyme?.baseRhyme
-              ?? best.chars[1]?.[best.chars[1].length - 1]?.entries[0]?.rhyme
+        expectedTone={editCell && selectedPattern ? (selectedPattern.chars[editCell.li]?.[editCell.pos]?.expected ?? null) : null}
+        requiredRhyme={editCell && selectedPattern && selectedPattern.pattern.lines[editCell.li]?.rhymes
+          ? (selectedPattern.rhyme?.baseRhyme
+              ?? selectedPattern.chars[1]?.[selectedPattern.chars[1].length - 1]?.entries[0]?.rhyme
               ?? null)
           : null}
         isLoggedIn={!!user}
