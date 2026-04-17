@@ -249,9 +249,12 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
                 const composed = e.data ?? "";
                 const chinese = Array.from(composed).filter(ch => /\p{Script=Han}/u.test(ch));
                 if (chinese.length > 0) {
+                  const newVal = chinese.join("");
                   setInputVal(prev => {
-                    const existing = Array.from(prev).filter(ch => /\p{Script=Han}/u.test(ch));
-                    return [...existing, ...chinese].join("");
+                    const prevChinese = Array.from(prev).filter(ch => /\p{Script=Han}/u.test(ch));
+                    const prevStr = prevChinese.join("");
+                    if (prevStr.endsWith(newVal)) return prevStr;
+                    return prevStr + newVal;
                   });
                   setVal(chinese[0]);
                 }
