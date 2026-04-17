@@ -164,8 +164,13 @@ app.post("/api/suggest", async (req, res) => {
 });
 
 // --- Static / SPA fallback ---
-app.use(express.static(DIST));
-app.get("*", (_req, res) => res.sendFile(path.join(DIST, "bundle.html")));
+app.use(express.static(DIST, { maxAge: "1y", etag: false, index: false }));
+app.get("*", (_req, res) => {
+  res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  res.setHeader("Pragma", "no-cache");
+  res.setHeader("Expires", "0");
+  res.sendFile(path.join(DIST, "bundle.html"));
+});
 
 app.listen(PORT, () => {
   console.log(`poetry-checker listening on :${PORT}`);
