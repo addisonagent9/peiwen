@@ -249,8 +249,11 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
                 const composed = e.data ?? "";
                 const chinese = Array.from(composed).filter(ch => /\p{Script=Han}/u.test(ch));
                 if (chinese.length > 0) {
+                  setInputVal(prev => {
+                    const existing = Array.from(prev).filter(ch => /\p{Script=Han}/u.test(ch));
+                    return [...existing, ...chinese].join("");
+                  });
                   setVal(chinese[0]);
-                  setInputVal(chinese[0]);
                 }
               }}
               onChange={(e) => {
@@ -259,13 +262,12 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
                 if (isComposing.current) return;
                 const chinese = Array.from(v).filter(ch => /\p{Script=Han}/u.test(ch));
                 if (chinese.length > 0) {
-                  setVal(chinese[0]);
-                  setInputVal(chinese[0]);
+                  setVal(chinese[chinese.length - 1]);
                 } else if (v === "") {
                   setVal("");
                 }
               }}
-              maxLength={10}
+              maxLength={20}
               className="w-full bg-ink-bg border border-ink-line rounded px-3 py-2 text-4xl font-serif text-cream text-center outline-none focus:border-gold"
             />
 
