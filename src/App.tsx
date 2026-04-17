@@ -184,13 +184,34 @@ export default function App() {
     issues: [] as any[], rhyme: null, nianDuiOk: false
   });
 
+  const buildFromPoem = (p: PoemPattern) => ({
+    pattern: p, combined: 0, toneScore: 0, rhymeScore: 0,
+    chars: p.lines.map((line, li) => line.slots.map((slot, si) => {
+      const ch = lines[li]?.[si] ?? "";
+      const expected = (slot === "P" ? "平" : slot === "Z" ? "仄" : null) as "平" | "仄" | null;
+      return {
+        char: ch,
+        entries: [], chosen: null,
+        tone: null, isRu: false, ambiguous: false,
+        unknown: ch !== "",
+        mismatch: ch === "" ? !!expected : false,
+        expected,
+        slotKind: (slot === "P" || slot === "Z" ? "fixed" : slot === "f" ? "free" : "constrained") as "fixed" | "free" | "constrained",
+        pos: si + 1, lineIdx: li
+      };
+    })),
+    issues: [] as any[], rhyme: null, nianDuiOk: false
+  });
+
   const selectedPattern = useMemo(() => {
     const targetKey = lockedPattern ?? (analysisResult ? patternKey(analysisResult.best.pattern) : null);
+    const hasContent = lines.length > 0 && lines[0].length > 0;
 
     if (!targetKey) {
       const fallbackForm: FormId = form !== "auto" ? form : "七絕";
       const p = patternsForForm(fallbackForm, "平韻")[0];
-      return p ? makeStub(p) : null;
+      if (!p) return null;
+      return hasContent ? buildFromPoem(p) : makeStub(p);
     }
 
     if (analysisResult) {
@@ -199,8 +220,9 @@ export default function App() {
     }
 
     const p = allPatterns.find(pp => patternKey(pp) === targetKey);
-    return p ? makeStub(p) : null;
-  }, [analysisResult, lockedPattern, form, allPatterns]);
+    if (!p) return null;
+    return hasContent ? buildFromPoem(p) : makeStub(p);
+  }, [analysisResult, lockedPattern, form, allPatterns, lines]);
 
   const patternOptions = useMemo(() => {
     const targetForm: FormId = form !== "auto"
