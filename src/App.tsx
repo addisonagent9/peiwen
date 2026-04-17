@@ -195,7 +195,7 @@ export default function App() {
 
     if (analysisResult) {
       const found = analysisResult.ranked.find(r => patternKey(r.pattern) === targetKey);
-      if (found && found.combined > 0) return found;
+      if (found) return found;
     }
 
     const p = allPatterns.find(pp => patternKey(pp) === targetKey);
