@@ -160,28 +160,22 @@ export default function App() {
     }
     if (lockedPattern) {
       const allPatterns = [
-        ...patternsForForm("七絕", "平韻"),
-        ...patternsForForm("七絕", "仄韻"),
-        ...patternsForForm("七律", "平韻"),
-        ...patternsForForm("七律", "仄韻"),
-        ...patternsForForm("五絕", "平韻"),
-        ...patternsForForm("五絕", "仄韻"),
-        ...patternsForForm("五律", "平韻"),
-        ...patternsForForm("五律", "仄韻"),
+        ...patternsForForm("七絕", "平韻"), ...patternsForForm("七絕", "仄韻"),
+        ...patternsForForm("七律", "平韻"), ...patternsForForm("七律", "仄韻"),
+        ...patternsForForm("五絕", "平韻"), ...patternsForForm("五絕", "仄韻"),
+        ...patternsForForm("五律", "平韻"), ...patternsForForm("五律", "仄韻"),
       ];
       const p = allPatterns.find(pp => patternKey(pp) === lockedPattern);
       if (p) return {
-        pattern: p,
-        combined: 0, toneScore: 0, rhymeScore: 0,
-        chars: p.lines.map(line =>
-          line.slots.map(() => ({
-            char: "", entries: [], chosen: null,
-            tone: null, isRu: false, ambiguous: false,
-            unknown: false, mismatch: false,
-            expected: null, slotKind: "free" as const,
-            pos: 0, lineIdx: 0
-          }))
-        ),
+        pattern: p, combined: 0, toneScore: 0, rhymeScore: 0,
+        chars: p.lines.map((line, li) => line.slots.map((slot, si) => ({
+          char: "", entries: [], chosen: null,
+          tone: null, isRu: false, ambiguous: false,
+          unknown: false, mismatch: false,
+          expected: (slot === "P" ? "平" : slot === "Z" ? "仄" : null) as "平" | "仄" | null,
+          slotKind: (slot === "P" || slot === "Z" ? "fixed" : slot === "f" ? "free" : "constrained") as "fixed" | "free" | "constrained",
+          pos: si + 1, lineIdx: li
+        }))),
         issues: [], rhyme: null, nianDuiOk: false
       };
     }
@@ -189,9 +183,9 @@ export default function App() {
   }, [detect, lockedPattern]);
 
   const patternOptions = useMemo(() => {
-    const targetForm: FormId = detect
-      ? detect.best.pattern.form as FormId
-      : form !== "auto" ? form : "七絕";
+    const targetForm: FormId = form !== "auto"
+      ? form
+      : detect ? detect.best.pattern.form as FormId : "七絕";
     const allPatterns = [
       ...patternsForForm(targetForm, "平韻"),
       ...(allowZe ? patternsForForm(targetForm, "仄韻") : [])
@@ -296,8 +290,7 @@ export default function App() {
     );
   };
 
-  const hasFullLine = lines.length > 0 && lines[0].length >= 5;
-  const ScorePill = best && hasFullLine && (
+  const ScorePill = best && (
     <div className="flex items-center justify-center px-2">
       <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 bg-ink-card/60 border border-ink-line rounded-2xl sm:rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-sans max-w-full">
         <span className="text-creamDim whitespace-nowrap">平仄 <span className="text-gold">{Math.round(best.toneScore * 100)}%</span></span>
@@ -452,69 +445,73 @@ export default function App() {
           </div>
         </main>
       ) : (
-        <main className="flex flex-col gap-3 sm:gap-4 px-6 py-6">
-          {ScorePill}
+        <main className="flex flex-col items-center px-6 py-6">
+          <div className="w-full max-w-3xl flex flex-col gap-3 sm:gap-4">
+            {ScorePill}
 
-          <div className="flex items-center justify-between gap-3">
-            <button
-              onClick={() => { setSubmitted(false); setLockedPattern(null); }}
-              className="px-3 py-1.5 text-sm font-sans text-creamDim hover:text-gold whitespace-nowrap"
-            >{t.back}</button>
-            <div className="flex items-center gap-3">
-              {zeYunCaution && (
-                <div className="text-xs text-amber border border-amber/40 rounded px-3 py-1 hidden sm:block">
-                  {t.zeYunCaution}
-                </div>
-              )}
-              {user && (
-                <button
-                  onClick={savePoem}
-                  className={`flex items-center gap-1 text-sm font-sans transition ${savedMsg ? "text-gold" : "text-creamDim hover:text-gold"}`}
-                >
-                  <span className="text-base leading-none">💾</span>
-                  <span>{savedMsg ? t.saved : t.save}</span>
-                </button>
+            <div className="flex items-center justify-between gap-3">
+              <button
+                onClick={() => { setSubmitted(false); setLockedPattern(null); }}
+                className="px-3 py-1.5 text-sm font-sans text-creamDim hover:text-gold whitespace-nowrap"
+              >{t.back}</button>
+              <div className="flex items-center gap-3">
+                {zeYunCaution && (
+                  <div className="text-xs text-amber border border-amber/40 rounded px-3 py-1 hidden sm:block">
+                    {t.zeYunCaution}
+                  </div>
+                )}
+                {user && (
+                  <button
+                    onClick={savePoem}
+                    className={`flex items-center gap-1 text-sm font-sans transition ${savedMsg ? "text-gold" : "text-creamDim hover:text-gold"}`}
+                  >
+                    <span className="text-base leading-none">💾</span>
+                    <span>{savedMsg ? t.saved : t.save}</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {zeYunCaution && (
+              <div className="text-xs text-amber border border-amber/40 rounded px-3 py-1 sm:hidden">
+                {t.zeYunCaution}
+              </div>
+            )}
+
+            <div className="flex flex-col gap-3 sm:gap-4 self-center" style={{ width: "max-content", maxWidth: "100%" }}>
+              {FormSelector}
+              {PatternSelector}
+
+              {best && (
+                <Grid
+                  chars={best.chars}
+                  lineTemplates={best.pattern.lines}
+                  cols={N}
+                  offendingLines={offendingLines}
+                  t={t}
+                  onPick={(li, pos) => setEditCell({ li, pos })}
+                  onRhymeClick={r => setDrawerRhyme(r)}
+                />
               )}
             </div>
+
+            {best && (
+              <div className="ink-card rounded p-4 text-sm font-sans space-y-1">
+                <div className="text-creamDim text-xs mb-2">{t.verifyResult}</div>
+                {best.issues.length === 0 && <div className="text-teal">{t.allPass}</div>}
+                {best.issues.map((it, i) => (
+                  <div key={i} className={
+                    it.severity === "error" ? "text-rose" :
+                    it.severity === "warn" ? "text-amber" : "text-teal"
+                  }>
+                    <span className="inline-block w-12 text-creamDim">[{it.kind}]</span> {localizeIssue(it.message, locale)}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="flex justify-center mt-2">{SampleButtons}</div>
           </div>
-
-          {zeYunCaution && (
-            <div className="text-xs text-amber border border-amber/40 rounded px-3 py-1 sm:hidden">
-              {t.zeYunCaution}
-            </div>
-          )}
-
-          {FormSelector}
-          {PatternSelector}
-
-          {best && (
-            <Grid
-              chars={best.chars}
-              lineTemplates={best.pattern.lines}
-              cols={N}
-              offendingLines={offendingLines}
-              t={t}
-              onPick={(li, pos) => setEditCell({ li, pos })}
-              onRhymeClick={r => setDrawerRhyme(r)}
-            />
-          )}
-
-          {best && (
-            <div className="ink-card rounded p-4 text-sm font-sans space-y-1 max-w-3xl w-full self-center">
-              <div className="text-creamDim text-xs mb-2">{t.verifyResult}</div>
-              {best.issues.length === 0 && <div className="text-teal">{t.allPass}</div>}
-              {best.issues.map((it, i) => (
-                <div key={i} className={
-                  it.severity === "error" ? "text-rose" :
-                  it.severity === "warn" ? "text-amber" : "text-teal"
-                }>
-                  <span className="inline-block w-12 text-creamDim">[{it.kind}]</span> {localizeIssue(it.message, locale)}
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className="flex justify-center mt-2">{SampleButtons}</div>
         </main>
       )}
 

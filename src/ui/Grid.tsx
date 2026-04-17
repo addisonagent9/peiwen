@@ -20,7 +20,7 @@ export function Grid({ chars, lineTemplates, cols, offendingLines, t, onPick, on
 
   return (
     <div
-      className="w-full px-2 sm:px-0 box-border overflow-x-auto"
+      className="w-full px-2 sm:px-0 overflow-x-auto"
       style={{ WebkitOverflowScrolling: "touch", overscrollBehaviorX: "contain" }}
     >
       <div
