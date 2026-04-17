@@ -218,14 +218,26 @@ export default function App() {
       return hasContent ? buildFromPoem(p) : makeStub(p);
     }
 
-    if (analysisResult) {
-      const found = analysisResult.ranked.find(r => patternKey(r.pattern) === targetKey);
-      if (found) return found;
-    }
+    const scored = analysisResult?.ranked.find(r => patternKey(r.pattern) === targetKey);
 
     const p = allPatterns.find(pp => patternKey(pp) === targetKey);
-    if (!p) return null;
-    return hasContent ? buildFromPoem(p) : makeStub(p);
+    if (!p) return scored ?? null;
+
+    const base = hasContent ? buildFromPoem(p) : makeStub(p);
+
+    if (scored) {
+      return {
+        ...base,
+        combined: scored.combined,
+        toneScore: scored.toneScore,
+        rhymeScore: scored.rhymeScore,
+        rhyme: scored.rhyme,
+        issues: scored.issues,
+        nianDuiOk: scored.nianDuiOk,
+      };
+    }
+
+    return base;
   }, [analysisResult, lockedPattern, form, allPatterns, lines]);
 
   const patternOptions = useMemo(() => {

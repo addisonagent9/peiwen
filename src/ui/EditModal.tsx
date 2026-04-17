@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { lookup } from "../analysis/tone";
 import { toTraditional, toSimplified } from "../analysis/s2t";
 import { cedictLookup, cedictContext, loadCedict, isCedictLoaded } from "../analysis/cedict";
@@ -89,6 +89,8 @@ function classifyChar(ch: string): "common" | "rare" | "unrenderable" {
 
 export function EditModal({ open, initial, prevChar = "", nextChar = "", expectedTone = null, requiredRhyme = null, isLoggedIn = false, isAdmin = false, lineIdx, pos, t, onClose, onCommit }: Props) {
   const [val, setVal] = useState(initial);
+  const [inputVal, setInputVal] = useState(initial);
+  const isComposing = useRef(false);
   const [dictsReady, setDictsReady] = useState(isCedictLoaded() && isMoedictLoaded());
   const [dictError, setDictError] = useState<string | null>(null);
   const [view, setView] = useState<"edit" | "suggest">("edit");
@@ -101,7 +103,7 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
   const [ancientMeaning, setAncientMeaning] = useState<{ zh: string; en: string } | null>(null);
 
   useEffect(() => {
-    setVal(initial); setView("edit"); setSuggestions([]); setSuggestError(null);
+    setVal(initial); setInputVal(initial); setView("edit"); setSuggestions([]); setSuggestError(null);
     setSeenChars(new Set()); setExhausted(false); setInitialLoaded(false);
     setAncientMeaning(null);
   }, [initial, open]);
@@ -240,12 +242,30 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
             </div>
             <input
               autoFocus
-              value={val}
-              onChange={e => {
-                const s = Array.from(e.target.value);
-                setVal(s[s.length - 1] ?? "");
+              value={inputVal}
+              onCompositionStart={() => { isComposing.current = true; }}
+              onCompositionEnd={(e) => {
+                isComposing.current = false;
+                const composed = e.data ?? "";
+                const chinese = Array.from(composed).filter(ch => /\p{Script=Han}/u.test(ch));
+                if (chinese.length > 0) {
+                  setVal(chinese[0]);
+                  setInputVal(chinese[0]);
+                }
               }}
-              maxLength={2}
+              onChange={(e) => {
+                const v = e.target.value;
+                setInputVal(v);
+                if (isComposing.current) return;
+                const chinese = Array.from(v).filter(ch => /\p{Script=Han}/u.test(ch));
+                if (chinese.length > 0) {
+                  setVal(chinese[0]);
+                  setInputVal(chinese[0]);
+                } else if (v === "") {
+                  setVal("");
+                }
+              }}
+              maxLength={10}
               className="w-full bg-ink-bg border border-ink-line rounded px-3 py-2 text-4xl font-serif text-cream text-center outline-none focus:border-gold"
             />
 
