@@ -3,6 +3,7 @@ import { Grid } from "./ui/Grid";
 import { RhymeDrawer } from "./ui/RhymeDrawer";
 import { EditModal } from "./ui/EditModal";
 import { detectBest, formFromDims } from "./analysis/detect";
+import { lookupExpecting } from "./analysis/tone";
 import { toTraditional, toSimplified } from "./analysis/s2t";
 import { T, localizeIssue, type Locale, type Translations } from "./i18n";
 import { patternsForForm } from "./patterns/patterns";
@@ -189,15 +190,18 @@ export default function App() {
     chars: p.lines.map((line, li) => line.slots.map((slot, si) => {
       const ch = lines[li]?.[si] ?? "";
       const expected = (slot === "P" ? "平" : slot === "Z" ? "仄" : null) as "平" | "仄" | null;
+      const slotKind = (slot === "P" || slot === "Z" ? "fixed" : slot === "f" ? "free" : "constrained") as "fixed" | "free" | "constrained";
+      if (ch) {
+        const info = lookupExpecting(ch, expected);
+        let mismatch = false;
+        if (expected && info.tone && info.tone !== expected) mismatch = true;
+        return { ...info, expected, slotKind, mismatch, pos: si + 1, lineIdx: li };
+      }
       return {
-        char: ch,
-        entries: [], chosen: null,
+        char: "", entries: [], chosen: null,
         tone: null, isRu: false, ambiguous: false,
-        unknown: ch !== "",
-        mismatch: ch === "" ? !!expected : false,
-        expected,
-        slotKind: (slot === "P" || slot === "Z" ? "fixed" : slot === "f" ? "free" : "constrained") as "fixed" | "free" | "constrained",
-        pos: si + 1, lineIdx: li
+        unknown: false, mismatch: !!expected,
+        expected, slotKind, pos: si + 1, lineIdx: li
       };
     })),
     issues: [] as any[], rhyme: null, nianDuiOk: false
