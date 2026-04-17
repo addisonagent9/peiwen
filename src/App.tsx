@@ -116,7 +116,9 @@ export default function App() {
 
   // --- Analysis ---
   const lines = useMemo(() => {
-    const arr = raw.split(/\r?\n/).map(s => Array.from(s.replace(/\s+/g, "")));
+    const arr = raw.split(/\r?\n/).map(s =>
+      Array.from(s.replace(/\s+/g, "")).map(ch => ch === "\u3000" ? "" : ch)
+    );
     while (arr.length && arr[arr.length - 1].length === 0) arr.pop();
     return arr;
   }, [raw]);
@@ -259,9 +261,12 @@ export default function App() {
 
   const updateChar = (li: number, pos: number, ch: string) => {
     const next = raw.split(/\r?\n/);
-    const arr = Array.from(next[li] ?? "");
-    arr[pos] = ch;
-    next[li] = arr.join("");
+    while (next.length <= li) next.push("");
+    const line = Array.from(next[li].replace(/\s+/g, ""));
+    while (line.length <= pos) line.push("\u3000");
+    line[pos] = ch;
+    while (line.length > 0 && line[line.length - 1] === "\u3000") line.pop();
+    next[li] = line.join("");
     setRaw(next.join("\n"));
   };
 
