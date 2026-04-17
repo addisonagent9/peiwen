@@ -158,6 +158,23 @@ export default function App() {
       }
       return detect.best;
     }
+
+    const makeStub = (p: { form: string; kind: string; name: string; lines: { slots: string[]; rhymes: boolean }[] }) => ({
+      pattern: p, combined: 0, toneScore: 0, rhymeScore: 0,
+      chars: p.lines.map((line, li) => line.slots.map((slot, si) => {
+        const expected = (slot === "P" ? "平" : slot === "Z" ? "仄" : null) as "平" | "仄" | null;
+        return {
+          char: "", entries: [], chosen: null,
+          tone: null, isRu: false, ambiguous: false,
+          unknown: false, mismatch: !!expected,
+          expected,
+          slotKind: (slot === "P" || slot === "Z" ? "fixed" : slot === "f" ? "free" : "constrained") as "fixed" | "free" | "constrained",
+          pos: si + 1, lineIdx: li
+        };
+      })),
+      issues: [], rhyme: null, nianDuiOk: false
+    });
+
     if (lockedPattern) {
       const allPatterns = [
         ...patternsForForm("七絕", "平韻"), ...patternsForForm("七絕", "仄韻"),
@@ -166,21 +183,15 @@ export default function App() {
         ...patternsForForm("五律", "平韻"), ...patternsForForm("五律", "仄韻"),
       ];
       const p = allPatterns.find(pp => patternKey(pp) === lockedPattern);
-      if (p) return {
-        pattern: p, combined: 0, toneScore: 0, rhymeScore: 0,
-        chars: p.lines.map((line, li) => line.slots.map((slot, si) => ({
-          char: "", entries: [], chosen: null,
-          tone: null, isRu: false, ambiguous: false,
-          unknown: false, mismatch: false,
-          expected: (slot === "P" ? "平" : slot === "Z" ? "仄" : null) as "平" | "仄" | null,
-          slotKind: (slot === "P" || slot === "Z" ? "fixed" : slot === "f" ? "free" : "constrained") as "fixed" | "free" | "constrained",
-          pos: si + 1, lineIdx: li
-        }))),
-        issues: [], rhyme: null, nianDuiOk: false
-      };
+      if (p) return makeStub(p);
     }
+
+    const fallbackForm: FormId = form !== "auto" ? form : "七絕";
+    const fallback = patternsForForm(fallbackForm, "平韻")[0];
+    if (fallback) return makeStub(fallback);
+
     return null;
-  }, [detect, lockedPattern]);
+  }, [detect, lockedPattern, form]);
 
   const patternOptions = useMemo(() => {
     const targetForm: FormId = form !== "auto"

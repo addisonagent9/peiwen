@@ -50,7 +50,8 @@ export function analyzeAgainst(lines: string[][], pattern: PoemPattern): Pattern
       const slotKind: "fixed" | "free" | "constrained" =
         slot === "P" || slot === "Z" ? "fixed" : slot === "f" ? "free" : "constrained";
       let mismatch = false;
-      if (expected && info.tone && info.tone !== expected) mismatch = true;
+      if (expected && !ch) mismatch = true;
+      else if (expected && info.tone && info.tone !== expected) mismatch = true;
       if (slotKind === "fixed") {
         fixedTotal++;
         if (info.tone && info.tone === expected) fixedMatched++;

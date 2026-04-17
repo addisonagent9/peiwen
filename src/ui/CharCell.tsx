@@ -54,7 +54,10 @@ export function CharCell({ c, isRhyme, isRhymeMismatch = false, onClickChar, onC
         className={`text-3xl leading-[1.1] font-serif font-medium ${charColor} hover:opacity-70 transition`}
         title={c.ambiguous ? "多音字" : ""}
       >
-        {c.char || "　"}
+        {c.char || (c.expected
+          ? <span className={`text-2xl font-serif opacity-25 ${c.expected === "平" ? "text-teal" : "text-rose"}`}>{c.expected}</span>
+          : "　"
+        )}
       </button>
       <div className="flex flex-row items-center justify-center gap-1.5 w-full">
         <div className={`text-[10px] leading-none font-sans font-normal tracking-wide ${toneColor} select-none`}>
