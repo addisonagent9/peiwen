@@ -210,9 +210,65 @@ function demote(issues: LineIssue[], lineIdx: number, fromKind: LineIssue["kind"
   issues.push({ kind: "拗救", severity, lineIdx, message: msg });
 }
 
+// --- Live issue computation (for buildFromPoem) --------------------------
+
+export function computeLiveIssues(chars: CharAnalysis[][], pattern: PoemPattern): LineIssue[] {
+  const issues: LineIssue[] = [];
+
+  for (let li = 0; li < pattern.lines.length; li++) {
+    const tmpl = pattern.lines[li];
+    const row = chars[li];
+    if (!row) continue;
+    const tones = row.map(c => c.tone);
+    const N = tmpl.slots.length;
+    const filled = row.filter(c => c.char !== "").length;
+    if (filled === 0) continue;
+
+    // 出律
+    for (const c of row) {
+      if (c.char && c.slotKind === "fixed" && c.mismatch) {
+        issues.push({ kind: "出律", severity: "error", lineIdx: li,
+          message: `第${li+1}句第${c.pos}字「${c.char}」應為${c.expected}，實為${c.tone ?? "?"}` });
+      }
+    }
+
+    // 三平尾 / 三仄尾 (only check if last 3 chars are all filled)
+    const last3 = tones.slice(N - 3);
+    if (last3.every(t => t !== null)) {
+      if (last3.every(t => t === "平")) {
+        issues.push({ kind: "三平尾", severity: "error", lineIdx: li, message: `第${li+1}句三平尾` });
+      } else if (last3.every(t => t === "仄")) {
+        issues.push({ kind: "三仄尾", severity: "info", lineIdx: li, message: `第${li+1}句三仄尾（唐詩可見，可接受）` });
+      }
+    }
+
+    // 孤平
+    if (tmpl.rhymes && (N === 7 || N === 5)) {
+      const nonRhyme = tones.slice(0, N - 1);
+      const nonRhymeFilled = nonRhyme.filter(t => t !== null);
+      if (nonRhymeFilled.length === nonRhyme.length) {
+        const pingCount = nonRhyme.filter(t => t === "平").length;
+        const endsPing = tones[N - 1] === "平";
+        if (endsPing && pingCount <= 1) {
+          const lonePos = nonRhyme.findIndex(t => t === "平");
+          const where = lonePos >= 0 ? `第${lonePos + 1}字` : "";
+          issues.push({ kind: "孤平", severity: "error", lineIdx: li,
+            message: `第${li+1}句${where}孤平（非韻字僅${pingCount}個平聲）` });
+        }
+      }
+    }
+  }
+
+  // 粘對
+  const nianDui = checkNianDui(chars, pattern);
+  issues.push(...nianDui.issues);
+
+  return issues;
+}
+
 // --- 粘對 ----------------------------------------------------------------
 
-function checkNianDui(chars: CharAnalysis[][], pattern: PoemPattern): { ok: boolean; issues: LineIssue[] } {
+export function checkNianDui(chars: CharAnalysis[][], pattern: PoemPattern): { ok: boolean; issues: LineIssue[] } {
   const issues: LineIssue[] = [];
   const L = pattern.lines.length;
   const N = pattern.lines[0].slots.length;

@@ -4,6 +4,7 @@ import { RhymeDrawer } from "./ui/RhymeDrawer";
 import { EditModal } from "./ui/EditModal";
 import { detectBest, formFromDims } from "./analysis/detect";
 import { lookupExpecting } from "./analysis/tone";
+import { computeLiveIssues } from "./analysis/validate";
 import { toTraditional, toSimplified } from "./analysis/s2t";
 import { T, localizeIssue, type Locale, type Translations } from "./i18n";
 import { patternsForForm } from "./patterns/patterns";
@@ -187,9 +188,8 @@ export default function App() {
     issues: [] as any[], rhyme: null, nianDuiOk: false
   });
 
-  const buildFromPoem = (p: PoemPattern) => ({
-    pattern: p, combined: 0, toneScore: 0, rhymeScore: 0,
-    chars: p.lines.map((line, li) => line.slots.map((slot, si) => {
+  const buildFromPoem = (p: PoemPattern) => {
+    const chars = p.lines.map((line, li) => line.slots.map((slot, si) => {
       const ch = lines[li]?.[si] ?? "";
       const expected = (slot === "P" ? "平" : slot === "Z" ? "仄" : null) as "平" | "仄" | null;
       const slotKind = (slot === "P" || slot === "Z" ? "fixed" : slot === "f" ? "free" : "constrained") as "fixed" | "free" | "constrained";
@@ -205,9 +205,13 @@ export default function App() {
         unknown: false, mismatch: !!expected,
         expected, slotKind, pos: si + 1, lineIdx: li
       };
-    })),
-    issues: [] as any[], rhyme: null, nianDuiOk: false
-  });
+    }));
+    const issues = computeLiveIssues(chars, p);
+    return {
+      pattern: p, combined: 0, toneScore: 0, rhymeScore: 0,
+      chars, issues, rhyme: null, nianDuiOk: false
+    };
+  };
 
   const selectedPattern = useMemo(() => {
     const targetKey = lockedPattern ?? (analysisResult ? patternKey(analysisResult.best.pattern) : null);
@@ -234,7 +238,6 @@ export default function App() {
         toneScore: scored.toneScore,
         rhymeScore: scored.rhymeScore,
         rhyme: scored.rhyme,
-        issues: scored.issues,
         nianDuiOk: scored.nianDuiOk,
       };
     }
