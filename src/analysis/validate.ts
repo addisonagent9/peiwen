@@ -271,28 +271,47 @@ export function computeLiveIssues(chars: CharAnalysis[][], pattern: PoemPattern)
 export function checkNianDui(chars: CharAnalysis[][], pattern: PoemPattern): { ok: boolean; issues: LineIssue[] } {
   const issues: LineIssue[] = [];
   const L = pattern.lines.length;
+  if (L < 2) return { ok: true, issues };
   const N = pattern.lines[0].slots.length;
-  // Key positions: 2/4/6 for 七言; 2/4 for 五言.
   const keys = N === 7 ? [2, 4, 6] : [2, 4];
-  const sig = (li: number) => keys.map(k => chars[li][k - 1]?.tone ?? null);
 
-  const eq = (a: (Tone|null)[], b: (Tone|null)[]) => a.every((v, i) => v && b[i] && v === b[i]);
-  const opp = (a: (Tone|null)[], b: (Tone|null)[]) => a.every((v, i) =>
-    v && b[i] && ((v === "平" && b[i] === "仄") || (v === "仄" && b[i] === "平")));
+  const toneAt = (li: number, pos: number): Tone | null => {
+    if (li >= chars.length) return null;
+    return chars[li]?.[pos - 1]?.tone ?? null;
+  };
 
-  for (let couplet = 0; couplet < L / 2; couplet++) {
-    const a = couplet * 2, b = a + 1;
-    if (!opp(sig(a), sig(b))) {
+  // 對: within each couplet, key positions must have opposite tones
+  const couplets = Math.floor(L / 2);
+  for (let c = 0; c < couplets; c++) {
+    const a = c * 2, b = a + 1;
+    const failed: number[] = [];
+    for (const k of keys) {
+      const ta = toneAt(a, k);
+      const tb = toneAt(b, k);
+      if (ta === null || tb === null) continue;
+      if (ta === tb) failed.push(k);
+    }
+    if (failed.length > 0) {
       issues.push({ kind: "失對", severity: "error", lineIdx: b,
-        message: `第${a+1}、${b+1}句失對（${keys.map(k=>`第${k}字`).join("、")}）` });
+        message: `第${a+1}、${b+1}句失對（${failed.map(k => `第${k}字`).join("、")}）` });
     }
   }
-  for (let i = 1; i < L / 2; i++) {
+
+  // 粘: between couplets, bridge lines must have matching tones
+  for (let i = 1; i < couplets; i++) {
     const a = i * 2 - 1, b = i * 2;
-    if (!eq(sig(a), sig(b))) {
+    const failed: number[] = [];
+    for (const k of keys) {
+      const ta = toneAt(a, k);
+      const tb = toneAt(b, k);
+      if (ta === null || tb === null) continue;
+      if (ta !== tb) failed.push(k);
+    }
+    if (failed.length > 0) {
       issues.push({ kind: "失粘", severity: "error", lineIdx: b,
-        message: `第${a+1}、${b+1}句失粘` });
+        message: `第${a+1}、${b+1}句失粘（${failed.map(k => `第${k}字`).join("、")}）` });
     }
   }
+
   return { ok: issues.length === 0, issues };
 }
