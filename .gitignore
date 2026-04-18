@@ -5,3 +5,5 @@ server/.env
 server/node_modules/
 server/data.db
 server/sessions.db
+data/audit/
+data/references/

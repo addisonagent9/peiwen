@@ -62,5 +62,58 @@ if (!d.chars["研"]) {
   console.log(`  研 already exists`);
 }
 
+// Group C: 5 entries from triangulation audit (critical-13-review.md)
+
+// 暖: multiple classical readings
+//   Default: 仄 十四旱 — nuǎn, "warm" (dominant classical usage)
+//   Secondary: 仄 十三阮 — nuǎn, alternate 上聲 placement
+//   Secondary: 仄 十一隊 — ài, variant of 曖 (昏暗不明/掩蔽), rare
+//   Secondary: 平 十三元 — xuān, "soft/gentle", rare literary
+d.chars["暖"] = [
+  { tone: "仄", group: "上聲", rhyme: "十四旱" },
+  { tone: "仄", group: "上聲", rhyme: "十三阮" },
+  { tone: "仄", group: "去聲", rhyme: "十一隊" },
+  { tone: "平", group: "上平", rhyme: "十三元" }
+];
+for (const e of d.chars["暖"]) ensureBucket("暖", e);
+console.log(`  暖 → ${d.chars["暖"].map(e => e.tone + " " + e.rhyme).join(" | ")}`);
+
+// 臒: was 入 十藥 (wrong). qú → 平 七虞.
+const oldOcr = d.chars["臒"] || [];
+d.chars["臒"] = [
+  { tone: "平", group: "上平", rhyme: "七虞" },
+  ...oldOcr
+];
+for (const e of d.chars["臒"]) ensureBucket("臒", e);
+console.log(`  臒 → ${d.chars["臒"].map(e => e.tone + " " + e.rhyme).join(" | ")}`);
+
+// 嚙: was 仄 十八巧 (wrong rhyme). niè → 入聲 九屑.
+const oldNie = d.chars["嚙"] || [];
+d.chars["嚙"] = [
+  { tone: "入", group: "入聲", rhyme: "九屑" },
+  ...oldNie.filter(e => e.rhyme !== "九屑")
+];
+for (const e of d.chars["嚙"]) ensureBucket("嚙", e);
+console.log(`  嚙 → ${d.chars["嚙"].map(e => e.tone + " " + e.rhyme).join(" | ")}`);
+
+// 徘: was 平 九佳 (wrong rhyme). pái → 平 十灰.
+const oldPai = d.chars["徘"] || [];
+d.chars["徘"] = [
+  { tone: "平", group: "上平", rhyme: "十灰" },
+  ...oldPai.filter(e => e.rhyme !== "十灰")
+];
+for (const e of d.chars["徘"]) ensureBucket("徘", e);
+console.log(`  徘 → ${d.chars["徘"].map(e => e.tone + " " + e.rhyme).join(" | ")}`);
+
+// 濫: was 仄 二十九豏 (wrong rhyme). làn → 仄 二十八勘.
+const oldLan = d.chars["濫"] || [];
+d.chars["濫"] = [
+  { tone: "仄", group: "去聲", rhyme: "二十八勘" },
+  ...oldLan.filter(e => e.rhyme !== "二十八勘"),
+  { tone: "仄", group: "上聲", rhyme: "二十七感" }
+].filter((e, i, a) => a.findIndex(x => x.tone === e.tone && x.rhyme === e.rhyme) === i);
+for (const e of d.chars["濫"]) ensureBucket("濫", e);
+console.log(`  濫 → ${d.chars["濫"].map(e => e.tone + " " + e.rhyme).join(" | ")}`);
+
 fs.writeFileSync(jsonPath, JSON.stringify(d));
-console.log("Done — 10 entries patched.");
+console.log("Done — 15 entries patched.");

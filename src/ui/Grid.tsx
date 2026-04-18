@@ -1,7 +1,8 @@
 import React from "react";
 import type { CharAnalysis } from "../analysis/validate";
 import type { LineTemplate } from "../patterns/types";
-import type { Translations } from "../i18n";
+import type { Locale, Translations } from "../i18n";
+import { AMBIGUOUS_READINGS } from "../data/ambiguous-readings";
 import { CharCell } from "./CharCell";
 
 interface Props {
@@ -9,12 +10,13 @@ interface Props {
   lineTemplates: LineTemplate[];
   cols: number;
   offendingLines?: Set<number>;
+  locale: Locale;
   t: Translations;
   onPick: (lineIdx: number, pos: number) => void;
   onRhymeClick: (rhyme: string) => void;
 }
 
-export function Grid({ chars, lineTemplates, cols, offendingLines, t, onPick, onRhymeClick }: Props) {
+export function Grid({ chars, lineTemplates, cols, offendingLines, locale, t, onPick, onRhymeClick }: Props) {
   const L = chars.length;
   const M = cols;
 
@@ -51,6 +53,16 @@ export function Grid({ chars, lineTemplates, cols, offendingLines, t, onPick, on
                     c={c}
                     isRhyme={lineTemplates[li].rhymes && i === row.length - 1}
                     isRhymeMismatch={!!(lineTemplates[li].rhymes && i === row.length - 1 && offendingLines?.has(li))}
+                    ambiguousNote={c.char && AMBIGUOUS_READINGS[c.char]
+                      ? (locale === "繁" ? AMBIGUOUS_READINGS[c.char].note_zh_tw : AMBIGUOUS_READINGS[c.char].note_zh_cn)
+                      : undefined}
+                    ambiguousReadingNotes={c.char && AMBIGUOUS_READINGS[c.char]?.per_reading_notes
+                      ? AMBIGUOUS_READINGS[c.char].per_reading_notes!.map(rn => ({
+                          rhyme: rn.rhyme,
+                          status: rn.status,
+                          note: locale === "繁" ? rn.note_zh_tw : rn.note_zh_cn
+                        }))
+                      : undefined}
                     onClickChar={() => onPick(li, i)}
                     onClickRhyme={onRhymeClick}
                   />

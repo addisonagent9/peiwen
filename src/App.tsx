@@ -542,6 +542,7 @@ export default function App() {
                   lineTemplates={selectedPattern.pattern.lines}
                   cols={N}
                   offendingLines={offendingLines}
+                  locale={locale}
                   t={t}
                   onPick={(li, pos) => setEditCell({ li, pos })}
                   onRhymeClick={r => setDrawerRhyme(r)}
