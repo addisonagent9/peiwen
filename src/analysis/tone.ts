@@ -25,14 +25,12 @@ export function lookup(char: string): ToneInfo {
 }
 
 function withChosen(char: string, entries: PSEntry[], chosen: PSEntry): ToneInfo {
-  const tones = new Set(entries.map(e => e.tone));
-  const hasMultiTone = (tones.has("平") && (tones.has("仄") || tones.has("入")));
   const chosenTone: Tone = chosen.tone === "平" ? "平" : "仄";
   return {
     char, entries, chosen,
     tone: chosenTone,
     isRu: chosen.tone === "入",
-    ambiguous: hasMultiTone,
+    ambiguous: entries.length > 1,
     unknown: false
   };
 }

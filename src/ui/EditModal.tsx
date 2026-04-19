@@ -5,7 +5,8 @@ import { cedictLookup, cedictContext, loadCedict, isCedictLoaded } from "../anal
 import { moedictLookup, loadMoedict, isMoedictLoaded } from "../analysis/moedict";
 import { pinyin } from "pinyin-pro";
 import { rhymesOf, charsInRhyme } from "../analysis/rhyme";
-import type { Translations } from "../i18n";
+import type { Locale, Translations } from "../i18n";
+import { AMBIGUOUS_READINGS } from "../data/ambiguous-readings";
 
 type Tone = "平" | "仄";
 
@@ -20,6 +21,7 @@ interface Props {
   pos: number;
   isLoggedIn?: boolean;
   isAdmin?: boolean;
+  locale: Locale;
   t: Translations;
   onClose: () => void;
   onCommit: (ch: string) => void;
@@ -87,7 +89,7 @@ function classifyChar(ch: string): "common" | "rare" | "unrenderable" {
   return "rare";
 }
 
-export function EditModal({ open, initial, prevChar = "", nextChar = "", expectedTone = null, requiredRhyme = null, isLoggedIn = false, isAdmin = false, lineIdx, pos, t, onClose, onCommit }: Props) {
+export function EditModal({ open, initial, prevChar = "", nextChar = "", expectedTone = null, requiredRhyme = null, isLoggedIn = false, isAdmin = false, locale, lineIdx, pos, t, onClose, onCommit }: Props) {
   const [val, setVal] = useState(initial);
   const [inputVal, setInputVal] = useState(initial);
   const isComposing = useRef(false);
@@ -293,15 +295,49 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
                   <div>
                     <div className="text-creamDim text-xs">{t.reading}</div>
                     <div className="mt-1 flex flex-wrap gap-2">
-                      {info.entries.map((e, i) => (
-                        <span key={i} className="px-2 py-1 rounded bg-ink-bg border border-ink-line">
-                          <span className={e.tone === "平" ? "text-teal" : e.tone === "入" ? "text-amber" : "text-rose"}>
-                            {e.tone}
+                      {info.entries.map((e, i) => {
+                        const rn = AMBIGUOUS_READINGS[val]?.per_reading_notes?.find(n => n.rhyme === e.rhyme);
+                        return (
+                          <span key={i} className="px-2 py-1 rounded bg-ink-bg border border-ink-line">
+                            {rn && (
+                              <span className={`mr-1 ${rn.status === "attested" ? "text-teal" : "text-amber"}`}>
+                                {rn.status === "attested" ? "✓" : "△"}
+                              </span>
+                            )}
+                            <span className={e.tone === "平" ? "text-teal" : e.tone === "入" ? "text-amber" : "text-rose"}>
+                              {e.tone}
+                            </span>
+                            <span className="text-cream ml-1">{e.rhyme}</span>
                           </span>
-                          <span className="text-cream ml-1">{e.rhyme}</span>
-                        </span>
-                      ))}
+                        );
+                      })}
                     </div>
+                    {(() => {
+                      const ar = AMBIGUOUS_READINGS[val];
+                      if (!ar) return null;
+                      const charNote = locale === "繁" ? ar.note_zh_tw : ar.note_zh_cn;
+                      const prn = ar.per_reading_notes;
+                      return (
+                        <>
+                          {charNote && (
+                            <div className="mt-2 text-[11px] italic text-creamDim">{charNote}</div>
+                          )}
+                          {prn && prn.length > 0 && (
+                            <div className="mt-2 text-[10px] text-cream space-y-1">
+                              {prn.map(rn => (
+                                <div key={rn.rhyme}>
+                                  <span className={rn.status === "attested" ? "text-teal" : "text-amber"}>
+                                    {rn.status === "attested" ? "✓" : "△"}
+                                  </span>
+                                  {" "}<span className="text-gold">{rn.rhyme}</span>
+                                  {" — "}{locale === "繁" ? rn.note_zh_tw : rn.note_zh_cn}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </>
+                      );
+                    })()}
                   </div>
                 )}
                 {info?.unknown && (

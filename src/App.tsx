@@ -542,7 +542,6 @@ export default function App() {
                   lineTemplates={selectedPattern.pattern.lines}
                   cols={N}
                   offendingLines={offendingLines}
-                  locale={locale}
                   t={t}
                   onPick={(li, pos) => setEditCell({ li, pos })}
                   onRhymeClick={r => setDrawerRhyme(r)}
@@ -632,6 +631,7 @@ export default function App() {
           : null}
         isLoggedIn={!!user}
         isAdmin={user?.is_premium === 1}
+        locale={locale}
         lineIdx={editCell?.li ?? 0}
         pos={editCell?.pos ?? 0}
         t={t}

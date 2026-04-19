@@ -1,22 +1,14 @@
 import React from "react";
 import type { CharAnalysis } from "../analysis/validate";
-interface ResolvedReadingNote {
-  rhyme: string;
-  note: string;
-  status: "attested" | "retained_legacy";
-}
-
 interface Props {
   c: CharAnalysis;
   isRhyme: boolean;
   isRhymeMismatch?: boolean;
-  ambiguousNote?: string;
-  ambiguousReadingNotes?: ResolvedReadingNote[];
   onClickChar: () => void;
   onClickRhyme: (rhyme: string) => void;
 }
 
-export function CharCell({ c, isRhyme, isRhymeMismatch = false, ambiguousNote, ambiguousReadingNotes, onClickChar, onClickRhyme }: Props) {
+export function CharCell({ c, isRhyme, isRhymeMismatch = false, onClickChar, onClickRhyme }: Props) {
   const toneColor =
     c.isRu ? "text-amber" :
     c.tone === "平" ? "text-teal" :
@@ -84,23 +76,6 @@ export function CharCell({ c, isRhyme, isRhymeMismatch = false, ambiguousNote, a
           <div className="w-1.5 h-1.5 rounded-full bg-amber" />
           <div className="pointer-events-none absolute bottom-full right-0 mb-1 hidden group-hover:block z-50 whitespace-nowrap rounded border border-ink-line bg-ink-bg px-2 py-1 text-[10px] text-cream shadow">
             「多音字」— 此字有多個讀音，平仄視語義而定
-          </div>
-        </div>
-      )}
-      {(ambiguousNote || ambiguousReadingNotes) && (
-        <div className="group absolute top-1 left-1 cursor-help opacity-60 hover:opacity-100">
-          <div className="text-[8px] leading-none text-creamDim font-sans">ⓘ</div>
-          <div className="pointer-events-none absolute bottom-full left-0 mb-1 hidden group-hover:block z-50 w-52 rounded border border-ink-line bg-ink-bg px-2 py-1.5 text-[10px] text-cream shadow leading-[1.5] max-h-40 overflow-y-auto">
-            {ambiguousNote && <div>{ambiguousNote}</div>}
-            {ambiguousReadingNotes && ambiguousReadingNotes.map((rn, i) => (
-              <div key={i} className={`${ambiguousNote && i === 0 ? "mt-1 pt-1 border-t border-ink-line" : i > 0 ? "mt-1" : ""}`}>
-                <span className={rn.status === "attested" ? "text-teal" : "text-amber"}>
-                  {rn.status === "attested" ? "✓" : "△"}
-                </span>
-                {" "}<span className="text-gold">{rn.rhyme}</span>
-                {" — "}{rn.note}
-              </div>
-            ))}
           </div>
         </div>
       )}
