@@ -9,30 +9,41 @@ interface Props {
 }
 
 const PING_GROUPS = [
-  "一東","二冬","三江","四支","五微","六魚","七虞","八齊","九佳","十灰",
-  "十一眞","十二文","十三元","十四寒","十五刪",
-  "一先","二蕭","三肴","四豪","五歌","六麻","七陽","八庚","九青","十蒸",
-  "十一尤","十二侵","十三覃","十四鹽","十五咸"
+  "上平一東","上平二冬","上平三江","上平四支","上平五微","上平六魚","上平七虞","上平八齊",
+  "上平九佳","上平十灰","上平十一眞","上平十二文","上平十三元","上平十四寒","上平十五刪",
+  "下平一先","下平二蕭","下平三肴","下平四豪","下平五歌","下平六麻","下平七陽","下平八庚",
+  "下平九青","下平十蒸","下平十一尤","下平十二侵","下平十三覃","下平十四鹽","下平十五咸"
 ];
 
 const ZE_SECTIONS = [
   { key: "shangTone" as const, groups: [
-    "一董","二腫","三講","四紙","五尾","六語","七麌","八薺","九蟹","十賄",
-    "十一軫","十二吻","十三阮","十四旱","十五潸","十六銑","十七筱","十八巧",
-    "十九皓","二十哿","二十一馬","二十二養","二十三梗","二十四迥","二十五有",
-    "二十六寢","二十七感","二十八琰","二十九豏"
+    "上聲一董","上聲二腫","上聲三講","上聲四紙","上聲五尾","上聲六語","上聲七麌","上聲八薺",
+    "上聲九蟹","上聲十賄","上聲十一軫","上聲十二吻","上聲十三阮","上聲十四旱","上聲十五潸",
+    "上聲十六銑","上聲十七筱","上聲十八巧","上聲十九皓","上聲二十哿","上聲二十一馬",
+    "上聲二十二養","上聲二十三梗","上聲二十四迥","上聲二十五有","上聲二十六寢",
+    "上聲二十七感","上聲二十八琰","上聲二十九豏"
   ]},
   { key: "quTone" as const, groups: [
-    "一送","二宋","三絳","四寘","五未","六御","七遇","八霽","九泰","十卦",
-    "十一隊","十二震","十三問","十四願","十五翰","十六諫","十七霰","十八嘯",
-    "十九效","二十號","二十一箇","二十二禡","二十三漾","二十四敬","二十五徑",
-    "二十六宥","二十七沁","二十八勘","二十九豔","三十陷"
+    "去聲一送","去聲二宋","去聲三絳","去聲四寘","去聲五未","去聲六御","去聲七遇","去聲八霽",
+    "去聲九泰","去聲十卦","去聲十一隊","去聲十二震","去聲十三問","去聲十四願","去聲十五翰",
+    "去聲十六諫","去聲十七霰","去聲十八嘯","去聲十九效","去聲二十號","去聲二十一箇",
+    "去聲二十二禡","去聲二十三漾","去聲二十四敬","去聲二十五徑","去聲二十六宥",
+    "去聲二十七沁","去聲二十八勘","去聲二十九豔","去聲三十陷"
   ]},
   { key: "ruTone" as const, groups: [
-    "一屋","二沃","三覺","四質","五物","六月","七曷","八黠","九屑","十藥",
-    "十一陌","十二錫","十三職","十四緝","十五合","十六葉","十七洽"
+    "入聲一屋","入聲二沃","入聲三覺","入聲四質","入聲五物","入聲六月","入聲七曷","入聲八黠",
+    "入聲九屑","入聲十藥","入聲十一陌","入聲十二錫","入聲十三職","入聲十四緝","入聲十五合",
+    "入聲十六葉","入聲十七洽"
   ]}
 ];
+
+function shortName(full: string): string {
+  const prefixes = ["上平", "下平", "上聲", "去聲", "入聲"];
+  for (const p of prefixes) {
+    if (full.startsWith(p)) return full.slice(p.length);
+  }
+  return full;
+}
 
 function isCommon(ch: string): boolean {
   const code = ch.codePointAt(0) ?? 0;
@@ -86,7 +97,7 @@ function RhymeGroupList({ groups, showPinyin, showRare }: {
   return (
     <>
       {groups.map(name => {
-        const bucket = PINGSHUI_RHYME[name];
+        const bucket = PINGSHUI_RHYME[shortName(name)];
         if (!bucket) return null;
         return (
           <RhymeGroup
@@ -118,10 +129,10 @@ export function RhymeReference({ t, onBack }: Props) {
           <div className="text-3xl font-serif font-bold text-gold tracking-[0.15em]">{t.rhymeRefTitle}</div>
         </div>
 
-        <div className="flex gap-6 mb-4 border-b border-ink-line">
+        <div className="flex flex-wrap items-end gap-y-2 mb-6 border-b border-ink-line pb-0">
           <button
             onClick={() => setActiveTab("平")}
-            className={`pb-2 text-lg font-serif transition ${
+            className={`pb-2 text-lg font-serif transition mr-6 ${
               activeTab === "平"
                 ? "text-gold border-b-2 border-gold font-bold"
                 : "text-creamDim hover:text-gold cursor-pointer"
@@ -135,35 +146,33 @@ export function RhymeReference({ t, onBack }: Props) {
                 : "text-creamDim hover:text-gold cursor-pointer"
             }`}
           >{t.zeTab}</button>
-        </div>
-
-        <div className="flex items-center gap-6 mb-6 text-sm font-sans">
-          <label className="flex items-center gap-1.5 text-creamDim cursor-pointer">
-            <input type="checkbox" checked={showPinyin} onChange={e => setShowPinyin(e.target.checked)} />
-            {t.showPinyin}
-          </label>
-          <label className="flex items-center gap-1.5 text-creamDim cursor-pointer">
-            <input type="checkbox" checked={showRare} onChange={e => setShowRare(e.target.checked)} />
-            {t.showRareChars}
-          </label>
+          <div className="ml-auto flex items-center gap-6 pb-2 text-sm font-sans">
+            <label className="flex items-center gap-1.5 text-creamDim cursor-pointer">
+              <input type="checkbox" checked={showPinyin} onChange={e => setShowPinyin(e.target.checked)} />
+              {t.showPinyin}
+            </label>
+            <label className="flex items-center gap-1.5 text-creamDim cursor-pointer">
+              <input type="checkbox" checked={showRare} onChange={e => setShowRare(e.target.checked)} />
+              {t.showRareChars}
+            </label>
+          </div>
         </div>
 
         {activeTab === "平" && (
-          <div>
-            <div className="text-xl font-serif text-gold mb-3 border-b border-ink-line pb-1">{t.pingTab}</div>
-            <RhymeGroupList groups={PING_GROUPS} showPinyin={showPinyin} showRare={showRare} />
-          </div>
+          <RhymeGroupList groups={PING_GROUPS} showPinyin={showPinyin} showRare={showRare} />
         )}
 
         {activeTab === "仄" && (
-          <div>
+          <>
             {ZE_SECTIONS.map(section => (
-              <div key={section.key} className="mb-8">
-                <div className="text-xl font-serif text-gold mb-3 border-b border-ink-line pb-1">{t[section.key]}</div>
-                <RhymeGroupList groups={section.groups} showPinyin={showPinyin} showRare={showRare} />
-              </div>
+              <RhymeGroupList
+                key={section.key}
+                groups={section.groups}
+                showPinyin={showPinyin}
+                showRare={showRare}
+              />
             ))}
-          </div>
+          </>
         )}
       </div>
     </div>
