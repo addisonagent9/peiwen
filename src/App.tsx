@@ -4,7 +4,7 @@ import { RhymeDrawer } from "./ui/RhymeDrawer";
 import { EditModal } from "./ui/EditModal";
 import { detectBest, formFromDims } from "./analysis/detect";
 import { lookupExpecting } from "./analysis/tone";
-import { computeLiveIssues } from "./analysis/validate";
+import { analyzeAgainst, computeLiveIssues } from "./analysis/validate";
 import { toTraditional, toSimplified } from "./analysis/s2t";
 import { T, localizeIssue, type Locale, type Translations } from "./i18n";
 import { patternsForForm } from "./patterns/patterns";
@@ -213,6 +213,13 @@ export default function App() {
     };
   };
 
+  const liveRanked = useMemo(() => {
+    if (!analysisResult) return null;
+    const hasContent = lines.length > 0 && lines[0].length > 0;
+    if (!hasContent) return analysisResult.ranked;
+    return analysisResult.ranked.map(r => analyzeAgainst(lines, r.pattern));
+  }, [analysisResult, lines]);
+
   const selectedPattern = useMemo(() => {
     const targetKey = lockedPattern ?? (analysisResult ? patternKey(analysisResult.best.pattern) : null);
     const hasContent = lines.length > 0 && lines[0].length > 0;
@@ -224,7 +231,7 @@ export default function App() {
       return hasContent ? buildFromPoem(p) : makeStub(p);
     }
 
-    const scored = analysisResult?.ranked.find(r => patternKey(r.pattern) === targetKey);
+    const scored = liveRanked?.find(r => patternKey(r.pattern) === targetKey);
 
     const p = allPatterns.find(pp => patternKey(pp) === targetKey);
     if (!p) return scored ?? null;
@@ -243,7 +250,7 @@ export default function App() {
     }
 
     return base;
-  }, [analysisResult, lockedPattern, form, allPatterns, lines]);
+  }, [liveRanked, lockedPattern, form, allPatterns, lines, analysisResult]);
 
   const patternOptions = useMemo(() => {
     const targetForm: FormId = form !== "auto"
@@ -254,13 +261,13 @@ export default function App() {
       ...(allowZe ? patternsForForm(targetForm, "仄韻") : [])
     ];
     const rankedMap = new Map(
-      (analysisResult?.ranked ?? []).map(r => [patternKey(r.pattern), r])
+      (liveRanked ?? []).map(r => [patternKey(r.pattern), r])
     );
     return allPats.map(p => rankedMap.get(patternKey(p)) ?? {
       pattern: p, combined: 0, toneScore: 0, rhymeScore: 0,
       chars: [] as any, issues: [], rhyme: null, nianDuiOk: false
     });
-  }, [analysisResult, form, allowZe]);
+  }, [liveRanked, analysisResult, form, allowZe]);
 
   const updateChar = (li: number, pos: number, ch: string) => {
     const next = raw.split(/\r?\n/);
