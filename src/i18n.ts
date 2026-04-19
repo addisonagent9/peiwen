@@ -64,6 +64,10 @@ export const T = {
     adminNoPoems: "此用戶尚無保存詩作",
     adminBackToUsers: "← 返回用戶列表",
     adminLoadError: "載入失敗",
+    adminPagePrev: "上一頁",
+    adminPageNext: "下一頁",
+    adminPageReadout: (page: number, total: number, count: number) =>
+      `第 ${page} / ${total} 頁（共 ${count} 位用戶）`,
     save: "儲存",
     saved: "已儲存 ✓",
     signOut: "登出",
@@ -121,6 +125,10 @@ export const T = {
     adminNoPoems: "此用户尚无保存诗作",
     adminBackToUsers: "← 返回用户列表",
     adminLoadError: "加载失败",
+    adminPagePrev: "上一页",
+    adminPageNext: "下一页",
+    adminPageReadout: (page: number, total: number, count: number) =>
+      `第 ${page} / ${total} 页（共 ${count} 位用户）`,
     save: "储存",
     saved: "已储存 ✓",
     signOut: "登出",

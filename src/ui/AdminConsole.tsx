@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { T, type Locale } from "../i18n";
 
 interface AdminUser {
@@ -24,6 +24,10 @@ interface AdminConsoleProps {
   onBack: () => void;
 }
 
+type SortKey = "created_at" | "last_login" | "poem_count";
+type SortDir = "asc" | "desc";
+const PAGE_SIZE = 200;
+
 function formatDate(iso: string | null, neverLabel: string): string {
   if (!iso) return neverLabel;
   const d = new Date(iso);
@@ -36,6 +40,32 @@ function firstLine(text: string): string {
   return line.trim();
 }
 
+function SortHeader({
+  label, sortKey, activeKey, activeDir, align = "left", onClick,
+}: {
+  label: string;
+  sortKey: SortKey;
+  activeKey: SortKey | null;
+  activeDir: SortDir;
+  align?: "left" | "right";
+  onClick: () => void;
+}) {
+  const isActive = activeKey === sortKey;
+  const arrow = isActive ? (activeDir === "desc" ? "↓" : "↑") : "";
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex items-center gap-1 hover:text-gold transition-colors ${
+        align === "right" ? "ml-auto flex-row-reverse" : ""
+      }`}
+    >
+      <span>{label}</span>
+      {isActive && <span className="text-gold text-xs">{arrow}</span>}
+    </button>
+  );
+}
+
 export default function AdminConsole({ locale, onBack }: AdminConsoleProps) {
   const t = T[locale];
   const [users, setUsers] = useState<AdminUser[] | null>(null);
@@ -44,6 +74,22 @@ export default function AdminConsole({ locale, onBack }: AdminConsoleProps) {
   const [userPoems, setUserPoems] = useState<AdminPoem[] | null>(null);
   const [poemsLoading, setPoemsLoading] = useState(false);
   const [expandedPoemId, setExpandedPoemId] = useState<number | null>(null);
+  const [sortKey, setSortKey] = useState<SortKey | null>(null);
+  const [sortDir, setSortDir] = useState<SortDir>("desc");
+  const [page, setPage] = useState(0);
+
+  function toggleSort(key: SortKey) {
+    setPage(0);
+    if (sortKey !== key) {
+      setSortKey(key);
+      setSortDir("desc");
+    } else if (sortDir === "desc") {
+      setSortDir("asc");
+    } else {
+      setSortKey(null);
+      setSortDir("desc");
+    }
+  }
 
   useEffect(() => {
     fetch("/api/admin/users", { credentials: "include" })
@@ -73,6 +119,35 @@ export default function AdminConsole({ locale, onBack }: AdminConsoleProps) {
       .catch(() => setError(t.adminLoadError))
       .finally(() => setPoemsLoading(false));
   }, [selectedUser, t]);
+
+  const sortedUsers = useMemo(() => {
+    if (!users) return null;
+    if (!sortKey) return users;
+    const copy = [...users];
+    copy.sort((a, b) => {
+      const av = (a as any)[sortKey];
+      const bv = (b as any)[sortKey];
+      if (av == null && bv == null) return 0;
+      if (av == null) return 1;
+      if (bv == null) return -1;
+      let cmp: number;
+      if (sortKey === "poem_count") {
+        cmp = (av as number) - (bv as number);
+      } else {
+        cmp = String(av).localeCompare(String(bv));
+      }
+      return sortDir === "desc" ? -cmp : cmp;
+    });
+    return copy;
+  }, [users, sortKey, sortDir]);
+
+  const totalPages = sortedUsers ? Math.max(1, Math.ceil(sortedUsers.length / PAGE_SIZE)) : 1;
+  const safePage = Math.min(page, totalPages - 1);
+  const pagedUsers = useMemo(() => {
+    if (!sortedUsers) return null;
+    const start = safePage * PAGE_SIZE;
+    return sortedUsers.slice(start, start + PAGE_SIZE);
+  }, [sortedUsers, safePage]);
 
   if (selectedUser) {
     const header = t.adminUserPoemsHeader(selectedUser.name || selectedUser.email);
@@ -144,13 +219,26 @@ export default function AdminConsole({ locale, onBack }: AdminConsoleProps) {
                 <tr className="border-b border-ink-line text-creamDim">
                   <th className="text-left py-2 pr-3">{t.adminColName}</th>
                   <th className="text-left py-2 pr-3">{t.adminColEmail}</th>
-                  <th className="text-left py-2 pr-3">{t.adminColSignup}</th>
-                  <th className="text-left py-2 pr-3">{t.adminColLastLogin}</th>
-                  <th className="text-right py-2">{t.adminColPoems}</th>
+                  <th className="text-left py-2 pr-3">
+                    <SortHeader label={t.adminColSignup} sortKey="created_at"
+                      activeKey={sortKey} activeDir={sortDir}
+                      onClick={() => toggleSort("created_at")} />
+                  </th>
+                  <th className="text-left py-2 pr-3">
+                    <SortHeader label={t.adminColLastLogin} sortKey="last_login"
+                      activeKey={sortKey} activeDir={sortDir}
+                      onClick={() => toggleSort("last_login")} />
+                  </th>
+                  <th className="text-right py-2">
+                    <SortHeader label={t.adminColPoems} sortKey="poem_count"
+                      activeKey={sortKey} activeDir={sortDir}
+                      align="right"
+                      onClick={() => toggleSort("poem_count")} />
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {users.map(u => (
+                {pagedUsers!.map(u => (
                   <tr
                     key={u.id}
                     className="border-b border-ink-line/50 hover:bg-ink-line/20 cursor-pointer"
@@ -176,6 +264,31 @@ export default function AdminConsole({ locale, onBack }: AdminConsoleProps) {
                 ))}
               </tbody>
             </table>
+            {sortedUsers && sortedUsers.length > PAGE_SIZE && (
+              <div className="flex items-center justify-between gap-3 mt-4 font-sans text-sm">
+                <div className="text-creamDim">
+                  {t.adminPageReadout(safePage + 1, totalPages, sortedUsers.length)}
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    disabled={safePage === 0}
+                    onClick={() => setPage(p => Math.max(0, p - 1))}
+                    className="px-3 py-1 border border-ink-line rounded text-cream hover:text-gold hover:border-gold disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {t.adminPagePrev}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={safePage >= totalPages - 1}
+                    onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+                    className="px-3 py-1 border border-ink-line rounded text-cream hover:text-gold hover:border-gold disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {t.adminPageNext}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

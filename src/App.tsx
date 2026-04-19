@@ -309,8 +309,8 @@ export default function App() {
     </div>
   );
 
-  const UserAvatar = user && (
-    <div className="flex items-center gap-2">
+  const avatarContent = user && (
+    <>
       {user.avatar ? (
         <img src={user.avatar} alt="" className="w-6 h-6 rounded-full" referrerPolicy="no-referrer" />
       ) : (
@@ -318,15 +318,24 @@ export default function App() {
           {(user.name || user.email)[0]}
         </div>
       )}
-      {user.is_admin === 1 ? (
-        <button
-          onClick={() => setView("admin")}
-          className="text-cream hover:text-gold transition-colors text-xs font-sans hidden sm:inline"
-        >{user.name}</button>
-      ) : (
-        <span className="text-cream text-xs font-sans hidden sm:inline">{user.name}</span>
-      )}
-    </div>
+      <span className="text-cream text-xs font-sans hidden sm:inline">{user.name}</span>
+    </>
+  );
+
+  const UserAvatar = user && (
+    user.is_admin === 1 ? (
+      <button
+        onClick={() => setView("admin")}
+        className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+        aria-label={t.adminTitle}
+      >
+        {avatarContent}
+      </button>
+    ) : (
+      <div className="flex items-center gap-2">
+        {avatarContent}
+      </div>
+    )
   );
 
   const HeaderLeft = ({ mobile }: { mobile?: boolean }) => {
