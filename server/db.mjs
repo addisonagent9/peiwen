@@ -12,6 +12,8 @@ db.exec(`
     name TEXT,
     avatar TEXT,
     is_premium INTEGER DEFAULT 0,
+    is_admin INTEGER DEFAULT 0,
+    last_login TEXT,
     created_at TEXT DEFAULT (datetime('now'))
   );
   CREATE TABLE IF NOT EXISTS poems (
@@ -22,5 +24,16 @@ db.exec(`
     FOREIGN KEY (user_id) REFERENCES users(id)
   );
 `);
+
+try {
+  db.exec(`ALTER TABLE users ADD COLUMN is_admin INTEGER DEFAULT 0`);
+} catch (e) {
+  if (!/duplicate column/i.test(e.message)) throw e;
+}
+try {
+  db.exec(`ALTER TABLE users ADD COLUMN last_login TEXT`);
+} catch (e) {
+  if (!/duplicate column/i.test(e.message)) throw e;
+}
 
 export default db;

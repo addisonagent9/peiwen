@@ -233,7 +233,7 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
           <>
             <div className="flex items-start justify-between mb-1">
               <div className="text-xs text-creamDim font-sans">{t.charLabel(lineIdx+1, pos+1)}</div>
-              {mismatch && (
+              {mismatch && isAdmin && (
                 <button
                   onClick={openSuggest}
                   aria-label={t.suggest}

@@ -52,7 +52,7 @@ app.use(passport.session());
 
 passport.serializeUser((user, done) => done(null, user.id));
 passport.deserializeUser((id, done) => {
-  const row = db.prepare("SELECT id, email, name, avatar, is_premium FROM users WHERE id = ?").get(id);
+  const row = db.prepare("SELECT id, email, name, avatar, is_premium, is_admin, last_login FROM users WHERE id = ?").get(id);
   done(null, row || null);
 });
 
@@ -67,22 +67,30 @@ if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
     const name = profile.displayName ?? "";
     const avatar = profile.photos?.[0]?.value ?? "";
     const isPremium = email === "addison.k@gmail.com" ? 1 : 0;
+    const isAdmin = email === "addison.k@gmail.com" ? 1 : 0;
+    const now = new Date().toISOString();
 
     const existing = db.prepare("SELECT id FROM users WHERE id = ?").get(id);
     if (existing) {
-      db.prepare("UPDATE users SET email = ?, name = ?, avatar = ?, is_premium = ? WHERE id = ?")
-        .run(email, name, avatar, isPremium, id);
+      db.prepare("UPDATE users SET email = ?, name = ?, avatar = ?, is_premium = ?, is_admin = ?, last_login = ? WHERE id = ?")
+        .run(email, name, avatar, isPremium, isAdmin, now, id);
     } else {
-      db.prepare("INSERT INTO users (id, email, name, avatar, is_premium) VALUES (?, ?, ?, ?, ?)")
-        .run(id, email, name, avatar, isPremium);
+      db.prepare("INSERT INTO users (id, email, name, avatar, is_premium, is_admin, last_login) VALUES (?, ?, ?, ?, ?, ?, ?)")
+        .run(id, email, name, avatar, isPremium, isAdmin, now);
     }
-    done(null, { id, email, name, avatar, is_premium: isPremium });
+    done(null, { id, email, name, avatar, is_premium: isPremium, is_admin: isAdmin, last_login: now });
   }));
 }
 
 function requireAuth(req, res, next) {
   if (req.isAuthenticated()) return next();
   res.status(401).json({ error: "not authenticated" });
+}
+
+function requireAdmin(req, res, next) {
+  if (!req.isAuthenticated()) return res.status(401).json({ error: "unauthenticated" });
+  if (req.user?.is_admin !== 1) return res.status(403).json({ error: "forbidden" });
+  next();
 }
 
 // --- Auth routes ---
@@ -131,7 +139,7 @@ app.delete("/api/poems/:id", requireAuth, (req, res) => {
 });
 
 // --- Suggest route ---
-app.post("/api/suggest", async (req, res) => {
+app.post("/api/suggest", requireAdmin, async (req, res) => {
   const prompt = req.body?.prompt;
   if (typeof prompt !== "string" || !prompt.trim()) {
     return res.status(400).json({ error: "missing prompt" });
@@ -161,6 +169,27 @@ app.post("/api/suggest", async (req, res) => {
   } catch (err) {
     res.status(502).json({ error: String(err?.message ?? err) });
   }
+});
+
+// --- Admin routes ---
+app.get("/api/admin/users", requireAdmin, (req, res) => {
+  const rows = db.prepare(`
+    SELECT
+      u.id, u.email, u.name, u.avatar, u.is_admin, u.is_premium,
+      u.created_at, u.last_login,
+      (SELECT COUNT(*) FROM poems p WHERE p.user_id = u.id) AS poem_count
+    FROM users u
+    ORDER BY u.created_at DESC
+  `).all();
+  res.json({ users: rows });
+});
+
+app.get("/api/admin/users/:id/poems", requireAdmin, (req, res) => {
+  const targetId = req.params.id;
+  const user = db.prepare("SELECT id, email, name, avatar, created_at, last_login FROM users WHERE id = ?").get(targetId);
+  if (!user) return res.status(404).json({ error: "user not found" });
+  const poems = db.prepare("SELECT id, text, saved_at FROM poems WHERE user_id = ? ORDER BY saved_at DESC").all(targetId);
+  res.json({ user, poems });
 });
 
 // --- Static / SPA fallback ---

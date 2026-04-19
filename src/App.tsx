@@ -3,6 +3,7 @@ import { Grid } from "./ui/Grid";
 import { RhymeDrawer } from "./ui/RhymeDrawer";
 import { EditModal } from "./ui/EditModal";
 import { RhymeReference } from "./ui/RhymeReference";
+import AdminConsole from "./ui/AdminConsole";
 import { detectBest, formFromDims } from "./analysis/detect";
 import { lookupExpecting } from "./analysis/tone";
 import { analyzeAgainst, computeLiveIssues } from "./analysis/validate";
@@ -28,6 +29,8 @@ interface User {
   email: string;
   avatar: string;
   is_premium: number;
+  is_admin: number;
+  last_login: string | null;
 }
 
 interface SavedPoem {
@@ -51,7 +54,7 @@ export default function App() {
   const [drawerRhyme, setDrawerRhyme] = useState<string | null>(null);
   const [editCell, setEditCell] = useState<{ li: number; pos: number } | null>(null);
   const [lockedPattern, setLockedPattern] = useState<string | null>(null);
-  const [view, setView] = useState<"main" | "rhyme-reference">("main");
+  const [view, setView] = useState<"main" | "rhyme-reference" | "admin">("main");
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     if (typeof window === "undefined") return true;
     const stored = window.localStorage.getItem("theme");
@@ -315,7 +318,14 @@ export default function App() {
           {(user.name || user.email)[0]}
         </div>
       )}
-      <span className="text-cream text-xs font-sans hidden sm:inline">{user.name}</span>
+      {user.is_admin === 1 ? (
+        <button
+          onClick={() => setView("admin")}
+          className="text-cream hover:text-gold transition-colors text-xs font-sans hidden sm:inline"
+        >{user.name}</button>
+      ) : (
+        <span className="text-cream text-xs font-sans hidden sm:inline">{user.name}</span>
+      )}
     </div>
   );
 
@@ -439,6 +449,10 @@ export default function App() {
 
   if (view === "rhyme-reference") {
     return <RhymeReference t={t} onBack={() => setView("main")} />;
+  }
+
+  if (view === "admin") {
+    return <AdminConsole locale={locale} onBack={() => setView("main")} />;
   }
 
   return (
@@ -643,7 +657,7 @@ export default function App() {
               ?? null)
           : null}
         isLoggedIn={!!user}
-        isAdmin={user?.is_premium === 1}
+        isAdmin={user?.is_admin === 1}
         locale={locale}
         lineIdx={editCell?.li ?? 0}
         pos={editCell?.pos ?? 0}
