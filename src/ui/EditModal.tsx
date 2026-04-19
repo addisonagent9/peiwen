@@ -301,7 +301,7 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
                           <span key={i} className="px-2 py-1 rounded bg-ink-bg border border-ink-line">
                             {rn && (
                               <span className={`mr-1 ${rn.status === "attested" ? "text-teal" : "text-amber"}`}>
-                                {rn.status === "attested" ? "✓" : "△"}
+                                {rn.status === "attested" ? "✓" : "ⓘ"}
                               </span>
                             )}
                             <span className={e.tone === "平" ? "text-teal" : e.tone === "入" ? "text-amber" : "text-rose"}>
@@ -327,7 +327,7 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
                               {prn.map(rn => (
                                 <div key={rn.rhyme}>
                                   <span className={rn.status === "attested" ? "text-teal" : "text-amber"}>
-                                    {rn.status === "attested" ? "✓" : "△"}
+                                    {rn.status === "attested" ? "✓" : "ⓘ"}
                                   </span>
                                   {" "}<span className="text-gold">{rn.rhyme}</span>
                                   {" — "}{locale === "繁" ? rn.note_zh_tw : rn.note_zh_cn}
