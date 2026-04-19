@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Grid } from "./ui/Grid";
 import { RhymeDrawer } from "./ui/RhymeDrawer";
 import { EditModal } from "./ui/EditModal";
+import { RhymeReference } from "./ui/RhymeReference";
 import { detectBest, formFromDims } from "./analysis/detect";
 import { lookupExpecting } from "./analysis/tone";
 import { analyzeAgainst, computeLiveIssues } from "./analysis/validate";
@@ -50,6 +51,7 @@ export default function App() {
   const [drawerRhyme, setDrawerRhyme] = useState<string | null>(null);
   const [editCell, setEditCell] = useState<{ li: number; pos: number } | null>(null);
   const [lockedPattern, setLockedPattern] = useState<string | null>(null);
+  const [view, setView] = useState<"main" | "rhyme-reference">("main");
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     if (typeof window === "undefined") return true;
     const stored = window.localStorage.getItem("theme");
@@ -435,13 +437,17 @@ export default function App() {
     </div>
   );
 
+  if (view === "rhyme-reference") {
+    return <RhymeReference t={t} onBack={() => setView("main")} />;
+  }
+
   return (
     <div className="min-h-screen bg-ink-bg text-cream flex flex-col">
       <header className="sticky top-0 z-10 bg-ink-bg border-b border-ink-line px-4 sm:px-6 py-3 sm:py-4 overflow-hidden">
         <div className="sm:hidden flex flex-col gap-2">
           <div className="text-center">
             <div className="text-xl font-serif font-bold text-gold tracking-[0.2em] whitespace-nowrap">佩文・詩律析辨</div>
-            <div className="text-[10px] text-creamDim font-sans mt-0.5">Classical Chinese prosody analyzer · 平水韻 106 部</div>
+            <div className="text-[10px] text-creamDim font-sans mt-0.5">Classical Chinese prosody analyzer · <button onClick={() => setView("rhyme-reference")} className="hover:text-gold transition cursor-pointer">平水韻 106 部</button></div>
           </div>
           <div className="flex items-center justify-between gap-2">
             <HeaderLeft mobile />
@@ -454,7 +460,7 @@ export default function App() {
 
           <div className="text-center">
             <div className="text-4xl font-serif font-bold text-gold tracking-[0.2em] whitespace-nowrap">佩文・詩律析辨</div>
-            <div className="text-xs text-creamDim font-sans mt-1">Classical Chinese prosody analyzer · 平水韻 106 部</div>
+            <div className="text-xs text-creamDim font-sans mt-1">Classical Chinese prosody analyzer · <button onClick={() => setView("rhyme-reference")} className="hover:text-gold transition cursor-pointer">平水韻 106 部</button></div>
           </div>
 
           <div className="flex justify-end">
