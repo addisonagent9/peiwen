@@ -272,7 +272,10 @@ export default function AudioReview() {
                         setGenerateLoading(key);
                         try {
                           await generate(item.text, item.voiceKind, prov.id, '');
-                        } catch { /* hook surfaces error */ }
+                        } catch (err) {
+                          const msg = err instanceof Error ? err.message : String(err);
+                          alert(`Failed to generate with ${prov.label}: ${msg}`);
+                        }
                         setGenerateLoading(null);
                       }}
                       disabled={generateLoading === key}

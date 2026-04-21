@@ -123,9 +123,20 @@ export function createAdminAudioRouter({ db, audioService, requireAdmin, cacheDi
       if (!['azure', 'elevenlabs', 'alibaba'].includes(provider)) {
         return res.status(400).json({ error: 'INVALID_PROVIDER' });
       }
-      const effectiveVoiceId = voiceId ?? (provider === 'alibaba' ? 'default' : null);
+      let effectiveVoiceId = voiceId;
       if (typeof effectiveVoiceId !== 'string' || !effectiveVoiceId.trim()) {
-        return res.status(400).json({ error: 'INVALID_VOICE_ID' });
+        if (provider === 'alibaba') {
+          effectiveVoiceId = 'default';
+        } else if (provider === 'azure') {
+          effectiveVoiceId = process.env.AZURE_SPEECH_VOICE_MANDARIN ?? 'zh-TW-HsiaoChenNeural';
+        } else if (provider === 'elevenlabs') {
+          effectiveVoiceId = voiceKind === 'cantonese'
+            ? process.env.ELEVENLABS_VOICE_ID_CANTONESE
+            : process.env.ELEVENLABS_VOICE_ID_MANDARIN;
+        }
+      }
+      if (!effectiveVoiceId || typeof effectiveVoiceId !== 'string' || !effectiveVoiceId.trim()) {
+        return res.status(400).json({ error: 'VOICE_ID_NOT_CONFIGURED', provider, voiceKind });
       }
 
       const result = await audioService.synthesizeWith(text.trim(), { provider, voiceId: effectiveVoiceId });
