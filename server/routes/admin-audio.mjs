@@ -120,15 +120,16 @@ export function createAdminAudioRouter({ db, audioService, requireAdmin, cacheDi
       if (!['mandarin', 'cantonese'].includes(voiceKind)) {
         return res.status(400).json({ error: 'INVALID_VOICE_KIND' });
       }
-      if (!['azure', 'elevenlabs'].includes(provider)) {
+      if (!['azure', 'elevenlabs', 'alibaba'].includes(provider)) {
         return res.status(400).json({ error: 'INVALID_PROVIDER' });
       }
-      if (typeof voiceId !== 'string' || !voiceId.trim()) {
+      const effectiveVoiceId = voiceId ?? (provider === 'alibaba' ? 'default' : null);
+      if (typeof effectiveVoiceId !== 'string' || !effectiveVoiceId.trim()) {
         return res.status(400).json({ error: 'INVALID_VOICE_ID' });
       }
 
-      const result = await audioService.synthesizeWith(text.trim(), { provider, voiceId });
-      const filePath = shardedPath(pendingDir, text.trim(), provider, voiceId);
+      const result = await audioService.synthesizeWith(text.trim(), { provider, voiceId: effectiveVoiceId });
+      const filePath = shardedPath(pendingDir, text.trim(), provider, effectiveVoiceId);
       await atomicWrite(filePath, result.audio);
 
       const row = db.prepare(`
@@ -141,7 +142,7 @@ export function createAdminAudioRouter({ db, audioService, requireAdmin, cacheDi
           reviewed_at = NULL,
           reviewed_by = NULL
         RETURNING *
-      `).get(text.trim(), voiceKind, provider, voiceId, filePath);
+      `).get(text.trim(), voiceKind, provider, effectiveVoiceId, filePath);
 
       res.json({
         id: row.id,
@@ -298,7 +299,7 @@ export function createAdminAudioRouter({ db, audioService, requireAdmin, cacheDi
   router.post('/bulk-approve', requireAdmin, express.json(), async (req, res, next) => {
     try {
       const { provider, voiceKind } = req.body ?? {};
-      if (!['azure', 'elevenlabs'].includes(provider)) {
+      if (!['azure', 'elevenlabs', 'alibaba'].includes(provider)) {
         return res.status(400).json({ error: 'INVALID_PROVIDER' });
       }
       if (!['mandarin', 'cantonese'].includes(voiceKind)) {
