@@ -156,7 +156,7 @@ export class AudioService {
       p = new AlibabaAudioProvider({
         apiKey: this.alibabaConfig.apiKey,
         model: this.alibabaConfig.model,
-        voice: voiceId || this.alibabaConfig.voice,
+        voice: (voiceId && voiceId.trim()) ? voiceId : this.alibabaConfig.voice,
         baseUrl: this.alibabaConfig.baseUrl,
       });
     } else {

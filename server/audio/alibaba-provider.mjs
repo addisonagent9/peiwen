@@ -195,12 +195,12 @@ export class AlibabaAudioProvider {
         }
       });
 
-      ws.on('close', () => {
+      ws.on('close', (code, reason) => {
         if (!resolved) {
           resolved = true;
           cleanup();
           reject(new AudioProviderError(
-            `Alibaba CosyVoice WebSocket closed unexpectedly (received ${audioChunks.length} chunks before close, but no task-finished event)`,
+            `Alibaba CosyVoice WebSocket closed unexpectedly (code=${code}, reason="${reason?.toString?.() ?? ''}", received ${audioChunks.length} chunks before close, but no task-finished event)`,
           ));
         }
       });
