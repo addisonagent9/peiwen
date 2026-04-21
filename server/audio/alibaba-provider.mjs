@@ -75,7 +75,8 @@ export class AlibabaAudioProvider {
 
       const ws = new WebSocket(this.baseUrl, {
         headers: {
-          'Authorization': `Bearer ${this.config.apiKey}`,
+          'Authorization': `bearer ${this.config.apiKey}`,
+          'X-DashScope-DataInspection': 'enable',
         },
       });
 
