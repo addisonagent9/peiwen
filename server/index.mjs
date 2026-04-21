@@ -13,6 +13,7 @@ import { mountTrainer } from "./trainer/index.mjs";
 import { requireTrainerBeta, describeTrainerGate } from "./middleware/trainer-beta.mjs";
 import { createAudioServiceFromEnv } from "./audio/service.mjs";
 import { createAudioRouter } from "./routes/audio.mjs";
+import { createAdminAudioRouter } from "./routes/admin-audio.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.join(__dirname, ".env") });
@@ -210,7 +211,11 @@ const audioService = createAudioServiceFromEnv({
   cacheDir: path.join(__dirname, "data", "audio-cache"),
 });
 app.use("/api/audio", createAudioRouter(audioService));
-console.log(`[audio] provider: ${audioService.providerName}`);
+app.use("/api/admin/audio", createAdminAudioRouter({
+  db, audioService, requireAdmin,
+  cacheDir: path.join(__dirname, "data", "audio-cache"),
+}));
+console.log(`[audio] providers: ${audioService.describeProviders()}`);
 
 // --- Static / SPA fallback ---
 app.use(express.static(DIST, { maxAge: "1y", etag: false, index: false }));

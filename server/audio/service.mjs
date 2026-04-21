@@ -6,41 +6,72 @@
  *   2. Check cache before hitting the provider
  *   3. Persist provider results to cache
  *   4. Surface errors in a uniform shape
+ *   5. Support explicit provider selection (for admin audio review)
  */
 
 import path from 'path';
 import { NullAudioProvider, DEFAULT_VOICE, AudioUnavailableError } from './provider.mjs';
 import { AzureAudioProvider } from './azure-provider.mjs';
+import { ElevenLabsAudioProvider } from './elevenlabs-provider.mjs';
 import { AudioCache } from './cache.mjs';
 
 export class AudioService {
   constructor(config) {
     this.cache = new AudioCache({ rootDir: config.cacheDir });
+
+    // Named providers map — for explicit provider selection via synthesizeWith
+    this.providers = {};
+
     if (config.azure?.apiKey && config.azure?.region) {
-      this.provider = new AzureAudioProvider({
+      this.providers.azure = new AzureAudioProvider({
         apiKey: config.azure.apiKey,
         region: config.azure.region,
       });
-    } else {
-      this.provider = new NullAudioProvider();
     }
+
+    if (config.elevenlabs?.apiKey) {
+      // Support multiple voice IDs by storing the provider factory config
+      this.elevenLabsConfig = config.elevenlabs;
+      if (config.elevenlabs.voiceIdMandarin) {
+        this.providers.elevenlabs = new ElevenLabsAudioProvider({
+          apiKey: config.elevenlabs.apiKey,
+          voiceId: config.elevenlabs.voiceIdMandarin,
+        });
+      }
+    }
+
+    // Default provider: ElevenLabs > Azure > Null
+    this.provider = this.providers.elevenlabs
+      ?? this.providers.azure
+      ?? new NullAudioProvider();
   }
 
-  /** Is audio synthesis actually available? */
+  /** Is any audio synthesis provider available? */
   isAvailable() {
     return this.provider.isAvailable();
   }
 
-  /** Provider name, for diagnostics. */
+  /** Default provider name, for diagnostics. */
   get providerName() {
     return this.provider.name;
   }
 
+  /** Summary of all configured providers, for boot logging. */
+  describeProviders() {
+    const parts = [];
+    if (this.providers.elevenlabs) {
+      parts.push(`elevenlabs(${this.elevenLabsConfig?.voiceIdMandarin?.slice(0, 8) ?? '?'}...)`);
+    }
+    if (this.providers.azure) {
+      parts.push('azure(configured)');
+    }
+    if (parts.length === 0) parts.push('null');
+    return parts.join(' | ');
+  }
+
   /**
-   * Synthesize (or serve from cache) the given text.
-   *
-   * @throws {AudioUnavailableError} if no provider is configured AND no cache
-   *         entry exists for the request.
+   * Synthesize (or serve from cache) the given text using the default provider.
+   * Backward-compatible with existing audio route.
    */
   async synthesize(text, voice) {
     const v = voice ?? DEFAULT_VOICE;
@@ -77,6 +108,41 @@ export class AudioService {
     };
   }
 
+  /**
+   * Synthesize with an explicit provider + voice. Used by admin audio review.
+   * Does NOT check or write to the shared cache — admin audio has its own
+   * file management via audio_clips table.
+   *
+   * @param {string} text
+   * @param {object} opts
+   * @param {string} opts.provider — 'azure' or 'elevenlabs'
+   * @param {string} opts.voiceId — provider-specific voice identifier
+   * @returns {Promise<{audio: Buffer, mimeType: string, voice: string, sourceText: string}>}
+   */
+  async synthesizeWith(text, { provider: providerName, voiceId }) {
+    const normalized = text.trim();
+    if (!normalized) throw new Error('Empty text');
+
+    let p;
+    if (providerName === 'azure') {
+      p = this.providers.azure;
+      if (!p) throw new AudioUnavailableError('Azure provider not configured');
+    } else if (providerName === 'elevenlabs') {
+      // Create a provider instance with the requested voice ID
+      if (!this.elevenLabsConfig?.apiKey) {
+        throw new AudioUnavailableError('ElevenLabs provider not configured');
+      }
+      p = new ElevenLabsAudioProvider({
+        apiKey: this.elevenLabsConfig.apiKey,
+        voiceId: voiceId,
+      });
+    } else {
+      throw new Error(`Unknown provider: ${providerName}`);
+    }
+
+    return p.synthesize({ text: normalized });
+  }
+
   /** Cache size for monitoring. */
   cacheSize() {
     return this.cache.size();
@@ -96,6 +162,14 @@ export function createAudioServiceFromEnv(opts = {}) {
         ? {
             apiKey: process.env.AZURE_SPEECH_KEY,
             region: process.env.AZURE_SPEECH_REGION,
+          }
+        : undefined,
+    elevenlabs:
+      process.env.ELEVENLABS_API_KEY
+        ? {
+            apiKey: process.env.ELEVENLABS_API_KEY,
+            voiceIdMandarin: process.env.ELEVENLABS_VOICE_ID_MANDARIN,
+            voiceIdCantonese: process.env.ELEVENLABS_VOICE_ID_CANTONESE,
           }
         : undefined,
   });

@@ -167,9 +167,9 @@ describe('E2E: full trainer flow', () => {
 
     const first = runMigrations(db, migrationsDir);
     const second = runMigrations(db, migrationsDir);
-    assert.equal(first.applied.length, 1);
+    assert.ok(first.applied.length >= 1, `expected >=1 applied, got ${first.applied.length}`);
     assert.equal(second.applied.length, 0);
-    assert.equal(second.skipped.length, 1);
+    assert.equal(second.skipped.length, first.applied.length);
 
     db.close();
   });
