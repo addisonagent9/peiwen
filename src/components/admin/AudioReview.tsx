@@ -204,41 +204,57 @@ export default function AudioReview() {
               {item.clips.length > 0 ? (
                 <div className="divide-y divide-[#F5F0E8]/5">
                   {item.clips.map(clip => (
-                    <div
-                      key={clip.id}
-                      className="px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-3"
-                    >
-                      <div className="flex items-center gap-2 min-w-0 flex-1">
-                        <span className={`text-xs px-2 py-0.5 rounded-full border ${statusColor(clip.status)}`}>
-                          {statusLabel(clip.status)}
-                        </span>
-                        <span className="text-xs text-[#F5F0E8]/25">
-                          {clip.voiceId}
-                        </span>
+                    <div key={clip.id} className="px-4 py-3 flex flex-col gap-2">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          <span className={`text-xs px-2 py-0.5 rounded-full border ${statusColor(clip.status)}`}>
+                            {statusLabel(clip.status)}
+                          </span>
+                          <span className="text-sm font-medium text-[#B8A04A] px-2 py-0.5 rounded bg-[#B8A04A]/10 border border-[#B8A04A]/30">
+                            {clip.voiceId}
+                          </span>
+                        </div>
+
+                        <audio
+                          controls
+                          src={`/api/admin/audio/file/${clip.id}`}
+                          className="h-8 w-full sm:w-48 flex-shrink-0"
+                        />
+
+                        <div className="flex gap-1.5 flex-shrink-0">
+                          <button
+                            onClick={() => handleAction(approve, clip.id)}
+                            disabled={actionLoading === clip.id || clip.status === 'approved'}
+                            className="px-2 py-1 rounded text-xs bg-[#B8A04A]/10 text-[#B8A04A] border border-[#B8A04A]/30 hover:bg-[#B8A04A]/20 disabled:opacity-30 transition"
+                          >✓</button>
+                          <button
+                            onClick={() => handleAction(reject, clip.id)}
+                            disabled={actionLoading === clip.id || clip.status === 'rejected'}
+                            className="px-2 py-1 rounded text-xs bg-rose-400/10 text-rose-400 border border-rose-400/30 hover:bg-rose-400/20 disabled:opacity-30 transition"
+                          >✗</button>
+                          <button
+                            onClick={() => {
+                              const input = document.getElementById(`gen-text-${clip.id}`) as HTMLInputElement | null;
+                              const genText = input?.value?.trim() || clip.generationText || item.text;
+                              regenerate(clip.id, genText).catch(err => {
+                                alert(`Regenerate failed: ${err instanceof Error ? err.message : String(err)}`);
+                              });
+                            }}
+                            disabled={actionLoading === clip.id}
+                            className="px-2 py-1 rounded text-xs bg-amber-300/10 text-amber-300 border border-amber-300/30 hover:bg-amber-300/20 disabled:opacity-30 transition"
+                          >↻</button>
+                        </div>
                       </div>
 
-                      <audio
-                        controls
-                        src={`/api/admin/audio/file/${clip.id}`}
-                        className="h-8 w-full sm:w-48 flex-shrink-0"
-                      />
-
-                      <div className="flex gap-1.5 flex-shrink-0">
-                        <button
-                          onClick={() => handleAction(approve, clip.id)}
-                          disabled={actionLoading === clip.id || clip.status === 'approved'}
-                          className="px-2 py-1 rounded text-xs bg-[#B8A04A]/10 text-[#B8A04A] border border-[#B8A04A]/30 hover:bg-[#B8A04A]/20 disabled:opacity-30 transition"
-                        >✓</button>
-                        <button
-                          onClick={() => handleAction(reject, clip.id)}
-                          disabled={actionLoading === clip.id || clip.status === 'rejected'}
-                          className="px-2 py-1 rounded text-xs bg-rose-400/10 text-rose-400 border border-rose-400/30 hover:bg-rose-400/20 disabled:opacity-30 transition"
-                        >✗</button>
-                        <button
-                          onClick={() => handleAction(regenerate, clip.id)}
-                          disabled={actionLoading === clip.id}
-                          className="px-2 py-1 rounded text-xs bg-amber-300/10 text-amber-300 border border-amber-300/30 hover:bg-amber-300/20 disabled:opacity-30 transition"
-                        >↻</button>
+                      <div className="flex items-center gap-2">
+                        <label className="text-xs text-[#F5F0E8]/40 shrink-0">TTS text:</label>
+                        <input
+                          id={`gen-text-${clip.id}`}
+                          type="text"
+                          defaultValue={clip.generationText || item.text}
+                          className="flex-1 px-2 py-1 text-sm bg-[#F5F0E8]/5 border border-[#F5F0E8]/10 rounded text-[#F5F0E8]/80 focus:border-[#B8A04A]/50 focus:outline-none"
+                          placeholder={item.text}
+                        />
                       </div>
                     </div>
                   ))}

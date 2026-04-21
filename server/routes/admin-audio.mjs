@@ -97,6 +97,7 @@ export function createAdminAudioRouter({ db, audioService, requireAdmin, cacheDi
           id: row.id,
           provider: row.provider,
           voiceId: row.voice_id,
+          generationText: row.generation_text,
           status: row.status,
           filePath: row.file_path,
           createdAt: row.created_at,
@@ -123,22 +124,24 @@ export function createAdminAudioRouter({ db, audioService, requireAdmin, cacheDi
       }
 
       const { provider, voiceId } = getPrimaryVoice(voiceKind);
+      const generationText = text.trim();
 
-      const result = await audioService.synthesizeWith(text.trim(), { provider, voiceId });
+      const result = await audioService.synthesizeWith(generationText, { provider, voiceId });
       const filePath = shardedPath(pendingDir, text.trim(), provider, voiceId);
       await atomicWrite(filePath, result.audio);
 
       const row = db.prepare(`
-        INSERT INTO audio_clips (text, voice_kind, provider, voice_id, status, file_path)
-        VALUES (?, ?, ?, ?, 'pending', ?)
+        INSERT INTO audio_clips (text, voice_kind, provider, voice_id, file_path, generation_text, status, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, 'pending', datetime('now'))
         ON CONFLICT(text, voice_kind, provider, voice_id) DO UPDATE SET
           file_path = excluded.file_path,
+          generation_text = excluded.generation_text,
           status = 'pending',
           created_at = datetime('now'),
           reviewed_at = NULL,
           reviewed_by = NULL
         RETURNING *
-      `).get(text.trim(), voiceKind, provider, voiceId, filePath);
+      `).get(text.trim(), voiceKind, provider, voiceId, filePath, generationText);
 
       res.json({
         id: row.id,
@@ -146,6 +149,7 @@ export function createAdminAudioRouter({ db, audioService, requireAdmin, cacheDi
         voiceKind: row.voice_kind,
         provider: row.provider,
         voiceId: row.voice_id,
+        generationText: row.generation_text,
         status: row.status,
         filePath: row.file_path,
       });
@@ -251,19 +255,21 @@ export function createAdminAudioRouter({ db, audioService, requireAdmin, cacheDi
   // POST /api/admin/audio/regenerate
   router.post('/regenerate', requireAdmin, express.json(), async (req, res, next) => {
     try {
-      const { clipId } = req.body ?? {};
-      if (typeof clipId !== 'number') {
-        return res.status(400).json({ error: 'INVALID_CLIP_ID' });
-      }
+      const clipId = parseInt(req.body?.clipId);
+      const providedGenText = req.body?.generationText;
+      if (!clipId) return res.status(400).json({ error: 'INVALID_CLIP_ID' });
 
       const clip = db.prepare('SELECT * FROM audio_clips WHERE id = ?').get(clipId);
       if (!clip) return res.status(404).json({ error: 'CLIP_NOT_FOUND' });
 
-      // Cycle to next voice in the pool
+      const generationText = (providedGenText && typeof providedGenText === 'string' && providedGenText.trim())
+        ? providedGenText.trim()
+        : (clip.generation_text || clip.text);
+
       const currentVoice = { provider: clip.provider, voiceId: clip.voice_id };
       const nextVoice = getNextVoice(clip.voice_kind, currentVoice);
 
-      const result = await audioService.synthesizeWith(clip.text, {
+      const result = await audioService.synthesizeWith(generationText, {
         provider: nextVoice.provider,
         voiceId: nextVoice.voiceId,
       });
@@ -271,17 +277,16 @@ export function createAdminAudioRouter({ db, audioService, requireAdmin, cacheDi
       const newFilePath = shardedPath(pendingDir, clip.text, nextVoice.provider, nextVoice.voiceId);
       await atomicWrite(newFilePath, result.audio);
 
-      // Delete old file if path changed
       if (clip.file_path && clip.file_path !== newFilePath) {
         await safeDelete(clip.file_path);
       }
 
       db.prepare(`
         UPDATE audio_clips SET provider = ?, voice_id = ?, file_path = ?,
-          status = 'pending', created_at = datetime('now'),
+          generation_text = ?, status = 'pending', created_at = datetime('now'),
           reviewed_at = NULL, reviewed_by = NULL
         WHERE id = ?
-      `).run(nextVoice.provider, nextVoice.voiceId, newFilePath, clipId);
+      `).run(nextVoice.provider, nextVoice.voiceId, newFilePath, generationText, clipId);
 
       const updated = db.prepare('SELECT * FROM audio_clips WHERE id = ?').get(clipId);
       res.json({
@@ -290,6 +295,7 @@ export function createAdminAudioRouter({ db, audioService, requireAdmin, cacheDi
         voiceKind: updated.voice_kind,
         provider: updated.provider,
         voiceId: updated.voice_id,
+        generationText: updated.generation_text,
         status: updated.status,
         filePath: updated.file_path,
       });
@@ -418,8 +424,8 @@ export function createAdminAudioRouter({ db, audioService, requireAdmin, cacheDi
 
       const sCheck = db.prepare('SELECT id FROM audio_clips WHERE text = ? AND voice_kind = ? AND provider = ? AND voice_id = ?');
       const sInsert = db.prepare(`
-        INSERT INTO audio_clips (text, voice_kind, provider, voice_id, status, file_path, usage_context)
-        VALUES (?, ?, ?, ?, 'pending', ?, ?)
+        INSERT INTO audio_clips (text, voice_kind, provider, voice_id, status, file_path, generation_text, usage_context)
+        VALUES (?, ?, ?, ?, 'pending', ?, ?, ?)
       `);
 
       let generated = 0, skipped = 0;
@@ -434,7 +440,7 @@ export function createAdminAudioRouter({ db, audioService, requireAdmin, cacheDi
           const result = await audioService.synthesizeWith(item.text, { provider: providerName, voiceId });
           const filePath = shardedPath(pendingDir, item.text, providerName, voiceId);
           await atomicWrite(filePath, result.audio);
-          sInsert.run(item.text, item.voiceKind, providerName, voiceId, filePath, JSON.stringify(['prewarm']));
+          sInsert.run(item.text, item.voiceKind, providerName, voiceId, filePath, item.text, JSON.stringify(['prewarm']));
           generated++;
         } catch (err) {
           console.error(`[prewarm] error on ${item.text}: ${err.message}`);

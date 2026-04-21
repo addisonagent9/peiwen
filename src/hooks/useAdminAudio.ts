@@ -11,6 +11,7 @@ interface AudioClip {
   id: number;
   provider: string;
   voiceId: string;
+  generationText: string;
   status: 'pending' | 'approved' | 'rejected';
   filePath: string | null;
   createdAt: string;
@@ -31,7 +32,7 @@ interface UseAdminAudioReturn {
   setFilters: (f: Partial<Filters>) => void;
   approve: (clipId: number) => Promise<void>;
   reject: (clipId: number) => Promise<void>;
-  regenerate: (clipId: number) => Promise<void>;
+  regenerate: (clipId: number, generationText?: string) => Promise<void>;
   generate: (text: string, voiceKind: string, provider: string, voiceId: string) => Promise<void>;
   prewarm: () => Promise<{ generated: number; skipped: number }>;
   refresh: () => void;
@@ -101,8 +102,10 @@ export function useAdminAudio(): UseAdminAudioReturn {
     await fetchItems();
   }, [postAction, fetchItems]);
 
-  const regenerate = useCallback(async (clipId: number) => {
-    await postAction('regenerate', { clipId });
+  const regenerate = useCallback(async (clipId: number, generationText?: string) => {
+    const body: Record<string, unknown> = { clipId };
+    if (generationText) body.generationText = generationText;
+    await postAction('regenerate', body);
     await fetchItems();
   }, [postAction, fetchItems]);
 
