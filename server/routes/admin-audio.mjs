@@ -281,6 +281,19 @@ export function createAdminAudioRouter({ db, audioService, requireAdmin, cacheDi
         await safeDelete(clip.file_path);
       }
 
+      // Delete any sibling clip that would violate the UNIQUE constraint
+      const siblingClip = db.prepare(`
+        SELECT id, file_path FROM audio_clips
+        WHERE text = ? AND voice_kind = ? AND provider = ? AND voice_id = ? AND id != ?
+      `).get(clip.text, clip.voice_kind, nextVoice.provider, nextVoice.voiceId, clipId);
+
+      if (siblingClip) {
+        if (siblingClip.file_path) {
+          await safeDelete(siblingClip.file_path);
+        }
+        db.prepare('DELETE FROM audio_clips WHERE id = ?').run(siblingClip.id);
+      }
+
       db.prepare(`
         UPDATE audio_clips SET provider = ?, voice_id = ?, file_path = ?,
           generation_text = ?, status = 'pending', created_at = datetime('now'),
