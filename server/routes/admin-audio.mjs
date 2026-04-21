@@ -364,5 +364,98 @@ export function createAdminAudioRouter({ db, audioService, requireAdmin, cacheDi
     }
   });
 
+  // GET /api/admin/audio/file/:clipId — serve raw audio for admin preview
+  router.get('/file/:clipId', requireAdmin, async (req, res, next) => {
+    try {
+      const clipId = Number(req.params.clipId);
+      if (!Number.isFinite(clipId)) {
+        return res.status(400).json({ error: 'INVALID_CLIP_ID' });
+      }
+      const clip = db.prepare('SELECT file_path FROM audio_clips WHERE id = ?').get(clipId);
+      if (!clip || !clip.file_path) {
+        return res.status(404).json({ error: 'CLIP_NOT_FOUND' });
+      }
+      try {
+        const audio = await fsp.readFile(clip.file_path);
+        res.setHeader('Content-Type', 'audio/mpeg');
+        res.setHeader('Content-Length', String(audio.length));
+        res.send(audio);
+      } catch {
+        res.status(404).json({ error: 'FILE_NOT_FOUND' });
+      }
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // POST /api/admin/audio/prewarm — generate pending clips for manifest items
+  router.post('/prewarm', requireAdmin, express.json(), async (req, res, next) => {
+    try {
+      const apiKey = process.env.ELEVENLABS_API_KEY;
+      const mandarinVoiceId = process.env.ELEVENLABS_VOICE_ID_MANDARIN;
+      const cantoneseVoiceId = process.env.ELEVENLABS_VOICE_ID_CANTONESE;
+
+      if (!apiKey) {
+        return res.status(503).json({ error: 'ELEVENLABS_API_KEY not configured' });
+      }
+
+      const { ElevenLabsAudioProvider } = await import('../audio/elevenlabs-provider.mjs');
+      const mandarinProvider = mandarinVoiceId ? new ElevenLabsAudioProvider({ apiKey, voiceId: mandarinVoiceId }) : null;
+      const cantoneseProvider = cantoneseVoiceId ? new ElevenLabsAudioProvider({ apiKey, voiceId: cantoneseVoiceId }) : null;
+
+      // ⚠️  KEEP IN SYNC WITH src/data/pingshui/audio-prewarm-manifest.ts and scripts/prewarm-audio.mjs
+      const titles = ['四声','上平','下平','仄声','入声','韵目'];
+      const demoChars = ['东','好','去','冬','支','先','阳','尤','月','十','入','日','白','六','一东','七阳','十五咸'];
+      const tier1Seeds = [
+        '风','空','中','红','同','通','翁','弓','宫','功','虹',
+        '光','霜','乡','香','长','常','场','章','羊','方','凉',
+        '忧','秋','楼','流','舟','留','收','头','愁','游','州',
+        '麻','家','花','霞','华','沙','斜','茶','涯','鸦','加','瓜',
+        '歌','多','何','河','过','波','磨','罗','娥','蛾','哥','柯',
+      ];
+      const cantoneseChars = ['十','入','月','日','白','六'];
+
+      const allMandarin = [...new Set([...titles, ...demoChars, ...tier1Seeds])];
+      const items = [
+        ...allMandarin.map(t => ({ text: t, voiceKind: 'mandarin' })),
+        ...cantoneseChars.map(t => ({ text: t, voiceKind: 'cantonese' })),
+      ];
+
+      const sCheck = db.prepare('SELECT id FROM audio_clips WHERE text = ? AND voice_kind = ? AND provider = ? AND voice_id = ?');
+      const sInsert = db.prepare(`
+        INSERT INTO audio_clips (text, voice_kind, provider, voice_id, status, file_path, usage_context)
+        VALUES (?, ?, ?, ?, 'pending', ?, ?)
+      `);
+
+      let generated = 0, skipped = 0;
+
+      for (const item of items) {
+        const provider = item.voiceKind === 'cantonese' ? cantoneseProvider : mandarinProvider;
+        const voiceId = item.voiceKind === 'cantonese' ? cantoneseVoiceId : mandarinVoiceId;
+
+        if (!provider || !voiceId) { skipped++; continue; }
+
+        const existing = sCheck.get(item.text, item.voiceKind, 'elevenlabs', voiceId);
+        if (existing) { skipped++; continue; }
+
+        try {
+          const result = await provider.synthesize({ text: item.text });
+          const filePath = shardedPath(pendingDir, item.text, 'elevenlabs', voiceId);
+          await atomicWrite(filePath, result.audio);
+          sInsert.run(item.text, item.voiceKind, 'elevenlabs', voiceId, filePath, JSON.stringify(['prewarm']));
+          generated++;
+        } catch (err) {
+          console.error(`[prewarm] error on ${item.text}: ${err.message}`);
+        }
+
+        await new Promise(r => setTimeout(r, 200));
+      }
+
+      res.json({ ok: true, generated, skipped });
+    } catch (err) {
+      next(err);
+    }
+  });
+
   return router;
 }

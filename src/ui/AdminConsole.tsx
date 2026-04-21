@@ -1,5 +1,7 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { T, type Locale } from "../i18n";
+
+const AudioReview = lazy(() => import("../components/admin/AudioReview"));
 
 interface AdminUser {
   id: string;
@@ -74,6 +76,7 @@ export default function AdminConsole({ locale, onBack }: AdminConsoleProps) {
   const [userPoems, setUserPoems] = useState<AdminPoem[] | null>(null);
   const [poemsLoading, setPoemsLoading] = useState(false);
   const [expandedPoemId, setExpandedPoemId] = useState<number | null>(null);
+  const [adminTab, setAdminTab] = useState<"users" | "audio">("users");
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [page, setPage] = useState(0);
@@ -206,7 +209,34 @@ export default function AdminConsole({ locale, onBack }: AdminConsoleProps) {
         >
           ← {t.adminBack}
         </button>
-        <h1 className="text-2xl text-gold mb-6">{t.adminTitle}</h1>
+        <h1 className="text-2xl text-gold mb-4">{t.adminTitle}</h1>
+
+        <div className="flex gap-4 mb-6 border-b border-ink-line">
+          <button
+            onClick={() => setAdminTab("users")}
+            className={`pb-2 text-sm font-sans transition ${
+              adminTab === "users"
+                ? "text-gold border-b-2 border-gold"
+                : "text-creamDim hover:text-gold"
+            }`}
+          >{t.adminUsersHeader}</button>
+          <button
+            onClick={() => setAdminTab("audio")}
+            className={`pb-2 text-sm font-sans transition ${
+              adminTab === "audio"
+                ? "text-gold border-b-2 border-gold"
+                : "text-creamDim hover:text-gold"
+            }`}
+          >音频审核</button>
+        </div>
+
+        {adminTab === "audio" && (
+          <Suspense fallback={<div className="text-creamDim">...</div>}>
+            <AudioReview />
+          </Suspense>
+        )}
+
+        {adminTab === "users" && (<>
         <h2 className="text-lg text-cream mb-4">{t.adminUsersHeader}</h2>
 
         {error && <div className="text-rose text-sm mb-4">{error}</div>}
@@ -291,6 +321,7 @@ export default function AdminConsole({ locale, onBack }: AdminConsoleProps) {
             )}
           </div>
         )}
+        </>)}
       </div>
     </div>
   );
