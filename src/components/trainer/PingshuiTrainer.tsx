@@ -206,7 +206,7 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
                 ? strings.cardsDueToday(dueCards.length)
                 : strings.noCardsDueTitle
             }
-            body="练习界面 — 此模块将在 Milestone 3.3 中完整实现,包括字→韵部、韵部→字、辨韵、挑错四种题型,以及 Again/Hard/Good/Easy 四档评分。"
+            body="练习功能开发中,即将上线。将包括字→韵部、韵部→字、辨韵、挑错四种题型。"
           />
         )}
 
@@ -214,7 +214,7 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
           <TrainerPlaceholder
             title={strings.dashboardTitle}
             subtitle="106 韵部热度图"
-            body="进度仪表盘 — 此模块将在 Milestone 3.4 中完整实现。"
+            body="进度仪表盘开发中,即将上线。"
           />
         )}
       </main>

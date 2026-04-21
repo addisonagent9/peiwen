@@ -159,15 +159,23 @@ const ScreenBody: React.FC<ScreenBodyProps> = ({
   <article className="space-y-6">
     {/* Big headline character */}
     <header className="text-center pt-4">
-      <button
-        onClick={() => onPlay(screen.title)}
-        disabled={!audioAvailable}
-        className="font-serif text-cream mx-auto block transition-opacity disabled:cursor-not-allowed"
-        style={{ fontSize: '64px', lineHeight: 1 }}
-        aria-label={`Play ${screen.title}`}
-      >
-        {screen.title}
-      </button>
+      {audioAvailable ? (
+        <button
+          onClick={() => onPlay(screen.title)}
+          className="font-serif text-cream mx-auto block transition-opacity"
+          style={{ fontSize: '64px', lineHeight: 1 }}
+          aria-label={`Play ${screen.title}`}
+        >
+          {screen.title}
+        </button>
+      ) : (
+        <span
+          className="font-serif text-cream mx-auto block"
+          style={{ fontSize: '64px', lineHeight: 1 }}
+        >
+          {screen.title}
+        </span>
+      )}
     </header>
 
     {/* Body paragraphs */}
@@ -253,12 +261,11 @@ const DemoRow: React.FC<DemoRowProps> = ({
       )}
     </div>
 
-    {/* Audio button */}
-    <button
+    {/* Audio button — hidden entirely when audio unavailable */}
+    {audioAvailable && <button
       onClick={() => onPlay(demo.text)}
-      disabled={!audioAvailable}
       aria-label={`Play ${demo.text}`}
-      className="shrink-0 w-9 h-9 rounded-full border border-ink-line flex items-center justify-center text-creamDim hover:text-cream hover:border-cream/40 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+      className="shrink-0 w-9 h-9 rounded-full border border-ink-line flex items-center justify-center text-creamDim hover:text-cream hover:border-cream/40 transition-colors"
     >
       {isPlaying ? (
         // Pause / playing state — two bars
@@ -272,6 +279,6 @@ const DemoRow: React.FC<DemoRowProps> = ({
           <path d="M3 1.5 L3 9.5 L9.5 5.5 Z" fill="currentColor" />
         </svg>
       )}
-    </button>
+    </button>}
   </div>
 );
