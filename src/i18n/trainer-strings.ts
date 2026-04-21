@@ -1,0 +1,280 @@
+/**
+ * Trainer UI i18n strings.
+ *
+ * Three locales are supported, driven by user_trainer_state.ui_language:
+ *   zh-Hans       — Simplified Chinese (default)
+ *   zh-Hant       — Traditional Chinese
+ *   en-bilingual  — English labels with Chinese terms preserved
+ *
+ * Translations are kept tight and domain-accurate. 术语 like 韵部 / 平声 /
+ * 入声 are NEVER translated to English even in the bilingual mode — they
+ * stay as-is because they're the subject matter itself.
+ */
+
+import type { UserTrainerState } from '../types/pingshui-trainer';
+
+export type Locale = UserTrainerState['uiLanguage'];
+
+export interface TrainerStrings {
+  // Nav / shell
+  navTitle: string;
+  navHome: string;
+  navDrill: string;
+  navDashboard: string;
+  backToHome: string;
+
+  // Home screen
+  welcomeGreeting: (name?: string) => string;
+  currentTierLabel: string;
+  cardsDueToday: (n: number) => string;
+  streakDays: (n: number) => string;
+  startDrill: string;
+  continueFoundation: string;
+  startFoundation: string;
+  foundationLocked: string;
+
+  // Foundation module
+  foundationTitle: string;
+  foundationSubtitle: string;
+  foundationStepOf: (current: number, total: number) => string;
+  next: string;
+  previous: string;
+  markComplete: string;
+
+  // Tier / rhyme listing
+  tier1Title: string;
+  tier2Title: string;
+  tier3Title: string;
+  tier1Description: string;
+  tier2Description: string;
+  tier3Description: string;
+  tierLocked: string;
+  tierUnlockHint: string;
+
+  // Drill shell
+  drillCorrect: string;
+  drillIncorrect: string;
+  drillShowAnswer: string;
+  gradeAgain: string; // 0
+  gradeHard: string; // 3
+  gradeGood: string; // 4
+  gradeEasy: string; // 5
+  gradeAgainHint: string;
+  gradeHardHint: string;
+  gradeGoodHint: string;
+  gradeEasyHint: string;
+  noCardsDueTitle: string;
+  noCardsDueBody: string;
+
+  // Dashboard
+  dashboardTitle: string;
+  masteryLegendNotStarted: string;
+  masteryLegendIntroduced: string;
+  masteryLegendLearning: string;
+  masteryLegendReview: string;
+  masteryLegendMastered: string;
+
+  // Common
+  loading: string;
+  errorGeneric: string;
+  retry: string;
+}
+
+// ---------------------------------------------------------------------------
+// Simplified Chinese (primary)
+// ---------------------------------------------------------------------------
+
+const zhHans: TrainerStrings = {
+  navTitle: '韵部训练',
+  navHome: '主页',
+  navDrill: '练习',
+  navDashboard: '进度',
+  backToHome: '返回主页',
+
+  welcomeGreeting: (name) => (name ? `你好,${name}` : '欢迎'),
+  currentTierLabel: '当前层级',
+  cardsDueToday: (n) => `今日待复习 ${n} 张`,
+  streakDays: (n) => `连续 ${n} 天`,
+  startDrill: '开始练习',
+  continueFoundation: '继续基础课程',
+  startFoundation: '开始基础课程',
+  foundationLocked: '请先完成基础课程',
+
+  foundationTitle: '基础课程',
+  foundationSubtitle: '四声·平仄·韵目',
+  foundationStepOf: (c, t) => `第 ${c} 步 / 共 ${t} 步`,
+  next: '下一步',
+  previous: '上一步',
+  markComplete: '完成基础课程',
+
+  tier1Title: '第一层:入门五韵',
+  tier2Title: '第二层:易混辨析',
+  tier3Title: '第三层:闭口韵与冷僻',
+  tier1Description: '五个最常用、最易辨的平声韵。从此开始。',
+  tier2Description: '按家族成组教学 — 正面攻克易混之处。',
+  tier3Description: '消失的 -m 闭口音与三江等冷僻韵。',
+  tierLocked: '尚未解锁',
+  tierUnlockHint: '需完成上一层方可解锁',
+
+  drillCorrect: '答对',
+  drillIncorrect: '再想想',
+  drillShowAnswer: '查看答案',
+  gradeAgain: '重来',
+  gradeHard: '勉强',
+  gradeGood: '尚可',
+  gradeEasy: '轻松',
+  gradeAgainHint: '完全忘了',
+  gradeHardHint: '想了很久',
+  gradeGoodHint: '有些犹豫',
+  gradeEasyHint: '脱口而出',
+  noCardsDueTitle: '今日已无待复习',
+  noCardsDueBody: '明日再见,或去学习新的韵部。',
+
+  dashboardTitle: '我的进度',
+  masteryLegendNotStarted: '未开始',
+  masteryLegendIntroduced: '已入门',
+  masteryLegendLearning: '学习中',
+  masteryLegendReview: '复习中',
+  masteryLegendMastered: '已掌握',
+
+  loading: '加载中…',
+  errorGeneric: '出错了,请稍后再试',
+  retry: '重试',
+};
+
+// ---------------------------------------------------------------------------
+// Traditional Chinese
+// ---------------------------------------------------------------------------
+
+const zhHant: TrainerStrings = {
+  navTitle: '韻部訓練',
+  navHome: '主頁',
+  navDrill: '練習',
+  navDashboard: '進度',
+  backToHome: '返回主頁',
+
+  welcomeGreeting: (name) => (name ? `你好,${name}` : '歡迎'),
+  currentTierLabel: '當前層級',
+  cardsDueToday: (n) => `今日待複習 ${n} 張`,
+  streakDays: (n) => `連續 ${n} 天`,
+  startDrill: '開始練習',
+  continueFoundation: '繼續基礎課程',
+  startFoundation: '開始基礎課程',
+  foundationLocked: '請先完成基礎課程',
+
+  foundationTitle: '基礎課程',
+  foundationSubtitle: '四聲·平仄·韻目',
+  foundationStepOf: (c, t) => `第 ${c} 步 / 共 ${t} 步`,
+  next: '下一步',
+  previous: '上一步',
+  markComplete: '完成基礎課程',
+
+  tier1Title: '第一層:入門五韻',
+  tier2Title: '第二層:易混辨析',
+  tier3Title: '第三層:閉口韻與冷僻',
+  tier1Description: '五個最常用、最易辨的平聲韻。從此開始。',
+  tier2Description: '按家族成組教學 — 正面攻克易混之處。',
+  tier3Description: '消失的 -m 閉口音與三江等冷僻韻。',
+  tierLocked: '尚未解鎖',
+  tierUnlockHint: '需完成上一層方可解鎖',
+
+  drillCorrect: '答對',
+  drillIncorrect: '再想想',
+  drillShowAnswer: '查看答案',
+  gradeAgain: '重來',
+  gradeHard: '勉強',
+  gradeGood: '尚可',
+  gradeEasy: '輕鬆',
+  gradeAgainHint: '完全忘了',
+  gradeHardHint: '想了很久',
+  gradeGoodHint: '有些猶豫',
+  gradeEasyHint: '脫口而出',
+  noCardsDueTitle: '今日已無待複習',
+  noCardsDueBody: '明日再見,或去學習新的韻部。',
+
+  dashboardTitle: '我的進度',
+  masteryLegendNotStarted: '未開始',
+  masteryLegendIntroduced: '已入門',
+  masteryLegendLearning: '學習中',
+  masteryLegendReview: '複習中',
+  masteryLegendMastered: '已掌握',
+
+  loading: '載入中…',
+  errorGeneric: '出錯了,請稍後再試',
+  retry: '重試',
+};
+
+// ---------------------------------------------------------------------------
+// Bilingual (English labels, Chinese terms preserved)
+// ---------------------------------------------------------------------------
+
+const enBilingual: TrainerStrings = {
+  navTitle: '韵部 Trainer',
+  navHome: 'Home',
+  navDrill: 'Drill',
+  navDashboard: 'Progress',
+  backToHome: '← Home',
+
+  welcomeGreeting: (name) => (name ? `Welcome, ${name}` : 'Welcome'),
+  currentTierLabel: 'Current tier',
+  cardsDueToday: (n) => `${n} card${n === 1 ? '' : 's'} due today`,
+  streakDays: (n) => `${n}-day streak`,
+  startDrill: 'Start drill',
+  continueFoundation: 'Continue foundation',
+  startFoundation: 'Start foundation',
+  foundationLocked: 'Complete the foundation first',
+
+  foundationTitle: 'Foundation',
+  foundationSubtitle: 'Four tones · 平/仄 · 韵目',
+  foundationStepOf: (c, t) => `Step ${c} of ${t}`,
+  next: 'Next',
+  previous: 'Back',
+  markComplete: 'Mark complete',
+
+  tier1Title: 'Tier 1 — Quick wins',
+  tier2Title: 'Tier 2 — Confusable families',
+  tier3Title: 'Tier 3 — Closed-lip & rare',
+  tier1Description: 'Five distinctive, high-frequency 平声 rhymes. Start here.',
+  tier2Description: 'Taught in family groups — confront the traps head-on.',
+  tier3Description: 'The lost -m endings and rare categories like 三江.',
+  tierLocked: 'Locked',
+  tierUnlockHint: 'Master the previous tier first',
+
+  drillCorrect: 'Correct',
+  drillIncorrect: 'Not quite',
+  drillShowAnswer: 'Show answer',
+  gradeAgain: 'Again',
+  gradeHard: 'Hard',
+  gradeGood: 'Good',
+  gradeEasy: 'Easy',
+  gradeAgainHint: 'Forgot completely',
+  gradeHardHint: 'Took a while',
+  gradeGoodHint: 'Some hesitation',
+  gradeEasyHint: 'Effortless',
+  noCardsDueTitle: 'No reviews due',
+  noCardsDueBody: 'Come back tomorrow, or learn a new 韵部.',
+
+  dashboardTitle: 'Your progress',
+  masteryLegendNotStarted: 'Not started',
+  masteryLegendIntroduced: 'Introduced',
+  masteryLegendLearning: 'Learning',
+  masteryLegendReview: 'Reviewing',
+  masteryLegendMastered: 'Mastered',
+
+  loading: 'Loading…',
+  errorGeneric: 'Something went wrong. Try again.',
+  retry: 'Retry',
+};
+
+// ---------------------------------------------------------------------------
+// Public API
+// ---------------------------------------------------------------------------
+
+export const STRINGS: Record<Locale, TrainerStrings> = {
+  'zh-Hans': zhHans,
+  'zh-Hant': zhHant,
+  'en-bilingual': enBilingual,
+};
+
+export const getStrings = (locale: Locale): TrainerStrings =>
+  STRINGS[locale] ?? zhHans;

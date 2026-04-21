@@ -8,10 +8,19 @@ import connectSqlite3 from "connect-sqlite3";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import db from "./db.mjs";
+import { runMigrations } from "./db/migrate.mjs";
+import { mountTrainer } from "./trainer/index.mjs";
+import { requireTrainerBeta, describeTrainerGate } from "./middleware/trainer-beta.mjs";
+import { createAudioServiceFromEnv } from "./audio/service.mjs";
+import { createAudioRouter } from "./routes/audio.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.join(__dirname, ".env") });
 const DIST = path.resolve(__dirname, "../dist");
+
+// Run DB migrations (idempotent). Safe here because db.mjs already
+// created users/poems tables via its top-level CREATE TABLE IF NOT EXISTS.
+runMigrations(db, path.join(__dirname, "db/migrations"));
 
 const {
   ANTHROPIC_API_KEY,
@@ -191,6 +200,17 @@ app.get("/api/admin/users/:id/poems", requireAdmin, (req, res) => {
   const poems = db.prepare("SELECT id, text, saved_at FROM poems WHERE user_id = ? ORDER BY saved_at DESC").all(targetId);
   res.json({ user, poems });
 });
+
+// --- Trainer routes (beta-gated) ---
+mountTrainer(app, db, requireAuth, { betaGate: requireTrainerBeta });
+console.log(`[trainer] beta gate: ${describeTrainerGate()}`);
+
+// --- Audio routes ---
+const audioService = createAudioServiceFromEnv({
+  cacheDir: path.join(__dirname, "data", "audio-cache"),
+});
+app.use("/api/audio", createAudioRouter(audioService));
+console.log(`[audio] provider: ${audioService.providerName}`);
 
 // --- Static / SPA fallback ---
 app.use(express.static(DIST, { maxAge: "1y", etag: false, index: false }));

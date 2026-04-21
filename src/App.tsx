@@ -4,6 +4,8 @@ import { RhymeDrawer } from "./ui/RhymeDrawer";
 import { EditModal } from "./ui/EditModal";
 import { RhymeReference } from "./ui/RhymeReference";
 import AdminConsole from "./ui/AdminConsole";
+import { PingshuiTrainer } from "./components/trainer/PingshuiTrainer";
+import { isTrainerBetaUser } from "./config/trainer-beta";
 import { detectBest, formFromDims } from "./analysis/detect";
 import { lookupExpecting } from "./analysis/tone";
 import { analyzeAgainst, computeLiveIssues } from "./analysis/validate";
@@ -54,7 +56,7 @@ export default function App() {
   const [drawerRhyme, setDrawerRhyme] = useState<string | null>(null);
   const [editCell, setEditCell] = useState<{ li: number; pos: number } | null>(null);
   const [lockedPattern, setLockedPattern] = useState<string | null>(null);
-  const [view, setView] = useState<"main" | "rhyme-reference" | "admin">("main");
+  const [view, setView] = useState<"main" | "rhyme-reference" | "admin" | "pingshui-trainer">("main");
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     if (typeof window === "undefined") return true;
     const stored = window.localStorage.getItem("theme");
@@ -346,6 +348,9 @@ export default function App() {
       <div className={`flex items-center gap-2 ${sz} font-sans`}>
         {UserAvatar}
         <button onClick={openPoems} className={`${px} text-gold hover:opacity-80`}>{t.myPoems}</button>
+        {isTrainerBetaUser(user?.id) && (
+          <button onClick={() => setView("pingshui-trainer")} className={`${px} text-gold hover:opacity-80`}>{t.trainerLaunch}</button>
+        )}
       </div>
     );
   };
@@ -462,6 +467,14 @@ export default function App() {
 
   if (view === "admin") {
     return <AdminConsole locale={locale} onBack={() => setView("main")} />;
+  }
+
+  if (view === "pingshui-trainer") {
+    if (!isTrainerBetaUser(user?.id)) {
+      setView("main");
+      return null;
+    }
+    return <PingshuiTrainer onExit={() => setView("main")} userName={user?.name} />;
   }
 
   return (
