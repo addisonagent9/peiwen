@@ -99,17 +99,17 @@ export class AlibabaAudioProvider {
             streaming: 'duplex',
           },
           payload: {
-            model: this.model,
             task_group: 'audio',
             task: 'tts',
             function: 'SpeechSynthesizer',
-            input: {},
+            model: this.model,
             parameters: {
               text_type: 'PlainText',
+              ...(this.voice ? { voice: this.voice } : {}),
               format: 'mp3',
               sample_rate: 22050,
-              ...(this.voice ? { voice: this.voice } : {}),
             },
+            input: {},
           },
         };
         ws.send(JSON.stringify(runTask));
