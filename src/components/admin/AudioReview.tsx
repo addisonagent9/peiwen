@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAdminAudio } from '../../hooks/useAdminAudio';
+import { formatVoiceLabel } from '../../utils/voice-labels';
 
 const VOICE_POOLS_CLIENT = {
   mandarin: [
@@ -223,7 +224,7 @@ export default function AudioReview() {
                             {statusLabel(clip.status)}
                           </span>
                           <span className="text-sm font-medium text-[#B8A04A] px-2 py-0.5 rounded bg-[#B8A04A]/10 border border-[#B8A04A]/30">
-                            {clip.voiceId}
+                            {formatVoiceLabel(clip.voiceId)}
                           </span>
                         </div>
 
