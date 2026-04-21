@@ -112,6 +112,7 @@ export class AlibabaAudioProvider {
             input: {},
           },
         };
+        console.log('[alibaba-tts-debug] run-task payload:', JSON.stringify(runTask));
         ws.send(JSON.stringify(runTask));
       });
 
