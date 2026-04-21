@@ -1,6 +1,17 @@
 import React, { useState } from 'react';
 import { useAdminAudio } from '../../hooks/useAdminAudio';
 
+const VOICE_POOLS_CLIENT = {
+  mandarin: [
+    { provider: 'azure', voiceId: 'zh-CN-YunyangNeural' },
+    { provider: 'azure', voiceId: 'zh-CN-YunxiNeural' },
+  ],
+  cantonese: [
+    { provider: 'alibaba', voiceId: 'Rocky' },
+    { provider: 'azure', voiceId: 'zh-HK-WanLungNeural' },
+  ],
+} as const;
+
 // ---------------------------------------------------------------------------
 // Status helpers
 // ---------------------------------------------------------------------------
@@ -31,6 +42,7 @@ export default function AudioReview() {
   } = useAdminAudio();
 
   const [prewarmLoading, setPrewarmLoading] = useState(false);
+  const [addVoiceLoading, setAddVoiceLoading] = useState<string | null>(null);
   const [prewarmResult, setPrewarmResult] = useState<{ generated: number; skipped: number } | null>(null);
   const [actionLoading, setActionLoading] = useState<number | null>(null);
 
@@ -217,7 +229,7 @@ export default function AudioReview() {
 
                         <audio
                           controls
-                          src={`/api/admin/audio/file/${clip.id}`}
+                          src={`/api/admin/audio/file/${clip.id}?v=${encodeURIComponent(clip.createdAt ?? '')}`}
                           className="h-8 w-full sm:w-48 flex-shrink-0"
                         />
 
@@ -233,16 +245,21 @@ export default function AudioReview() {
                             className="px-2 py-1 rounded text-xs bg-rose-400/10 text-rose-400 border border-rose-400/30 hover:bg-rose-400/20 disabled:opacity-30 transition"
                           >✗</button>
                           <button
-                            onClick={() => {
+                            onClick={async () => {
                               const input = document.getElementById(`gen-text-${clip.id}`) as HTMLInputElement | null;
                               const genText = input?.value?.trim() || clip.generationText || item.text;
-                              regenerate(clip.id, genText).catch(err => {
+                              setActionLoading(clip.id);
+                              try {
+                                await regenerate(clip.id, genText);
+                              } catch (err) {
                                 alert(`Regenerate failed: ${err instanceof Error ? err.message : String(err)}`);
-                              });
+                              } finally {
+                                setActionLoading(null);
+                              }
                             }}
                             disabled={actionLoading === clip.id}
                             className="px-2 py-1 rounded text-xs bg-amber-300/10 text-amber-300 border border-amber-300/30 hover:bg-amber-300/20 disabled:opacity-30 transition"
-                          >↻</button>
+                          >{actionLoading === clip.id ? '...' : '↻'}</button>
                         </div>
                       </div>
 
@@ -252,7 +269,8 @@ export default function AudioReview() {
                           id={`gen-text-${clip.id}`}
                           type="text"
                           defaultValue={clip.generationText || item.text}
-                          className="flex-1 px-2 py-1 text-sm bg-[#F5F0E8]/5 border border-[#F5F0E8]/10 rounded text-[#F5F0E8]/80 focus:border-[#B8A04A]/50 focus:outline-none"
+                          disabled={actionLoading === clip.id}
+                          className="flex-1 px-2 py-1 text-sm bg-[#F5F0E8]/5 border border-[#F5F0E8]/10 rounded text-[#F5F0E8]/80 focus:border-[#B8A04A]/50 focus:outline-none disabled:opacity-50"
                           placeholder={item.text}
                         />
                       </div>
@@ -264,6 +282,48 @@ export default function AudioReview() {
                   No clips yet. Use "Run Prewarm" to generate.
                 </div>
               )}
+
+              {/* + backup voice button */}
+              {(() => {
+                const pool = VOICE_POOLS_CLIENT[item.voiceKind as keyof typeof VOICE_POOLS_CLIENT];
+                if (!pool || item.clips.length === 0) return null;
+                const primary = pool[0];
+                const hasBackup = item.clips.some(c =>
+                  !(c.provider === primary.provider && c.voiceId === primary.voiceId)
+                );
+                if (hasBackup) return null;
+                const loadingKey = `${item.text}-${item.voiceKind}`;
+                return (
+                  <div className="px-4 py-3 border-t border-[#F5F0E8]/5">
+                    <button
+                      onClick={async () => {
+                        setAddVoiceLoading(loadingKey);
+                        try {
+                          const res = await fetch('/api/admin/audio/add-voice', {
+                            method: 'POST',
+                            headers: { 'content-type': 'application/json' },
+                            credentials: 'include',
+                            body: JSON.stringify({ text: item.text, voiceKind: item.voiceKind }),
+                          });
+                          if (!res.ok) {
+                            const body = await res.json().catch(() => ({}));
+                            throw new Error(body.error || `HTTP ${res.status}`);
+                          }
+                          await refresh();
+                        } catch (err) {
+                          alert(`Failed to add backup voice: ${err instanceof Error ? err.message : String(err)}`);
+                        } finally {
+                          setAddVoiceLoading(null);
+                        }
+                      }}
+                      disabled={addVoiceLoading === loadingKey}
+                      className="text-xs px-3 py-1.5 rounded border border-[#F5F0E8]/20 text-[#F5F0E8]/60 hover:border-[#F5F0E8]/40 hover:text-[#F5F0E8] transition disabled:opacity-50"
+                    >
+                      {addVoiceLoading === loadingKey ? 'Adding...' : '+ backup voice'}
+                    </button>
+                  </div>
+                );
+              })()}
             </div>
           ))}
         </div>

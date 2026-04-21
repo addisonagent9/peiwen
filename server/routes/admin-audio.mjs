@@ -253,6 +253,7 @@ export function createAdminAudioRouter({ db, audioService, requireAdmin, cacheDi
   });
 
   // POST /api/admin/audio/regenerate
+  // Re-synthesize SAME voice with current/updated generation_text. No voice cycling.
   router.post('/regenerate', requireAdmin, express.json(), async (req, res, next) => {
     try {
       const clipId = parseInt(req.body?.clipId);
@@ -266,40 +267,18 @@ export function createAdminAudioRouter({ db, audioService, requireAdmin, cacheDi
         ? providedGenText.trim()
         : (clip.generation_text || clip.text);
 
-      const currentVoice = { provider: clip.provider, voiceId: clip.voice_id };
-      const nextVoice = getNextVoice(clip.voice_kind, currentVoice);
-
       const result = await audioService.synthesizeWith(generationText, {
-        provider: nextVoice.provider,
-        voiceId: nextVoice.voiceId,
+        provider: clip.provider,
+        voiceId: clip.voice_id,
       });
 
-      const newFilePath = shardedPath(pendingDir, clip.text, nextVoice.provider, nextVoice.voiceId);
-      await atomicWrite(newFilePath, result.audio);
-
-      if (clip.file_path && clip.file_path !== newFilePath) {
-        await safeDelete(clip.file_path);
-      }
-
-      // Delete any sibling clip that would violate the UNIQUE constraint
-      const siblingClip = db.prepare(`
-        SELECT id, file_path FROM audio_clips
-        WHERE text = ? AND voice_kind = ? AND provider = ? AND voice_id = ? AND id != ?
-      `).get(clip.text, clip.voice_kind, nextVoice.provider, nextVoice.voiceId, clipId);
-
-      if (siblingClip) {
-        if (siblingClip.file_path) {
-          await safeDelete(siblingClip.file_path);
-        }
-        db.prepare('DELETE FROM audio_clips WHERE id = ?').run(siblingClip.id);
-      }
+      await atomicWrite(clip.file_path, result.audio);
 
       db.prepare(`
-        UPDATE audio_clips SET provider = ?, voice_id = ?, file_path = ?,
-          generation_text = ?, status = 'pending', created_at = datetime('now'),
-          reviewed_at = NULL, reviewed_by = NULL
+        UPDATE audio_clips SET generation_text = ?, status = 'pending',
+          created_at = datetime('now'), reviewed_at = NULL, reviewed_by = NULL
         WHERE id = ?
-      `).run(nextVoice.provider, nextVoice.voiceId, newFilePath, generationText, clipId);
+      `).run(generationText, clipId);
 
       const updated = db.prepare('SELECT * FROM audio_clips WHERE id = ?').get(clipId);
       res.json({
@@ -311,6 +290,66 @@ export function createAdminAudioRouter({ db, audioService, requireAdmin, cacheDi
         generationText: updated.generation_text,
         status: updated.status,
         filePath: updated.file_path,
+        createdAt: updated.created_at,
+      });
+    } catch (err) {
+      if (err.name === 'AudioUnavailableError') {
+        return res.status(503).json({ error: 'AUDIO_UNAVAILABLE', reason: err.message });
+      }
+      next(err);
+    }
+  });
+
+  // POST /api/admin/audio/add-voice
+  // Generate a clip using the backup voice for a given (text, voiceKind).
+  router.post('/add-voice', requireAdmin, express.json(), async (req, res, next) => {
+    try {
+      const { text, voiceKind } = req.body ?? {};
+      if (typeof text !== 'string' || !text.trim()) {
+        return res.status(400).json({ error: 'INVALID_TEXT' });
+      }
+      if (voiceKind !== 'mandarin' && voiceKind !== 'cantonese') {
+        return res.status(400).json({ error: 'INVALID_VOICE_KIND' });
+      }
+
+      const primary = getPrimaryVoice(voiceKind);
+      const backup = getNextVoice(voiceKind, primary);
+
+      if (backup.provider === primary.provider && backup.voiceId === primary.voiceId) {
+        return res.status(400).json({ error: 'NO_BACKUP_VOICE_AVAILABLE' });
+      }
+
+      const generationText = text.trim();
+      const result = await audioService.synthesizeWith(generationText, {
+        provider: backup.provider,
+        voiceId: backup.voiceId,
+      });
+      const filePath = shardedPath(pendingDir, text.trim(), backup.provider, backup.voiceId);
+      await atomicWrite(filePath, result.audio);
+
+      const row = db.prepare(`
+        INSERT INTO audio_clips (text, voice_kind, provider, voice_id, file_path, generation_text, status, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, 'pending', datetime('now'))
+        ON CONFLICT(text, voice_kind, provider, voice_id) DO UPDATE SET
+          file_path = excluded.file_path,
+          generation_text = excluded.generation_text,
+          status = 'pending',
+          created_at = datetime('now'),
+          reviewed_at = NULL,
+          reviewed_by = NULL
+        RETURNING *
+      `).get(text.trim(), voiceKind, backup.provider, backup.voiceId, filePath, generationText);
+
+      res.json({
+        id: row.id,
+        text: row.text,
+        voiceKind: row.voice_kind,
+        provider: row.provider,
+        voiceId: row.voice_id,
+        generationText: row.generation_text,
+        status: row.status,
+        filePath: row.file_path,
+        createdAt: row.created_at,
       });
     } catch (err) {
       if (err.name === 'AudioUnavailableError') {
