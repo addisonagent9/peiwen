@@ -11,6 +11,7 @@ import path from 'path';
 import fs from 'fs';
 import fsp from 'fs/promises';
 import crypto from 'crypto';
+import { getPrimaryVoice, getNextVoice } from '../audio/voice-pools.mjs';
 
 /**
  * @param {object} opts
@@ -112,35 +113,19 @@ export function createAdminAudioRouter({ db, audioService, requireAdmin, cacheDi
   // POST /api/admin/audio/generate
   router.post('/generate', requireAdmin, express.json(), async (req, res, next) => {
     try {
-      const { text, voiceKind, provider, voiceId } = req.body ?? {};
+      const { text, voiceKind } = req.body ?? {};
 
       if (typeof text !== 'string' || !text.trim() || text.length > 200) {
         return res.status(400).json({ error: 'INVALID_TEXT' });
       }
-      if (!['mandarin', 'cantonese'].includes(voiceKind)) {
+      if (voiceKind !== 'mandarin' && voiceKind !== 'cantonese') {
         return res.status(400).json({ error: 'INVALID_VOICE_KIND' });
       }
-      if (!['azure', 'elevenlabs', 'alibaba'].includes(provider)) {
-        return res.status(400).json({ error: 'INVALID_PROVIDER' });
-      }
-      let effectiveVoiceId = voiceId;
-      if (typeof effectiveVoiceId !== 'string' || !effectiveVoiceId.trim()) {
-        if (provider === 'alibaba') {
-          effectiveVoiceId = process.env.ALIBABA_QWEN_VOICE ?? process.env.ALIBABA_COSYVOICE_VOICE ?? 'Cherry';
-        } else if (provider === 'azure') {
-          effectiveVoiceId = process.env.AZURE_SPEECH_VOICE_MANDARIN ?? 'zh-TW-HsiaoChenNeural';
-        } else if (provider === 'elevenlabs') {
-          effectiveVoiceId = voiceKind === 'cantonese'
-            ? process.env.ELEVENLABS_VOICE_ID_CANTONESE
-            : process.env.ELEVENLABS_VOICE_ID_MANDARIN;
-        }
-      }
-      if (!effectiveVoiceId || typeof effectiveVoiceId !== 'string' || !effectiveVoiceId.trim()) {
-        return res.status(400).json({ error: 'VOICE_ID_NOT_CONFIGURED', provider, voiceKind });
-      }
 
-      const result = await audioService.synthesizeWith(text.trim(), { provider, voiceId: effectiveVoiceId });
-      const filePath = shardedPath(pendingDir, text.trim(), provider, effectiveVoiceId);
+      const { provider, voiceId } = getPrimaryVoice(voiceKind);
+
+      const result = await audioService.synthesizeWith(text.trim(), { provider, voiceId });
+      const filePath = shardedPath(pendingDir, text.trim(), provider, voiceId);
       await atomicWrite(filePath, result.audio);
 
       const row = db.prepare(`
@@ -153,7 +138,7 @@ export function createAdminAudioRouter({ db, audioService, requireAdmin, cacheDi
           reviewed_at = NULL,
           reviewed_by = NULL
         RETURNING *
-      `).get(text.trim(), voiceKind, provider, effectiveVoiceId, filePath);
+      `).get(text.trim(), voiceKind, provider, voiceId, filePath);
 
       res.json({
         id: row.id,
@@ -274,19 +259,29 @@ export function createAdminAudioRouter({ db, audioService, requireAdmin, cacheDi
       const clip = db.prepare('SELECT * FROM audio_clips WHERE id = ?').get(clipId);
       if (!clip) return res.status(404).json({ error: 'CLIP_NOT_FOUND' });
 
+      // Cycle to next voice in the pool
+      const currentVoice = { provider: clip.provider, voiceId: clip.voice_id };
+      const nextVoice = getNextVoice(clip.voice_kind, currentVoice);
+
       const result = await audioService.synthesizeWith(clip.text, {
-        provider: clip.provider,
-        voiceId: clip.voice_id,
+        provider: nextVoice.provider,
+        voiceId: nextVoice.voiceId,
       });
 
-      const filePath = shardedPath(pendingDir, clip.text, clip.provider, clip.voice_id);
-      await atomicWrite(filePath, result.audio);
+      const newFilePath = shardedPath(pendingDir, clip.text, nextVoice.provider, nextVoice.voiceId);
+      await atomicWrite(newFilePath, result.audio);
+
+      // Delete old file if path changed
+      if (clip.file_path && clip.file_path !== newFilePath) {
+        await safeDelete(clip.file_path);
+      }
 
       db.prepare(`
-        UPDATE audio_clips SET file_path = ?, status = 'pending', created_at = datetime('now'),
+        UPDATE audio_clips SET provider = ?, voice_id = ?, file_path = ?,
+          status = 'pending', created_at = datetime('now'),
           reviewed_at = NULL, reviewed_by = NULL
         WHERE id = ?
-      `).run(filePath, clipId);
+      `).run(nextVoice.provider, nextVoice.voiceId, newFilePath, clipId);
 
       const updated = db.prepare('SELECT * FROM audio_clips WHERE id = ?').get(clipId);
       res.json({
@@ -400,21 +395,9 @@ export function createAdminAudioRouter({ db, audioService, requireAdmin, cacheDi
     }
   });
 
-  // POST /api/admin/audio/prewarm — generate pending clips for manifest items
+  // POST /api/admin/audio/prewarm — generate pending clips using voice pools
   router.post('/prewarm', requireAdmin, express.json(), async (req, res, next) => {
     try {
-      const apiKey = process.env.ELEVENLABS_API_KEY;
-      const mandarinVoiceId = process.env.ELEVENLABS_VOICE_ID_MANDARIN;
-      const cantoneseVoiceId = process.env.ELEVENLABS_VOICE_ID_CANTONESE;
-
-      if (!apiKey) {
-        return res.status(503).json({ error: 'ELEVENLABS_API_KEY not configured' });
-      }
-
-      const { ElevenLabsAudioProvider } = await import('../audio/elevenlabs-provider.mjs');
-      const mandarinProvider = mandarinVoiceId ? new ElevenLabsAudioProvider({ apiKey, voiceId: mandarinVoiceId }) : null;
-      const cantoneseProvider = cantoneseVoiceId ? new ElevenLabsAudioProvider({ apiKey, voiceId: cantoneseVoiceId }) : null;
-
       // ⚠️  KEEP IN SYNC WITH src/data/pingshui/audio-prewarm-manifest.ts and scripts/prewarm-audio.mjs
       const titles = ['四声','上平','下平','仄声','入声','韵目'];
       const demoChars = ['东','好','去','冬','支','先','阳','尤','月','十','入','日','白','六','一东','七阳','十五咸'];
@@ -442,19 +425,16 @@ export function createAdminAudioRouter({ db, audioService, requireAdmin, cacheDi
       let generated = 0, skipped = 0;
 
       for (const item of items) {
-        const provider = item.voiceKind === 'cantonese' ? cantoneseProvider : mandarinProvider;
-        const voiceId = item.voiceKind === 'cantonese' ? cantoneseVoiceId : mandarinVoiceId;
+        const { provider: providerName, voiceId } = getPrimaryVoice(item.voiceKind);
 
-        if (!provider || !voiceId) { skipped++; continue; }
-
-        const existing = sCheck.get(item.text, item.voiceKind, 'elevenlabs', voiceId);
+        const existing = sCheck.get(item.text, item.voiceKind, providerName, voiceId);
         if (existing) { skipped++; continue; }
 
         try {
-          const result = await provider.synthesize({ text: item.text });
-          const filePath = shardedPath(pendingDir, item.text, 'elevenlabs', voiceId);
+          const result = await audioService.synthesizeWith(item.text, { provider: providerName, voiceId });
+          const filePath = shardedPath(pendingDir, item.text, providerName, voiceId);
           await atomicWrite(filePath, result.audio);
-          sInsert.run(item.text, item.voiceKind, 'elevenlabs', voiceId, filePath, JSON.stringify(['prewarm']));
+          sInsert.run(item.text, item.voiceKind, providerName, voiceId, filePath, JSON.stringify(['prewarm']));
           generated++;
         } catch (err) {
           console.error(`[prewarm] error on ${item.text}: ${err.message}`);

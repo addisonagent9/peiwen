@@ -1,11 +1,5 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { useAdminAudio } from '../../hooks/useAdminAudio';
-
-const PROVIDERS = [
-  { id: 'elevenlabs', label: 'ElevenLabs' },
-  { id: 'azure', label: 'Azure' },
-  { id: 'alibaba', label: 'CosyVoice' },
-] as const;
 
 // ---------------------------------------------------------------------------
 // Status helpers
@@ -33,10 +27,9 @@ function statusLabel(s: string): string {
 export default function AudioReview() {
   const {
     items, isLoading, error, filters, setFilters,
-    approve, reject, regenerate, generate, prewarm, refresh,
+    approve, reject, regenerate, prewarm, refresh,
   } = useAdminAudio();
 
-  const [generateLoading, setGenerateLoading] = useState<string | null>(null);
   const [prewarmLoading, setPrewarmLoading] = useState(false);
   const [prewarmResult, setPrewarmResult] = useState<{ generated: number; skipped: number } | null>(null);
   const [actionLoading, setActionLoading] = useState<number | null>(null);
@@ -207,89 +200,54 @@ export default function AudioReview() {
                 )}
               </div>
 
-              {/* Clips — stacked for A/B comparison */}
-              {item.clips.length > 0 && (
+              {/* Clips */}
+              {item.clips.length > 0 ? (
                 <div className="divide-y divide-[#F5F0E8]/5">
                   {item.clips.map(clip => (
                     <div
                       key={clip.id}
-                      className="px-4 py-3 flex flex-col gap-2"
+                      className="px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-3"
                     >
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                        {/* Provider badge + status */}
-                        <div className="flex items-center gap-2 min-w-0 flex-1">
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#F5F0E8]/10 text-[#F5F0E8]/60 font-mono">
-                            {clip.provider}
-                          </span>
-                          <span className={`text-xs px-2 py-0.5 rounded-full border ${statusColor(clip.status)}`}>
-                            {statusLabel(clip.status)}
-                          </span>
-                          <span className="text-xs text-[#F5F0E8]/30 truncate">
-                            {clip.voiceId?.slice(0, 12)}{clip.voiceId && clip.voiceId.length > 12 ? '…' : ''}
-                          </span>
-                        </div>
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                        <span className={`text-xs px-2 py-0.5 rounded-full border ${statusColor(clip.status)}`}>
+                          {statusLabel(clip.status)}
+                        </span>
+                        <span className="text-xs text-[#F5F0E8]/25">
+                          {clip.voiceId}
+                        </span>
+                      </div>
 
-                        {/* Audio player */}
-                        <audio
-                          controls
-                          src={`/api/admin/audio/file/${clip.id}`}
-                          className="h-8 w-full sm:w-48 flex-shrink-0"
-                        />
+                      <audio
+                        controls
+                        src={`/api/admin/audio/file/${clip.id}`}
+                        className="h-8 w-full sm:w-48 flex-shrink-0"
+                      />
 
-                        {/* Action buttons */}
-                        <div className="flex gap-1.5 flex-shrink-0">
-                          <button
-                            onClick={() => handleAction(approve, clip.id)}
-                            disabled={actionLoading === clip.id || clip.status === 'approved'}
-                            className="px-2 py-1 rounded text-xs bg-[#B8A04A]/10 text-[#B8A04A] border border-[#B8A04A]/30 hover:bg-[#B8A04A]/20 disabled:opacity-30 transition"
-                          >✓</button>
-                          <button
-                            onClick={() => handleAction(reject, clip.id)}
-                            disabled={actionLoading === clip.id || clip.status === 'rejected'}
-                            className="px-2 py-1 rounded text-xs bg-rose-400/10 text-rose-400 border border-rose-400/30 hover:bg-rose-400/20 disabled:opacity-30 transition"
-                          >✗</button>
-                          <button
-                            onClick={() => handleAction(regenerate, clip.id)}
-                            disabled={actionLoading === clip.id}
-                            className="px-2 py-1 rounded text-xs bg-amber-300/10 text-amber-300 border border-amber-300/30 hover:bg-amber-300/20 disabled:opacity-30 transition"
-                          >↻</button>
-                        </div>
+                      <div className="flex gap-1.5 flex-shrink-0">
+                        <button
+                          onClick={() => handleAction(approve, clip.id)}
+                          disabled={actionLoading === clip.id || clip.status === 'approved'}
+                          className="px-2 py-1 rounded text-xs bg-[#B8A04A]/10 text-[#B8A04A] border border-[#B8A04A]/30 hover:bg-[#B8A04A]/20 disabled:opacity-30 transition"
+                        >✓</button>
+                        <button
+                          onClick={() => handleAction(reject, clip.id)}
+                          disabled={actionLoading === clip.id || clip.status === 'rejected'}
+                          className="px-2 py-1 rounded text-xs bg-rose-400/10 text-rose-400 border border-rose-400/30 hover:bg-rose-400/20 disabled:opacity-30 transition"
+                        >✗</button>
+                        <button
+                          onClick={() => handleAction(regenerate, clip.id)}
+                          disabled={actionLoading === clip.id}
+                          className="px-2 py-1 rounded text-xs bg-amber-300/10 text-amber-300 border border-amber-300/30 hover:bg-amber-300/20 disabled:opacity-30 transition"
+                        >↻</button>
                       </div>
                     </div>
                   ))}
                 </div>
+              ) : (
+                <div className="px-4 py-3 text-sm text-[#F5F0E8]/30">
+                  No clips yet. Use "Run Prewarm" to generate.
+                </div>
               )}
-
-              {/* Generate with provider picker */}
-              <div className="px-4 py-3 border-t border-[#F5F0E8]/5 flex flex-wrap gap-2">
-                {PROVIDERS.map(prov => {
-                  const key = `${item.text}-${item.voiceKind}-${prov.id}`;
-                  const alreadyExists = item.clips.some(c => c.provider === prov.id);
-                  return (
-                    <button
-                      key={prov.id}
-                      onClick={async () => {
-                        setGenerateLoading(key);
-                        try {
-                          await generate(item.text, item.voiceKind, prov.id, '');
-                        } catch (err) {
-                          const msg = err instanceof Error ? err.message : String(err);
-                          alert(`Failed to generate with ${prov.label}: ${msg}`);
-                        }
-                        setGenerateLoading(null);
-                      }}
-                      disabled={generateLoading === key}
-                      className={`px-2.5 py-1 rounded text-xs border transition ${
-                        alreadyExists
-                          ? 'border-[#F5F0E8]/10 text-[#F5F0E8]/30'
-                          : 'border-[#F5F0E8]/20 text-[#F5F0E8]/60 hover:text-[#F5F0E8] hover:border-[#F5F0E8]/40'
-                      } disabled:opacity-50`}
-                    >
-                      {generateLoading === key ? '...' : `+ ${prov.label}`}
-                    </button>
-                  );
-                })}
-              </div>
             </div>
           ))}
         </div>
