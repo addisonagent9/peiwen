@@ -1,210 +1,107 @@
 /**
- * Alibaba CosyVoice TTS provider via DashScope WebSocket API.
+ * Alibaba Qwen3-TTS-Flash provider via DashScope REST API.
+ * Supports Mandarin, Cantonese (Rocky/Kiki), Minnan (Roy), Shanghainese (Jada),
+ * Sichuan (Sunny/Eric), Beijing (Dylan), Tianjin (Peter), Nanjing (Li), Shaanxi (Marcus).
  *
- * Uses the streaming WebSocket protocol for text-to-speech synthesis.
- * Supports both Mandarin and Cantonese via cosyvoice-v3-flash model
- * in the Singapore (international) region.
- *
- * Reference: https://help.aliyun.com/zh/dashscope/developer-reference/cosyvoice-websocket-api
+ * Reference: https://www.alibabacloud.com/help/en/model-studio/qwen-tts
  */
 
-import { WebSocket } from 'ws';
-import crypto from 'crypto';
-import { AudioUnavailableError, AudioProviderError } from './provider.mjs';
+import { AudioProviderError } from './provider.mjs';
 
-const DEFAULT_MODEL = 'cosyvoice-v3-flash';
-const DEFAULT_BASE_URL = 'wss://dashscope-intl.aliyuncs.com/api-ws/v1/inference/';
+const DEFAULT_MODEL = 'qwen3-tts-flash';
+const DEFAULT_BASE_URL = 'https://dashscope-intl.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation';
+const DEFAULT_VOICE = 'Cherry';
 const TIMEOUT_MS = 30_000;
 
 export class AlibabaAudioProvider {
-  name = 'alibaba';
-
   /**
    * @param {object} config
-   * @param {string} config.apiKey — DashScope API key
-   * @param {string} [config.model] — Model ID (defaults to cosyvoice-v3-flash)
-   * @param {string} [config.voice] — Preset voice ID (optional, API picks default if omitted)
-   * @param {string} [config.baseUrl] — WebSocket URL (defaults to Singapore intl region)
+   * @param {string} config.apiKey
+   * @param {string} [config.model]
+   * @param {string} [config.voice]
+   * @param {string} [config.baseUrl]
    */
   constructor(config) {
     this.config = config;
     this.model = config.model ?? DEFAULT_MODEL;
-    this.voice = config.voice ?? undefined;
+    this.voice = config.voice ?? DEFAULT_VOICE;
     this.baseUrl = config.baseUrl ?? DEFAULT_BASE_URL;
   }
 
-  isAvailable() {
-    return Boolean(this.config.apiKey);
-  }
+  get name() { return 'alibaba'; }
+  isAvailable() { return Boolean(this.config.apiKey); }
 
   /**
-   * Synthesize speech from text via WebSocket streaming.
-   *
-   * @param {object} req
-   * @param {string} req.text — text to synthesize
+   * @param {{ text: string, voice?: string }} params
    * @returns {Promise<{audio: Buffer, mimeType: string, voice: string, sourceText: string}>}
-   * @throws {AudioUnavailableError} if the provider is not configured
-   * @throws {AudioProviderError} if the upstream API returns an error
    */
-  async synthesize(req) {
-    if (!this.isAvailable()) {
-      throw new AudioUnavailableError(
-        'Alibaba CosyVoice not configured (missing DashScope API key)',
+  async synthesize({ text, voice }) {
+    if (!text || !text.trim()) {
+      throw new AudioProviderError('Alibaba Qwen3-TTS: empty text');
+    }
+
+    const effectiveVoice = voice || this.voice;
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
+    let apiResponse;
+    try {
+      apiResponse = await fetch(this.baseUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.config.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: this.model,
+          input: {
+            text: text.trim(),
+            voice: effectiveVoice,
+          },
+        }),
+        signal: controller.signal,
+      });
+    } catch (err) {
+      clearTimeout(timeout);
+      if (err.name === 'AbortError') {
+        throw new AudioProviderError('Alibaba Qwen3-TTS: request timed out after 30s');
+      }
+      throw new AudioProviderError(`Alibaba Qwen3-TTS network error: ${err.message}`);
+    }
+    clearTimeout(timeout);
+
+    if (!apiResponse.ok) {
+      const body = await apiResponse.text().catch(() => '');
+      throw new AudioProviderError(
+        `Alibaba Qwen3-TTS HTTP ${apiResponse.status}: ${body.slice(0, 500)}`,
       );
     }
 
-    const taskId = crypto.randomUUID();
-    const text = req.text;
-    const voiceLabel = this.voice ?? 'default';
+    const json = await apiResponse.json();
+    const audioUrl = json?.output?.audio?.url;
 
-    return new Promise((resolve, reject) => {
-      const audioChunks = [];
-      let resolved = false;
+    if (!audioUrl) {
+      throw new AudioProviderError(
+        `Alibaba Qwen3-TTS: no audio URL in response — ${JSON.stringify(json).slice(0, 500)}`,
+      );
+    }
 
-      const timeout = setTimeout(() => {
-        if (!resolved) {
-          resolved = true;
-          try { ws.close(); } catch { /* ignored */ }
-          reject(new AudioProviderError('Alibaba CosyVoice timed out after 30s', 504));
-        }
-      }, TIMEOUT_MS);
+    // Download the audio file from the URL (Alibaba hosts it for 24 hours)
+    const audioResponse = await fetch(audioUrl);
+    if (!audioResponse.ok) {
+      throw new AudioProviderError(
+        `Alibaba Qwen3-TTS: failed to download audio from ${audioUrl} (HTTP ${audioResponse.status})`,
+      );
+    }
 
-      const cleanup = () => {
-        clearTimeout(timeout);
-      };
+    const audioBuffer = Buffer.from(await audioResponse.arrayBuffer());
 
-      const ws = new WebSocket(this.baseUrl, {
-        headers: {
-          'Authorization': `bearer ${this.config.apiKey}`,
-          'X-DashScope-DataInspection': 'enable',
-        },
-      });
-
-      ws.on('error', (err) => {
-        if (!resolved) {
-          resolved = true;
-          cleanup();
-          reject(new AudioProviderError(
-            `Alibaba CosyVoice WebSocket error: ${err.message}`,
-          ));
-        }
-      });
-
-      ws.on('open', () => {
-        // Step 1: Send run-task command
-        const runTask = {
-          header: {
-            action: 'run-task',
-            task_id: taskId,
-            streaming: 'duplex',
-          },
-          payload: {
-            task_group: 'audio',
-            task: 'tts',
-            function: 'SpeechSynthesizer',
-            model: this.model,
-            parameters: {
-              text_type: 'PlainText',
-              ...(this.voice ? { voice: this.voice } : {}),
-              format: 'mp3',
-              sample_rate: 22050,
-            },
-            input: {},
-          },
-        };
-        console.log('[alibaba-tts-debug] run-task payload:', JSON.stringify(runTask));
-        ws.send(JSON.stringify(runTask));
-      });
-
-      ws.on('message', (data, isBinary) => {
-        if (isBinary) {
-          // Binary frame = audio chunk
-          audioChunks.push(Buffer.from(data));
-          return;
-        }
-
-        // Text frame = JSON event
-        let event;
-        try {
-          event = JSON.parse(data.toString());
-        } catch {
-          return; // Ignore unparseable messages
-        }
-
-        const action = event?.header?.action;
-        const code = event?.header?.code;
-
-        if (code && code !== 'SUCCESS' && action === 'task-failed') {
-          if (!resolved) {
-            resolved = true;
-            cleanup();
-            try { ws.close(); } catch { /* ignored */ }
-            const msg = event?.header?.message ?? event?.header?.error_message ?? 'Unknown error';
-            reject(new AudioProviderError(
-              `Alibaba CosyVoice task failed: ${code} — ${msg}`,
-            ));
-          }
-          return;
-        }
-
-        if (action === 'task-started') {
-          // Step 2: Send the text
-          const continueTask = {
-            header: {
-              action: 'continue-task',
-              task_id: taskId,
-              streaming: 'duplex',
-            },
-            payload: {
-              input: { text },
-            },
-          };
-          ws.send(JSON.stringify(continueTask));
-
-          // Step 3: Signal end of input
-          const finishTask = {
-            header: {
-              action: 'finish-task',
-              task_id: taskId,
-              streaming: 'duplex',
-            },
-            payload: {
-              input: {},
-            },
-          };
-          ws.send(JSON.stringify(finishTask));
-        }
-
-        if (action === 'task-finished') {
-          if (!resolved) {
-            resolved = true;
-            cleanup();
-            try { ws.close(); } catch { /* ignored */ }
-
-            if (audioChunks.length === 0) {
-              reject(new AudioProviderError('Alibaba CosyVoice returned no audio data'));
-              return;
-            }
-
-            resolve({
-              audio: Buffer.concat(audioChunks),
-              mimeType: 'audio/mpeg',
-              voice: voiceLabel,
-              sourceText: text,
-            });
-          }
-        }
-      });
-
-      ws.on('close', (code, reason) => {
-        if (!resolved) {
-          resolved = true;
-          cleanup();
-          reject(new AudioProviderError(
-            `Alibaba CosyVoice WebSocket closed unexpectedly (code=${code}, reason="${reason?.toString?.() ?? ''}", received ${audioChunks.length} chunks before close, but no task-finished event)`,
-          ));
-        }
-      });
-    });
+    return {
+      audio: audioBuffer,
+      mimeType: 'audio/wav',
+      voice: effectiveVoice,
+      sourceText: text.trim(),
+    };
   }
 }

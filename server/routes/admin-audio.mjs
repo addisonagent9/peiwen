@@ -126,7 +126,7 @@ export function createAdminAudioRouter({ db, audioService, requireAdmin, cacheDi
       let effectiveVoiceId = voiceId;
       if (typeof effectiveVoiceId !== 'string' || !effectiveVoiceId.trim()) {
         if (provider === 'alibaba') {
-          effectiveVoiceId = process.env.ALIBABA_COSYVOICE_VOICE ?? '';
+          effectiveVoiceId = process.env.ALIBABA_QWEN_VOICE ?? process.env.ALIBABA_COSYVOICE_VOICE ?? 'Cherry';
         } else if (provider === 'azure') {
           effectiveVoiceId = process.env.AZURE_SPEECH_VOICE_MANDARIN ?? 'zh-TW-HsiaoChenNeural';
         } else if (provider === 'elevenlabs') {

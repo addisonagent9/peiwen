@@ -129,7 +129,7 @@ export class AudioService {
    *
    * @param {string} text
    * @param {object} opts
-   * @param {string} opts.provider — 'azure' or 'elevenlabs'
+   * @param {string} opts.provider — 'azure', 'elevenlabs', or 'alibaba'
    * @param {string} opts.voiceId — provider-specific voice identifier
    * @returns {Promise<{audio: Buffer, mimeType: string, voice: string, sourceText: string}>}
    */
@@ -151,7 +151,7 @@ export class AudioService {
       });
     } else if (providerName === 'alibaba') {
       if (!this.alibabaConfig?.apiKey) {
-        throw new AudioUnavailableError('Alibaba CosyVoice provider not configured');
+        throw new AudioUnavailableError('Alibaba Qwen3-TTS provider not configured');
       }
       p = new AlibabaAudioProvider({
         apiKey: this.alibabaConfig.apiKey,
@@ -197,12 +197,18 @@ export function createAudioServiceFromEnv(opts = {}) {
         : undefined,
     alibaba:
       process.env.ALIBABA_DASHSCOPE_API_KEY
-        ? {
-            apiKey: process.env.ALIBABA_DASHSCOPE_API_KEY,
-            model: process.env.ALIBABA_COSYVOICE_MODEL ?? 'cosyvoice-v3-flash',
-            voice: process.env.ALIBABA_COSYVOICE_VOICE ?? undefined,
-            baseUrl: process.env.ALIBABA_DASHSCOPE_BASE_URL ?? undefined,
-          }
+        ? (() => {
+            const envBaseUrl = process.env.ALIBABA_DASHSCOPE_BASE_URL;
+            const baseUrl = (envBaseUrl && !envBaseUrl.startsWith('wss://'))
+              ? envBaseUrl
+              : undefined;
+            return {
+              apiKey: process.env.ALIBABA_DASHSCOPE_API_KEY,
+              model: process.env.ALIBABA_QWEN_MODEL ?? process.env.ALIBABA_COSYVOICE_MODEL ?? 'qwen3-tts-flash',
+              voice: process.env.ALIBABA_QWEN_VOICE ?? process.env.ALIBABA_COSYVOICE_VOICE ?? undefined,
+              baseUrl,
+            };
+          })()
         : undefined,
   });
 }
