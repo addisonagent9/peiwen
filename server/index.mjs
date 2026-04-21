@@ -210,7 +210,7 @@ console.log(`[trainer] beta gate: ${describeTrainerGate()}`);
 const audioService = createAudioServiceFromEnv({
   cacheDir: path.join(__dirname, "data", "audio-cache"),
 });
-app.use("/api/audio", createAudioRouter(audioService));
+app.use("/api/audio", createAudioRouter(audioService, db));
 app.use("/api/admin/audio", createAdminAudioRouter({
   db, audioService, requireAdmin,
   cacheDir: path.join(__dirname, "data", "audio-cache"),

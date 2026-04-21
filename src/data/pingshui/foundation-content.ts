@@ -29,6 +29,8 @@ export interface DemoItem {
   classicalTone?: 'ping' | 'shang' | 'qu' | 'ru';
   /** Any extra note shown below the item (e.g. "lost in modern Mandarin"). */
   note?: string;
+  /** Cantonese Jyutping evidence — shows that this character still has an entering-tone ending in Cantonese. */
+  cantoneseEvidence?: { jyutping: string };
 }
 
 export interface FoundationScreen {
@@ -136,20 +138,27 @@ export const FOUNDATION_SCREENS: FoundationScreen[] = [
       '入声是一种"突然刹车"的发音。现代普通话的四声都是"延长拉开"的 — 读完声调后,嘴巴还是开着的。但入声字不一样:读到最后,嘴巴会突然"闭起来"或"卡住",声音戛然而止。',
       '古代的入声有三种结尾方式 — 不需要会真的发出这些音,只需要知道"这个字古代曾经有这种闭口结尾"。',
       '普通话里,这三种闭口音全部消失了 — 入声字被重新分配到了一、二、三、四声之中,无规律可循。结果就是:你无法从现代读音判断一个字是否入声。这也是为什么写格律诗时,入声字最容易让人踩雷。训练器会帮你通过重复识别来记住这些字 — 这是本课程的核心目标之一。',
+      '下面这些字在普通话里早已失去入声特征,但在粤语等南方方言中仍保留了原本的 -p、-t、-k 收尾。括号里的粤语拼音不需要你学会发音 — 它只是作为证据,说明这些字古代确实属于入声。',
     ],
     demos: [
       { text: '十', caption: '-p 闭唇音 · 双唇合拢', pinyin: 'shí', classicalTone: 'ru',
-        note: '今读二声,古属入声。读完后双唇合拢,像说"噗"一样。' },
+        note: '今读二声,古属入声。读完后双唇合拢,像说"噗"一样。',
+        cantoneseEvidence: { jyutping: 'sap6' } },
       { text: '入', caption: '-p 闭唇音 · 双唇合拢', pinyin: 'rù', classicalTone: 'ru',
-        note: '今读四声,古属入声。' },
+        note: '今读四声,古属入声。',
+        cantoneseEvidence: { jyutping: 'jap6' } },
       { text: '月', caption: '-t 闭舌音 · 舌尖顶上齿', pinyin: 'yuè', classicalTone: 'ru',
-        note: '今读四声,古属入声。读完后舌尖顶住上齿后方。' },
+        note: '今读四声,古属入声。读完后舌尖顶住上齿后方。',
+        cantoneseEvidence: { jyutping: 'jyut6' } },
       { text: '日', caption: '-t 闭舌音 · 舌尖顶上齿', pinyin: 'rì', classicalTone: 'ru',
-        note: '今读四声,古属入声。' },
+        note: '今读四声,古属入声。',
+        cantoneseEvidence: { jyutping: 'jat6' } },
       { text: '白', caption: '-k 闭喉音 · 舌根顶软腭', pinyin: 'bái', classicalTone: 'ru',
-        note: '今读二声,古属入声。读完后舌根顶住软腭。' },
+        note: '今读二声,古属入声。读完后舌根顶住软腭。',
+        cantoneseEvidence: { jyutping: 'baak6' } },
       { text: '六', caption: '-k 闭喉音 · 舌根顶软腭', pinyin: 'liù', classicalTone: 'ru',
-        note: '今读四声,古属入声。' },
+        note: '今读四声,古属入声。',
+        cantoneseEvidence: { jyutping: 'luk6' } },
     ],
     insight: '学入声,不是学发音 — 而是学"哪些字是入声"。这是核心挑战。',
   },

@@ -102,7 +102,8 @@ export const FoundationModule: React.FC<FoundationModuleProps> = ({
       <ScreenBody
         screen={screen}
         strings={strings}
-        audioAvailable={audio.available && audio.probed}
+        audioAvailable={audio.available && audio.probed && audio.approvedCounts.mandarin > 0}
+        cantoneseAudioAvailable={audio.available && audio.probed && audio.approvedCounts.cantonese > 0}
         onPlay={audio.play}
         playingText={audio.currentText}
       />
@@ -145,7 +146,8 @@ interface ScreenBodyProps {
   screen: FoundationScreen;
   strings: TrainerStrings;
   audioAvailable: boolean;
-  onPlay: (text: string) => Promise<void>;
+  cantoneseAudioAvailable: boolean;
+  onPlay: (text: string, voice?: 'mandarin' | 'cantonese') => Promise<void>;
   playingText: string | null;
 }
 
@@ -153,6 +155,7 @@ const ScreenBody: React.FC<ScreenBodyProps> = ({
   screen,
   strings: _strings,
   audioAvailable,
+  cantoneseAudioAvailable,
   onPlay,
   playingText,
 }) => (
@@ -198,6 +201,7 @@ const ScreenBody: React.FC<ScreenBodyProps> = ({
             key={i}
             demo={d}
             audioAvailable={audioAvailable}
+            cantoneseAudioAvailable={cantoneseAudioAvailable}
             onPlay={onPlay}
             isPlaying={playingText === d.text}
           />
@@ -230,55 +234,74 @@ const ScreenBody: React.FC<ScreenBodyProps> = ({
 interface DemoRowProps {
   demo: DemoItem;
   audioAvailable: boolean;
-  onPlay: (text: string) => Promise<void>;
+  onPlay: (text: string, voice?: 'mandarin' | 'cantonese') => Promise<void>;
   isPlaying: boolean;
+  cantoneseAudioAvailable: boolean;
 }
+
+const PlayButton: React.FC<{ onClick: () => void; isPlaying: boolean }> = ({ onClick, isPlaying }) => (
+  <button
+    onClick={onClick}
+    className="shrink-0 w-9 h-9 rounded-full border border-ink-line flex items-center justify-center text-creamDim hover:text-cream hover:border-cream/40 transition-colors"
+  >
+    {isPlaying ? (
+      <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden>
+        <rect x="3" y="2" width="2" height="8" fill="currentColor" />
+        <rect x="7" y="2" width="2" height="8" fill="currentColor" />
+      </svg>
+    ) : (
+      <svg width="11" height="11" viewBox="0 0 11 11" aria-hidden>
+        <path d="M3 1.5 L3 9.5 L9.5 5.5 Z" fill="currentColor" />
+      </svg>
+    )}
+  </button>
+);
 
 const DemoRow: React.FC<DemoRowProps> = ({
   demo,
   audioAvailable,
   onPlay,
   isPlaying,
+  cantoneseAudioAvailable,
 }) => (
-  <div className="py-3 px-4 border border-ink-line rounded-md flex items-center gap-4">
-    {/* The character/phrase */}
-    <div className="shrink-0 min-w-[56px] flex items-center justify-center">
-      <span className="font-serif text-cream text-2xl">{demo.text}</span>
-    </div>
+  <div className="space-y-0">
+    <div className="py-3 px-4 border border-ink-line rounded-md flex items-center gap-4">
+      {/* The character/phrase */}
+      <div className="shrink-0 min-w-[56px] flex items-center justify-center">
+        <span className="font-serif text-cream text-2xl">{demo.text}</span>
+      </div>
 
-    {/* Metadata */}
-    <div className="flex-1 min-w-0">
-      <div className="flex items-baseline gap-3">
-        <span className="text-cream text-sm">{demo.caption}</span>
-        {demo.pinyin && (
-          <span className="text-creamDim text-xs font-mono">{demo.pinyin}</span>
+      {/* Metadata */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-baseline gap-3">
+          <span className="text-cream text-sm">{demo.caption}</span>
+          {demo.pinyin && (
+            <span className="text-creamDim text-xs font-mono">{demo.pinyin}</span>
+          )}
+        </div>
+        {demo.note && (
+          <p className="text-creamDim/80 text-xs mt-1 leading-relaxed">
+            {demo.note}
+          </p>
         )}
       </div>
-      {demo.note && (
-        <p className="text-creamDim/80 text-xs mt-1 leading-relaxed">
-          {demo.note}
-        </p>
+
+      {/* Mandarin audio button */}
+      {audioAvailable && (
+        <PlayButton onClick={() => onPlay(demo.text, 'mandarin')} isPlaying={isPlaying} />
       )}
     </div>
 
-    {/* Audio button — hidden entirely when audio unavailable */}
-    {audioAvailable && <button
-      onClick={() => onPlay(demo.text)}
-      aria-label={`Play ${demo.text}`}
-      className="shrink-0 w-9 h-9 rounded-full border border-ink-line flex items-center justify-center text-creamDim hover:text-cream hover:border-cream/40 transition-colors"
-    >
-      {isPlaying ? (
-        // Pause / playing state — two bars
-        <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden>
-          <rect x="3" y="2" width="2" height="8" fill="currentColor" />
-          <rect x="7" y="2" width="2" height="8" fill="currentColor" />
-        </svg>
-      ) : (
-        // Play triangle
-        <svg width="11" height="11" viewBox="0 0 11 11" aria-hidden>
-          <path d="M3 1.5 L3 9.5 L9.5 5.5 Z" fill="currentColor" />
-        </svg>
-      )}
-    </button>}
+    {/* Cantonese evidence row */}
+    {demo.cantoneseEvidence && (
+      <div className="ml-6 py-2 px-4 border-l-2 border-ink-line flex items-center gap-3">
+        <span className="font-serif text-creamDim text-lg">{demo.text}</span>
+        <span className="text-creamDim text-[11px]">粤语佐证</span>
+        <span className="text-cream text-xs font-mono">{demo.cantoneseEvidence.jyutping}</span>
+        {cantoneseAudioAvailable && (
+          <PlayButton onClick={() => onPlay(demo.text, 'cantonese')} isPlaying={false} />
+        )}
+      </div>
+    )}
   </div>
 );
