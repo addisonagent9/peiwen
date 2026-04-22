@@ -7,24 +7,25 @@
  * mark foundation complete and returns the user to Home.
  *
  * ── Audio behavior ───────────────────────────────────────────────────────────
- * One screen-level play/pause button at the top-right. Pressing it queues
- * all body paragraphs + insight for sequential playback via useAudioQueue.
- * The currently-playing paragraph gets a gold left-border highlight.
- * Demo character buttons still work independently — tapping one stops the
- * queue but does not auto-resume it.
+ * Client-side audioIntent state: 'auto-on' (default) or 'auto-off'.
+ * On each screen mount, if audioIntent is 'auto-on' and audio is available,
+ * the queue auto-starts. Pressing pause sets intent to 'auto-off'; pressing
+ * play sets it back to 'auto-on'. Demo character taps stop the queue but
+ * don't change intent. Navigation stops the queue but preserves intent, so
+ * the next screen auto-plays if the user never explicitly paused.
  *
  * ── Design notes ─────────────────────────────────────────────────────────────
  * Mobile-first single column. Generous whitespace — each screen breathes.
- * The headline character uses font-serif at 64px for visual anchor. Demo
- * items stack vertically, never grid.
+ * The headline character uses font-serif at 64px for visual anchor.
  *
- * Insight callouts use a thin gold left border + cream text — the one place
- * gold appears in the body content.
- * Caveats use rose-tinted background + rose text — reserved for honest
- * pedagogical limits ("this feature not yet available").
+ * Demo items: unified single card per character. Mandarin section on top,
+ * Cantonese evidence below a thin divider. Buttons labeled [▶ 普] / [▶ 粤].
+ *
+ * Insight callouts use a thin gold left border + cream text.
+ * Caveats use rose-tinted background + rose text.
  */
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { TrainerStrings } from '../../i18n/trainer-strings';
 import type { UserTrainerState } from '../../types/pingshui-trainer';
 import {
@@ -34,6 +35,8 @@ import {
 } from '../../data/pingshui/foundation-content';
 import { useAudio } from '../../hooks/useAudio';
 import { useAudioQueue } from '../../hooks/useAudioQueue';
+
+type AudioIntent = 'auto-on' | 'auto-off';
 
 export interface FoundationModuleProps {
   strings: TrainerStrings;
@@ -49,6 +52,7 @@ export const FoundationModule: React.FC<FoundationModuleProps> = ({
   const [currentStep, setCurrentStep] = useState(1);
   const [completing, setCompleting] = useState(false);
   const [completeError, setCompleteError] = useState<string | null>(null);
+  const [audioIntent, setAudioIntent] = useState<AudioIntent>('auto-on');
 
   const audio = useAudio();
   const queue = useAudioQueue(audio);
@@ -66,10 +70,31 @@ export const FoundationModule: React.FC<FoundationModuleProps> = ({
     return texts;
   }, [screen]);
 
+  // Auto-play on screen mount when intent is 'auto-on'
+  const autoPlayFired = useRef(false);
+  useEffect(() => {
+    autoPlayFired.current = false;
+  }, [currentStep]);
+
+  useEffect(() => {
+    if (
+      audioIntent === 'auto-on' &&
+      mandarinAvailable &&
+      audio.probed &&
+      queueTexts.length > 0 &&
+      !autoPlayFired.current
+    ) {
+      autoPlayFired.current = true;
+      queue.start(queueTexts, 'mandarin');
+    }
+  }, [currentStep, audio.probed, mandarinAvailable, audioIntent, queueTexts, queue]);
+
   const handleScreenPlay = useCallback(() => {
     if (queue.active) {
       queue.stop();
+      setAudioIntent('auto-off');
     } else {
+      setAudioIntent('auto-on');
       queue.start(queueTexts, 'mandarin');
     }
   }, [queue, queueTexts]);
@@ -249,15 +274,15 @@ const ScreenBody: React.FC<ScreenBodyProps> = ({
 
     {/* Demo items */}
     {screen.demos && screen.demos.length > 0 && (
-      <section className="space-y-2 pt-2">
+      <section className="space-y-3 pt-2">
         {screen.demos.map((d, i) => (
-          <DemoRow
+          <DemoCard
             key={i}
             demo={d}
             audioAvailable={audioAvailable}
             cantoneseAudioAvailable={cantoneseAudioAvailable}
             onPlay={onPlay}
-            isPlaying={playingText === d.text}
+            playingText={playingText}
           />
         ))}
       </section>
@@ -288,80 +313,114 @@ const ScreenBody: React.FC<ScreenBodyProps> = ({
 );
 
 // ---------------------------------------------------------------------------
-// Demo row with audio button
+// Labeled play button (▶ 普 or ▶ 粤)
 // ---------------------------------------------------------------------------
 
-interface DemoRowProps {
-  demo: DemoItem;
-  audioAvailable: boolean;
-  onPlay: (text: string, voice?: 'mandarin' | 'cantonese') => Promise<void>;
+const LabeledPlayButton: React.FC<{
+  onClick: () => void;
   isPlaying: boolean;
-  cantoneseAudioAvailable: boolean;
-}
-
-const PlayButton: React.FC<{ onClick: () => void; isPlaying: boolean }> = ({ onClick, isPlaying }) => (
+  label: string;
+  ariaLabel: string;
+}> = ({ onClick, isPlaying, label, ariaLabel }) => (
   <button
     onClick={onClick}
-    className="shrink-0 w-9 h-9 rounded-full border border-ink-line flex items-center justify-center text-creamDim hover:text-cream hover:border-cream/40 transition-colors"
+    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-ink-line text-creamDim hover:text-cream hover:border-cream/40 transition-colors"
+    aria-label={ariaLabel}
   >
     {isPlaying ? (
-      <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden>
+      <svg width="9" height="9" viewBox="0 0 12 12" aria-hidden>
         <rect x="3" y="2" width="2" height="8" fill="currentColor" />
         <rect x="7" y="2" width="2" height="8" fill="currentColor" />
       </svg>
     ) : (
-      <svg width="11" height="11" viewBox="0 0 11 11" aria-hidden>
+      <svg width="9" height="9" viewBox="0 0 11 11" aria-hidden>
         <path d="M3 1.5 L3 9.5 L9.5 5.5 Z" fill="currentColor" />
       </svg>
     )}
+    <span className="text-xs font-sans">{label}</span>
   </button>
 );
 
-const DemoRow: React.FC<DemoRowProps> = ({
+// ---------------------------------------------------------------------------
+// Unified demo card
+// ---------------------------------------------------------------------------
+
+interface DemoCardProps {
+  demo: DemoItem;
+  audioAvailable: boolean;
+  cantoneseAudioAvailable: boolean;
+  onPlay: (text: string, voice?: 'mandarin' | 'cantonese') => Promise<void>;
+  playingText: string | null;
+}
+
+const DemoCard: React.FC<DemoCardProps> = ({
   demo,
   audioAvailable,
-  onPlay,
-  isPlaying,
   cantoneseAudioAvailable,
+  onPlay,
+  playingText,
 }) => (
-  <div className="space-y-0">
-    <div className="py-3 px-4 border border-ink-line rounded-md flex items-center gap-4">
-      {/* The character/phrase */}
-      <div className="shrink-0 min-w-[56px] flex items-center justify-center">
+  <div className="border border-ink-line rounded-md overflow-hidden">
+    {/* Mandarin section */}
+    <div className="py-3 px-4 flex items-start gap-4">
+      {/* Character */}
+      <div className="shrink-0 min-w-[56px] flex items-center justify-center pt-0.5">
         <span className="font-serif text-cream text-2xl">{demo.text}</span>
       </div>
 
-      {/* Metadata */}
+      {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline gap-3">
           <span className="text-cream text-sm">{demo.caption}</span>
-          {demo.pinyin && (
-            <span className="text-creamDim text-xs font-mono">{demo.pinyin}</span>
-          )}
         </div>
-        {demo.note && (
+        {(demo.pinyin || demo.note) && (
           <p className="text-creamDim/80 text-xs mt-1 leading-relaxed">
+            {demo.pinyin && <span className="font-mono">{demo.pinyin}</span>}
+            {demo.pinyin && demo.note && <span> · </span>}
             {demo.note}
           </p>
         )}
       </div>
 
-      {/* Mandarin audio button */}
+      {/* Mandarin play button */}
       {audioAvailable && (
-        <PlayButton onClick={() => onPlay(demo.text, 'mandarin')} isPlaying={isPlaying} />
+        <div className="shrink-0 self-center">
+          <LabeledPlayButton
+            onClick={() => onPlay(demo.text, 'mandarin')}
+            isPlaying={playingText === demo.text}
+            label="普"
+            ariaLabel={`Play ${demo.text} in Mandarin`}
+          />
+        </div>
       )}
     </div>
 
-    {/* Cantonese evidence row */}
+    {/* Cantonese evidence section */}
     {demo.cantoneseEvidence && (
-      <div className="ml-6 py-2 px-4 border-l-2 border-ink-line flex items-center gap-3">
-        <span className="font-serif text-creamDim text-lg">{demo.text}</span>
-        <span className="text-creamDim text-[11px]">粤语佐证</span>
-        <span className="text-cream text-xs font-mono">{demo.cantoneseEvidence.jyutping}</span>
-        {cantoneseAudioAvailable && (
-          <PlayButton onClick={() => onPlay(demo.text, 'cantonese')} isPlaying={false} />
-        )}
-      </div>
+      <>
+        <div className="mx-4 border-t border-ink-line/30" />
+        <div className="py-2.5 px-4 flex items-center gap-4">
+          <div className="shrink-0 min-w-[56px]" />
+          <div className="flex-1 min-w-0">
+            <span className="text-creamDim text-xs">
+              粤 · <span className="font-mono">{demo.cantoneseEvidence.jyutping}</span>
+              {demo.cantoneseEvidence.descriptor && (
+                <span> · {demo.cantoneseEvidence.descriptor}</span>
+              )}
+            </span>
+          </div>
+          {cantoneseAudioAvailable && (
+            <div className="shrink-0">
+              <LabeledPlayButton
+                onClick={() => onPlay(demo.text, 'cantonese')}
+                isPlaying={false}
+                label="粤"
+                ariaLabel={`Play ${demo.text} in Cantonese`}
+              />
+            </div>
+          )}
+        </div>
+      </>
     )}
   </div>
 );
