@@ -163,7 +163,7 @@ export class AudioService {
       throw new Error(`Unknown provider: ${providerName}`);
     }
 
-    return p.synthesize({ text: normalized });
+    return p.synthesize({ text: normalized, voice: voiceId });
   }
 
   /** Cache size for monitoring. */

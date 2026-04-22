@@ -1,5 +1,15 @@
 /**
- * Prewarm audio — generate pending clips for all manifest entries.
+ * PREWARM AUDIO CLIPS
+ *
+ * IMPORTANT: Run this as the service user (www-data on the VPS), NOT as root.
+ * If run as root, the generated files will be owned by root and the service
+ * will hit EACCES when trying to regenerate them.
+ *
+ * Correct command on the VPS:
+ *   sudo -u www-data node scripts/prewarm-audio.mjs
+ *
+ * Or chown the output directory afterwards:
+ *   sudo chown -R www-data:www-data /var/www/pw.truesolartime.com/server/data/audio-cache/
  *
  * Uses voice pools from server/audio/voice-pools.mjs (primary voice per voiceKind).
  *

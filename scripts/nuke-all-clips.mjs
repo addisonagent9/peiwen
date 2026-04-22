@@ -2,7 +2,11 @@
  * Delete ALL audio_clips rows from DB and ALL files in the pending/approved dirs.
  * This is a destructive operation for starting fresh after broken state.
  *
- * Run with: node scripts/nuke-all-clips.mjs
+ * IMPORTANT: Run this as the service user (www-data on the VPS), NOT as root.
+ *   sudo -u www-data node scripts/nuke-all-clips.mjs
+ *
+ * Or chown the output directory afterwards:
+ *   sudo chown -R www-data:www-data /var/www/pw.truesolartime.com/server/data/audio-cache/
  */
 
 import Database from 'better-sqlite3';

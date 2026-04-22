@@ -77,7 +77,7 @@ export function createAdminAudioRouter({ db, audioService, requireAdmin, cacheDi
         params.push(`%${search}%`);
       }
 
-      sql += ' ORDER BY CASE status WHEN \'pending\' THEN 0 WHEN \'approved\' THEN 1 ELSE 2 END, created_at DESC';
+      sql += ' ORDER BY voice_kind ASC, text ASC';
 
       const rows = db.prepare(sql).all(...params);
 
