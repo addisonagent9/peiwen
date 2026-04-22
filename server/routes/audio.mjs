@@ -11,7 +11,6 @@
 import express from 'express';
 import fsp from 'fs/promises';
 
-const MAX_TEXT_LENGTH = 100;
 const VALID_VOICE_KINDS = new Set(['mandarin', 'cantonese']);
 
 // Simple in-memory rate limiter
@@ -81,11 +80,6 @@ export function createAudioRouter(service, db) {
         res.status(400).json({ error: 'INVALID_TEXT' });
         return;
       }
-      if (text.length > MAX_TEXT_LENGTH) {
-        res.status(400).json({ error: 'TEXT_TOO_LONG' });
-        return;
-      }
-
       const voiceParam = req.query.voice;
       const voiceKind = typeof voiceParam === 'string' && VALID_VOICE_KINDS.has(voiceParam)
         ? voiceParam
