@@ -164,4 +164,26 @@ export const AUDIO_PREWARM_MANIFEST = [
   { text: '日', voiceKind: 'cantonese', usageContext: ['foundation:rusheng:cantonese-evidence'] },
   { text: '白', voiceKind: 'cantonese', usageContext: ['foundation:rusheng:cantonese-evidence'] },
   { text: '六', voiceKind: 'cantonese', usageContext: ['foundation:rusheng:cantonese-evidence'] },
+
+  // ─── Anchor poems: Mandarin (9) ───────────────────────────────────────
+  { text: '死去元知万事空,但悲不见九州同。\n王师北定中原日,家祭无忘告乃翁。', voiceKind: 'mandarin', usageContext: ['anchor:shangping-01-dong'] },
+  { text: '床前明月光,疑是地上霜。\n举头望明月,低头思故乡。', voiceKind: 'mandarin', usageContext: ['anchor:xiaping-07-yang'] },
+  { text: '白日依山尽,黄河入海流。\n欲穷千里目,更上一层楼。', voiceKind: 'mandarin', usageContext: ['anchor:xiaping-11-you'] },
+  { text: '故人具鸡黍,邀我至田家。\n绿树村边合,青山郭外斜。\n开轩面场圃,把酒话桑麻。\n待到重阳日,还来就菊花。', voiceKind: 'mandarin', usageContext: ['anchor:xiaping-06-ma'] },
+  { text: '鹅,鹅,鹅,曲项向天歌。\n白毛浮绿水,红掌拨清波。', voiceKind: 'mandarin', usageContext: ['anchor:xiaping-05-ge'] },
+  { text: '少小离家老大回,乡音无改鬓毛衰。\n儿童相见不相识,笑问客从何处来。', voiceKind: 'mandarin', usageContext: ['anchor:shangping-10-hui'] },
+  { text: '朝辞白帝彩云间,千里江陵一日还。\n两岸猿声啼不住,轻舟已过万重山。', voiceKind: 'mandarin', usageContext: ['anchor:shangping-15-shan'] },
+  { text: '李白乘舟将欲行,忽闻岸上踏歌声。\n桃花潭水深千尺,不及汪伦送我情。', voiceKind: 'mandarin', usageContext: ['anchor:xiaping-08-geng'] },
+  { text: '国破山河在,城春草木深。\n感时花溅泪,恨别鸟惊心。\n烽火连三月,家书抵万金。\n白头搔更短,浑欲不胜簪。', voiceKind: 'mandarin', usageContext: ['anchor:xiaping-12-qin'] },
+
+  // ─── Anchor poems: Cantonese (9) ──────────────────────────────────────
+  { text: '死去元知万事空,但悲不见九州同。\n王师北定中原日,家祭无忘告乃翁。', voiceKind: 'cantonese', usageContext: ['anchor:shangping-01-dong'] },
+  { text: '床前明月光,疑是地上霜。\n举头望明月,低头思故乡。', voiceKind: 'cantonese', usageContext: ['anchor:xiaping-07-yang'] },
+  { text: '白日依山尽,黄河入海流。\n欲穷千里目,更上一层楼。', voiceKind: 'cantonese', usageContext: ['anchor:xiaping-11-you'] },
+  { text: '故人具鸡黍,邀我至田家。\n绿树村边合,青山郭外斜。\n开轩面场圃,把酒话桑麻。\n待到重阳日,还来就菊花。', voiceKind: 'cantonese', usageContext: ['anchor:xiaping-06-ma'] },
+  { text: '鹅,鹅,鹅,曲项向天歌。\n白毛浮绿水,红掌拨清波。', voiceKind: 'cantonese', usageContext: ['anchor:xiaping-05-ge'] },
+  { text: '少小离家老大回,乡音无改鬓毛衰。\n儿童相见不相识,笑问客从何处来。', voiceKind: 'cantonese', usageContext: ['anchor:shangping-10-hui'] },
+  { text: '朝辞白帝彩云间,千里江陵一日还。\n两岸猿声啼不住,轻舟已过万重山。', voiceKind: 'cantonese', usageContext: ['anchor:shangping-15-shan'] },
+  { text: '李白乘舟将欲行,忽闻岸上踏歌声。\n桃花潭水深千尺,不及汪伦送我情。', voiceKind: 'cantonese', usageContext: ['anchor:xiaping-08-geng'] },
+  { text: '国破山河在,城春草木深。\n感时花溅泪,恨别鸟惊心。\n烽火连三月,家书抵万金。\n白头搔更短,浑欲不胜簪。', voiceKind: 'cantonese', usageContext: ['anchor:xiaping-12-qin'] },
 ];

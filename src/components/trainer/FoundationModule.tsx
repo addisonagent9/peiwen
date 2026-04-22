@@ -7,9 +7,11 @@
  * mark foundation complete and returns the user to Home.
  *
  * ── Audio behavior ───────────────────────────────────────────────────────────
- * Each demo item shows a round play button. If `useAudio.available === false`
- * after the initial probe, the buttons render disabled with a subtle
- * "audio unavailable" tooltip. The rest of the content is fully usable.
+ * One screen-level play/pause button at the top-right. Pressing it queues
+ * all body paragraphs + insight for sequential playback via useAudioQueue.
+ * The currently-playing paragraph gets a gold left-border highlight.
+ * Demo character buttons still work independently — tapping one stops the
+ * queue but does not auto-resume it.
  *
  * ── Design notes ─────────────────────────────────────────────────────────────
  * Mobile-first single column. Generous whitespace — each screen breathes.
@@ -22,7 +24,7 @@
  * pedagogical limits ("this feature not yet available").
  */
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import type { TrainerStrings } from '../../i18n/trainer-strings';
 import type { UserTrainerState } from '../../types/pingshui-trainer';
 import {
@@ -31,6 +33,7 @@ import {
   type DemoItem,
 } from '../../data/pingshui/foundation-content';
 import { useAudio } from '../../hooks/useAudio';
+import { useAudioQueue } from '../../hooks/useAudioQueue';
 
 export interface FoundationModuleProps {
   strings: TrainerStrings;
@@ -48,19 +51,44 @@ export const FoundationModule: React.FC<FoundationModuleProps> = ({
   const [completeError, setCompleteError] = useState<string | null>(null);
 
   const audio = useAudio();
+  const queue = useAudioQueue(audio);
 
   const screen = FOUNDATION_SCREENS.find((s) => s.step === currentStep)!;
   const totalSteps = FOUNDATION_SCREENS.length;
   const isLastStep = currentStep === totalSteps;
 
+  const mandarinAvailable = audio.available && audio.probed && audio.approvedCounts.mandarin > 0;
+  const cantoneseAvailable = audio.available && audio.probed && audio.approvedCounts.cantonese > 0;
+
+  const queueTexts = useMemo(() => {
+    const texts = [...screen.body];
+    if (screen.insight) texts.push(screen.insight);
+    return texts;
+  }, [screen]);
+
+  const handleScreenPlay = useCallback(() => {
+    if (queue.active) {
+      queue.stop();
+    } else {
+      queue.start(queueTexts, 'mandarin');
+    }
+  }, [queue, queueTexts]);
+
+  const handleDemoPlay = useCallback(
+    async (text: string, voice?: 'mandarin' | 'cantonese') => {
+      queue.stop();
+      await audio.play(text, voice);
+    },
+    [queue, audio],
+  );
+
   const goNext = useCallback(async () => {
+    queue.stop();
     if (!isLastStep) {
       setCurrentStep((s) => s + 1);
-      // Reset scroll on step change. Users expect each screen to open at top.
       window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
       return;
     }
-    // Last step → mark foundation complete
     try {
       setCompleting(true);
       setCompleteError(null);
@@ -72,24 +100,45 @@ export const FoundationModule: React.FC<FoundationModuleProps> = ({
     } finally {
       setCompleting(false);
     }
-  }, [isLastStep, onComplete]);
+  }, [isLastStep, onComplete, queue]);
 
   const goBack = useCallback(() => {
+    queue.stop();
     if (currentStep === 1) {
       onExitBack();
       return;
     }
     setCurrentStep((s) => s - 1);
     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
-  }, [currentStep, onExitBack]);
+  }, [currentStep, onExitBack, queue]);
 
   return (
     <div className="pt-4 pb-24 space-y-8">
-      {/* Progress indicator */}
+      {/* Progress indicator + screen-level play button */}
       <div>
         <div className="flex items-center justify-between text-xs text-creamDim mb-2">
           <span>{strings.foundationStepOf(currentStep, totalSteps)}</span>
-          <span className="font-serif text-cream">{screen.subtitle}</span>
+          <div className="flex items-center gap-3">
+            <span className="font-serif text-cream">{screen.subtitle}</span>
+            {mandarinAvailable && (
+              <button
+                onClick={handleScreenPlay}
+                className="w-8 h-8 rounded-full border border-ink-line flex items-center justify-center text-creamDim hover:text-cream hover:border-cream/40 transition-colors"
+                aria-label={queue.active ? 'Pause narration' : 'Play narration'}
+              >
+                {queue.active ? (
+                  <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden>
+                    <rect x="3" y="2" width="2" height="8" fill="currentColor" />
+                    <rect x="7" y="2" width="2" height="8" fill="currentColor" />
+                  </svg>
+                ) : (
+                  <svg width="11" height="11" viewBox="0 0 11 11" aria-hidden>
+                    <path d="M3 1.5 L3 9.5 L9.5 5.5 Z" fill="currentColor" />
+                  </svg>
+                )}
+              </button>
+            )}
+          </div>
         </div>
         <div className="h-px bg-ink-line relative">
           <div
@@ -102,10 +151,13 @@ export const FoundationModule: React.FC<FoundationModuleProps> = ({
       <ScreenBody
         screen={screen}
         strings={strings}
-        audioAvailable={audio.available && audio.probed && audio.approvedCounts.mandarin > 0}
-        cantoneseAudioAvailable={audio.available && audio.probed && audio.approvedCounts.cantonese > 0}
-        onPlay={audio.play}
+        audioAvailable={mandarinAvailable}
+        cantoneseAudioAvailable={cantoneseAvailable}
+        onPlay={handleDemoPlay}
         playingText={audio.currentText}
+        queueActive={queue.active}
+        queueIndex={queue.currentIndex}
+        queueTexts={queueTexts}
       />
 
       {completeError && (
@@ -149,6 +201,9 @@ interface ScreenBodyProps {
   cantoneseAudioAvailable: boolean;
   onPlay: (text: string, voice?: 'mandarin' | 'cantonese') => Promise<void>;
   playingText: string | null;
+  queueActive: boolean;
+  queueIndex: number;
+  queueTexts: string[];
 }
 
 const ScreenBody: React.FC<ScreenBodyProps> = ({
@@ -158,55 +213,38 @@ const ScreenBody: React.FC<ScreenBodyProps> = ({
   cantoneseAudioAvailable,
   onPlay,
   playingText,
+  queueActive,
+  queueIndex,
+  queueTexts,
 }) => (
   <article className="space-y-6">
     {/* Big headline character */}
     <header className="text-center pt-4">
-      {audioAvailable ? (
-        <button
-          onClick={() => onPlay(screen.title)}
-          className="font-serif text-cream mx-auto block transition-opacity"
-          style={{ fontSize: '64px', lineHeight: 1 }}
-          aria-label={`Play ${screen.title}`}
-        >
-          {screen.title}
-        </button>
-      ) : (
-        <span
-          className="font-serif text-cream mx-auto block"
-          style={{ fontSize: '64px', lineHeight: 1 }}
-        >
-          {screen.title}
-        </span>
-      )}
+      <span
+        className="font-serif text-cream mx-auto block"
+        style={{ fontSize: '64px', lineHeight: 1 }}
+      >
+        {screen.title}
+      </span>
     </header>
 
     {/* Body paragraphs */}
     <div className="space-y-4">
-      {screen.body.map((p, i) => (
-        <div key={i} className="flex items-start gap-2">
-          <p className="text-cream/90 text-[15px] leading-[1.8] tracking-wide flex-1">
+      {screen.body.map((p, i) => {
+        const isActive = queueActive && queueIndex >= 0 && queueTexts[queueIndex] === p;
+        return (
+          <p
+            key={i}
+            className={`text-cream/90 text-[15px] leading-[1.8] tracking-wide transition-all duration-300 ${
+              isActive
+                ? 'pl-4 border-l-2 border-gold/80'
+                : ''
+            }`}
+          >
             {p}
           </p>
-          {audioAvailable && (
-            <button
-              onClick={() => onPlay(p, 'mandarin')}
-              className="shrink-0 mt-1 w-7 h-7 rounded-full border border-ink-line/50 flex items-center justify-center text-creamDim/50 hover:text-cream hover:border-cream/40 transition-colors"
-            >
-              {playingText === p ? (
-                <svg width="10" height="10" viewBox="0 0 12 12" aria-hidden>
-                  <rect x="3" y="2" width="2" height="8" fill="currentColor" />
-                  <rect x="7" y="2" width="2" height="8" fill="currentColor" />
-                </svg>
-              ) : (
-                <svg width="9" height="9" viewBox="0 0 11 11" aria-hidden>
-                  <path d="M3 1.5 L3 9.5 L9.5 5.5 Z" fill="currentColor" />
-                </svg>
-              )}
-            </button>
-          )}
-        </div>
-      ))}
+        );
+      })}
     </div>
 
     {/* Demo items */}
@@ -233,30 +271,19 @@ const ScreenBody: React.FC<ScreenBodyProps> = ({
     )}
 
     {/* Insight callout */}
-    {screen.insight && (
-      <aside className="mt-2 pl-4 border-l-2 border-gold/60 flex items-start gap-2">
-        <p className="font-serif text-cream text-[15px] leading-relaxed flex-1">
-          {screen.insight}
-        </p>
-        {audioAvailable && (
-          <button
-            onClick={() => onPlay(screen.insight!, 'mandarin')}
-            className="shrink-0 mt-0.5 w-7 h-7 rounded-full border border-ink-line/50 flex items-center justify-center text-creamDim/50 hover:text-cream hover:border-cream/40 transition-colors"
-          >
-            {playingText === screen.insight ? (
-              <svg width="10" height="10" viewBox="0 0 12 12" aria-hidden>
-                <rect x="3" y="2" width="2" height="8" fill="currentColor" />
-                <rect x="7" y="2" width="2" height="8" fill="currentColor" />
-              </svg>
-            ) : (
-              <svg width="9" height="9" viewBox="0 0 11 11" aria-hidden>
-                <path d="M3 1.5 L3 9.5 L9.5 5.5 Z" fill="currentColor" />
-              </svg>
-            )}
-          </button>
-        )}
-      </aside>
-    )}
+    {screen.insight && (() => {
+      const insightIndex = queueTexts.indexOf(screen.insight!);
+      const isActive = queueActive && queueIndex === insightIndex;
+      return (
+        <aside className={`mt-2 pl-4 border-l-2 transition-all duration-300 ${
+          isActive ? 'border-gold' : 'border-gold/60'
+        }`}>
+          <p className="font-serif text-cream text-[15px] leading-relaxed">
+            {screen.insight}
+          </p>
+        </aside>
+      );
+    })()}
   </article>
 );
 
