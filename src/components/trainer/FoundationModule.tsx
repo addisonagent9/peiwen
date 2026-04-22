@@ -184,12 +184,28 @@ const ScreenBody: React.FC<ScreenBodyProps> = ({
     {/* Body paragraphs */}
     <div className="space-y-4">
       {screen.body.map((p, i) => (
-        <p
-          key={i}
-          className="text-cream/90 text-[15px] leading-[1.8] tracking-wide"
-        >
-          {p}
-        </p>
+        <div key={i} className="flex items-start gap-2">
+          <p className="text-cream/90 text-[15px] leading-[1.8] tracking-wide flex-1">
+            {p}
+          </p>
+          {audioAvailable && (
+            <button
+              onClick={() => onPlay(p, 'mandarin')}
+              className="shrink-0 mt-1 w-7 h-7 rounded-full border border-ink-line/50 flex items-center justify-center text-creamDim/50 hover:text-cream hover:border-cream/40 transition-colors"
+            >
+              {playingText === p ? (
+                <svg width="10" height="10" viewBox="0 0 12 12" aria-hidden>
+                  <rect x="3" y="2" width="2" height="8" fill="currentColor" />
+                  <rect x="7" y="2" width="2" height="8" fill="currentColor" />
+                </svg>
+              ) : (
+                <svg width="9" height="9" viewBox="0 0 11 11" aria-hidden>
+                  <path d="M3 1.5 L3 9.5 L9.5 5.5 Z" fill="currentColor" />
+                </svg>
+              )}
+            </button>
+          )}
+        </div>
       ))}
     </div>
 
@@ -218,10 +234,27 @@ const ScreenBody: React.FC<ScreenBodyProps> = ({
 
     {/* Insight callout */}
     {screen.insight && (
-      <aside className="mt-2 pl-4 border-l-2 border-gold/60">
-        <p className="font-serif text-cream text-[15px] leading-relaxed">
+      <aside className="mt-2 pl-4 border-l-2 border-gold/60 flex items-start gap-2">
+        <p className="font-serif text-cream text-[15px] leading-relaxed flex-1">
           {screen.insight}
         </p>
+        {audioAvailable && (
+          <button
+            onClick={() => onPlay(screen.insight!, 'mandarin')}
+            className="shrink-0 mt-0.5 w-7 h-7 rounded-full border border-ink-line/50 flex items-center justify-center text-creamDim/50 hover:text-cream hover:border-cream/40 transition-colors"
+          >
+            {playingText === screen.insight ? (
+              <svg width="10" height="10" viewBox="0 0 12 12" aria-hidden>
+                <rect x="3" y="2" width="2" height="8" fill="currentColor" />
+                <rect x="7" y="2" width="2" height="8" fill="currentColor" />
+              </svg>
+            ) : (
+              <svg width="9" height="9" viewBox="0 0 11 11" aria-hidden>
+                <path d="M3 1.5 L3 9.5 L9.5 5.5 Z" fill="currentColor" />
+              </svg>
+            )}
+          </button>
+        )}
       </aside>
     )}
   </article>
