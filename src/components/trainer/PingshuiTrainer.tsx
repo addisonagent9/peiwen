@@ -36,6 +36,7 @@ import { TrainerHeader } from './TrainerHeader';
 import { TrainerPlaceholder } from './TrainerPlaceholder';
 import { FoundationModule } from './FoundationModule';
 import { RhymeDetail } from './RhymeDetail';
+import { DrillSession } from './DrillSession';
 
 export type SubView =
   | 'home'
@@ -214,14 +215,9 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
         )}
 
         {subView === 'drill' && (
-          <TrainerPlaceholder
-            title={strings.navDrill}
-            subtitle={
-              dueCards.length > 0
-                ? strings.cardsDueToday(dueCards.length)
-                : strings.noCardsDueTitle
-            }
-            body="练习功能开发中,即将上线。将包括字→韵部、韵部→字、辨韵、挑错四种题型。"
+          <DrillSession
+            strings={strings}
+            onExit={goHome}
           />
         )}
 

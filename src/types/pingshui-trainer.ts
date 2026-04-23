@@ -109,6 +109,8 @@ export interface Rhyme {
   mnemonic: string;
   /** Modern-Mandarin rime signature, e.g. "-ong", "-ang". Informational only. */
   modernRime: string;
+  /** Extended characters beyond the 12 seeds. Populated per tier over time. */
+  extendedCharacters?: SeedCharacter[];
   /** Optional anchor poem. Tier 1 should always have one. */
   anchorPoem?: AnchorPoem;
 }

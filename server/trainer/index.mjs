@@ -29,6 +29,7 @@
 import { SRSRepository } from '../srs/repository.mjs';
 import { createSRSRouter } from '../routes/srs.mjs';
 import { createTrainerRouter } from '../routes/trainer.mjs';
+import { createDrillRouter } from '../routes/drill.mjs';
 
 export function mountTrainer(app, db, requireAuth, options = {}) {
   const basePath = options.basePath ?? '/api';
@@ -55,6 +56,7 @@ export function mountTrainer(app, db, requireAuth, options = {}) {
 
   app.use(`${basePath}/srs`, createSRSRouter(repo, composedGate));
   app.use(`${basePath}/trainer`, createTrainerRouter(repo, composedGate));
+  app.use(`${basePath}/trainer/drill`, createDrillRouter(db, composedGate));
 
   return { repo };
 }

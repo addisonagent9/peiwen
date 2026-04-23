@@ -58,7 +58,20 @@ export interface TrainerStrings {
   rhymeDetailStartDrill: string;
   rhymeDetailNoPoem: string;
 
-  // Drill shell
+  // Drill session
+  drillSessionTitle: string;
+  drillPromptCharToRhyme: string;
+  drillDueCount: (n: number) => string;
+  drillContinueNext: string;
+  drillExplanation: (char: string, rhyme: string) => string;
+  drillSummaryTitle: string;
+  drillSummaryStats: (correct: number, total: number) => string;
+  drillPickCount5: string;
+  drillPickCount10: string;
+  drillPickCount20: string;
+  drillPickCountAll: string;
+
+  // Drill shell (legacy)
   drillCorrect: string;
   drillIncorrect: string;
   drillShowAnswer: string;
@@ -129,6 +142,18 @@ const zhHans: TrainerStrings = {
   rhymeDetailStartDrill: '开始练习',
   rhymeDetailNoPoem: '这一韵的代表诗正在准备中。',
 
+  drillSessionTitle: '练习 — 字→韵部',
+  drillPromptCharToRhyme: '这个字属于哪个韵?',
+  drillDueCount: (n) => `今日待复习 ${n} 张`,
+  drillContinueNext: '下一题',
+  drillExplanation: (char, rhyme) => `${char} 属于 ${rhyme} 韵`,
+  drillSummaryTitle: '练习完成',
+  drillSummaryStats: (correct, total) => `答对 ${correct} / 总共 ${total}`,
+  drillPickCount5: '5 张',
+  drillPickCount10: '10 张',
+  drillPickCount20: '20 张',
+  drillPickCountAll: '全部',
+
   drillCorrect: '答对',
   drillIncorrect: '再想想',
   drillShowAnswer: '查看答案',
@@ -197,6 +222,18 @@ const zhHant: TrainerStrings = {
   rhymeDetailStartDrill: '開始練習',
   rhymeDetailNoPoem: '這一韻的代表詩正在準備中。',
 
+  drillSessionTitle: '練習 — 字→韻部',
+  drillPromptCharToRhyme: '這個字屬於哪個韻?',
+  drillDueCount: (n) => `今日待複習 ${n} 張`,
+  drillContinueNext: '下一題',
+  drillExplanation: (char, rhyme) => `${char} 屬於 ${rhyme} 韻`,
+  drillSummaryTitle: '練習完成',
+  drillSummaryStats: (correct, total) => `答對 ${correct} / 總共 ${total}`,
+  drillPickCount5: '5 張',
+  drillPickCount10: '10 張',
+  drillPickCount20: '20 張',
+  drillPickCountAll: '全部',
+
   drillCorrect: '答對',
   drillIncorrect: '再想想',
   drillShowAnswer: '查看答案',
@@ -264,6 +301,18 @@ const enBilingual: TrainerStrings = {
   rhymeDetailMnemonic: 'Memory aid',
   rhymeDetailStartDrill: 'Start drill',
   rhymeDetailNoPoem: 'Anchor poem coming soon.',
+
+  drillSessionTitle: 'Drill — Char → Rhyme',
+  drillPromptCharToRhyme: 'Which rhyme does this belong to?',
+  drillDueCount: (n) => `${n} due today`,
+  drillContinueNext: 'Next',
+  drillExplanation: (char, rhyme) => `${char} belongs to ${rhyme}`,
+  drillSummaryTitle: 'Session complete',
+  drillSummaryStats: (correct, total) => `${correct} correct out of ${total}`,
+  drillPickCount5: '5 cards',
+  drillPickCount10: '10 cards',
+  drillPickCount20: '20 cards',
+  drillPickCountAll: 'All',
 
   drillCorrect: 'Correct',
   drillIncorrect: 'Not quite',
