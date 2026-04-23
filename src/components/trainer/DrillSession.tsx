@@ -5,6 +5,12 @@ import type { DrillItem } from './DrillCard';
 
 type Phase = 'start' | 'active' | 'summary';
 
+interface DrillStatus {
+  dueCount: number;
+  totalCount: number;
+  minutesUntilNext: number | null;
+}
+
 interface DrillSessionProps {
   strings: TrainerStrings;
   onExit: () => void;
@@ -15,17 +21,21 @@ export const DrillSession: React.FC<DrillSessionProps> = ({
   onExit,
 }) => {
   const [phase, setPhase] = useState<Phase>('start');
-  const [dueCount, setDueCount] = useState<number | null>(null);
+  const [status, setStatus] = useState<DrillStatus | null>(null);
   const [items, setItems] = useState<DrillItem[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [results, setResults] = useState<boolean[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetch('/api/trainer/drill/queue?limit=0', { credentials: 'include' })
+    fetch('/api/trainer/drill/status', { credentials: 'include' })
       .then(r => r.json())
-      .then(body => setDueCount(body.dueCount ?? 0))
-      .catch(() => setDueCount(0));
+      .then(body => setStatus({
+        dueCount: body.dueCount ?? 0,
+        totalCount: body.totalCount ?? 0,
+        minutesUntilNext: body.minutesUntilNext ?? null,
+      }))
+      .catch(() => setStatus({ dueCount: 0, totalCount: 0, minutesUntilNext: null }));
   }, []);
 
   const startDrill = useCallback(async (count: number) => {
@@ -68,6 +78,11 @@ export const DrillSession: React.FC<DrillSessionProps> = ({
 
   // --- Start screen ---
   if (phase === 'start') {
+    const hasDue = status !== null && status.dueCount > 0;
+    const hasCards = status !== null && status.totalCount > 0;
+    const noDueButHasCards = status !== null && status.dueCount === 0 && status.totalCount > 0;
+    const isFirstTime = status !== null && status.totalCount === 0;
+
     return (
       <div className="pt-6 pb-24 space-y-8">
         <header>
@@ -83,13 +98,33 @@ export const DrillSession: React.FC<DrillSessionProps> = ({
           <h2 className="font-serif text-cream text-2xl tracking-wide">
             {strings.drillSessionTitle}
           </h2>
-          {dueCount !== null && (
+          {status !== null && (
             <p className="text-creamDim text-sm mt-2">
-              {strings.drillDueCount(dueCount)}
+              {strings.drillDueCount(status.dueCount)}
             </p>
           )}
         </header>
 
+        {/* No cards due — show wait message */}
+        {noDueButHasCards && (
+          <div className="p-6 border border-ink-line/50 rounded-md text-center space-y-2">
+            <p className="text-cream font-serif">{strings.drillNoCardsDueTitle}</p>
+            {status.minutesUntilNext !== null && status.minutesUntilNext > 0 ? (
+              <p className="text-creamDim text-xs">{strings.drillNextDueIn(status.minutesUntilNext)}</p>
+            ) : (
+              <p className="text-creamDim text-xs">{strings.drillAllCompleted}</p>
+            )}
+          </div>
+        )}
+
+        {/* First time user */}
+        {isFirstTime && (
+          <div className="p-6 border border-ink-line/50 rounded-md text-center space-y-2">
+            <p className="text-cream font-serif">{strings.drillFirstSession}</p>
+          </div>
+        )}
+
+        {/* Card count buttons — always show so user can start with new chars */}
         <div className="grid grid-cols-2 gap-3">
           {[
             { count: 5, label: strings.drillPickCount5 },

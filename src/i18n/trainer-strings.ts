@@ -70,6 +70,10 @@ export interface TrainerStrings {
   drillPickCount10: string;
   drillPickCount20: string;
   drillPickCountAll: string;
+  drillNoCardsDueTitle: string;
+  drillNextDueIn: (minutes: number) => string;
+  drillAllCompleted: string;
+  drillFirstSession: string;
 
   // Drill shell (legacy)
   drillCorrect: string;
@@ -153,6 +157,10 @@ const zhHans: TrainerStrings = {
   drillPickCount10: '10 张',
   drillPickCount20: '20 张',
   drillPickCountAll: '全部',
+  drillNoCardsDueTitle: '暂无待复习卡片',
+  drillNextDueIn: (n) => `下一张于 ${n} 分钟后可复习`,
+  drillAllCompleted: '所有卡片已完成',
+  drillFirstSession: '第一次使用练习',
 
   drillCorrect: '答对',
   drillIncorrect: '再想想',
@@ -233,6 +241,10 @@ const zhHant: TrainerStrings = {
   drillPickCount10: '10 張',
   drillPickCount20: '20 張',
   drillPickCountAll: '全部',
+  drillNoCardsDueTitle: '暫無待複習卡片',
+  drillNextDueIn: (n) => `下一張於 ${n} 分鐘後可複習`,
+  drillAllCompleted: '所有卡片已完成',
+  drillFirstSession: '第一次使用練習',
 
   drillCorrect: '答對',
   drillIncorrect: '再想想',
@@ -313,6 +325,10 @@ const enBilingual: TrainerStrings = {
   drillPickCount10: '10 cards',
   drillPickCount20: '20 cards',
   drillPickCountAll: 'All',
+  drillNoCardsDueTitle: 'No cards due right now',
+  drillNextDueIn: (n) => `Next card due in ${n} min`,
+  drillAllCompleted: 'All cards completed',
+  drillFirstSession: 'First drill session',
 
   drillCorrect: 'Correct',
   drillIncorrect: 'Not quite',

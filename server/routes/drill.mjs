@@ -57,6 +57,35 @@ export function createDrillRouter(db, composedGate) {
     WHERE user_id = ? AND next_review <= datetime('now')
   `);
 
+  const sTotalCount = db.prepare(`
+    SELECT COUNT(*) as n FROM srs_state WHERE user_id = ?
+  `);
+
+  const sNextDue = db.prepare(`
+    SELECT next_review FROM srs_state
+    WHERE user_id = ? AND next_review > datetime('now')
+    ORDER BY next_review ASC LIMIT 1
+  `);
+
+  // GET /status
+  router.get('/status', composedGate, (req, res, next) => {
+    try {
+      const userId = req.user.id;
+      const dueCount = sDueCount.get(userId).n;
+      const totalCount = sTotalCount.get(userId).n;
+      const nextRow = sNextDue.get(userId);
+      const nextDueAt = nextRow?.next_review ?? null;
+      let minutesUntilNext = null;
+      if (nextDueAt) {
+        const diff = new Date(nextDueAt).getTime() - Date.now();
+        minutesUntilNext = Math.max(0, Math.round(diff / 60000));
+      }
+      res.json({ dueCount, totalCount, nextDueAt, minutesUntilNext });
+    } catch (err) {
+      next(err);
+    }
+  });
+
   // GET /queue?type=char-to-rhyme&limit=10
   router.get('/queue', composedGate, (req, res, next) => {
     try {

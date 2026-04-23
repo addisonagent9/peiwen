@@ -5,9 +5,15 @@
  *
  * On correct: interval grows by ease_factor; ease unchanged.
  * On wrong: interval resets to 1; ease drops by 0.2 (floor 1.3).
- * Status transitions: new → learning → mastered (interval > 30).
+ * Status transitions: new → learning → mastered (interval > 120).
  * Mastered + wrong → learning (regression).
+ *
+ * Note: The `interval_days` DB column name is legacy. The semantic is
+ * MINUTES (not days). Renaming the column would require migration;
+ * keeping it reduces risk.
  */
+
+const MINUTE_MS = 60000;
 
 /**
  * @param {{ interval_days: number, ease_factor: number, status: string, correct_count: number, wrong_count: number }} current
@@ -19,8 +25,8 @@ export function updateSrsState(current, isCorrect) {
 
   if (isCorrect) {
     const newInterval = Math.max(1, Math.round(current.interval_days * current.ease_factor));
-    const newStatus = newInterval > 30 ? 'mastered' : 'learning';
-    const nextReview = new Date(now.getTime() + newInterval * 86400000);
+    const newStatus = newInterval > 120 ? 'mastered' : 'learning';
+    const nextReview = new Date(now.getTime() + newInterval * MINUTE_MS);
     return {
       interval_days: newInterval,
       ease_factor: current.ease_factor,
@@ -32,7 +38,7 @@ export function updateSrsState(current, isCorrect) {
   }
 
   const newEase = Math.max(1.3, current.ease_factor - 0.2);
-  const nextReview = new Date(now.getTime() + 86400000);
+  const nextReview = new Date(now.getTime() + 1 * MINUTE_MS);
   return {
     interval_days: 1,
     ease_factor: newEase,
