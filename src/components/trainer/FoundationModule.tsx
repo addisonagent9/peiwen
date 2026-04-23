@@ -94,15 +94,11 @@ export const FoundationModule: React.FC<FoundationModuleProps> = ({
 
   const handleScreenPlay = useCallback(() => {
     if (queue.active) {
-      queue.pause();
+      queue.stop();
       setAudioIntent('auto-off');
     } else {
       setAudioIntent('auto-on');
-      if (queue.currentIndex >= 0) {
-        queue.resume();
-      } else {
-        queue.start(queueTexts, 'mandarin');
-      }
+      queue.start(queueTexts, 'mandarin');
     }
   }, [queue, queueTexts]);
 
@@ -156,12 +152,11 @@ export const FoundationModule: React.FC<FoundationModuleProps> = ({
               <button
                 onClick={handleScreenPlay}
                 className="w-8 h-8 rounded-full border border-ink-line flex items-center justify-center text-creamDim hover:text-cream hover:border-cream/40 transition-colors"
-                aria-label={queue.active ? 'Pause narration' : 'Play narration'}
+                aria-label={queue.active ? 'Stop narration' : 'Play narration'}
               >
                 {queue.active ? (
-                  <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden>
-                    <rect x="3" y="2" width="2" height="8" fill="currentColor" />
-                    <rect x="7" y="2" width="2" height="8" fill="currentColor" />
+                  <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden>
+                    <rect x="1.5" y="1.5" width="7" height="7" fill="currentColor" rx="0.5" />
                   </svg>
                 ) : (
                   <svg width="11" height="11" viewBox="0 0 11 11" aria-hidden>
@@ -346,9 +341,8 @@ const LabeledPlayButton: React.FC<{
     aria-label={ariaLabel}
   >
     {isPlaying ? (
-      <svg width="9" height="9" viewBox="0 0 12 12" aria-hidden>
-        <rect x="3" y="2" width="2" height="8" fill="currentColor" />
-        <rect x="7" y="2" width="2" height="8" fill="currentColor" />
+      <svg width="9" height="9" viewBox="0 0 10 10" aria-hidden>
+        <rect x="1.5" y="1.5" width="7" height="7" fill="currentColor" rx="0.5" />
       </svg>
     ) : (
       <svg width="9" height="9" viewBox="0 0 11 11" aria-hidden>
@@ -466,8 +460,6 @@ export const AnchorDemoSection: React.FC<AnchorDemoSectionProps> = ({
   config,
   audioAvailable,
   cantoneseAudioAvailable,
-  onPlay,
-  playingText,
 }) => {
   const rhyme = RHYMES_PINGSHENG.find((r) => r.id === config.rhymeId);
   if (!rhyme?.anchorPoem) return null;
@@ -500,25 +492,13 @@ export const AnchorDemoSection: React.FC<AnchorDemoSectionProps> = ({
         ))}
       </div>
 
-      {/* Play buttons */}
-      <div className="px-4 pb-2 flex items-center gap-3">
-        {audioAvailable && (
-          <LabeledPlayButton
-            onClick={() => onPlay(poem.text, 'mandarin')}
-            isPlaying={playingText === poem.text}
-            label="普通话"
-            ariaLabel={`Play ${poem.title} in Mandarin`}
-          />
-        )}
-        {cantoneseAudioAvailable && (
-          <LabeledPlayButton
-            onClick={() => onPlay(poem.text, 'cantonese')}
-            isPlaying={false}
-            label="粤语"
-            ariaLabel={`Play ${poem.title} in Cantonese`}
-          />
-        )}
-      </div>
+      {/* Play buttons — real pause/resume via local audio element */}
+      <AnchorPoemPlayer
+        text={poem.text}
+        title={poem.title}
+        audioAvailable={audioAvailable}
+        cantoneseAudioAvailable={cantoneseAudioAvailable}
+      />
 
       {/* Jyutping callout table */}
       {config.showJyutpingCallout && (
@@ -552,5 +532,93 @@ export const AnchorDemoSection: React.FC<AnchorDemoSectionProps> = ({
         </>
       )}
     </section>
+  );
+};
+
+// ---------------------------------------------------------------------------
+// Anchor poem player — true pause/resume via local HTMLAudioElement
+// ---------------------------------------------------------------------------
+
+const AnchorPoemPlayer: React.FC<{
+  text: string;
+  title: string;
+  audioAvailable: boolean;
+  cantoneseAudioAvailable: boolean;
+}> = ({ text, title, audioAvailable, cantoneseAudioAvailable }) => {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [status, setStatus] = useState<'idle' | 'playing' | 'paused'>('idle');
+  const [activeVoice, setActiveVoice] = useState<'mandarin' | 'cantonese' | null>(null);
+
+  const handleClick = useCallback((voice: 'mandarin' | 'cantonese') => {
+    let el = audioRef.current;
+
+    if (activeVoice === voice && el) {
+      if (status === 'playing') {
+        el.pause();
+        return;
+      }
+      if (status === 'paused') {
+        el.play().catch(() => setStatus('idle'));
+        return;
+      }
+    }
+
+    if (el) {
+      el.pause();
+      el.removeAttribute('src');
+      el.load();
+    } else {
+      el = new Audio();
+      audioRef.current = el;
+    }
+
+    el.onended = () => { setStatus('idle'); setActiveVoice(null); };
+    el.onpause = () => { if (!el!.ended) setStatus('paused'); };
+    el.onplay = () => setStatus('playing');
+    el.onerror = () => { setStatus('idle'); setActiveVoice(null); };
+
+    el.src = `/api/audio/${encodeURIComponent(text)}?voice=${voice}`;
+    setActiveVoice(voice);
+    el.play().catch(() => { setStatus('idle'); setActiveVoice(null); });
+  }, [text, status, activeVoice]);
+
+  useEffect(() => {
+    return () => {
+      const el = audioRef.current;
+      if (el) { el.pause(); el.src = ''; }
+    };
+  }, []);
+
+  const renderButton = (voice: 'mandarin' | 'cantonese', label: string) => {
+    const isThis = activeVoice === voice;
+    const playing = isThis && status === 'playing';
+    const paused = isThis && status === 'paused';
+    return (
+      <button
+        onClick={() => handleClick(voice)}
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-ink-line text-creamDim hover:text-cream hover:border-cream/40 transition-colors"
+        aria-label={`${playing ? 'Pause' : 'Play'} ${title} in ${voice === 'mandarin' ? 'Mandarin' : 'Cantonese'}`}
+      >
+        {playing ? (
+          <svg width="9" height="9" viewBox="0 0 12 12" aria-hidden>
+            <rect x="3" y="2" width="2" height="8" fill="currentColor" />
+            <rect x="7" y="2" width="2" height="8" fill="currentColor" />
+          </svg>
+        ) : (
+          <svg width="9" height="9" viewBox="0 0 11 11" aria-hidden>
+            <path d="M3 1.5 L3 9.5 L9.5 5.5 Z" fill="currentColor" />
+          </svg>
+        )}
+        <span className="text-xs font-sans">{label}</span>
+        {paused && <span className="text-[10px] text-creamDim/60">⏸</span>}
+      </button>
+    );
+  };
+
+  return (
+    <div className="px-4 pb-2 flex items-center gap-3">
+      {audioAvailable && renderButton('mandarin', '普通话')}
+      {cantoneseAudioAvailable && renderButton('cantonese', '粤语')}
+    </div>
   );
 };
