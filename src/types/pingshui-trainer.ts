@@ -69,6 +69,13 @@ export interface AnchorPoem {
   gloss?: string;
 }
 
+export interface SeedCharacter {
+  char: string;
+  pinyin: string;
+  jyutping: string;
+  showMandarinAudio?: boolean;
+}
+
 /** A single 韵部 (rhyme category) in the curriculum. */
 export interface Rhyme {
   /** Stable slug ID, e.g. "shangping-01-dong". Used as FK in SRS tables. */
@@ -94,7 +101,7 @@ export interface Rhyme {
    * NOT an exhaustive list — the full lookup lives in the existing
    * pingshui data module. Typically 8–12 high-frequency chars.
    */
-  seedCharacters: string[];
+  seedCharacters: (string | SeedCharacter)[];
   /**
    * A mnemonic hook combining visual, story, and sound.
    * Kept short (one or two sentences) for mobile display.

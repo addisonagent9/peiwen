@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
 import type { TrainerStrings } from '../../i18n/trainer-strings';
-import type { Rhyme } from '../../types/pingshui-trainer';
+import type { Rhyme, SeedCharacter } from '../../types/pingshui-trainer';
 import { RHYMES_PINGSHENG } from '../../data/pingshui/trainer-curriculum';
 import { useAudio } from '../../hooks/useAudio';
-import { AnchorDemoSection } from './FoundationModule';
+import { AnchorDemoSection, formatJyutping } from './FoundationModule';
 
 export interface RhymeDetailProps {
   rhymeId: string;
@@ -44,6 +44,7 @@ export const RhymeDetail: React.FC<RhymeDetailProps> = ({
   );
 
   const mandarinAvailable = audio.available && audio.probed && audio.approvedCounts.mandarin > 0;
+  const cantoneseAvailable = audio.available && audio.probed && audio.approvedCounts.cantonese > 0;
 
   if (!rhyme) {
     return (
@@ -93,20 +94,25 @@ export const RhymeDetail: React.FC<RhymeDetailProps> = ({
       {/* Seed characters */}
       <section>
         <p className="text-creamDim text-xs mb-3">{strings.rhymeDetailSeedChars}</p>
-        <div className="flex flex-wrap gap-2">
-          {rhyme.seedCharacters.map((ch) => (
-            <button
-              key={ch}
-              onClick={mandarinAvailable ? () => audio.play(ch, 'mandarin') : undefined}
-              className={`w-14 h-14 flex items-center justify-center border border-ink-line rounded font-serif text-2xl transition-colors ${
-                mandarinAvailable
-                  ? 'text-cream hover:border-gold/50 hover:text-gold cursor-pointer'
-                  : 'text-cream/70 cursor-default'
-              } ${audio.currentText === ch ? 'border-gold text-gold' : ''}`}
-            >
-              {ch}
-            </button>
-          ))}
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+          {rhyme.seedCharacters.map((sc) => {
+            if (typeof sc === 'string') {
+              return (
+                <div key={sc} className="border border-ink-line rounded-md p-2 flex flex-col items-center">
+                  <span className="font-serif text-cream text-3xl leading-none pt-1">{sc}</span>
+                </div>
+              );
+            }
+            return (
+              <SeedCharCard
+                key={sc.char}
+                sc={sc}
+                audio={audio}
+                mandarinAvailable={mandarinAvailable}
+                cantoneseAvailable={cantoneseAvailable}
+              />
+            );
+          })}
         </div>
       </section>
 
@@ -119,7 +125,7 @@ export const RhymeDetail: React.FC<RhymeDetailProps> = ({
             calloutMessage,
           }}
           audioAvailable={mandarinAvailable}
-          cantoneseAudioAvailable={audio.available && audio.probed && audio.approvedCounts.cantonese > 0}
+          cantoneseAudioAvailable={cantoneseAvailable}
           onPlay={async (text, voice) => { await audio.play(text, voice); }}
           playingText={audio.currentText}
         />
@@ -137,6 +143,60 @@ export const RhymeDetail: React.FC<RhymeDetailProps> = ({
         >
           {strings.rhymeDetailStartDrill} →
         </button>
+      </div>
+    </div>
+  );
+};
+
+// ---------------------------------------------------------------------------
+// Seed character card
+// ---------------------------------------------------------------------------
+
+import type { UseAudioReturn } from '../../hooks/useAudio';
+
+const SeedCharCard: React.FC<{
+  sc: SeedCharacter;
+  audio: UseAudioReturn;
+  mandarinAvailable: boolean;
+  cantoneseAvailable: boolean;
+}> = ({ sc, audio, mandarinAvailable, cantoneseAvailable }) => {
+  const isPlaying = audio.currentText === sc.char;
+  return (
+    <div className={`border border-ink-line rounded-md p-2 flex flex-col items-center gap-1 transition-colors ${
+      isPlaying ? 'border-gold/60' : ''
+    }`}>
+      <span className="font-serif text-cream text-3xl leading-none pt-1">{sc.char}</span>
+      <span className={`font-mono text-[10px] leading-tight ${isPlaying ? 'text-cream/80' : 'text-creamDim/60'}`}>
+        {sc.pinyin}
+      </span>
+      <span className={`font-mono text-[10px] leading-tight ${isPlaying ? 'text-cream/80' : 'text-creamDim/60'}`}>
+        {formatJyutping(sc.jyutping)}
+      </span>
+      <div className="flex gap-1 mt-1">
+        {cantoneseAvailable && (
+          <button
+            onClick={() => audio.play(sc.char, 'cantonese')}
+            className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full border border-ink-line text-creamDim hover:text-cream hover:border-cream/40 transition-colors text-[10px]"
+            aria-label={`Play ${sc.char} in Cantonese`}
+          >
+            <svg width="7" height="7" viewBox="0 0 11 11" aria-hidden>
+              <path d="M3 1.5 L3 9.5 L9.5 5.5 Z" fill="currentColor" />
+            </svg>
+            粤
+          </button>
+        )}
+        {sc.showMandarinAudio && mandarinAvailable && (
+          <button
+            onClick={() => audio.play(sc.char, 'mandarin')}
+            className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full border border-ink-line text-creamDim hover:text-cream hover:border-cream/40 transition-colors text-[10px]"
+            aria-label={`Play ${sc.char} in Mandarin`}
+          >
+            <svg width="7" height="7" viewBox="0 0 11 11" aria-hidden>
+              <path d="M3 1.5 L3 9.5 L9.5 5.5 Z" fill="currentColor" />
+            </svg>
+            普
+          </button>
+        )}
       </div>
     </div>
   );

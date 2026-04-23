@@ -445,7 +445,7 @@ const DemoCard: React.FC<DemoCardProps> = ({
 // Anchor poem demo section
 // ---------------------------------------------------------------------------
 
-function formatJyutping(raw: string): string {
+export function formatJyutping(raw: string): string {
   return raw.replace(/(\d)$/, (_, d) => {
     const sup: Record<string, string> = { '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶' };
     return sup[d] ?? d;

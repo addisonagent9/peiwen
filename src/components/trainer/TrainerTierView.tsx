@@ -143,7 +143,7 @@ const RhymeRow: React.FC<{ rhyme: Rhyme; onClick: () => void }> = ({
           </span>
         </div>
         <p className="text-creamDim text-xs mt-1 truncate">
-          {rhyme.seedCharacters.slice(0, 6).join('·')}
+          {rhyme.seedCharacters.slice(0, 6).map(sc => typeof sc === 'string' ? sc : sc.char).join('·')}
         </p>
       </div>
 
