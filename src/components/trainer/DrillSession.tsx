@@ -5,12 +5,6 @@ import type { DrillItem } from './DrillCard';
 
 type Phase = 'start' | 'active' | 'summary';
 
-interface DrillStatus {
-  dueCount: number;
-  totalCount: number;
-  minutesUntilNext: number | null;
-}
-
 interface DrillSessionProps {
   strings: TrainerStrings;
   onExit: () => void;
@@ -21,21 +15,35 @@ export const DrillSession: React.FC<DrillSessionProps> = ({
   onExit,
 }) => {
   const [phase, setPhase] = useState<Phase>('start');
-  const [status, setStatus] = useState<DrillStatus | null>(null);
+  const [totalDrilled, setTotalDrilled] = useState<number | null>(null);
+  const [totalAvailable, setTotalAvailable] = useState<number | null>(null);
   const [items, setItems] = useState<DrillItem[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [results, setResults] = useState<boolean[]>([]);
   const [loading, setLoading] = useState(false);
 
+  const [hintEnabled, setHintEnabled] = useState(() => {
+    try {
+      const saved = localStorage.getItem('drillHintEnabled');
+      return saved === null ? true : saved === 'true';
+    } catch { return true; }
+  });
+
+  useEffect(() => {
+    try { localStorage.setItem('drillHintEnabled', String(hintEnabled)); } catch {}
+  }, [hintEnabled]);
+
   useEffect(() => {
     fetch('/api/trainer/drill/status', { credentials: 'include' })
       .then(r => r.json())
-      .then(body => setStatus({
-        dueCount: body.dueCount ?? 0,
-        totalCount: body.totalCount ?? 0,
-        minutesUntilNext: body.minutesUntilNext ?? null,
-      }))
-      .catch(() => setStatus({ dueCount: 0, totalCount: 0, minutesUntilNext: null }));
+      .then(body => {
+        setTotalDrilled(body.totalDrilled ?? 0);
+        setTotalAvailable(body.totalAvailable ?? 57);
+      })
+      .catch(() => {
+        setTotalDrilled(0);
+        setTotalAvailable(57);
+      });
   }, []);
 
   const startDrill = useCallback(async (count: number) => {
@@ -78,11 +86,6 @@ export const DrillSession: React.FC<DrillSessionProps> = ({
 
   // --- Start screen ---
   if (phase === 'start') {
-    const hasDue = status !== null && status.dueCount > 0;
-    const hasCards = status !== null && status.totalCount > 0;
-    const noDueButHasCards = status !== null && status.dueCount === 0 && status.totalCount > 0;
-    const isFirstTime = status !== null && status.totalCount === 0;
-
     return (
       <div className="pt-6 pb-24 space-y-8">
         <header>
@@ -98,39 +101,35 @@ export const DrillSession: React.FC<DrillSessionProps> = ({
           <h2 className="font-serif text-cream text-2xl tracking-wide">
             {strings.drillSessionTitle}
           </h2>
-          {status !== null && (
+          {totalDrilled !== null && totalAvailable !== null && (
             <p className="text-creamDim text-sm mt-2">
-              {strings.drillDueCount(status.dueCount)}
+              {strings.drillStats(totalDrilled, totalAvailable)}
             </p>
           )}
         </header>
 
-        {/* No cards due — show wait message */}
-        {noDueButHasCards && (
-          <div className="p-6 border border-ink-line/50 rounded-md text-center space-y-2">
-            <p className="text-cream font-serif">{strings.drillNoCardsDueTitle}</p>
-            {status.minutesUntilNext !== null && status.minutesUntilNext > 0 ? (
-              <p className="text-creamDim text-xs">{strings.drillNextDueIn(status.minutesUntilNext)}</p>
-            ) : (
-              <p className="text-creamDim text-xs">{strings.drillAllCompleted}</p>
-            )}
-          </div>
-        )}
+        {/* Hint toggle */}
+        <div className="flex items-center justify-center gap-2">
+          <span className="text-creamDim text-sm">{strings.drillHintLabel}</span>
+          <button
+            onClick={() => setHintEnabled(!hintEnabled)}
+            className={`px-3 py-1 rounded border text-xs transition-colors ${
+              hintEnabled
+                ? 'border-gold/60 bg-gold/10 text-gold'
+                : 'border-ink-line text-creamDim hover:text-cream'
+            }`}
+          >
+            {hintEnabled ? strings.drillHintOn : strings.drillHintOff}
+          </button>
+        </div>
 
-        {/* First time user */}
-        {isFirstTime && (
-          <div className="p-6 border border-ink-line/50 rounded-md text-center space-y-2">
-            <p className="text-cream font-serif">{strings.drillFirstSession}</p>
-          </div>
-        )}
-
-        {/* Card count buttons — always show so user can start with new chars */}
+        {/* Card count buttons */}
         <div className="grid grid-cols-2 gap-3">
           {[
             { count: 5, label: strings.drillPickCount5 },
             { count: 10, label: strings.drillPickCount10 },
             { count: 20, label: strings.drillPickCount20 },
-            { count: 50, label: strings.drillPickCountAll },
+            { count: 57, label: strings.drillPickCountAll },
           ].map(({ count, label }) => (
             <button
               key={count}
@@ -156,6 +155,8 @@ export const DrillSession: React.FC<DrillSessionProps> = ({
           onAnswer={handleAnswer}
           progress={{ current: currentIndex + 1, total: items.length }}
           strings={strings}
+          hintEnabled={hintEnabled}
+          onToggleHint={() => setHintEnabled(h => !h)}
         />
       </div>
     );

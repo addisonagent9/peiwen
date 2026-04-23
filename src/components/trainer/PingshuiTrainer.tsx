@@ -29,7 +29,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTrainerApi } from '../../hooks/useTrainerApi';
 import { getStrings } from '../../i18n/trainer-strings';
-import type { UserTrainerState, SRSCard, RhymeTier } from '../../types/pingshui-trainer';
+import type { UserTrainerState, RhymeTier } from '../../types/pingshui-trainer';
 import { TrainerHome } from './TrainerHome';
 import { TrainerTierView } from './TrainerTierView';
 import { TrainerHeader } from './TrainerHeader';
@@ -61,7 +61,6 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
 
   // Core persisted state, loaded from the server
   const [state, setState] = useState<UserTrainerState | null>(null);
-  const [dueCards, setDueCards] = useState<SRSCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -76,13 +75,9 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
     (async () => {
       try {
         setLoading(true);
-        const [st, due] = await Promise.all([
-          api.getState(),
-          api.getDueCards().catch(() => [] as SRSCard[]),
-        ]);
+        const st = await api.getState();
         if (cancelled) return;
         setState(st);
-        setDueCards(due);
         setError(null);
       } catch (e) {
         if (!cancelled) {
@@ -166,7 +161,6 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
           <TrainerHome
             strings={strings}
             state={state}
-            dueCount={dueCards.length}
             userName={userName}
             onStartFoundation={() => setSubView('foundation')}
             onOpenTier={(tier) => {
@@ -174,9 +168,7 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
               setSubView('tier');
             }}
             onOpenDashboard={() => setSubView('dashboard')}
-            onStartDrill={
-              dueCards.length > 0 ? () => setSubView('drill') : undefined
-            }
+            onStartDrill={() => setSubView('drill')}
           />
         )}
 

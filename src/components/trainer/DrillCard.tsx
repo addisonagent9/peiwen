@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import type { TrainerStrings } from '../../i18n/trainer-strings';
 import { RHYMES_PINGSHENG } from '../../data/pingshui/trainer-curriculum';
 import { useAudio } from '../../hooks/useAudio';
@@ -18,6 +18,8 @@ interface DrillCardProps {
   onAnswer: (correct: boolean) => void;
   progress: { current: number; total: number };
   strings: TrainerStrings;
+  hintEnabled: boolean;
+  onToggleHint: () => void;
 }
 
 function rhymeLabel(rhymeId: string): string {
@@ -30,11 +32,18 @@ export const DrillCard: React.FC<DrillCardProps> = ({
   onAnswer,
   progress,
   strings,
+  hintEnabled,
+  onToggleHint,
 }) => {
   const [phase, setPhase] = useState<'prompt' | 'revealed'>('prompt');
   const [selected, setSelected] = useState<string | null>(null);
+  const [cardHint, setCardHint] = useState(hintEnabled);
   const audio = useAudio();
   const cantoneseAvailable = audio.available && audio.probed && audio.approvedCounts.cantonese > 0;
+
+  useEffect(() => {
+    setCardHint(hintEnabled);
+  }, [hintEnabled]);
 
   const handleSelect = useCallback((optionId: string) => {
     if (phase !== 'prompt') return;
@@ -51,8 +60,14 @@ export const DrillCard: React.FC<DrillCardProps> = ({
 
   return (
     <div className="space-y-8">
-      {/* Progress */}
-      <div className="flex justify-end">
+      {/* Progress + hint toggle */}
+      <div className="flex items-center justify-between">
+        <button
+          onClick={() => { setCardHint(h => !h); onToggleHint(); }}
+          className="text-[10px] text-creamDim/50 hover:text-creamDim transition-colors"
+        >
+          {cardHint ? strings.drillHintHide : strings.drillHintShow}
+        </button>
         <span className="text-xs text-creamDim">
           {progress.current} / {progress.total}
         </span>
@@ -68,9 +83,11 @@ export const DrillCard: React.FC<DrillCardProps> = ({
         <span className="font-serif text-cream block" style={{ fontSize: '64px', lineHeight: 1 }}>
           {item.text}
         </span>
-        <span className="text-creamDim/60 text-xs font-mono">
-          {item.pinyin} · {formatJyutping(item.jyutping)}
-        </span>
+        {cardHint && (
+          <span className="text-creamDim/60 text-xs font-mono">
+            {item.pinyin} · {formatJyutping(item.jyutping)}
+          </span>
+        )}
         {cantoneseAvailable && (
           <div className="pt-1">
             <button

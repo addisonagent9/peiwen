@@ -32,7 +32,6 @@ import { rhymesByTier } from '../../data/pingshui/trainer-curriculum';
 export interface TrainerHomeProps {
   strings: TrainerStrings;
   state: UserTrainerState;
-  dueCount: number;
   userName?: string;
   onStartFoundation: () => void;
   onOpenTier: (tier: RhymeTier) => void;
@@ -43,7 +42,6 @@ export interface TrainerHomeProps {
 export const TrainerHome: React.FC<TrainerHomeProps> = ({
   strings,
   state,
-  dueCount,
   userName,
   onStartFoundation,
   onOpenTier,
@@ -90,9 +88,6 @@ export const TrainerHome: React.FC<TrainerHomeProps> = ({
               {strings.streakDays(state.streakDays)}
             </span>
           )}
-          <span className={dueCount > 0 ? 'text-teal' : ''}>
-            {strings.cardsDueToday(dueCount)}
-          </span>
         </div>
       </section>
 

@@ -61,7 +61,7 @@ export interface TrainerStrings {
   // Drill session
   drillSessionTitle: string;
   drillPromptCharToRhyme: string;
-  drillDueCount: (n: number) => string;
+  drillStats: (drilled: number, total: number) => string;
   drillContinueNext: string;
   drillExplanation: (char: string, rhyme: string) => string;
   drillSummaryTitle: string;
@@ -70,10 +70,11 @@ export interface TrainerStrings {
   drillPickCount10: string;
   drillPickCount20: string;
   drillPickCountAll: string;
-  drillNoCardsDueTitle: string;
-  drillNextDueIn: (minutes: number) => string;
-  drillAllCompleted: string;
-  drillFirstSession: string;
+  drillHintLabel: string;
+  drillHintOn: string;
+  drillHintOff: string;
+  drillHintShow: string;
+  drillHintHide: string;
 
   // Drill shell (legacy)
   drillCorrect: string;
@@ -148,7 +149,7 @@ const zhHans: TrainerStrings = {
 
   drillSessionTitle: '练习 — 字→韵部',
   drillPromptCharToRhyme: '这个字属于哪个韵?',
-  drillDueCount: (n) => `今日待复习 ${n} 张`,
+  drillStats: (drilled, total) => `已练习 ${drilled} / ${total}`,
   drillContinueNext: '下一题',
   drillExplanation: (char, rhyme) => `${char} 属于 ${rhyme} 韵`,
   drillSummaryTitle: '练习完成',
@@ -157,10 +158,11 @@ const zhHans: TrainerStrings = {
   drillPickCount10: '10 张',
   drillPickCount20: '20 张',
   drillPickCountAll: '全部',
-  drillNoCardsDueTitle: '暂无待复习卡片',
-  drillNextDueIn: (n) => `下一张于 ${n} 分钟后可复习`,
-  drillAllCompleted: '所有卡片已完成',
-  drillFirstSession: '第一次使用练习',
+  drillHintLabel: '提示:',
+  drillHintOn: '开',
+  drillHintOff: '关',
+  drillHintShow: '显示提示',
+  drillHintHide: '隐藏提示',
 
   drillCorrect: '答对',
   drillIncorrect: '再想想',
@@ -232,7 +234,7 @@ const zhHant: TrainerStrings = {
 
   drillSessionTitle: '練習 — 字→韻部',
   drillPromptCharToRhyme: '這個字屬於哪個韻?',
-  drillDueCount: (n) => `今日待複習 ${n} 張`,
+  drillStats: (drilled, total) => `已練習 ${drilled} / ${total}`,
   drillContinueNext: '下一題',
   drillExplanation: (char, rhyme) => `${char} 屬於 ${rhyme} 韻`,
   drillSummaryTitle: '練習完成',
@@ -241,10 +243,11 @@ const zhHant: TrainerStrings = {
   drillPickCount10: '10 張',
   drillPickCount20: '20 張',
   drillPickCountAll: '全部',
-  drillNoCardsDueTitle: '暫無待複習卡片',
-  drillNextDueIn: (n) => `下一張於 ${n} 分鐘後可複習`,
-  drillAllCompleted: '所有卡片已完成',
-  drillFirstSession: '第一次使用練習',
+  drillHintLabel: '提示:',
+  drillHintOn: '開',
+  drillHintOff: '關',
+  drillHintShow: '顯示提示',
+  drillHintHide: '隱藏提示',
 
   drillCorrect: '答對',
   drillIncorrect: '再想想',
@@ -316,7 +319,7 @@ const enBilingual: TrainerStrings = {
 
   drillSessionTitle: 'Drill — Char → Rhyme',
   drillPromptCharToRhyme: 'Which rhyme does this belong to?',
-  drillDueCount: (n) => `${n} due today`,
+  drillStats: (drilled, total) => `Drilled ${drilled} / ${total}`,
   drillContinueNext: 'Next',
   drillExplanation: (char, rhyme) => `${char} belongs to ${rhyme}`,
   drillSummaryTitle: 'Session complete',
@@ -325,10 +328,11 @@ const enBilingual: TrainerStrings = {
   drillPickCount10: '10 cards',
   drillPickCount20: '20 cards',
   drillPickCountAll: 'All',
-  drillNoCardsDueTitle: 'No cards due right now',
-  drillNextDueIn: (n) => `Next card due in ${n} min`,
-  drillAllCompleted: 'All cards completed',
-  drillFirstSession: 'First drill session',
+  drillHintLabel: 'Hint:',
+  drillHintOn: 'On',
+  drillHintOff: 'Off',
+  drillHintShow: 'Show hints',
+  drillHintHide: 'Hide hints',
 
   drillCorrect: 'Correct',
   drillIncorrect: 'Not quite',
