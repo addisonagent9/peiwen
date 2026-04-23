@@ -52,6 +52,12 @@ export interface TrainerStrings {
   tierLocked: string;
   tierUnlockHint: string;
 
+  // Rhyme detail
+  rhymeDetailSeedChars: string;
+  rhymeDetailMnemonic: string;
+  rhymeDetailStartDrill: string;
+  rhymeDetailNoPoem: string;
+
   // Drill shell
   drillCorrect: string;
   drillIncorrect: string;
@@ -118,6 +124,11 @@ const zhHans: TrainerStrings = {
   tierLocked: '尚未解锁',
   tierUnlockHint: '需完成上一层方可解锁',
 
+  rhymeDetailSeedChars: '核心字',
+  rhymeDetailMnemonic: '记忆线索',
+  rhymeDetailStartDrill: '开始练习',
+  rhymeDetailNoPoem: '这一韵的代表诗正在准备中。',
+
   drillCorrect: '答对',
   drillIncorrect: '再想想',
   drillShowAnswer: '查看答案',
@@ -181,6 +192,11 @@ const zhHant: TrainerStrings = {
   tierLocked: '尚未解鎖',
   tierUnlockHint: '需完成上一層方可解鎖',
 
+  rhymeDetailSeedChars: '核心字',
+  rhymeDetailMnemonic: '記憶線索',
+  rhymeDetailStartDrill: '開始練習',
+  rhymeDetailNoPoem: '這一韻的代表詩正在準備中。',
+
   drillCorrect: '答對',
   drillIncorrect: '再想想',
   drillShowAnswer: '查看答案',
@@ -243,6 +259,11 @@ const enBilingual: TrainerStrings = {
   tier3Description: 'The lost -m endings and rare categories like 三江.',
   tierLocked: 'Locked',
   tierUnlockHint: 'Master the previous tier first',
+
+  rhymeDetailSeedChars: 'Core characters',
+  rhymeDetailMnemonic: 'Memory aid',
+  rhymeDetailStartDrill: 'Start drill',
+  rhymeDetailNoPoem: 'Anchor poem coming soon.',
 
   drillCorrect: 'Correct',
   drillIncorrect: 'Not quite',

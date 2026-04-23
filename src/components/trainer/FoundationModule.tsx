@@ -450,7 +450,7 @@ function formatJyutping(raw: string): string {
   });
 }
 
-interface AnchorDemoSectionProps {
+export interface AnchorDemoSectionProps {
   config: AnchorDemoConfig;
   audioAvailable: boolean;
   cantoneseAudioAvailable: boolean;
@@ -458,7 +458,7 @@ interface AnchorDemoSectionProps {
   playingText: string | null;
 }
 
-const AnchorDemoSection: React.FC<AnchorDemoSectionProps> = ({
+export const AnchorDemoSection: React.FC<AnchorDemoSectionProps> = ({
   config,
   audioAvailable,
   cantoneseAudioAvailable,

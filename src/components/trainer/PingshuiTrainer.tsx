@@ -35,11 +35,13 @@ import { TrainerTierView } from './TrainerTierView';
 import { TrainerHeader } from './TrainerHeader';
 import { TrainerPlaceholder } from './TrainerPlaceholder';
 import { FoundationModule } from './FoundationModule';
+import { RhymeDetail } from './RhymeDetail';
 
 export type SubView =
   | 'home'
   | 'foundation'
   | 'tier'
+  | 'detail'
   | 'drill'
   | 'dashboard';
 
@@ -65,6 +67,7 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
   // UI state — which sub-view is active, and parameters
   const [subView, setSubView] = useState<SubView>('home');
   const [selectedTier, setSelectedTier] = useState<RhymeTier>(1);
+  const [selectedRhymeId, setSelectedRhymeId] = useState<string | null>(null);
 
   // Load initial state + due count
   useEffect(() => {
@@ -153,7 +156,7 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
       <TrainerHeader
         strings={strings}
         subView={subView}
-        onBack={subView === 'home' ? onExit : goHome}
+        onBack={subView === 'home' ? onExit : subView === 'detail' ? () => setSubView('tier') : goHome}
         showBack={subView !== 'home' || !!onExit}
       />
 
@@ -194,7 +197,19 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
             strings={strings}
             tier={selectedTier}
             unlockedTier={state.currentTier}
-            onSelectRhyme={() => setSubView('drill')}
+            onSelectRhyme={(id) => {
+              setSelectedRhymeId(id);
+              setSubView('detail');
+            }}
+          />
+        )}
+
+        {subView === 'detail' && selectedRhymeId && (
+          <RhymeDetail
+            rhymeId={selectedRhymeId}
+            strings={strings}
+            onBack={() => setSubView('tier')}
+            onStartDrill={() => setSubView('drill')}
           />
         )}
 
