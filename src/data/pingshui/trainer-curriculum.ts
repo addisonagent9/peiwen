@@ -167,7 +167,11 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
       author: '陆游',
       title: '示儿',
       text: '死去元知万事空,但悲不见九州同。\n王师北定中原日,家祭无忘告乃翁。',
-      rhymingCharacters: ['空', '同', '翁'],
+      rhymingCharacters: [
+        { char: '空', jyutping: 'hung1', pinyin: 'kōng' },
+        { char: '同', jyutping: 'tung4', pinyin: 'tóng' },
+        { char: '翁', jyutping: 'jung1', pinyin: 'wēng' },
+      ],
       gloss:
         "Lu You's deathbed poem. The three end-rhymes 空·同·翁 are all 一东 — " +
         'a clean demonstration of the category with a poem most learners know.',
@@ -192,7 +196,11 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
       author: '李白',
       title: '静夜思',
       text: '床前明月光,疑是地上霜。\n举头望明月,低头思故乡。',
-      rhymingCharacters: ['光', '霜', '乡'],
+      rhymingCharacters: [
+        { char: '光', jyutping: 'gwong1', pinyin: 'guāng' },
+        { char: '霜', jyutping: 'soeng1', pinyin: 'shuāng' },
+        { char: '乡', jyutping: 'hoeng1', pinyin: 'xiāng' },
+      ],
       gloss:
         'Arguably the most memorized poem in Chinese. 光·霜·乡 are all 七阳, ' +
         'making this the ideal anchor: familiar poem + distinctive sound.',
@@ -217,7 +225,10 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
       author: '王之涣',
       title: '登鹳雀楼',
       text: '白日依山尽,黄河入海流。\n欲穷千里目,更上一层楼。',
-      rhymingCharacters: ['流', '楼'],
+      rhymingCharacters: [
+        { char: '流', jyutping: 'lau4', pinyin: 'liú' },
+        { char: '楼', jyutping: 'lau4', pinyin: 'lóu' },
+      ],
       gloss:
         'Short, universally known, and the rhyme 流·楼 is unambiguously 十一尤.',
     },
@@ -243,7 +254,12 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
       text:
         '故人具鸡黍,邀我至田家。\n绿树村边合,青山郭外斜。\n' +
         '开轩面场圃,把酒话桑麻。\n待到重阳日,还来就菊花。',
-      rhymingCharacters: ['家', '斜', '麻', '花'],
+      rhymingCharacters: [
+        { char: '家', jyutping: 'gaa1', pinyin: 'jiā' },
+        { char: '斜', jyutping: 'ce4', pinyin: 'xié' },
+        { char: '麻', jyutping: 'maa4', pinyin: 'má' },
+        { char: '花', jyutping: 'faa1', pinyin: 'huā' },
+      ],
       gloss:
         '家·斜·麻·花 all rhyme in 六麻. A pastoral poem where the rhyme itself ' +
         'feels open and airy — the sound matches the subject.',
@@ -268,7 +284,11 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
       author: '骆宾王',
       title: '咏鹅',
       text: '鹅,鹅,鹅,曲项向天歌。\n白毛浮绿水,红掌拨清波。',
-      rhymingCharacters: ['鹅', '歌', '波'],
+      rhymingCharacters: [
+        { char: '鹅', jyutping: 'ngo4', pinyin: 'é' },
+        { char: '歌', jyutping: 'go1', pinyin: 'gē' },
+        { char: '波', jyutping: 'bo1', pinyin: 'bō' },
+      ],
       gloss:
         "Written by Luo Binwang at age 7 — the most famous 'first poem' in " +
         'Chinese education. 鹅·歌·波 are all 五歌. An ideal Tier-1 anchor ' +
@@ -405,7 +425,11 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
       author: '贺知章',
       title: '回乡偶书',
       text: '少小离家老大回,乡音无改鬓毛衰。\n儿童相见不相识,笑问客从何处来。',
-      rhymingCharacters: ['回', '衰', '来'],
+      rhymingCharacters: [
+        { char: '回', jyutping: 'wui4', pinyin: 'huí' },
+        { char: '衰', jyutping: 'seoi1', pinyin: 'shuāi' },
+        { char: '来', jyutping: 'loi4', pinyin: 'lái' },
+      ],
       gloss:
         '回·衰·来 all belong to 十灰 in 平水韵, despite sounding different in ' +
         'modern Mandarin. This is a perfect teaching moment: the category is ' +
@@ -492,7 +516,11 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
       author: '李白',
       title: '早发白帝城',
       text: '朝辞白帝彩云间,千里江陵一日还。\n两岸猿声啼不住,轻舟已过万重山。',
-      rhymingCharacters: ['间', '还', '山'],
+      rhymingCharacters: [
+        { char: '间', jyutping: 'gaan1', pinyin: 'jiān' },
+        { char: '还', jyutping: 'waan4', pinyin: 'huán' },
+        { char: '山', jyutping: 'saan1', pinyin: 'shān' },
+      ],
       gloss: '间·还·山 all 十五删 — one of the cleanest Tier-2 teaching anchors.',
     },
   },
@@ -577,7 +605,11 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
       author: '李白',
       title: '赠汪伦',
       text: '李白乘舟将欲行,忽闻岸上踏歌声。\n桃花潭水深千尺,不及汪伦送我情。',
-      rhymingCharacters: ['行', '声', '情'],
+      rhymingCharacters: [
+        { char: '行', jyutping: 'hang4', pinyin: 'xíng' },
+        { char: '声', jyutping: 'sing1', pinyin: 'shēng' },
+        { char: '情', jyutping: 'cing4', pinyin: 'qíng' },
+      ],
       gloss: '行·声·情 all 八庚. Simple, famous, unambiguous anchor.',
     },
   },
@@ -653,7 +685,12 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
       text:
         '国破山河在,城春草木深。\n感时花溅泪,恨别鸟惊心。\n' +
         '烽火连三月,家书抵万金。\n白头搔更短,浑欲不胜簪。',
-      rhymingCharacters: ['深', '心', '金', '簪'],
+      rhymingCharacters: [
+        { char: '深', jyutping: 'sam1', pinyin: 'shēn' },
+        { char: '心', jyutping: 'sam1', pinyin: 'xīn' },
+        { char: '金', jyutping: 'gam1', pinyin: 'jīn' },
+        { char: '簪', jyutping: 'zaam1', pinyin: 'zān' },
+      ],
       gloss:
         '深·心·金·簪 all 十二侵 — originally all ending in -m. ' +
         'In modern Mandarin they now end in -n, merged into the -en/-in family.',

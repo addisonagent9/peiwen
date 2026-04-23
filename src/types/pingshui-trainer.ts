@@ -56,8 +56,15 @@ export interface AnchorPoem {
   title: string;
   /** Full text. Lines separated by \n. */
   text: string;
-  /** Characters from this poem that rhyme in this 韵部. Used for highlighting. */
-  rhymingCharacters: string[];
+  /**
+   * Characters from this poem that rhyme in this 韵部. Used for highlighting
+   * and jyutping callout tables.
+   *
+   * jyutping: standard Cantonese romanization with tone numbers
+   *   (1=high level, 2=mid rising, 3=mid level, 4=low falling, 5=low rising, 6=low level)
+   * pinyin: Mandarin pinyin with tone marks
+   */
+  rhymingCharacters: Array<{ char: string; jyutping: string; pinyin: string }>;
   /** Optional translation or contextual note in English. */
   gloss?: string;
 }

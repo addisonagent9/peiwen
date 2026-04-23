@@ -1,5 +1,5 @@
 /**
- * FoundationModule — the 6-screen Phase 0 orientation.
+ * FoundationModule — the 7-screen Phase 0 orientation.
  *
  * Single-flow tap-through (per M3.2 scope — no quiz yet). Each screen
  * occupies the entire content area. Progress bar + step counter at top.
@@ -32,7 +32,10 @@ import {
   FOUNDATION_SCREENS,
   type FoundationScreen,
   type DemoItem,
+  type AnchorDemoConfig,
 } from '../../data/pingshui/foundation-content';
+import { RHYMES_PINGSHENG } from '../../data/pingshui/trainer-curriculum';
+import type { AnchorPoem } from '../../types/pingshui-trainer';
 import { useAudio } from '../../hooks/useAudio';
 import { useAudioQueue } from '../../hooks/useAudioQueue';
 
@@ -288,6 +291,17 @@ const ScreenBody: React.FC<ScreenBodyProps> = ({
       </section>
     )}
 
+    {/* Anchor poem demo */}
+    {screen.anchorDemo && (
+      <AnchorDemoSection
+        config={screen.anchorDemo}
+        audioAvailable={audioAvailable}
+        cantoneseAudioAvailable={cantoneseAudioAvailable}
+        onPlay={onPlay}
+        playingText={playingText}
+      />
+    )}
+
     {/* Caveat (rose-tinted warning) */}
     {screen.caveat && (
       <aside className="mt-2 p-3 border border-rose/30 bg-rose/5 rounded">
@@ -395,7 +409,7 @@ const DemoCard: React.FC<DemoCardProps> = ({
       )}
     </div>
 
-    {/* Cantonese evidence section */}
+    {/* Cantonese evidence section (demo cards) */}
     {demo.cantoneseEvidence && (
       <>
         <div className="mx-4 border-t border-ink-line/30" />
@@ -424,3 +438,115 @@ const DemoCard: React.FC<DemoCardProps> = ({
     )}
   </div>
 );
+
+// ---------------------------------------------------------------------------
+// Anchor poem demo section
+// ---------------------------------------------------------------------------
+
+function formatJyutping(raw: string): string {
+  return raw.replace(/(\d)$/, (_, d) => {
+    const sup: Record<string, string> = { '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶' };
+    return sup[d] ?? d;
+  });
+}
+
+interface AnchorDemoSectionProps {
+  config: AnchorDemoConfig;
+  audioAvailable: boolean;
+  cantoneseAudioAvailable: boolean;
+  onPlay: (text: string, voice?: 'mandarin' | 'cantonese') => Promise<void>;
+  playingText: string | null;
+}
+
+const AnchorDemoSection: React.FC<AnchorDemoSectionProps> = ({
+  config,
+  audioAvailable,
+  cantoneseAudioAvailable,
+  onPlay,
+  playingText,
+}) => {
+  const rhyme = RHYMES_PINGSHENG.find((r) => r.id === config.rhymeId);
+  if (!rhyme?.anchorPoem) return null;
+  const poem = rhyme.anchorPoem;
+  const rhymingChars = new Set(poem.rhymingCharacters.map((rc) => rc.char));
+
+  return (
+    <section className="border border-ink-line rounded-md overflow-hidden pt-3 pb-3">
+      {/* Title + author */}
+      <div className="px-4 pb-2">
+        <span className="font-serif text-cream text-sm">
+          《{poem.title}》
+        </span>
+        <span className="text-creamDim text-xs ml-2">{poem.author}</span>
+      </div>
+
+      {/* Poem text with highlighted rhyming characters */}
+      <div className="px-4 pb-3">
+        {poem.text.split('\n').map((line, li) => (
+          <p key={li} className="font-serif text-cream/90 text-[15px] leading-[2] tracking-widest">
+            {[...line].map((ch, ci) => (
+              <span
+                key={ci}
+                className={rhymingChars.has(ch) ? 'text-gold font-bold' : ''}
+              >
+                {ch}
+              </span>
+            ))}
+          </p>
+        ))}
+      </div>
+
+      {/* Play buttons */}
+      <div className="px-4 pb-2 flex items-center gap-3">
+        {audioAvailable && (
+          <LabeledPlayButton
+            onClick={() => onPlay(poem.text, 'mandarin')}
+            isPlaying={playingText === poem.text}
+            label="普通话"
+            ariaLabel={`Play ${poem.title} in Mandarin`}
+          />
+        )}
+        {cantoneseAudioAvailable && (
+          <LabeledPlayButton
+            onClick={() => onPlay(poem.text, 'cantonese')}
+            isPlaying={false}
+            label="粤语"
+            ariaLabel={`Play ${poem.title} in Cantonese`}
+          />
+        )}
+      </div>
+
+      {/* Jyutping callout table */}
+      {config.showJyutpingCallout && (
+        <>
+          <div className="mx-4 border-t border-ink-line/30" />
+          <div className="px-4 pt-3">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="text-creamDim">
+                  <th className="text-left font-normal pb-1 w-12">字</th>
+                  <th className="text-left font-normal pb-1">粤语</th>
+                  <th className="text-left font-normal pb-1">普通话</th>
+                </tr>
+              </thead>
+              <tbody>
+                {poem.rhymingCharacters.map((rc) => (
+                  <tr key={rc.char}>
+                    <td className="font-serif text-cream text-sm py-0.5">{rc.char}</td>
+                    <td className="font-mono text-cream/80 py-0.5">{formatJyutping(rc.jyutping)}</td>
+                    <td className="font-mono text-creamDim py-0.5">{rc.pinyin}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {config.calloutMessage && (
+              <p className="text-creamDim text-xs mt-2 leading-relaxed">
+                {config.calloutMessage}
+              </p>
+            )}
+          </div>
+        </>
+      )}
+    </section>
+  );
+};
