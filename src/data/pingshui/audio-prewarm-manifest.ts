@@ -57,12 +57,12 @@ export const AUDIO_PREWARM_MANIFEST: AudioManifestEntry[] = [
   // ─── Mandarin: Tier 1 seed characters (53, excluding duplicates) ──────
   // 一东 seeds (11 new — 东 already above)
   { text: '风', voiceKind: 'mandarin', usageContext: ['curriculum:shangping-01-dong:seed'] },
-  { text: '空', voiceKind: 'mandarin', usageContext: ['curriculum:shangping-01-dong:seed'] },
+  { text: '空', voiceKind: 'mandarin', usageContext: ['foundation:shangping:demo:0', 'curriculum:shangping-01-dong:seed'] },
   { text: '中', voiceKind: 'mandarin', usageContext: ['curriculum:shangping-01-dong:seed'] },
   { text: '红', voiceKind: 'mandarin', usageContext: ['curriculum:shangping-01-dong:seed'] },
-  { text: '同', voiceKind: 'mandarin', usageContext: ['curriculum:shangping-01-dong:seed'] },
+  { text: '同', voiceKind: 'mandarin', usageContext: ['foundation:shangping:demo:1', 'curriculum:shangping-01-dong:seed'] },
   { text: '通', voiceKind: 'mandarin', usageContext: ['curriculum:shangping-01-dong:seed'] },
-  { text: '翁', voiceKind: 'mandarin', usageContext: ['curriculum:shangping-01-dong:seed'] },
+  { text: '翁', voiceKind: 'mandarin', usageContext: ['foundation:shangping:demo:2', 'curriculum:shangping-01-dong:seed'] },
   { text: '弓', voiceKind: 'mandarin', usageContext: ['curriculum:shangping-01-dong:seed'] },
   { text: '宫', voiceKind: 'mandarin', usageContext: ['curriculum:shangping-01-dong:seed'] },
   { text: '功', voiceKind: 'mandarin', usageContext: ['curriculum:shangping-01-dong:seed'] },
@@ -84,8 +84,8 @@ export const AUDIO_PREWARM_MANIFEST: AudioManifestEntry[] = [
   // 十一尤 seeds (11 new — 尤 already above)
   { text: '忧', voiceKind: 'mandarin', usageContext: ['curriculum:xiaping-11-you:seed'] },
   { text: '秋', voiceKind: 'mandarin', usageContext: ['curriculum:xiaping-11-you:seed'] },
-  { text: '楼', voiceKind: 'mandarin', usageContext: ['curriculum:xiaping-11-you:seed'] },
-  { text: '流', voiceKind: 'mandarin', usageContext: ['curriculum:xiaping-11-you:seed'] },
+  { text: '楼', voiceKind: 'mandarin', usageContext: ['foundation:xiaping:demo:1', 'curriculum:xiaping-11-you:seed'] },
+  { text: '流', voiceKind: 'mandarin', usageContext: ['foundation:xiaping:demo:0', 'curriculum:xiaping-11-you:seed'] },
   { text: '舟', voiceKind: 'mandarin', usageContext: ['curriculum:xiaping-11-you:seed'] },
   { text: '留', voiceKind: 'mandarin', usageContext: ['curriculum:xiaping-11-you:seed'] },
   { text: '收', voiceKind: 'mandarin', usageContext: ['curriculum:xiaping-11-you:seed'] },
@@ -141,7 +141,7 @@ export const AUDIO_PREWARM_MANIFEST: AudioManifestEntry[] = [
   { text: '下平也是十五韵,从 一先 开始,到 十五咸 结束。', voiceKind: 'mandarin', usageContext: ['foundation:xiaping:body:0'] },
   { text: '常见的 七阳、十一尤、六麻 都在下平。许多唐诗名作就押这些韵。', voiceKind: 'mandarin', usageContext: ['foundation:xiaping:body:1'] },
   { text: '这样,"平声" 总共三十韵 — 律诗押韵大多在这三十韵之中选择。', voiceKind: 'mandarin', usageContext: ['foundation:xiaping:body:2'] },
-  { text: '七阳韵是下平最著名的韵之一,也是李白《静夜思》押的韵。光·霜·乡 三字在普通话和粤语里都清晰地押韵(-ang / -oeng)。听一听,感受一下韵律。不是所有韵都这么"和谐" — 后面你会看到更复杂的情况。', voiceKind: 'mandarin', usageContext: ['foundation:xiaping:body:3'] },
+  { text: '十一尤韵的韵脚字 流 和 楼,在粤语里读音完全相同(都读 lau⁴)!这就是一对"同音字押韵"的例子 — 一目了然。王之涣《登鹳雀楼》就是这个韵。下面听一听,先听普通话,再听粤语,注意 流 和 楼 在粤语里是不是真的一样。', voiceKind: 'mandarin', usageContext: ['foundation:xiaping:body:3'] },
   { text: '平声 = 上平 15 + 下平 15 = 共 30 韵。格律诗押韵的主战场。', voiceKind: 'mandarin', usageContext: ['foundation:xiaping:insight'] },
 
   // Screen 4: zesheng
@@ -178,6 +178,13 @@ export const AUDIO_PREWARM_MANIFEST: AudioManifestEntry[] = [
   { text: '日', voiceKind: 'cantonese', usageContext: ['foundation:rusheng:cantonese-evidence'] },
   { text: '白', voiceKind: 'cantonese', usageContext: ['foundation:rusheng:cantonese-evidence'] },
   { text: '六', voiceKind: 'cantonese', usageContext: ['foundation:rusheng:cantonese-evidence'] },
+
+  // ─── Cantonese: 上平/下平 demo characters (5) ────────────────────────
+  { text: '空', voiceKind: 'cantonese', usageContext: ['foundation:shangping:demo-yue:0'] },
+  { text: '同', voiceKind: 'cantonese', usageContext: ['foundation:shangping:demo-yue:1'] },
+  { text: '翁', voiceKind: 'cantonese', usageContext: ['foundation:shangping:demo-yue:2'] },
+  { text: '流', voiceKind: 'cantonese', usageContext: ['foundation:xiaping:demo-yue:0'] },
+  { text: '楼', voiceKind: 'cantonese', usageContext: ['foundation:xiaping:demo-yue:1'] },
 
   // ─── Anchor poems: Mandarin (9) ───────────────────────────────────────
   { text: '死去元知万事空,但悲不见九州同。\n王师北定中原日,家祭无忘告乃翁。', voiceKind: 'mandarin', usageContext: ['anchor:shangping-01-dong'] },
