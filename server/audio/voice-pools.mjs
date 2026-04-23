@@ -25,8 +25,8 @@ export const VOICE_POOLS = {
     { provider: 'azure',   voiceId: 'zh-CN-YunxiNeural' },
   ],
   cantonese: [
-    { provider: 'alibaba', voiceId: 'Rocky' },
     { provider: 'azure',   voiceId: 'zh-HK-WanLungNeural' },
+    { provider: 'alibaba', voiceId: 'Rocky' },
   ],
 };
 
