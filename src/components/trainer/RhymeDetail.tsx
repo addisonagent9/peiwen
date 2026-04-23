@@ -9,7 +9,6 @@ export interface RhymeDetailProps {
   rhymeId: string;
   strings: TrainerStrings;
   onBack: () => void;
-  onStartDrill: (rhymeId: string) => void;
 }
 
 function buildCalloutMessage(rhyme: Rhyme): string | undefined {
@@ -35,7 +34,6 @@ export const RhymeDetail: React.FC<RhymeDetailProps> = ({
   rhymeId,
   strings,
   onBack,
-  onStartDrill,
 }) => {
   const audio = useAudio();
   const rhyme = useMemo(
@@ -135,15 +133,6 @@ export const RhymeDetail: React.FC<RhymeDetailProps> = ({
         </div>
       )}
 
-      {/* Start drill CTA */}
-      <div className="pt-4">
-        <button
-          onClick={() => onStartDrill(rhymeId)}
-          className="w-full py-3 bg-gold/10 border border-gold/40 text-gold font-serif tracking-wider rounded hover:bg-gold/20 transition-colors"
-        >
-          {strings.rhymeDetailStartDrill} →
-        </button>
-      </div>
     </div>
   );
 };

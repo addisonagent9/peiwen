@@ -22,6 +22,7 @@ export interface TrainerTierViewProps {
   tier: RhymeTier;
   unlockedTier: RhymeTier;
   onSelectRhyme: (rhymeId: string) => void;
+  onStartDrill?: () => void;
 }
 
 export const TrainerTierView: React.FC<TrainerTierViewProps> = ({
@@ -29,6 +30,7 @@ export const TrainerTierView: React.FC<TrainerTierViewProps> = ({
   tier,
   unlockedTier,
   onSelectRhyme,
+  onStartDrill,
 }) => {
   // Group rhymes in this tier by family. Preserve family insertion order
   // so 寒/删/先, 真/文/元 etc. appear together as curated.
@@ -111,6 +113,16 @@ export const TrainerTierView: React.FC<TrainerTierViewProps> = ({
               </section>
             );
           })}
+
+          {/* Tier-scoped drill button */}
+          {onStartDrill && (
+            <button
+              onClick={onStartDrill}
+              className="w-full py-3 border border-ink-line text-cream font-serif tracking-wider rounded hover:border-cream/40 hover:bg-cream/5 transition-colors"
+            >
+              {strings.startDrill}
+            </button>
+          )}
         </div>
       )}
     </div>

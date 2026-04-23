@@ -64,11 +64,13 @@ export function createDrillRouter(db, composedGate) {
     }
   });
 
-  // GET /queue?type=char-to-rhyme&limit=10
+  // GET /queue?type=char-to-rhyme&limit=10&scope=all|tier1
   router.get('/queue', composedGate, (req, res, next) => {
     try {
-      const limit = Math.min(TIER1_SEED_CHARS.length, Math.max(1, parseInt(req.query.limit) || 10));
-      const pool = shuffle(TIER1_SEED_CHARS).slice(0, limit);
+      // scope param accepted for future tier expansion; currently only Tier 1 exists
+      const seedPool = TIER1_SEED_CHARS;
+      const limit = Math.min(seedPool.length, Math.max(1, parseInt(req.query.limit) || 10));
+      const pool = shuffle(seedPool).slice(0, limit);
 
       const items = pool.map(seed => ({
         type: 'char-to-rhyme',
@@ -79,7 +81,7 @@ export function createDrillRouter(db, composedGate) {
         options: shuffle([seed.rhymeId, ...pickDistractors(seed.rhymeId)]),
       }));
 
-      res.json({ items, totalAvailable: TIER1_SEED_CHARS.length });
+      res.json({ items, totalAvailable: seedPool.length });
     } catch (err) {
       next(err);
     }

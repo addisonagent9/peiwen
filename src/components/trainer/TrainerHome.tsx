@@ -5,22 +5,19 @@
  *
  *   ┌───────────────────────────────┐
  *   │  Welcome                      │   ← greeting
- *   │  3-day streak · 7 due         │
  *   │                               │
- *   │  ┌─────────────────────────┐  │
- *   │  │ Foundation (✓ if done)   │  │  ← always shown; adapts style
- *   │  │ [Start foundation]      │  │
- *   │  └─────────────────────────┘  │
+ *   │  [基础课程 — gold CTA]        │   ← only if NOT completed
  *   │                               │
  *   │  ── 韵部层级 ──                │
  *   │  [Tier 1 — 五韵入门]   ▶     │
  *   │  [Tier 2 — 易混辨析]  🔒      │
  *   │  [Tier 3 — 闭口冷僻]  🔒      │
  *   │                               │
+ *   │  [开始练习]  ← green CTA      │   ← only if foundation completed
+ *   │                               │
  *   │  ── 其他 ──                    │
  *   │  [进度仪表盘]  ▶              │
- *   │                               │
- *   │  [开始练习]     ← primary CTA │
+ *   │  [基础课程 ✓ 复习]  ▶         │   ← demoted review card
  *   └───────────────────────────────┘
  */
 
@@ -76,47 +73,38 @@ export const TrainerHome: React.FC<TrainerHomeProps> = ({
 
   return (
     <div className="space-y-10 pt-6">
-      {/* Greeting + stats */}
+      {/* Greeting */}
       <section>
         <h2 className="font-serif text-3xl text-cream tracking-wide">
           {strings.welcomeGreeting(userName)}
         </h2>
-        <div className="mt-3 flex items-center gap-4 text-sm text-creamDim">
-          {state.streakDays > 0 && (
+        {state.streakDays > 0 && (
+          <div className="mt-3 flex items-center gap-4 text-sm text-creamDim">
             <span className="flex items-center gap-1.5">
               <span className="w-1 h-1 rounded-full bg-gold" />
               {strings.streakDays(state.streakDays)}
             </span>
-          )}
-        </div>
+          </div>
+        )}
       </section>
 
-      {/* Foundation prompt */}
-      <section className="border border-ink-line rounded-md p-4 bg-cream/5">
-        <div className="flex items-center gap-2">
-          {state.foundationCompleted && (
-            <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden className="text-gold shrink-0">
-              <path d="M3 7 L6 10 L11 4" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          )}
+      {/* Foundation prompt — prominent only if NOT completed */}
+      {!state.foundationCompleted && (
+        <section className="border border-ink-line rounded-md p-4 bg-cream/5">
           <h3 className="font-serif text-cream text-base">
             {strings.foundationTitle}
           </h3>
-        </div>
-        <p className="text-creamDim text-sm mt-1 leading-relaxed">
-          {strings.foundationSubtitle}
-        </p>
-        <button
-          onClick={onStartFoundation}
-          className={
-            state.foundationCompleted
-              ? "mt-4 w-full py-3 border border-ink-line text-creamDim font-serif tracking-wider rounded hover:text-cream hover:border-cream/40 transition-colors"
-              : "mt-4 w-full py-3 bg-gold/10 border border-gold/40 text-gold font-serif tracking-wider rounded hover:bg-gold/20 transition-colors"
-          }
-        >
-          {state.foundationCompleted ? strings.reviewFoundation : strings.startFoundation}
-        </button>
-      </section>
+          <p className="text-creamDim text-sm mt-1 leading-relaxed">
+            {strings.foundationSubtitle}
+          </p>
+          <button
+            onClick={onStartFoundation}
+            className="mt-4 w-full py-3 bg-gold/10 border border-gold/40 text-gold font-serif tracking-wider rounded hover:bg-gold/20 transition-colors"
+          >
+            {strings.startFoundation}
+          </button>
+        </section>
+      )}
 
       {/* Tier selector */}
       <section>
@@ -143,29 +131,47 @@ export const TrainerHome: React.FC<TrainerHomeProps> = ({
         </div>
       </section>
 
-      {/* Secondary navigation */}
-      <section>
-        <SectionLabel>其他</SectionLabel>
-        <button
-          onClick={onOpenDashboard}
-          className="w-full flex items-center justify-between py-3 px-4 border border-ink-line rounded-md text-cream hover:bg-cream/5 transition-colors"
-        >
-          <span className="font-serif">{strings.dashboardTitle}</span>
-          <Chevron />
-        </button>
-      </section>
-
-      {/* Primary CTA — start drill */}
-      {onStartDrill && (
-        <section className="pt-2">
+      {/* Primary CTA — global drill (only after foundation) */}
+      {state.foundationCompleted && onStartDrill && (
+        <section>
           <button
             onClick={onStartDrill}
-            className="w-full py-4 bg-teal text-ink-bg font-serif text-lg tracking-wider rounded hover:opacity-90 transition-opacity"
+            className="w-full py-4 bg-emerald-600 text-white font-serif text-lg tracking-wider rounded hover:bg-emerald-700 transition-colors"
           >
             {strings.startDrill}
           </button>
         </section>
       )}
+
+      {/* Secondary navigation */}
+      <section>
+        <SectionLabel>其他</SectionLabel>
+        <div className="space-y-2">
+          <button
+            onClick={onOpenDashboard}
+            className="w-full flex items-center justify-between py-3 px-4 border border-ink-line rounded-md text-cream hover:bg-cream/5 transition-colors"
+          >
+            <span className="font-serif">{strings.dashboardTitle}</span>
+            <Chevron />
+          </button>
+
+          {/* Foundation review — demoted to 其他 section after completion */}
+          {state.foundationCompleted && (
+            <button
+              onClick={onStartFoundation}
+              className="w-full flex items-center justify-between py-3 px-4 border border-ink-line rounded-md text-cream hover:bg-cream/5 transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden className="text-gold shrink-0">
+                  <path d="M3 7 L6 10 L11 4" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <span className="font-serif">{strings.foundationTitle}</span>
+              </div>
+              <Chevron />
+            </button>
+          )}
+        </div>
+      </section>
     </div>
   );
 };

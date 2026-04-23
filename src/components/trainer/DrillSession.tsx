@@ -7,11 +7,13 @@ type Phase = 'start' | 'active' | 'summary';
 
 interface DrillSessionProps {
   strings: TrainerStrings;
+  scope?: 'tier1' | 'all';
   onExit: () => void;
 }
 
 export const DrillSession: React.FC<DrillSessionProps> = ({
   strings,
+  scope = 'all',
   onExit,
 }) => {
   const [phase, setPhase] = useState<Phase>('start');
@@ -49,7 +51,7 @@ export const DrillSession: React.FC<DrillSessionProps> = ({
   const startDrill = useCallback(async (count: number) => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/trainer/drill/queue?type=char-to-rhyme&limit=${count}`, {
+      const res = await fetch(`/api/trainer/drill/queue?type=char-to-rhyme&limit=${count}&scope=${scope}`, {
         credentials: 'include',
       });
       const body = await res.json();

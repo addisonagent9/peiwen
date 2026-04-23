@@ -68,6 +68,7 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
   const [subView, setSubView] = useState<SubView>('home');
   const [selectedTier, setSelectedTier] = useState<RhymeTier>(1);
   const [selectedRhymeId, setSelectedRhymeId] = useState<string | null>(null);
+  const [drillScope, setDrillScope] = useState<'tier1' | 'all'>('all');
 
   // Load initial state + due count
   useEffect(() => {
@@ -168,7 +169,7 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
               setSubView('tier');
             }}
             onOpenDashboard={() => setSubView('dashboard')}
-            onStartDrill={() => setSubView('drill')}
+            onStartDrill={() => { setDrillScope('all'); setSubView('drill'); }}
           />
         )}
 
@@ -194,6 +195,7 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
               setSelectedRhymeId(id);
               setSubView('detail');
             }}
+            onStartDrill={() => { setDrillScope('tier1'); setSubView('drill'); }}
           />
         )}
 
@@ -202,13 +204,13 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
             rhymeId={selectedRhymeId}
             strings={strings}
             onBack={() => setSubView('tier')}
-            onStartDrill={() => setSubView('drill')}
           />
         )}
 
         {subView === 'drill' && (
           <DrillSession
             strings={strings}
+            scope={drillScope}
             onExit={goHome}
           />
         )}
