@@ -8,7 +8,7 @@
  *   │  3-day streak · 7 due         │
  *   │                               │
  *   │  ┌─────────────────────────┐  │
- *   │  │ Foundation not done     │  │  ← shown only if incomplete
+ *   │  │ Foundation (✓ if done)   │  │  ← always shown; adapts style
  *   │  │ [Start foundation]      │  │
  *   │  └─────────────────────────┘  │
  *   │                               │
@@ -96,23 +96,32 @@ export const TrainerHome: React.FC<TrainerHomeProps> = ({
         </div>
       </section>
 
-      {/* Foundation prompt (only if not complete) */}
-      {!state.foundationCompleted && (
-        <section className="border border-ink-line rounded-md p-4 bg-cream/5">
+      {/* Foundation prompt */}
+      <section className="border border-ink-line rounded-md p-4 bg-cream/5">
+        <div className="flex items-center gap-2">
+          {state.foundationCompleted && (
+            <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden className="text-gold shrink-0">
+              <path d="M3 7 L6 10 L11 4" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          )}
           <h3 className="font-serif text-cream text-base">
             {strings.foundationTitle}
           </h3>
-          <p className="text-creamDim text-sm mt-1 leading-relaxed">
-            {strings.foundationSubtitle}
-          </p>
-          <button
-            onClick={onStartFoundation}
-            className="mt-4 w-full py-3 bg-gold/10 border border-gold/40 text-gold font-serif tracking-wider rounded hover:bg-gold/20 transition-colors"
-          >
-            {strings.startFoundation}
-          </button>
-        </section>
-      )}
+        </div>
+        <p className="text-creamDim text-sm mt-1 leading-relaxed">
+          {strings.foundationSubtitle}
+        </p>
+        <button
+          onClick={onStartFoundation}
+          className={
+            state.foundationCompleted
+              ? "mt-4 w-full py-3 border border-ink-line text-creamDim font-serif tracking-wider rounded hover:text-cream hover:border-cream/40 transition-colors"
+              : "mt-4 w-full py-3 bg-gold/10 border border-gold/40 text-gold font-serif tracking-wider rounded hover:bg-gold/20 transition-colors"
+          }
+        >
+          {state.foundationCompleted ? strings.reviewFoundation : strings.startFoundation}
+        </button>
+      </section>
 
       {/* Tier selector */}
       <section>

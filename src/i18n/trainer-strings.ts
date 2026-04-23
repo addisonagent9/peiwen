@@ -31,6 +31,7 @@ export interface TrainerStrings {
   startDrill: string;
   continueFoundation: string;
   startFoundation: string;
+  reviewFoundation: string;
   foundationLocked: string;
 
   // Foundation module
@@ -98,6 +99,7 @@ const zhHans: TrainerStrings = {
   startDrill: '开始练习',
   continueFoundation: '继续基础课程',
   startFoundation: '开始基础课程',
+  reviewFoundation: '复习基础课程',
   foundationLocked: '请先完成基础课程',
 
   foundationTitle: '基础课程',
@@ -160,6 +162,7 @@ const zhHant: TrainerStrings = {
   startDrill: '開始練習',
   continueFoundation: '繼續基礎課程',
   startFoundation: '開始基礎課程',
+  reviewFoundation: '複習基礎課程',
   foundationLocked: '請先完成基礎課程',
 
   foundationTitle: '基礎課程',
@@ -222,6 +225,7 @@ const enBilingual: TrainerStrings = {
   startDrill: 'Start drill',
   continueFoundation: 'Continue foundation',
   startFoundation: 'Start foundation',
+  reviewFoundation: 'Review foundation',
   foundationLocked: 'Complete the foundation first',
 
   foundationTitle: 'Foundation',
