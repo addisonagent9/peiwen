@@ -6,9 +6,13 @@ export interface UseAudioQueueReturn {
   active: boolean;
   /** Index of the currently-playing item in the queue, or -1 if idle. */
   currentIndex: number;
-  /** Start sequential playback of the given texts. */
+  /** Start sequential playback of the given texts from the beginning. */
   start: (texts: string[], voice?: 'mandarin' | 'cantonese') => void;
-  /** Stop playback and clear the queue. */
+  /** Pause playback, preserving current position for resume. */
+  pause: () => void;
+  /** Resume playback from the paused position (start of that paragraph). */
+  resume: () => void;
+  /** Stop playback and fully reset (position lost). */
   stop: () => void;
 }
 
@@ -59,6 +63,22 @@ export function useAudioQueue(audio: UseAudioReturn): UseAudioQueueReturn {
     [audio, playNext],
   );
 
+  const pause = useCallback(() => {
+    const savedIndex = indexRef.current;
+    activeRef.current = false;
+    setActive(false);
+    audio.stop();
+    indexRef.current = savedIndex;
+    setCurrentIndex(savedIndex);
+  }, [audio]);
+
+  const resume = useCallback(() => {
+    if (indexRef.current < 0 || queueRef.current.length === 0) return;
+    activeRef.current = true;
+    setActive(true);
+    audio.play(queueRef.current[indexRef.current], voiceRef.current);
+  }, [audio]);
+
   const stop = useCallback(() => {
     activeRef.current = false;
     indexRef.current = -1;
@@ -68,5 +88,5 @@ export function useAudioQueue(audio: UseAudioReturn): UseAudioQueueReturn {
     audio.stop();
   }, [audio]);
 
-  return { active, currentIndex, stop, start };
+  return { active, currentIndex, start, pause, resume, stop };
 }
