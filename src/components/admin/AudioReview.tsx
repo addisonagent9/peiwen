@@ -8,8 +8,8 @@ const VOICE_POOLS_CLIENT = {
     { provider: 'azure', voiceId: 'zh-CN-YunxiNeural' },
   ],
   cantonese: [
-    { provider: 'alibaba', voiceId: 'Rocky' },
     { provider: 'azure', voiceId: 'zh-HK-WanLungNeural' },
+    { provider: 'alibaba', voiceId: 'Rocky' },
   ],
 } as const;
 
@@ -287,24 +287,29 @@ export default function AudioReview() {
               {/* + backup voice button */}
               {(() => {
                 const pool = VOICE_POOLS_CLIENT[item.voiceKind as keyof typeof VOICE_POOLS_CLIENT];
-                if (!pool || item.clips.length === 0) return null;
-                const primary = pool[0];
+                if (!pool || pool.length < 2 || item.clips.length === 0) return null;
+                const backup = pool[1];
                 const hasBackup = item.clips.some(c =>
-                  !(c.provider === primary.provider && c.voiceId === primary.voiceId)
+                  c.provider === backup.provider && c.voiceId === backup.voiceId
                 );
                 if (hasBackup) return null;
                 const loadingKey = `${item.text}-${item.voiceKind}`;
+                const backupLabel = formatVoiceLabel(backup.voiceId);
                 return (
-                  <div className="px-4 py-3 border-t border-[#F5F0E8]/5">
+                  <div className="px-4 py-3 border-t border-[#F5F0E8]/5 flex items-center gap-3">
                     <button
                       onClick={async () => {
                         setAddVoiceLoading(loadingKey);
                         try {
-                          const res = await fetch('/api/admin/audio/add-voice', {
+                          const res = await fetch('/api/admin/audio/generate', {
                             method: 'POST',
                             headers: { 'content-type': 'application/json' },
                             credentials: 'include',
-                            body: JSON.stringify({ text: item.text, voiceKind: item.voiceKind }),
+                            body: JSON.stringify({
+                              text: item.text,
+                              voiceKind: item.voiceKind,
+                              voiceOverride: { provider: backup.provider, voiceId: backup.voiceId },
+                            }),
                           });
                           if (!res.ok) {
                             const body = await res.json().catch(() => ({}));
@@ -312,7 +317,7 @@ export default function AudioReview() {
                           }
                           await refresh();
                         } catch (err) {
-                          alert(`Failed to add backup voice: ${err instanceof Error ? err.message : String(err)}`);
+                          alert(`Failed to generate backup: ${err instanceof Error ? err.message : String(err)}`);
                         } finally {
                           setAddVoiceLoading(null);
                         }
@@ -320,8 +325,9 @@ export default function AudioReview() {
                       disabled={addVoiceLoading === loadingKey}
                       className="text-xs px-3 py-1.5 rounded border border-[#F5F0E8]/20 text-[#F5F0E8]/60 hover:border-[#F5F0E8]/40 hover:text-[#F5F0E8] transition disabled:opacity-50"
                     >
-                      {addVoiceLoading === loadingKey ? 'Adding...' : '+ backup voice'}
+                      {addVoiceLoading === loadingKey ? 'Generating...' : `+ Try ${backupLabel}`}
                     </button>
+                    <span className="text-[10px] text-[#F5F0E8]/30">Primary only. Compare before approving.</span>
                   </div>
                 );
               })()}

@@ -11,7 +11,7 @@ import path from 'path';
 import fs from 'fs';
 import fsp from 'fs/promises';
 import crypto from 'crypto';
-import { getPrimaryVoice, getNextVoice } from '../audio/voice-pools.mjs';
+import { getPrimaryVoice, getNextVoice, VOICE_POOLS } from '../audio/voice-pools.mjs';
 
 /**
  * @param {object} opts
@@ -114,7 +114,7 @@ export function createAdminAudioRouter({ db, audioService, requireAdmin, cacheDi
   // POST /api/admin/audio/generate
   router.post('/generate', requireAdmin, express.json(), async (req, res, next) => {
     try {
-      const { text, voiceKind } = req.body ?? {};
+      const { text, voiceKind, voiceOverride } = req.body ?? {};
 
       if (typeof text !== 'string' || !text.trim() || text.length > 200) {
         return res.status(400).json({ error: 'INVALID_TEXT' });
@@ -123,7 +123,20 @@ export function createAdminAudioRouter({ db, audioService, requireAdmin, cacheDi
         return res.status(400).json({ error: 'INVALID_VOICE_KIND' });
       }
 
-      const { provider, voiceId } = getPrimaryVoice(voiceKind);
+      let provider, voiceId;
+      if (voiceOverride && voiceOverride.provider && voiceOverride.voiceId) {
+        const pool = VOICE_POOLS[voiceKind];
+        const isValid = pool && pool.some(v =>
+          v.provider === voiceOverride.provider && v.voiceId === voiceOverride.voiceId
+        );
+        if (!isValid) {
+          return res.status(400).json({ error: 'INVALID_VOICE_OVERRIDE' });
+        }
+        provider = voiceOverride.provider;
+        voiceId = voiceOverride.voiceId;
+      } else {
+        ({ provider, voiceId } = getPrimaryVoice(voiceKind));
+      }
       const generationText = text.trim();
 
       const result = await audioService.synthesizeWith(generationText, { provider, voiceId });
