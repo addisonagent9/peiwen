@@ -194,6 +194,42 @@ app.get("/api/admin/users", requireAdmin, (req, res) => {
   res.json({ users: rows });
 });
 
+app.patch("/api/admin/users/:id", requireAdmin, express.json(), (req, res) => {
+  const targetId = req.params.id;
+  const { is_admin, is_premium } = req.body ?? {};
+
+  if (is_admin === undefined && is_premium === undefined) {
+    return res.status(400).json({ error: "NOTHING_TO_UPDATE" });
+  }
+
+  const user = db.prepare("SELECT * FROM users WHERE id = ?").get(targetId);
+  if (!user) return res.status(404).json({ error: "USER_NOT_FOUND" });
+
+  if (is_admin === 0 && String(req.user.id) === String(targetId)) {
+    return res.status(403).json({ error: "CANNOT_DEMOTE_SELF" });
+  }
+
+  if (is_admin === 0) {
+    const adminCount = db.prepare("SELECT COUNT(*) as n FROM users WHERE is_admin = 1").get().n;
+    if (adminCount <= 1 && user.is_admin === 1) {
+      return res.status(400).json({ error: "LAST_ADMIN" });
+    }
+  }
+
+  const newAdmin = is_admin !== undefined ? is_admin : user.is_admin;
+  const newPremium = is_premium !== undefined ? is_premium : user.is_premium;
+
+  db.prepare("UPDATE users SET is_admin = ?, is_premium = ? WHERE id = ?").run(newAdmin, newPremium, targetId);
+
+  const updated = db.prepare(`
+    SELECT u.id, u.email, u.name, u.avatar, u.is_admin, u.is_premium,
+           u.created_at, u.last_login,
+           (SELECT COUNT(*) FROM poems p WHERE p.user_id = u.id) AS poem_count
+    FROM users u WHERE u.id = ?
+  `).get(targetId);
+  res.json({ user: updated });
+});
+
 app.get("/api/admin/users/:id/poems", requireAdmin, (req, res) => {
   const targetId = req.params.id;
   const user = db.prepare("SELECT id, email, name, avatar, created_at, last_login FROM users WHERE id = ?").get(targetId);

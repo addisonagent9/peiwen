@@ -80,6 +80,15 @@ export default function AdminConsole({ locale, onBack }: AdminConsoleProps) {
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [page, setPage] = useState(0);
+  const [toggleLoading, setToggleLoading] = useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/auth/me", { credentials: "include" })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data?.id) setCurrentUserId(String(data.id)); })
+      .catch(() => {});
+  }, []);
 
   function toggleSort(key: SortKey) {
     setPage(0);
@@ -91,6 +100,36 @@ export default function AdminConsole({ locale, onBack }: AdminConsoleProps) {
     } else {
       setSortKey(null);
       setSortDir("desc");
+    }
+  }
+
+  async function toggleAdmin(user: AdminUser) {
+    const newVal = user.is_admin === 1 ? 0 : 1;
+    const action = newVal === 1 ? '设为管理员' : '撤销管理员';
+    if (!confirm(`确定要将 ${user.name || user.email} ${action}?`)) return;
+
+    setToggleLoading(user.id);
+    try {
+      const res = await fetch(`/api/admin/users/${encodeURIComponent(user.id)}`, {
+        method: 'PATCH',
+        headers: { 'content-type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ is_admin: newVal }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        const msg = body.error === 'CANNOT_DEMOTE_SELF' ? '无法撤销自己的管理员权限'
+          : body.error === 'LAST_ADMIN' ? '无法撤销最后一位管理员'
+          : body.error || `HTTP ${res.status}`;
+        alert(msg);
+        return;
+      }
+      const { user: updated } = await res.json();
+      setUsers(prev => prev ? prev.map(u => u.id === updated.id ? updated : u) : prev);
+    } catch (err) {
+      alert(`操作失败: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setToggleLoading(null);
     }
   }
 
@@ -259,12 +298,13 @@ export default function AdminConsole({ locale, onBack }: AdminConsoleProps) {
                       activeKey={sortKey} activeDir={sortDir}
                       onClick={() => toggleSort("last_login")} />
                   </th>
-                  <th className="text-right py-2">
+                  <th className="text-right py-2 pr-3">
                     <SortHeader label={t.adminColPoems} sortKey="poem_count"
                       activeKey={sortKey} activeDir={sortDir}
                       align="right"
                       onClick={() => toggleSort("poem_count")} />
                   </th>
+                  <th className="text-right py-2">角色</th>
                 </tr>
               </thead>
               <tbody>
@@ -276,9 +316,6 @@ export default function AdminConsole({ locale, onBack }: AdminConsoleProps) {
                   >
                     <td className="py-2 pr-3 text-cream">
                       {u.name}
-                      {u.is_admin === 1 && (
-                        <span className="ml-2 text-xs text-gold">admin</span>
-                      )}
                     </td>
                     <td className="py-2 pr-3 text-creamDim">{u.email}</td>
                     <td className="py-2 pr-3 text-creamDim">
@@ -287,8 +324,25 @@ export default function AdminConsole({ locale, onBack }: AdminConsoleProps) {
                     <td className="py-2 pr-3 text-creamDim">
                       {formatDate(u.last_login, t.adminNever)}
                     </td>
-                    <td className="py-2 text-right text-cream tabular-nums">
+                    <td className="py-2 pr-3 text-right text-cream tabular-nums">
                       {u.poem_count}
+                    </td>
+                    <td className="py-2 text-right" onClick={e => e.stopPropagation()}>
+                      {String(u.id) === currentUserId ? (
+                        <span className="text-xs text-gold px-2 py-0.5 rounded border border-gold/30 bg-gold/10">管理员</span>
+                      ) : (
+                        <button
+                          onClick={() => toggleAdmin(u)}
+                          disabled={toggleLoading === u.id}
+                          className={`text-xs px-2 py-0.5 rounded border transition-colors disabled:opacity-50 ${
+                            u.is_admin === 1
+                              ? 'text-gold border-gold/30 bg-gold/10 hover:bg-gold/20'
+                              : 'text-creamDim border-ink-line hover:text-cream hover:border-cream/40'
+                          }`}
+                        >
+                          {toggleLoading === u.id ? '...' : u.is_admin === 1 ? '管理员 ✕' : '设为管理员'}
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
