@@ -6,9 +6,13 @@ export interface UseAudioQueueReturn {
   active: boolean;
   /** Index of the currently-playing item in the queue, or -1 if idle. */
   currentIndex: number;
-  /** Start sequential playback of the given texts. */
+  /** Start sequential playback of the given texts from the beginning. */
   start: (texts: string[], voice?: 'mandarin' | 'cantonese') => void;
-  /** Stop playback and clear the queue. */
+  /** Pause playback, preserving current position for resume. */
+  pause: () => void;
+  /** Resume playback from the paused position. */
+  resume: () => void;
+  /** Stop playback and fully reset (position lost). */
   stop: () => void;
 }
 
@@ -21,19 +25,22 @@ export function useAudioQueue(audio: UseAudioReturn): UseAudioQueueReturn {
   const activeRef = useRef(false);
   const indexRef = useRef(-1);
 
-  const playNext = useCallback(async () => {
-    const next = indexRef.current + 1;
-    if (next >= queueRef.current.length) {
+  const playAt = useCallback(async (idx: number) => {
+    if (idx >= queueRef.current.length) {
       activeRef.current = false;
       indexRef.current = -1;
       setActive(false);
       setCurrentIndex(-1);
       return;
     }
-    indexRef.current = next;
-    setCurrentIndex(next);
-    await audio.play(queueRef.current[next], voiceRef.current);
+    indexRef.current = idx;
+    setCurrentIndex(idx);
+    await audio.play(queueRef.current[idx], voiceRef.current);
   }, [audio]);
+
+  const playNext = useCallback(async () => {
+    await playAt(indexRef.current + 1);
+  }, [playAt]);
 
   useEffect(() => {
     if (!activeRef.current) return;
@@ -59,6 +66,19 @@ export function useAudioQueue(audio: UseAudioReturn): UseAudioQueueReturn {
     [audio, playNext],
   );
 
+  const pause = useCallback(() => {
+    activeRef.current = false;
+    setActive(false);
+    audio.stop();
+  }, [audio]);
+
+  const resume = useCallback(() => {
+    if (indexRef.current < 0 || queueRef.current.length === 0) return;
+    activeRef.current = true;
+    setActive(true);
+    playAt(indexRef.current);
+  }, [playAt]);
+
   const stop = useCallback(() => {
     activeRef.current = false;
     indexRef.current = -1;
@@ -68,5 +88,5 @@ export function useAudioQueue(audio: UseAudioReturn): UseAudioQueueReturn {
     audio.stop();
   }, [audio]);
 
-  return { active, currentIndex, stop, start };
+  return { active, currentIndex, start, pause, resume, stop };
 }

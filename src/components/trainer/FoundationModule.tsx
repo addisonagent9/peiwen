@@ -94,11 +94,15 @@ export const FoundationModule: React.FC<FoundationModuleProps> = ({
 
   const handleScreenPlay = useCallback(() => {
     if (queue.active) {
-      queue.stop();
+      queue.pause();
       setAudioIntent('auto-off');
     } else {
       setAudioIntent('auto-on');
-      queue.start(queueTexts, 'mandarin');
+      if (queue.currentIndex >= 0) {
+        queue.resume();
+      } else {
+        queue.start(queueTexts, 'mandarin');
+      }
     }
   }, [queue, queueTexts]);
 
