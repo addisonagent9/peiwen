@@ -352,7 +352,6 @@ export const AUDIO_PREWARM_MANIFEST: AudioManifestEntry[] = [
   { text: '坨', voiceKind: 'cantonese', usageContext: ['curriculum:tier1:seed'] },
   { text: '酡', voiceKind: 'cantonese', usageContext: ['curriculum:tier1:seed'] },
   { text: '傩', voiceKind: 'cantonese', usageContext: ['curriculum:tier1:seed'] },
-  { text: '疴', voiceKind: 'cantonese', usageContext: ['curriculum:tier1:seed'] },
   { text: '嵯', voiceKind: 'cantonese', usageContext: ['curriculum:tier1:seed'] },
   { text: '矬', voiceKind: 'cantonese', usageContext: ['curriculum:tier1:seed'] },
 
@@ -400,7 +399,6 @@ export const AUDIO_PREWARM_MANIFEST: AudioManifestEntry[] = [
   { text: '坨', voiceKind: 'mandarin', usageContext: ['curriculum:tier1:seed'] },
   { text: '酡', voiceKind: 'mandarin', usageContext: ['curriculum:tier1:seed'] },
   { text: '傩', voiceKind: 'mandarin', usageContext: ['curriculum:tier1:seed'] },
-  { text: '疴', voiceKind: 'mandarin', usageContext: ['curriculum:tier1:seed'] },
   { text: '嵯', voiceKind: 'mandarin', usageContext: ['curriculum:tier1:seed'] },
   { text: '矬', voiceKind: 'mandarin', usageContext: ['curriculum:tier1:seed'] },
 

@@ -177,7 +177,7 @@ export const TIER1_SEED_CHARS = [
   { char: '坨', rhymeId: 'xiaping-05-ge', pinyin: 'tuó', jyutping: 'to4', set: 4 },
   { char: '酡', rhymeId: 'xiaping-05-ge', pinyin: 'tuó', jyutping: 'to4', set: 4 },
   { char: '傩', rhymeId: 'xiaping-05-ge', pinyin: 'nuó', jyutping: 'no4', set: 4 },
-  { char: '疴', rhymeId: 'xiaping-05-ge', pinyin: 'kē', jyutping: 'o1', set: 4 },
+
   { char: '嵯', rhymeId: 'xiaping-05-ge', pinyin: 'cuó', jyutping: 'co4', set: 4 },
   { char: '矬', rhymeId: 'xiaping-05-ge', pinyin: 'cuó', jyutping: 'co4', set: 4 },
 ];

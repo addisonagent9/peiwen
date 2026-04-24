@@ -445,7 +445,6 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
       { char: '坨', pinyin: 'tuó', jyutping: 'to4', set: 4, showMandarinAudio: true },
       { char: '酡', pinyin: 'tuó', jyutping: 'to4', set: 4, showMandarinAudio: true },
       { char: '傩', pinyin: 'nuó', jyutping: 'no4', set: 4, showMandarinAudio: true },
-      { char: '疴', pinyin: 'kē', jyutping: 'o1', set: 4, showMandarinAudio: true },
       { char: '嵯', pinyin: 'cuó', jyutping: 'co4', set: 4, showMandarinAudio: true },
       { char: '矬', pinyin: 'cuó', jyutping: 'co4', set: 4, showMandarinAudio: true },
     ],

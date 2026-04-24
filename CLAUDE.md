@@ -939,11 +939,15 @@ wrong). Other drills use the new `drill_sessions` table.
 ### State of play
 
 **Shipped:**
-- Tier 1 Drill 1 (Recognition). 166 chars across 5 rhymes, graded
+- Tier 1 Drill 1 (Recognition). 165 chars across 5 rhymes, graded
   Sets 1–4, interleaved, Cantonese + flagged Mandarin TTS.
 - Interleave templates (5/10/20).
 - Audio review admin dashboard.
 - Trainer home with locked tier 2/3 display.
+- Trainer foundation (`0c0442c`): data model (drill_sessions,
+  tier_drill_unlocks, tier_unlocks), unlock system, admin unlock-all
+  override, two-bar layout, 4 drill cards per tier view.
+- §15 pedagogy canon (`346bf6f`): full 3-tier × 4-drill design doc.
 
 **Next build order** (one drill at a time, deploy + verify + iterate):
 
@@ -962,15 +966,15 @@ paths, reusing the infrastructure built during Tier 1.
 
 ### Parallel cleanup tickets (non-blocking)
 
-- Drop 疴 from curriculum (both Cantonese TTS voices mispronounce it,
-  char rare enough to lose painlessly). Purge orphan clips 520/567 from
-  DB.
-- Delete `src/config/trainer-beta.ts` (dead code since commit `c1005ef`
-  replaced `isTrainerBetaUser` with `hasPremiumAccess`).
+- ✅ Drop 疴 from curriculum — done. Orphan clips 520/567 remain in DB
+  (harmless, can be purged manually via admin).
+- ✅ Delete `src/config/trainer-beta.ts` — done. Dead code since `c1005ef`.
 - Audio Review Library perf fix: once pending queue is empty, approved
   list needs pagination or list-collapse. Plan: last 50 approved stay
   as cards, rest collapse to clickable list items to prevent browser
   bloat when Tier 2's ~600 clips ship.
+- Revert manual `.env` TRAINER_BETA_USER_IDS edit on VPS — pending
+  (user will handle; not a code change).
 
 ### Relevant files
 
