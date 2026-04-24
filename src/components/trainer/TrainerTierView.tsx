@@ -131,16 +131,6 @@ export const TrainerTierView: React.FC<TrainerTierViewProps> = ({
             );
           })}
 
-          {/* Tier-scoped drill button */}
-          {onStartDrill && (
-            <button
-              onClick={() => onStartDrill(1)}
-              className="w-full py-3 border border-ink-line text-cream font-serif tracking-wider rounded hover:border-cream/40 hover:bg-cream/5 transition-colors"
-            >
-              {strings.drillTierScoped}
-            </button>
-          )}
-
           {/* Drill cards */}
           <div className="space-y-2">
             {drillCards.map(({ num, title }) => {
