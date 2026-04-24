@@ -200,16 +200,25 @@ const RecallCard: React.FC<{
           }
 
           return (
-            <button
+            <div
               key={tile.char}
+              role="button"
+              tabIndex={cardPhase === 'picking' ? 0 : -1}
+              aria-disabled={cardPhase === 'revealed'}
               onClick={() => toggleTile(tile.char)}
-              disabled={cardPhase === 'revealed'}
-              className={`relative border rounded-lg p-2 flex flex-col items-center gap-1 transition-colors ${tileStyle}`}
+              onKeyDown={(e) => {
+                if (cardPhase !== 'picking') return;
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleTile(tile.char); }
+              }}
+              className={`relative border rounded-lg p-2 flex flex-col items-center gap-1 transition-colors ${
+                cardPhase === 'picking' ? 'cursor-pointer' : 'cursor-default'
+              } ${tileStyle}`}
             >
               {icon && <span className="absolute top-1 left-1">{icon}</span>}
               <span className="font-serif text-cream text-2xl">{tile.char}</span>
               {cantoneseAvailable && (
                 <button
+                  type="button"
                   onClick={(e) => { e.stopPropagation(); audio.play(tile.char, 'cantonese'); }}
                   className="absolute bottom-1 right-1 w-5 h-5 flex items-center justify-center rounded-full border border-ink-line/50 text-creamDim/50 hover:text-cream text-[8px]"
                   aria-label={`Play ${tile.char}`}
@@ -219,7 +228,7 @@ const RecallCard: React.FC<{
                   </svg>
                 </button>
               )}
-            </button>
+            </div>
           );
         })}
       </div>
