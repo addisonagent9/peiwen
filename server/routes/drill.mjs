@@ -2,8 +2,8 @@
  * Drill routes — GET /status, GET /queue, POST /response
  * Mounted at /api/trainer/drill
  *
- * No SRS scheduling. All chars always available; drill picks N random
- * from the tier pool. correct_count/wrong_count tracked for analytics.
+ * No SRS scheduling. All chars always available. Interleaved difficulty
+ * sets for pedagogically effective drilling.
  */
 
 import express from 'express';
@@ -21,6 +21,63 @@ function shuffle(arr) {
 function pickDistractors(correctRhymeId, count = 3) {
   const others = TIER1_RHYME_IDS.filter(id => id !== correctRhymeId);
   return shuffle(others).slice(0, count);
+}
+
+const INTERLEAVE_TEMPLATES = {
+  5:  [1, 1, 2, 1, 3],
+  10: [1, 1, 2, 1, 3, 2, 1, 4, 3, 2],
+  20: [1, 1, 2, 1, 3, 2, 1, 4, 3, 2, 1, 1, 2, 3, 2, 4, 3, 2, 1, 3],
+};
+
+function buildInterleaveTemplate(size) {
+  if (INTERLEAVE_TEMPLATES[size]) return INTERLEAVE_TEMPLATES[size];
+  if (size >= 50) {
+    const t10 = INTERLEAVE_TEMPLATES[10];
+    const result = [];
+    for (let i = 0; i < Math.ceil(size / 10); i++) {
+      result.push(...t10);
+    }
+    return result.slice(0, size);
+  }
+  return INTERLEAVE_TEMPLATES[10].slice(0, size);
+}
+
+function buildInterleavedQueue(pool, limit) {
+  const template = buildInterleaveTemplate(limit);
+  const bySet = { 1: [], 2: [], 3: [], 4: [] };
+  for (const c of shuffle(pool)) {
+    if (bySet[c.set]) bySet[c.set].push(c);
+  }
+
+  const picked = new Set();
+  const result = [];
+
+  for (const targetSet of template) {
+    if (result.length >= limit) break;
+    let char = null;
+    for (let s = targetSet; s >= 1; s--) {
+      const idx = bySet[s]?.findIndex(c => !picked.has(c.char));
+      if (idx !== undefined && idx >= 0) {
+        char = bySet[s].splice(idx, 1)[0];
+        break;
+      }
+    }
+    if (!char) {
+      for (let s = targetSet + 1; s <= 4; s++) {
+        const idx = bySet[s]?.findIndex(c => !picked.has(c.char));
+        if (idx !== undefined && idx >= 0) {
+          char = bySet[s].splice(idx, 1)[0];
+          break;
+        }
+      }
+    }
+    if (char) {
+      picked.add(char.char);
+      result.push(char);
+    }
+  }
+
+  return result;
 }
 
 export function createDrillRouter(db, composedGate) {
@@ -70,9 +127,10 @@ export function createDrillRouter(db, composedGate) {
       // scope param accepted for future tier expansion; currently only Tier 1 exists
       const seedPool = TIER1_SEED_CHARS;
       const limit = Math.min(seedPool.length, Math.max(1, parseInt(req.query.limit) || 10));
-      const pool = shuffle(seedPool).slice(0, limit);
 
-      const items = pool.map(seed => ({
+      const selected = buildInterleavedQueue(seedPool, limit);
+
+      const items = selected.map(seed => ({
         type: 'char-to-rhyme',
         text: seed.char,
         rhymeId: seed.rhymeId,
