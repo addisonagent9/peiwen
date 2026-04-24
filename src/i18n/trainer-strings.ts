@@ -58,6 +58,15 @@ export interface TrainerStrings {
   rhymeDetailStartDrill: string;
   rhymeDetailNoPoem: string;
 
+  // Drill cards in tier view
+  drillCard1Title: string;
+  drillCard2Title: string;
+  drillCard3Title: string;
+  drillCard4Title: string;
+  drillComingSoon: string;
+  drillTierScoped: string;
+  drillGlobal: string;
+
   // Drill session
   drillSessionTitle: string;
   drillPromptCharToRhyme: string;
@@ -147,6 +156,14 @@ const zhHans: TrainerStrings = {
   rhymeDetailStartDrill: '开始练习',
   rhymeDetailNoPoem: '这一韵的代表诗正在准备中。',
 
+  drillCard1Title: '第一练: 识韵 (字→韵部)',
+  drillCard2Title: '第二练: 回韵 (韵部→字)',
+  drillCard3Title: '第三练: 辨韵 (对比)',
+  drillCard4Title: '第四练: 应用 (诗韵)',
+  drillComingSoon: '即将推出',
+  drillTierScoped: '开始本层练习',
+  drillGlobal: '开始综合练习',
+
   drillSessionTitle: '练习 — 字→韵部',
   drillPromptCharToRhyme: '这个字属于哪个韵?',
   drillStats: (drilled, total) => `已练习 ${drilled} / ${total}`,
@@ -232,6 +249,14 @@ const zhHant: TrainerStrings = {
   rhymeDetailStartDrill: '開始練習',
   rhymeDetailNoPoem: '這一韻的代表詩正在準備中。',
 
+  drillCard1Title: '第一練: 識韻 (字→韻部)',
+  drillCard2Title: '第二練: 回韻 (韻部→字)',
+  drillCard3Title: '第三練: 辨韻 (對比)',
+  drillCard4Title: '第四練: 應用 (詩韻)',
+  drillComingSoon: '即將推出',
+  drillTierScoped: '開始本層練習',
+  drillGlobal: '開始綜合練習',
+
   drillSessionTitle: '練習 — 字→韻部',
   drillPromptCharToRhyme: '這個字屬於哪個韻?',
   drillStats: (drilled, total) => `已練習 ${drilled} / ${total}`,
@@ -316,6 +341,14 @@ const enBilingual: TrainerStrings = {
   rhymeDetailMnemonic: 'Memory aid',
   rhymeDetailStartDrill: 'Start drill',
   rhymeDetailNoPoem: 'Anchor poem coming soon.',
+
+  drillCard1Title: 'Drill 1: Recognition (Char → Rhyme)',
+  drillCard2Title: 'Drill 2: Recall (Rhyme → Char)',
+  drillCard3Title: 'Drill 3: Discrimination (Pair)',
+  drillCard4Title: 'Drill 4: Application (Poem)',
+  drillComingSoon: 'Coming soon',
+  drillTierScoped: 'Start tier drill',
+  drillGlobal: 'Start combined drill',
 
   drillSessionTitle: 'Drill — Char → Rhyme',
   drillPromptCharToRhyme: 'Which rhyme does this belong to?',

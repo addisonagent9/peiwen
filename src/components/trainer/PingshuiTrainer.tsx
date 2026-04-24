@@ -69,8 +69,16 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
   const [selectedTier, setSelectedTier] = useState<RhymeTier>(1);
   const [selectedRhymeId, setSelectedRhymeId] = useState<string | null>(null);
   const [drillScope, setDrillScope] = useState<'tier1' | 'all'>('all');
+  const [unlocks, setUnlocks] = useState<{ tiers: number[]; drills: Array<{ tier: number; drillNumber: number }>; sessionCounts: Record<string, number> } | null>(null);
 
-  // Load initial state + due count
+  const refreshUnlocks = () => {
+    fetch('/api/trainer/drill/unlocks', { credentials: 'include' })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data) setUnlocks(data); })
+      .catch(() => {});
+  };
+
+  // Load initial state
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -80,6 +88,7 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
         if (cancelled) return;
         setState(st);
         setError(null);
+        refreshUnlocks();
       } catch (e) {
         if (!cancelled) {
           setError(e instanceof Error ? e.message : 'UNKNOWN');
@@ -163,6 +172,7 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
             strings={strings}
             state={state}
             userName={userName}
+            unlockedTiers={unlocks?.tiers}
             onStartFoundation={() => setSubView('foundation')}
             onOpenTier={(tier) => {
               setSelectedTier(tier);
@@ -196,6 +206,8 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
               setSubView('detail');
             }}
             onStartDrill={() => { setDrillScope('tier1'); setSubView('drill'); }}
+            unlockedDrills={unlocks?.drills}
+            sessionCounts={unlocks?.sessionCounts}
           />
         )}
 
@@ -212,6 +224,7 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
             strings={strings}
             scope={drillScope}
             onExit={goHome}
+            onSessionComplete={refreshUnlocks}
           />
         )}
 

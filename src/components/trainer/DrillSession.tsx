@@ -9,12 +9,14 @@ interface DrillSessionProps {
   strings: TrainerStrings;
   scope?: 'tier1' | 'all';
   onExit: () => void;
+  onSessionComplete?: () => void;
 }
 
 export const DrillSession: React.FC<DrillSessionProps> = ({
   strings,
   scope = 'all',
   onExit,
+  onSessionComplete,
 }) => {
   const [phase, setPhase] = useState<Phase>('start');
   const [totalDrilled, setTotalDrilled] = useState<number | null>(null);
@@ -80,6 +82,15 @@ export const DrillSession: React.FC<DrillSessionProps> = ({
     setResults(prev => [...prev, correct]);
 
     if (currentIndex + 1 >= items.length) {
+      const allResults = [...results, correct];
+      const cCount = allResults.filter(Boolean).length;
+      const wCount = allResults.length - cCount;
+      fetch('/api/trainer/drill/session-complete', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ tier: 1, drillNumber: 1, size: allResults.length, correctCount: cCount, wrongCount: wCount }),
+      }).then(() => { onSessionComplete?.(); }).catch(() => {});
       setPhase('summary');
     } else {
       setCurrentIndex(i => i + 1);

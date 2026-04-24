@@ -130,6 +130,27 @@ export default function AdminConsole({ locale, onBack }: AdminConsoleProps) {
     }
   }
 
+  async function unlockAllTrainer(user: AdminUser) {
+    if (!confirm(`确定要为 ${user.name || user.email} 解锁所有训练内容?`)) return;
+    setToggleLoading(user.id);
+    try {
+      const res = await fetch(`/api/admin/users/${encodeURIComponent(user.id)}/unlock-all-trainer`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        alert(body.error || `HTTP ${res.status}`);
+        return;
+      }
+      alert('已解锁');
+    } catch (err) {
+      alert(`操作失败: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setToggleLoading(null);
+    }
+  }
+
   async function toggleAdmin(user: AdminUser) {
     const newVal = user.is_admin === 1 ? 0 : 1;
     const action = newVal === 1 ? '设为管理员' : '撤销管理员';
@@ -392,6 +413,14 @@ export default function AdminConsole({ locale, onBack }: AdminConsoleProps) {
                             {toggleLoading === u.id ? '...' : u.is_premium === 1 ? 'Premium ✕' : '设为 Premium'}
                           </button>
                         )}
+                        {/* Unlock all trainer */}
+                        <button
+                          onClick={() => unlockAllTrainer(u)}
+                          disabled={toggleLoading === u.id}
+                          className="text-xs px-2 py-0.5 rounded border border-ink-line text-creamDim hover:text-cream hover:border-cream/40 transition-colors disabled:opacity-50"
+                        >
+                          {toggleLoading === u.id ? '...' : '解锁训练'}
+                        </button>
                       </div>
                     </td>
                   </tr>

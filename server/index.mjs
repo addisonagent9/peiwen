@@ -239,6 +239,15 @@ app.get("/api/admin/users/:id/poems", requireAdmin, (req, res) => {
   res.json({ user, poems });
 });
 
+app.post("/api/admin/users/:id/unlock-all-trainer", requireAdmin, async (req, res) => {
+  const { adminUnlockAll, getUnlockStatus } = await import('./trainer/unlocks.mjs');
+  const targetId = req.params.id;
+  const user = db.prepare("SELECT id FROM users WHERE id = ?").get(targetId);
+  if (!user) return res.status(404).json({ error: "USER_NOT_FOUND" });
+  adminUnlockAll(db, targetId);
+  res.json({ ok: true, unlocks: getUnlockStatus(db, targetId) });
+});
+
 // --- Trainer routes (beta-gated) ---
 mountTrainer(app, db, requireAuth, { betaGate: requireTrainerBeta });
 console.log(`[trainer] beta gate: ${describeTrainerGate()}`);

@@ -8,6 +8,7 @@
 
 import express from 'express';
 import { TIER1_SEED_CHARS, TIER1_RHYME_IDS } from '../data/tier1-seed-chars.mjs';
+import { getUnlockStatus, recordDrillCompletion, getDrillSessionCount } from '../trainer/unlocks.mjs';
 
 function shuffle(arr) {
   const a = [...arr];
@@ -167,6 +168,45 @@ export function createDrillRouter(db, composedGate) {
       sUpsert.run(userId, text, seed.rhymeId, correctCount, wrongCount);
 
       res.json({ ok: true, correctCount, wrongCount });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // GET /unlocks
+  router.get('/unlocks', composedGate, (req, res, next) => {
+    try {
+      const userId = req.user.id;
+      const status = getUnlockStatus(db, userId);
+      const sessionCounts = {};
+      for (const d of status.drills) {
+        const key = `${d.tier}-${d.drillNumber}`;
+        sessionCounts[key] = getDrillSessionCount(db, userId, d.tier, d.drillNumber);
+      }
+      res.json({ ...status, sessionCounts });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // POST /session-complete
+  router.post('/session-complete', composedGate, express.json(), (req, res, next) => {
+    try {
+      const userId = req.user.id;
+      const { tier, drillNumber, size, correctCount, wrongCount } = req.body ?? {};
+
+      if (!tier || !drillNumber || !size) {
+        return res.status(400).json({ error: 'INVALID_BODY' });
+      }
+
+      recordDrillCompletion(db, userId, tier, drillNumber, {
+        size,
+        correctCount: correctCount ?? 0,
+        wrongCount: wrongCount ?? 0,
+      });
+
+      const status = getUnlockStatus(db, userId);
+      res.json({ ok: true, unlocks: status });
     } catch (err) {
       next(err);
     }

@@ -1,12 +1,8 @@
 /**
  * TrainerTierView — browse all rhymes within a single tier.
  *
- * For Tier 2 especially, rhymes are shown grouped by family (e.g. the
- * -en triple: 真/文/元). This is a deliberate pedagogical choice: grouping
- * confusables visually teaches the learner to expect the confusion.
- *
- * Family groups are rendered as a subtle vertical rule on the left with a
- * family label above. Non-grouped tier 1 rhymes render as a simple list.
+ * Shows rhymes grouped by family, a tier-scoped drill button, and
+ * 4 drill cards with lock/check states based on unlock status.
  */
 
 import React, { useMemo } from 'react';
@@ -17,12 +13,19 @@ import {
   rhymesByTier,
 } from '../../data/pingshui/trainer-curriculum';
 
+export interface DrillUnlockInfo {
+  tier: number;
+  drillNumber: number;
+}
+
 export interface TrainerTierViewProps {
   strings: TrainerStrings;
   tier: RhymeTier;
   unlockedTier: RhymeTier;
   onSelectRhyme: (rhymeId: string) => void;
-  onStartDrill?: () => void;
+  onStartDrill?: (drillNumber?: number) => void;
+  unlockedDrills?: DrillUnlockInfo[];
+  sessionCounts?: Record<string, number>;
 }
 
 export const TrainerTierView: React.FC<TrainerTierViewProps> = ({
@@ -31,9 +34,9 @@ export const TrainerTierView: React.FC<TrainerTierViewProps> = ({
   unlockedTier,
   onSelectRhyme,
   onStartDrill,
+  unlockedDrills = [],
+  sessionCounts = {},
 }) => {
-  // Group rhymes in this tier by family. Preserve family insertion order
-  // so 寒/删/先, 真/文/元 etc. appear together as curated.
   const grouped = useMemo(() => {
     const rhymes = rhymesByTier(tier);
     const byFamily = new Map<string, Rhyme[]>();
@@ -46,6 +49,20 @@ export const TrainerTierView: React.FC<TrainerTierViewProps> = ({
   }, [tier]);
 
   const isUnlocked = tier <= unlockedTier;
+
+  const isDrillUnlocked = (drillNum: number) =>
+    (tier === 1 && drillNum === 1) ||
+    unlockedDrills.some(d => d.tier === tier && d.drillNumber === drillNum);
+
+  const hasDrillSession = (drillNum: number) =>
+    (sessionCounts[`${tier}-${drillNum}`] ?? 0) > 0;
+
+  const drillCards = [
+    { num: 1, title: strings.drillCard1Title },
+    { num: 2, title: strings.drillCard2Title },
+    { num: 3, title: strings.drillCard3Title },
+    { num: 4, title: strings.drillCard4Title },
+  ];
 
   return (
     <div className="space-y-8 pt-6">
@@ -117,12 +134,49 @@ export const TrainerTierView: React.FC<TrainerTierViewProps> = ({
           {/* Tier-scoped drill button */}
           {onStartDrill && (
             <button
-              onClick={onStartDrill}
+              onClick={() => onStartDrill(1)}
               className="w-full py-3 border border-ink-line text-cream font-serif tracking-wider rounded hover:border-cream/40 hover:bg-cream/5 transition-colors"
             >
-              {strings.startDrill}
+              {strings.drillTierScoped}
             </button>
           )}
+
+          {/* Drill cards */}
+          <div className="space-y-2">
+            {drillCards.map(({ num, title }) => {
+              const unlocked = isDrillUnlocked(num);
+              const completed = hasDrillSession(num);
+              return (
+                <button
+                  key={num}
+                  onClick={unlocked && num === 1 && onStartDrill ? () => onStartDrill(1) : undefined}
+                  disabled={!unlocked || num > 1}
+                  className={`w-full text-left py-3 px-4 border rounded-md transition-colors ${
+                    unlocked
+                      ? num === 1
+                        ? 'border-ink-line text-cream hover:bg-cream/5 cursor-pointer'
+                        : 'border-ink-line text-cream cursor-default'
+                      : 'border-ink-line/50 text-creamDim/40 cursor-not-allowed'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {completed && (
+                        <svg width="12" height="12" viewBox="0 0 14 14" aria-hidden className="text-gold shrink-0">
+                          <path d="M3 7 L6 10 L11 4" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
+                      <span className="text-sm font-serif">{title}</span>
+                    </div>
+                    {!unlocked && <LockIcon />}
+                    {unlocked && num > 1 && (
+                      <span className="text-xs text-creamDim/50">{strings.drillComingSoon}</span>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>
@@ -130,7 +184,7 @@ export const TrainerTierView: React.FC<TrainerTierViewProps> = ({
 };
 
 // ---------------------------------------------------------------------------
-// One rhyme row
+// Sub-components
 // ---------------------------------------------------------------------------
 
 const RhymeRow: React.FC<{ rhyme: Rhyme; onClick: () => void }> = ({
@@ -142,11 +196,9 @@ const RhymeRow: React.FC<{ rhyme: Rhyme; onClick: () => void }> = ({
     className="w-full text-left py-3 px-4 border border-ink-line rounded-md hover:bg-cream/5 transition-colors group"
   >
     <div className="flex items-center gap-4">
-      {/* The big 韵目 character */}
       <div className="shrink-0 w-12 h-12 flex items-center justify-center border border-ink-line rounded bg-ink-bg font-serif text-2xl text-cream group-hover:border-gold/50 transition-colors">
         {rhyme.rhymeCharacter}
       </div>
-
       <div className="flex-1 min-w-0">
         <div className="font-serif text-cream text-base">
           {rhyme.label}
@@ -158,23 +210,16 @@ const RhymeRow: React.FC<{ rhyme: Rhyme; onClick: () => void }> = ({
           {rhyme.seedCharacters.slice(0, 6).map(sc => typeof sc === 'string' ? sc : sc.char).join('·')}
         </p>
       </div>
-
-      <svg
-        width="12"
-        height="12"
-        viewBox="0 0 12 12"
-        fill="none"
-        className="shrink-0 text-creamDim group-hover:text-cream transition-colors"
-        aria-hidden
-      >
-        <path
-          d="M4 2 L8 6 L4 10"
-          stroke="currentColor"
-          strokeWidth="1.25"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="shrink-0 text-creamDim group-hover:text-cream transition-colors" aria-hidden>
+        <path d="M4 2 L8 6 L4 10" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     </div>
   </button>
+);
+
+const LockIcon: React.FC = () => (
+  <svg width="12" height="14" viewBox="0 0 12 14" fill="none" aria-hidden className="text-creamDim/40">
+    <rect x="2" y="6" width="8" height="7" rx="1" stroke="currentColor" strokeWidth="1" />
+    <path d="M4 6 V4 Q4 2 6 2 Q8 2 8 4 V6" stroke="currentColor" strokeWidth="1" fill="none" />
+  </svg>
 );

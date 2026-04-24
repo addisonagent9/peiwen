@@ -30,6 +30,7 @@ export interface TrainerHomeProps {
   strings: TrainerStrings;
   state: UserTrainerState;
   userName?: string;
+  unlockedTiers?: number[];
   onStartFoundation: () => void;
   onOpenTier: (tier: RhymeTier) => void;
   onOpenDashboard: () => void;
@@ -40,6 +41,7 @@ export const TrainerHome: React.FC<TrainerHomeProps> = ({
   strings,
   state,
   userName,
+  unlockedTiers = [1],
   onStartFoundation,
   onOpenTier,
   onOpenDashboard,
@@ -131,14 +133,14 @@ export const TrainerHome: React.FC<TrainerHomeProps> = ({
         </div>
       </section>
 
-      {/* Primary CTA — global drill (only after foundation) */}
-      {state.foundationCompleted && onStartDrill && (
+      {/* Primary CTA — global drill (only when 2+ tiers unlocked) */}
+      {state.foundationCompleted && onStartDrill && unlockedTiers.length >= 2 && (
         <section>
           <button
             onClick={onStartDrill}
             className="w-full py-4 bg-emerald-600 text-white font-serif text-lg tracking-wider rounded hover:bg-emerald-700 transition-colors"
           >
-            {strings.startDrill}
+            {strings.drillGlobal}
           </button>
         </section>
       )}
