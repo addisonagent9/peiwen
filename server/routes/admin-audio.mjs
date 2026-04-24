@@ -12,6 +12,7 @@ import fs from 'fs';
 import fsp from 'fs/promises';
 import crypto from 'crypto';
 import { getPrimaryVoice, getNextVoice, VOICE_POOLS } from '../audio/voice-pools.mjs';
+import { TIER1_SEED_CHARS } from '../data/tier1-seed-chars.mjs';
 
 /**
  * @param {object} opts
@@ -105,7 +106,11 @@ export function createAdminAudioRouter({ db, audioService, requireAdmin, cacheDi
         });
       }
 
-      res.json({ items: Array.from(groups.values()) });
+      const items = Array.from(groups.values()).map(item => {
+        const seed = TIER1_SEED_CHARS.find(s => s.char === item.text);
+        return { ...item, pinyin: seed?.pinyin ?? null, jyutping: seed?.jyutping ?? null };
+      });
+      res.json({ items });
     } catch (err) {
       next(err);
     }

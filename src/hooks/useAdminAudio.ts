@@ -4,6 +4,8 @@ interface AudioItem {
   text: string;
   voiceKind: string;
   usageContext: string[];
+  pinyin: string | null;
+  jyutping: string | null;
   clips: AudioClip[];
 }
 

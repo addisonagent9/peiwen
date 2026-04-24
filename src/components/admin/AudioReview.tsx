@@ -198,6 +198,11 @@ export default function AudioReview() {
               <div className="px-4 py-3 border-b border-[#F5F0E8]/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <div className="flex items-center gap-3">
                   <span className="text-xl font-bold">{item.text}</span>
+                  {((item.voiceKind === 'cantonese' && item.jyutping) || (item.voiceKind === 'mandarin' && item.pinyin)) && (
+                    <span className="text-sm text-[#F5F0E8]/50 font-sans">
+                      {item.voiceKind === 'cantonese' ? item.jyutping : item.pinyin}
+                    </span>
+                  )}
                   <span className="text-xs px-2 py-0.5 rounded-full border border-[#F5F0E8]/20 text-[#F5F0E8]/50">
                     {item.voiceKind}
                   </span>
