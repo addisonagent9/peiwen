@@ -80,15 +80,16 @@ if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
     const isAdmin = email === "addison.k@gmail.com" ? 1 : 0;
     const now = new Date().toISOString();
 
-    const existing = db.prepare("SELECT id FROM users WHERE id = ?").get(id);
+    const existing = db.prepare("SELECT id, is_admin, is_premium FROM users WHERE id = ?").get(id);
     if (existing) {
-      db.prepare("UPDATE users SET email = ?, name = ?, avatar = ?, is_premium = ?, is_admin = ?, last_login = ? WHERE id = ?")
-        .run(email, name, avatar, isPremium, isAdmin, now, id);
+      db.prepare("UPDATE users SET email = ?, name = ?, avatar = ?, last_login = ? WHERE id = ?")
+        .run(email, name, avatar, now, id);
+      done(null, { id, email, name, avatar, is_premium: existing.is_premium, is_admin: existing.is_admin, last_login: now });
     } else {
       db.prepare("INSERT INTO users (id, email, name, avatar, is_premium, is_admin, last_login) VALUES (?, ?, ?, ?, ?, ?, ?)")
         .run(id, email, name, avatar, isPremium, isAdmin, now);
+      done(null, { id, email, name, avatar, is_premium: isPremium, is_admin: isAdmin, last_login: now });
     }
-    done(null, { id, email, name, avatar, is_premium: isPremium, is_admin: isAdmin, last_login: now });
   }));
 }
 
