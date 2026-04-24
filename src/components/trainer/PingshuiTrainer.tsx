@@ -164,7 +164,15 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
       <TrainerHeader
         strings={strings}
         subView={subView}
-        onBack={subView === 'home' ? onExit : subView === 'detail' ? () => setSubView('tier') : subView === 'drill-recall' ? goHome : goHome}
+        onBack={
+          subView === 'home' ? onExit
+          : subView === 'tier' ? () => setSubView('home')
+          : subView === 'detail' ? () => setSubView('tier')
+          : subView === 'drill' ? () => setSubView('tier')
+          : subView === 'drill-recall' ? () => setSubView('tier')
+          : subView === 'dashboard' ? () => setSubView('home')
+          : goHome
+        }
         showBack={subView !== 'home' || !!onExit}
       />
 
@@ -232,7 +240,7 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
           <DrillSession
             strings={strings}
             scope={drillScope}
-            onExit={goHome}
+            onExit={() => setSubView('tier')}
             onSessionComplete={refreshUnlocks}
           />
         )}
@@ -241,7 +249,7 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
           <DrillRecallSession
             strings={strings}
             scope={drillScope}
-            onExit={goHome}
+            onExit={() => setSubView('tier')}
             onSessionComplete={refreshUnlocks}
           />
         )}
