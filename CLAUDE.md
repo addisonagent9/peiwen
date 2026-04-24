@@ -738,3 +738,125 @@ so specifically ("that might conflict with X, can you double-check?")
 rather than stonewalling.
 
 You have the context. Go build.
+
+---
+
+## 14. Admin & premium access: three gates, read DB live
+
+### The three gates (check all three when changing access)
+
+The trainer module has THREE independent gates. Missing any of them
+means a user passes one layer and fails another — producing confusing
+symptoms like a visible nav link that 404s when clicked.
+
+1. **Frontend nav link** — `src/App.tsx:355`. Uses `hasPremiumAccess(user)`
+   (returns true for `is_admin === 1 || is_premium === 1`). Hides the
+   韻部訓練 button when false.
+
+2. **Frontend view guard** — `src/App.tsx:477`, same helper. Checked
+   again when `view === "pingshui-trainer"` so unauthorized programmatic
+   access (stale state, devtools) redirects to home.
+
+3. **Backend beta gate** — `server/middleware/trainer-beta.mjs`.
+   `requireTrainerBeta` first bypasses for `is_admin === 1` or
+   `is_premium === 1`. Otherwise reads `TRAINER_BETA_USER_IDS` from
+   `server/.env` and returns **404 (not 403)** for anyone not in the
+   allowlist — the route appears nonexistent. Env var behavior:
+   - **Unset** → gate disabled, all authed users pass
+   - **Set but empty** → nobody passes *except admins/premium*
+   - **Set with IDs** → listed IDs pass, plus admins/premium
+
+   The allowlist is lazy-initialized (parsed on first request, not
+   module load) so dotenv has time to run first. Boot log:
+   `journalctl -u poetry-checker | grep "trainer.*gate"` reports gate
+   status at startup via `describeTrainerGate()`.
+
+   `requireAuth` always runs before `requireTrainerBeta` in the
+   composedGate chain (`server/trainer/index.mjs:39-54`), so
+   `req.user` is guaranteed populated when the beta gate runs.
+
+### 404-instead-of-403 is a debugging trap
+
+If the same URL returns 200 for one authenticated user and 404 for
+another, it is almost certainly a hidden allowlist — not a missing
+route. Check backend middleware before assuming the route is broken
+or the deploy is stale.
+
+### Session state is read live from DB per request
+
+`passport.deserializeUser` in `server/index.mjs:64-66` does a fresh
+SELECT on every request. So `req.user.is_admin` and `req.user.is_premium`
+always reflect current DB state — no logout required after role changes.
+
+One historical bug broke this: the OAuth callback was overwriting
+`is_admin` back to 0 on every login (derived from email). Fixed in
+commit `7631e14` — existing users now preserve their DB flags across
+logins, only NEW signups get email-based defaults (addison.k@gmail.com
+→ admin+premium, all others → 0). See `server/index.mjs:83-92`.
+
+### DB and .env file locations on VPS
+
+- App DB: `/var/www/pw.truesolartime.com/server/data.db`
+  — users, poems, audio_clips, srs_state, etc.
+  Code uses `path.join(__dirname, "data.db")` so the path is relative
+  to `server/` working directory.
+- Session DB: `/var/www/pw.truesolartime.com/server/sessions.db`
+  — separate file managed by `connect-sqlite3`
+- `.env`: `/var/www/pw.truesolartime.com/server/.env`
+  — loaded by `dotenv.config()` in `server/index.mjs:19` at startup,
+  NOT by systemd `EnvironmentFile`. Service restart is still required
+  after `.env` edits because dotenv runs once at process start.
+
+### Editing .env on the VPS
+
+Typing `FOO=bar` at the shell prompt sets that shell's environment —
+it does NOT append to `.env`, and the Node process does not see it.
+The service reads `.env` on startup only.
+
+Correct pattern for a key that already exists:
+
+    # VPS
+    sudo sed -i 's/^KEY_NAME=.*/KEY_NAME=newvalue/' /var/www/pw.truesolartime.com/server/.env
+    grep KEY_NAME /var/www/pw.truesolartime.com/server/.env   # verify
+    sudo systemctl restart poetry-checker
+
+Correct pattern for appending a new key:
+
+    # VPS
+    echo 'NEW_KEY=value' | sudo tee -a /var/www/pw.truesolartime.com/server/.env
+    sudo systemctl restart poetry-checker
+
+Always `grep` to confirm the file actually changed before restarting.
+
+### Cache-busting after deploy
+
+When verifying a deploy, append a query string to force a fresh HTML
+fetch: `https://pw.truesolartime.com/?v=<feature-name>`. Without this,
+the browser may serve cached HTML pointing to an old bundle hash —
+making a successful deploy look like it failed. JS/CSS bundles are
+hash-named (e.g. `poetry-checker.51e49383.js`) so they're safe to
+long-cache; only the HTML layer caches problematically.
+
+### Debugging checklist — "new admin/user can't access X"
+
+In order, fastest to slowest:
+
+1. Cache-bust browser: open `?v=check` — rules out stale HTML
+2. In the affected user's console, run
+   `fetch('/api/auth/me',{credentials:'include'}).then(r=>r.json())`
+   — confirms their session sees is_admin / is_premium correctly
+3. Try the failing API call directly from their console — if they
+   get 404 where others get 200, it's a hidden allowlist, not a
+   missing route
+4. On VPS: `sqlite3 server/data.db "SELECT id,email,is_admin,is_premium FROM users;"`
+   — confirm DB truth for that user
+5. Grep middleware: `grep -rn "req.user" server/middleware/ server/routes/`
+   — enumerate every gate
+
+### Relevant commits
+
+- `73db241` — admin toggle UI + PATCH /api/admin/users/:id
+- `7631e14` — OAuth callback preserves is_admin/is_premium on login
+- `cec3abe` — `hasPremiumAccess` helper + premium toggle in admin UI
+- `c1005ef` — 韻部訓練 nav + view guard use `hasPremiumAccess`
+- `af49416` — `requireTrainerBeta` bypasses for admins/premium
