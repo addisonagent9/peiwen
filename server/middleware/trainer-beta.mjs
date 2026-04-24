@@ -43,6 +43,10 @@ function getAllowlist() {
 }
 
 export const requireTrainerBeta = (req, res, next) => {
+  if (req.user?.is_admin === 1 || req.user?.is_premium === 1) {
+    return next();
+  }
+
   const { enabled, ids } = getAllowlist();
   if (!enabled) {
     // Gate disabled (env var unset) — pass through. Full launch mode.
