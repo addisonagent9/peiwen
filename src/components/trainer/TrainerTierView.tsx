@@ -144,8 +144,8 @@ export const TrainerTierView: React.FC<TrainerTierViewProps> = ({
                   className={`w-full text-left py-3 px-4 border rounded-md transition-colors ${
                     unlocked
                       ? num <= 2
-                        ? 'border-ink-line text-cream hover:bg-cream/5 cursor-pointer'
-                        : 'border-ink-line text-cream cursor-default'
+                        ? 'border-emerald-600/40 bg-emerald-600/10 text-cream hover:bg-emerald-600/20 cursor-pointer'
+                        : 'border-emerald-600/20 bg-emerald-600/5 text-cream/70 cursor-default'
                       : 'border-ink-line/50 text-creamDim/40 cursor-not-allowed'
                   }`}
                 >
