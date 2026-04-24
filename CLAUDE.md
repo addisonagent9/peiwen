@@ -860,3 +860,127 @@ In order, fastest to slowest:
 - `cec3abe` — `hasPremiumAccess` helper + premium toggle in admin UI
 - `c1005ef` — 韻部訓練 nav + view guard use `hasPremiumAccess`
 - `af49416` — `requireTrainerBeta` bypasses for admins/premium
+
+---
+
+## 15. Trainer pedagogy canon
+
+### The 4 drills (same definitions across all tiers)
+
+**Drill 1 — 字→韵部 Recognition.** Show a character, pick its 韵部 from
+4 options. Flashcard format. Sets 1–4 grade by character rarity.
+*(Skill: "I recognize this char's category.")*
+
+**Drill 2 — 韵部→字 Recall.** Show a 韵部 label + 8 characters. Learner
+picks the 4 that belong to that 韵部. Distractors drawn from other tier
+rhymes (Tier 1 distractors are safe by design; Tier 2 distractors are
+within-family and cruel). Sets 1–4 grade by char rarity among the 4
+correct answers.
+*(Skill: "I can produce chars from this category.")*
+
+**Drill 3 — 辨韵 Discrimination.** Show two characters side by side,
+binary: "do these rhyme in 平水韵?" Within-family pairs in Tier 2 are
+the pedagogical core — 一东 vs 二冬 has no fair way to be guessed and
+must be memorized. Wrong answer surfaces the family grouping,
+teachingNote, mnemonic, and anchor poem link from `trainer-curriculum.ts`
+(currently unused data, activated here). Sets 1–4 grade by pair
+confusability.
+*(Skill: "I know where category boundaries lie.")*
+
+**Drill 4 — 押韵应用 Application.** Real Tang poem with rhyme position
+blanked. Learner picks correct char from 4 options: 1 real, 3 distractors
+that rhyme in modern Mandarin but are 出韵 in 平水韵. Wrong answer shows
+both 韵部 and why the distractor is a trap. **10 seed poems per tier**
+hardcoded, plus admin dashboard to generate more. Sets 1–4 grade by
+distractor plausibility (how convincingly Mandarin-rhymes it is).
+*(Skill: "I can apply this in composition.")*
+
+### Gates — low barriers, self-paced
+
+- **Between drills within a tier**: learner completes Drill N once (any
+  accuracy) → Drill N+1 unlocks. No threshold. No repetition requirement.
+  The rationale is self-pacing for advanced learners who already know
+  what they're doing.
+- **Between tiers**: learner completes Drill 4 of Tier N once → Tier N+1
+  unlocks.
+- **Admin override**: admin console has "Unlock all for user X" that
+  bypasses gates entirely. Used for self-learning and dogfooding new
+  tier content before the previous tier is mastered.
+
+### Two "开始练习" bars
+
+Once multiple tiers are unlocked, two session-start entry points:
+
+- **Green bar** (trainer home) — "开始综合练习". Pulls chars from ALL
+  unlocked tiers, interleaved via Bjork template across the global pool.
+  Active only after Tier 2 Drill 1 is unlocked; before that it's
+  identical to the tier-scoped bar so it's hidden.
+- **Plain bar** (inside each tier view) — "开始本层练习". Scoped to the
+  current tier only. Shortcut for that tier's Drill 1.
+
+Inside each tier view, 4 drill cards (Drill 1 / 2 / 3 / 4) render with
+lock icons for drills not yet unlocked.
+
+### Data model (target state)
+
+- `drill_sessions` — per completed session: user_id, tier, drill_number,
+  rhyme_id (nullable for cross-rhyme drills), size, correct_count,
+  wrong_count, completed_at.
+- `tier_drill_unlocks` — user_id, tier, drill_number, unlocked_at. Set
+  when user finishes the previous drill once.
+- `tier_unlocks` — user_id, tier, unlocked_at. Set when user finishes
+  Drill 4 of previous tier once.
+- `drill4_poems` — admin-created poems supplementing the hardcoded 10
+  seed poems per tier. Runtime reads both and merges.
+
+Existing `srs_state` table stays as-is (tracks Drill 1 per-char correct/
+wrong). Other drills use the new `drill_sessions` table.
+
+### State of play
+
+**Shipped:**
+- Tier 1 Drill 1 (Recognition). 166 chars across 5 rhymes, graded
+  Sets 1–4, interleaved, Cantonese + flagged Mandarin TTS.
+- Interleave templates (5/10/20).
+- Audio review admin dashboard.
+- Trainer home with locked tier 2/3 display.
+
+**Next build order** (one drill at a time, deploy + verify + iterate):
+
+1. **Tier 1 Drill 2** — 韵部→字 Recall (8 chars, pick 4)
+2. **Tier 1 Drill 3** — 辨韵 Discrimination (pair judgment)
+3. **Tier 1 Drill 4** — 押韵应用 Application (10 seed poems +
+   dashboard generator)
+4. **Tier 2 Drill 1** — 字→韵部 Recognition for Tier 2 chars. Requires
+   preparatory phase: fix Tier 2 char pool, grade Sets 1–4, queue TTS
+   batch, run audio review. This phase may take longer than the drill
+   code itself. Unlocked early for admin self-learning to activate the
+   green bar.
+
+**Subsequent**: Tier 2 Drills 2/3/4 → Tier 3 Drills 1/2/3/4. Same code
+paths, reusing the infrastructure built during Tier 1.
+
+### Parallel cleanup tickets (non-blocking)
+
+- Drop 疴 from curriculum (both Cantonese TTS voices mispronounce it,
+  char rare enough to lose painlessly). Purge orphan clips 520/567 from
+  DB.
+- Delete `src/config/trainer-beta.ts` (dead code since commit `c1005ef`
+  replaced `isTrainerBetaUser` with `hasPremiumAccess`).
+- Audio Review Library perf fix: once pending queue is empty, approved
+  list needs pagination or list-collapse. Plan: last 50 approved stay
+  as cards, rest collapse to clickable list items to prevent browser
+  bloat when Tier 2's ~600 clips ship.
+
+### Relevant files
+
+- `src/data/pingshui/trainer-curriculum.ts` — 3-tier, 30-rhyme curriculum.
+  Families, teaching notes, mnemonics, anchor poems all live here.
+- `src/components/trainer/` — all trainer UI components.
+- `server/routes/drill.mjs` — drill queue/response endpoints, interleave
+  templates.
+- `server/data/tier1-seed-chars.mjs` — flat char array mirroring
+  seedCharacters, with rhymeId + set fields for the drill API.
+- `server/trainer/index.mjs` — mounts trainer routes, composedGate.
+- `server/middleware/trainer-beta.mjs` — beta allowlist (bypasses for
+  admins/premium per commit `af49416`).
