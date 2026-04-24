@@ -35,6 +35,10 @@ interface User {
   last_login: string | null;
 }
 
+export function hasPremiumAccess(user: User | null): boolean {
+  return user?.is_admin === 1 || user?.is_premium === 1;
+}
+
 interface SavedPoem {
   id: number;
   text: string;

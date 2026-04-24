@@ -103,6 +103,33 @@ export default function AdminConsole({ locale, onBack }: AdminConsoleProps) {
     }
   }
 
+  async function togglePremium(user: AdminUser) {
+    const newVal = user.is_premium === 1 ? 0 : 1;
+    const action = newVal === 1 ? '设为 Premium' : '撤销 Premium';
+    if (!confirm(`确定要将 ${user.name || user.email} ${action}?`)) return;
+
+    setToggleLoading(user.id);
+    try {
+      const res = await fetch(`/api/admin/users/${encodeURIComponent(user.id)}`, {
+        method: 'PATCH',
+        headers: { 'content-type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ is_premium: newVal }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        alert(body.error || `HTTP ${res.status}`);
+        return;
+      }
+      const { user: updated } = await res.json();
+      setUsers(prev => prev ? prev.map(u => u.id === updated.id ? updated : u) : prev);
+    } catch (err) {
+      alert(`操作失败: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setToggleLoading(null);
+    }
+  }
+
   async function toggleAdmin(user: AdminUser) {
     const newVal = user.is_admin === 1 ? 0 : 1;
     const action = newVal === 1 ? '设为管理员' : '撤销管理员';
@@ -304,7 +331,7 @@ export default function AdminConsole({ locale, onBack }: AdminConsoleProps) {
                       align="right"
                       onClick={() => toggleSort("poem_count")} />
                   </th>
-                  <th className="text-right py-2">角色</th>
+                  <th className="text-right py-2">权限</th>
                 </tr>
               </thead>
               <tbody>
@@ -328,21 +355,44 @@ export default function AdminConsole({ locale, onBack }: AdminConsoleProps) {
                       {u.poem_count}
                     </td>
                     <td className="py-2 text-right" onClick={e => e.stopPropagation()}>
-                      {String(u.id) === currentUserId ? (
-                        <span className="text-xs text-gold px-2 py-0.5 rounded border border-gold/30 bg-gold/10">管理员</span>
-                      ) : (
-                        <button
-                          onClick={() => toggleAdmin(u)}
-                          disabled={toggleLoading === u.id}
-                          className={`text-xs px-2 py-0.5 rounded border transition-colors disabled:opacity-50 ${
-                            u.is_admin === 1
-                              ? 'text-gold border-gold/30 bg-gold/10 hover:bg-gold/20'
-                              : 'text-creamDim border-ink-line hover:text-cream hover:border-cream/40'
-                          }`}
-                        >
-                          {toggleLoading === u.id ? '...' : u.is_admin === 1 ? '管理员 ✕' : '设为管理员'}
-                        </button>
-                      )}
+                      <div className="flex items-center justify-end gap-1.5">
+                        {/* Admin toggle */}
+                        {String(u.id) === currentUserId ? (
+                          <span className="text-xs text-gold px-2 py-0.5 rounded border border-gold/30 bg-gold/10">管理员</span>
+                        ) : (
+                          <button
+                            onClick={() => toggleAdmin(u)}
+                            disabled={toggleLoading === u.id}
+                            className={`text-xs px-2 py-0.5 rounded border transition-colors disabled:opacity-50 ${
+                              u.is_admin === 1
+                                ? 'text-gold border-gold/30 bg-gold/10 hover:bg-gold/20'
+                                : 'text-creamDim border-ink-line hover:text-cream hover:border-cream/40'
+                            }`}
+                          >
+                            {toggleLoading === u.id ? '...' : u.is_admin === 1 ? '管理员 ✕' : '设为管理员'}
+                          </button>
+                        )}
+                        {/* Premium toggle — static badge for admins (admin implies premium) */}
+                        {u.is_admin === 1 ? (
+                          <span className="text-xs text-teal px-2 py-0.5 rounded border border-teal/30 bg-teal/10" title="管理员自动享有 Premium 权限">Premium</span>
+                        ) : String(u.id) === currentUserId ? (
+                          u.is_premium === 1 ? (
+                            <span className="text-xs text-teal px-2 py-0.5 rounded border border-teal/30 bg-teal/10">Premium</span>
+                          ) : null
+                        ) : (
+                          <button
+                            onClick={() => togglePremium(u)}
+                            disabled={toggleLoading === u.id}
+                            className={`text-xs px-2 py-0.5 rounded border transition-colors disabled:opacity-50 ${
+                              u.is_premium === 1
+                                ? 'text-teal border-teal/30 bg-teal/10 hover:bg-teal/20'
+                                : 'text-creamDim border-ink-line hover:text-cream hover:border-cream/40'
+                            }`}
+                          >
+                            {toggleLoading === u.id ? '...' : u.is_premium === 1 ? 'Premium ✕' : '设为 Premium'}
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
