@@ -37,6 +37,7 @@ import { TrainerPlaceholder } from './TrainerPlaceholder';
 import { FoundationModule } from './FoundationModule';
 import { RhymeDetail } from './RhymeDetail';
 import { DrillSession } from './DrillSession';
+import { DrillRecallSession } from './DrillRecallSession';
 
 export type SubView =
   | 'home'
@@ -44,6 +45,7 @@ export type SubView =
   | 'tier'
   | 'detail'
   | 'drill'
+  | 'drill-recall'
   | 'dashboard';
 
 export interface PingshuiTrainerProps {
@@ -162,7 +164,7 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
       <TrainerHeader
         strings={strings}
         subView={subView}
-        onBack={subView === 'home' ? onExit : subView === 'detail' ? () => setSubView('tier') : goHome}
+        onBack={subView === 'home' ? onExit : subView === 'detail' ? () => setSubView('tier') : subView === 'drill-recall' ? goHome : goHome}
         showBack={subView !== 'home' || !!onExit}
       />
 
@@ -205,7 +207,14 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
               setSelectedRhymeId(id);
               setSubView('detail');
             }}
-            onStartDrill={() => { setDrillScope('tier1'); setSubView('drill'); }}
+            onStartDrill={(drillNum) => {
+              setDrillScope('tier1');
+              if (drillNum === 2) {
+                setSubView('drill-recall');
+              } else {
+                setSubView('drill');
+              }
+            }}
             unlockedDrills={unlocks?.drills}
             sessionCounts={unlocks?.sessionCounts}
           />
@@ -221,6 +230,15 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
 
         {subView === 'drill' && (
           <DrillSession
+            strings={strings}
+            scope={drillScope}
+            onExit={goHome}
+            onSessionComplete={refreshUnlocks}
+          />
+        )}
+
+        {subView === 'drill-recall' && (
+          <DrillRecallSession
             strings={strings}
             scope={drillScope}
             onExit={goHome}

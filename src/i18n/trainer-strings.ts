@@ -64,6 +64,14 @@ export interface TrainerStrings {
   drillCard3Title: string;
   drillCard4Title: string;
   drillComingSoon: string;
+
+  // Drill 2 — Recall
+  drill2SessionTitle: string;
+  drill2Prompt: (rhymeLabel: string) => string;
+  drill2Picked: (n: number) => string;
+  drill2Submit: string;
+  drill2Next: string;
+  drill2Correct: (n: number) => string;
   drillTierScoped: string;
   drillGlobal: string;
 
@@ -164,6 +172,13 @@ const zhHans: TrainerStrings = {
   drillTierScoped: '开始本层练习',
   drillGlobal: '开始综合练习',
 
+  drill2SessionTitle: '练习 — 韵部→字',
+  drill2Prompt: (r) => `这四个字属于 ${r}?`,
+  drill2Picked: (n) => `已选 ${n} / 4`,
+  drill2Submit: '提交',
+  drill2Next: '下一题',
+  drill2Correct: (n) => `正确 ${n} / 4`,
+
   drillSessionTitle: '练习 — 字→韵部',
   drillPromptCharToRhyme: '这个字属于哪个韵?',
   drillStats: (drilled, total) => `已练习 ${drilled} / ${total}`,
@@ -257,6 +272,13 @@ const zhHant: TrainerStrings = {
   drillTierScoped: '開始本層練習',
   drillGlobal: '開始綜合練習',
 
+  drill2SessionTitle: '練習 — 韻部→字',
+  drill2Prompt: (r) => `這四個字屬於 ${r}?`,
+  drill2Picked: (n) => `已選 ${n} / 4`,
+  drill2Submit: '提交',
+  drill2Next: '下一題',
+  drill2Correct: (n) => `正確 ${n} / 4`,
+
   drillSessionTitle: '練習 — 字→韻部',
   drillPromptCharToRhyme: '這個字屬於哪個韻?',
   drillStats: (drilled, total) => `已練習 ${drilled} / ${total}`,
@@ -349,6 +371,13 @@ const enBilingual: TrainerStrings = {
   drillComingSoon: 'Coming soon',
   drillTierScoped: 'Start tier drill',
   drillGlobal: 'Start combined drill',
+
+  drill2SessionTitle: 'Drill — Rhyme → Char',
+  drill2Prompt: (r) => `Which 4 belong to ${r}?`,
+  drill2Picked: (n) => `Selected ${n} / 4`,
+  drill2Submit: 'Submit',
+  drill2Next: 'Next',
+  drill2Correct: (n) => `Correct ${n} / 4`,
 
   drillSessionTitle: 'Drill — Char → Rhyme',
   drillPromptCharToRhyme: 'Which rhyme does this belong to?',

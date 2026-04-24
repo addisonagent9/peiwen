@@ -8,6 +8,7 @@
 
 import express from 'express';
 import { TIER1_SEED_CHARS, TIER1_RHYME_IDS } from '../data/tier1-seed-chars.mjs';
+import { RHYMES_PINGSHENG } from '../data/trainer-curriculum.mjs';
 import { getUnlockStatus, recordDrillCompletion, getDrillSessionCount } from '../trainer/unlocks.mjs';
 
 function shuffle(arr) {
@@ -141,6 +142,74 @@ export function createDrillRouter(db, composedGate) {
       }));
 
       res.json({ items, totalAvailable: seedPool.length });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // GET /recall-queue?limit=10
+  router.get('/recall-queue', composedGate, (req, res, next) => {
+    try {
+      const limit = Math.min(20, Math.max(1, parseInt(req.query.limit) || 10));
+      const byRhyme = {};
+      for (const s of TIER1_SEED_CHARS) {
+        if (!byRhyme[s.rhymeId]) byRhyme[s.rhymeId] = [];
+        byRhyme[s.rhymeId].push(s);
+      }
+      const rhymeIds = Object.keys(byRhyme);
+      const items = [];
+
+      for (let i = 0; i < limit; i++) {
+        const targetRhymeId = rhymeIds[i % rhymeIds.length];
+        const targetPool = shuffle(byRhyme[targetRhymeId]);
+        const template = buildInterleaveTemplate(4);
+        const correct = [];
+        const pickedChars = new Set();
+        for (const targetSet of template) {
+          let found = null;
+          for (let s = targetSet; s >= 1; s--) {
+            found = targetPool.find(c => c.set <= (s + 1) && c.set >= s && !pickedChars.has(c.char));
+            if (found) break;
+          }
+          if (!found) found = targetPool.find(c => !pickedChars.has(c.char));
+          if (found) {
+            pickedChars.add(found.char);
+            correct.push(found);
+          }
+        }
+        if (correct.length < 4) {
+          for (const c of targetPool) {
+            if (correct.length >= 4) break;
+            if (!pickedChars.has(c.char)) { correct.push(c); pickedChars.add(c.char); }
+          }
+        }
+
+        const distractorRhymes = shuffle(rhymeIds.filter(id => id !== targetRhymeId));
+        const distractors = [];
+        for (const rid of distractorRhymes) {
+          if (distractors.length >= 4) break;
+          const pool = shuffle(byRhyme[rid]);
+          for (const c of pool) {
+            if (distractors.length >= 4) break;
+            if (!pickedChars.has(c.char)) { distractors.push(c); pickedChars.add(c.char); }
+          }
+        }
+
+        const allTiles = shuffle([...correct.slice(0, 4), ...distractors.slice(0, 4)]);
+        items.push({
+          type: 'rhyme-to-chars',
+          targetRhymeId,
+          targetLabel: RHYMES_PINGSHENG.find(r => r.id === targetRhymeId)?.label ?? targetRhymeId,
+          tiles: allTiles.map(c => ({
+            char: c.char,
+            pinyin: c.pinyin,
+            jyutping: c.jyutping,
+            belongsToTarget: c.rhymeId === targetRhymeId,
+          })),
+        });
+      }
+
+      res.json({ items, totalAvailable: TIER1_SEED_CHARS.length });
     } catch (err) {
       next(err);
     }
