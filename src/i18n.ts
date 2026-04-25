@@ -25,7 +25,7 @@ export const T = {
     reading: "讀音", meaning: "字義", context: "詞語義",
     zhDef: "釋義",
     noEntry: "無釋義", loading: "載入中…",
-    suggest: "建議",
+    suggest: "字境",
     suggestHeading: (char: string, tone: string) =>
       `「${char}」應為${tone}聲，以下是意思相近的${tone}聲字：`,
     back2: "← 返回", noSuggestion: "暫無建議",
@@ -87,7 +87,7 @@ export const T = {
     reading: "读音", meaning: "字义", context: "词语义",
     zhDef: "释义",
     noEntry: "无释义", loading: "载入中…",
-    suggest: "建议",
+    suggest: "字境",
     suggestHeading: (char: string, tone: string) =>
       `「${char}」应为${tone}声，以下是意思相近的${tone}声字：`,
     back2: "← 返回", noSuggestion: "暂无建议",
