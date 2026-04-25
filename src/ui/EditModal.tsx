@@ -147,7 +147,9 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
 
   const info = val ? lookup(val) : null;
   const actualTone: Tone | null = info?.tone ?? null;
-  const mismatch = !!(expectedTone && actualTone && actualTone !== expectedTone);
+  const toneMismatch = !!(expectedTone && actualTone && expectedTone !== actualTone);
+  const rhymeMismatch = !!(requiredRhyme && val && !rhymesOf(val).includes(requiredRhyme));
+  const mismatch = toneMismatch || rhymeMismatch;
 
   const fetchBatch = (prevSeen: Set<string>) => {
     if (!expectedTone || !actualTone || !val) return;
