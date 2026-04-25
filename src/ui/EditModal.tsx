@@ -103,12 +103,11 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
   const [exhausted, setExhausted] = useState(false);
   const [initialLoaded, setInitialLoaded] = useState(false);
   const [ancientMeaning, setAncientMeaning] = useState<{ zh: string; en: string } | null>(null);
-  const [seedWords, setSeedWords] = useState("");
 
   useEffect(() => {
     setVal(initial); setInputVal(initial); setView("edit"); setSuggestions([]); setSuggestError(null);
     setSeenChars(new Set()); setExhausted(false); setInitialLoaded(false);
-    setAncientMeaning(null); setSeedWords("");
+    setAncientMeaning(null);
   }, [initial, open]);
 
   useEffect(() => {
@@ -159,9 +158,9 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
     return toneMismatch ? 1 : 3;
   })();
 
-  const fetchBatch = (prevSeen: Set<string>, anchor?: string) => {
-    if (!expectedTone || !actualTone || !val) return;
-    const sem = anchor ?? val;
+  const fetchBatch = (prevSeen: Set<string>) => {
+    if (!val || !expectedTone) return;
+    if (mismatch && !actualTone) return;
     setSuggestLoading(true);
     setSuggestError(null);
     const toneConstraint = expectedTone;
@@ -172,10 +171,10 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
       ? `、屬於「${requiredRhyme}」韻部`
       : "";
     let prompt: string;
-    if (anchor) {
-      prompt = `請列出15個意思與「${sem}」相近、可用於古典詩詞${rhymeFilter}的${toneConstraint}聲字。每個字用一行，格式：字 - 平水韻韻部 - 簡短釋義。只列字，不要其他說明。`;
-    } else {
+    if (mismatch) {
       prompt = `「${val}」讀${actualTone}聲，現需替換為${toneConstraint}聲字${rhymeClause}。請列出15個意思與「${val}」相近、可用於古典詩詞${rhymeFilter}的${toneConstraint}聲字。每個字用一行，格式：字 - 平水韻韻部 - 簡短釋義。只列字，不要其他說明。`;
+    } else {
+      prompt = `請列出15個意思與「${val}」相近、可用於古典詩詞${rhymeFilter}的${toneConstraint}聲字。每個字用一行，格式：字 - 平水韻韻部 - 簡短釋義。只列字，不要其他說明。`;
     }
     if (prevSeen.size > 0) {
       prompt += `\n請勿重複上一批：${Array.from(prevSeen).join("、")}`;
@@ -210,24 +209,15 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
 
   const openSuggest = () => {
     setView("suggest");
-    if (skill !== 3 && !initialLoaded && !suggestLoading) {
+    if (!initialLoaded && !suggestLoading) {
       setInitialLoaded(true);
       fetchBatch(seenChars);
     }
   };
 
-  const submitSeedWords = () => {
-    if (!seedWords.trim()) return;
-    setSuggestions([]);
-    setSeenChars(new Set());
-    setExhausted(false);
-    setInitialLoaded(true);
-    fetchBatch(new Set(), seedWords.trim());
-  };
-
   const loadNextPage = () => {
     if (suggestLoading || exhausted) return;
-    fetchBatch(seenChars, skill === 3 && seedWords.trim() ? seedWords.trim() : undefined);
+    fetchBatch(seenChars);
   };
 
   const trad = val ? toTraditional(val) : "";
@@ -293,7 +283,7 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
                 if (isComposing.current) return;
                 const chinese = Array.from(v).filter(ch => /\p{Script=Han}/u.test(ch));
                 if (chinese.length > 0) {
-                  setVal(chinese[chinese.length - 1]);
+                  setVal(chinese.join(""));
                 } else if (v === "") {
                   setVal("");
                 }
@@ -446,7 +436,8 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
               <button onClick={onClose} className="px-3 py-1.5 text-sm text-creamDim hover:text-cream">{t.cancel}</button>
               <button
                 onClick={() => { onCommit(val); onClose(); }}
-                className="px-3 py-1.5 text-sm bg-gold text-ink-bg rounded hover:opacity-90"
+                disabled={val.length !== 1}
+                className="px-3 py-1.5 text-sm bg-gold text-ink-bg rounded hover:opacity-90 disabled:opacity-30"
               >{t.confirm}</button>
             </div>
           </>
@@ -461,27 +452,6 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
                 ? `字境 — 「${val}」(${expectedTone ?? actualTone ?? ""}聲${requiredRhyme ? ` · ${requiredRhyme}` : ""})`
                 : t.suggestHeading(val, expectedTone ?? "")}
             </div>
-
-            {skill === 3 && (
-              <div className="mt-3 flex gap-2">
-                <input
-                  type="text"
-                  value={seedWords}
-                  onChange={e => setSeedWords(e.target.value)}
-                  onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); submitSeedWords(); } }}
-                  placeholder={locale === "繁" ? "輸入意境相關詞語" : "输入意境相关词语"}
-                  className="flex-1 px-3 py-1.5 text-sm bg-ink-bg border border-ink-line rounded text-cream placeholder-creamDim/40 focus:border-gold/50 focus:outline-none"
-                  autoFocus
-                />
-                <button
-                  onClick={submitSeedWords}
-                  disabled={!seedWords.trim() || suggestLoading}
-                  className="px-3 py-1.5 text-sm bg-gold/10 border border-gold/40 text-gold rounded hover:bg-gold/20 transition-colors disabled:opacity-30"
-                >
-                  {locale === "繁" ? "尋字" : "寻字"}
-                </button>
-              </div>
-            )}
 
             <div className="mt-4 flex flex-col gap-2">
               {suggestions.length > 0 && (
