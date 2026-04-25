@@ -8,7 +8,7 @@
 
 import express from 'express';
 import { TIER1_SEED_CHARS, TIER1_RHYME_IDS } from '../data/tier1-seed-chars.mjs';
-import { RHYMES_PINGSHENG } from '../data/trainer-curriculum.mjs';
+import { RHYMES_PINGSHENG, FAMILIES } from '../data/trainer-curriculum.mjs';
 import { getUnlockStatus, recordDrillCompletion, getDrillSessionCount, isDrillUnlocked } from '../trainer/unlocks.mjs';
 
 function shuffle(arr) {
@@ -244,46 +244,54 @@ export function createDrillRouter(db, composedGate) {
       const items = [];
 
       for (const targetSet of template) {
-        let pair;
-        if (targetSet === 1) {
-          const rid = rhymeIds[Math.floor(Math.random() * rhymeIds.length)];
-          const pool = shuffle(byRhyme[rid][1]);
-          if (pool.length >= 2) pair = { left: pool[0], right: pool[1], rhymes: true, rid };
-        } else if (targetSet === 2) {
-          const [r1, r2] = shuffle([...rhymeIds]).slice(0, 2);
-          const l = shuffle(byRhyme[r1][1])[0];
-          const r = shuffle(byRhyme[r2][1])[0];
-          if (l && r) pair = { left: l, right: r, rhymes: false };
-        } else if (targetSet === 3) {
-          const rid = rhymeIds[Math.floor(Math.random() * rhymeIds.length)];
-          const common = shuffle(byRhyme[rid][1])[0];
-          const rare = shuffle([...byRhyme[rid][3], ...byRhyme[rid][4]])[0];
-          if (common && rare) pair = { left: common, right: rare, rhymes: true, rid };
-        } else {
-          const [r1, r2] = shuffle([...rhymeIds]).slice(0, 2);
-          const l = shuffle([...byRhyme[r1][3], ...byRhyme[r1][4]])[0];
-          const r = shuffle([...byRhyme[r2][3], ...byRhyme[r2][4]])[0];
-          if (l && r) pair = { left: l, right: r, rhymes: false };
+        let pair = null;
+        for (let attempt = 0; attempt < 5 && !pair; attempt++) {
+          let candidate = null;
+          if (targetSet === 1) {
+            const rid = rhymeIds[Math.floor(Math.random() * rhymeIds.length)];
+            const pool = shuffle(byRhyme[rid][1]);
+            if (pool.length >= 2) candidate = { left: pool[0], right: pool[1], rhymes: true };
+          } else if (targetSet === 2) {
+            const [r1, r2] = shuffle([...rhymeIds]).slice(0, 2);
+            const l = shuffle(byRhyme[r1][1])[0];
+            const r = shuffle(byRhyme[r2][1])[0];
+            if (l && r) candidate = { left: l, right: r, rhymes: false };
+          } else if (targetSet === 3) {
+            const rid = rhymeIds[Math.floor(Math.random() * rhymeIds.length)];
+            const common = shuffle(byRhyme[rid][1])[0];
+            const rare = shuffle([...byRhyme[rid][3], ...byRhyme[rid][4]])[0];
+            if (common && rare) candidate = { left: common, right: rare, rhymes: true };
+          } else {
+            const [r1, r2] = shuffle([...rhymeIds]).slice(0, 2);
+            const l = shuffle([...byRhyme[r1][3], ...byRhyme[r1][4]])[0];
+            const r = shuffle([...byRhyme[r2][3], ...byRhyme[r2][4]])[0];
+            if (l && r) candidate = { left: l, right: r, rhymes: false };
+          }
+          if (candidate && candidate.left.char !== candidate.right.char) {
+            pair = candidate;
+          }
         }
-
-        if (!pair || pair.left.char === pair.right.char) continue;
+        if (!pair) continue;
 
         const leftRhyme = RHYMES_PINGSHENG.find(r => r.id === pair.left.rhymeId);
         const rightRhyme = RHYMES_PINGSHENG.find(r => r.id === pair.right.rhymeId);
         const sameRhyme = pair.left.rhymeId === pair.right.rhymeId;
+        const leftFamily = leftRhyme ? FAMILIES[leftRhyme.family] : null;
+        const rightFamily = rightRhyme ? FAMILIES[rightRhyme.family] : null;
+        const sameFamily = sameRhyme || (leftRhyme?.family === rightRhyme?.family);
 
         items.push({
           type: 'pair',
           left: { char: pair.left.char, pinyin: pair.left.pinyin, jyutping: pair.left.jyutping, rhymeId: pair.left.rhymeId },
           right: { char: pair.right.char, pinyin: pair.right.pinyin, jyutping: pair.right.jyutping, rhymeId: pair.right.rhymeId },
           rhymes: pair.rhymes,
-          family: null,
+          family: sameFamily && leftFamily ? leftFamily.label : null,
           teachingNote: sameRhyme
+            ? { left: leftFamily?.teachingNote ?? null }
+            : { left: leftFamily?.teachingNote ?? null, right: rightFamily?.teachingNote ?? null },
+          mnemonic: sameRhyme
             ? { left: leftRhyme?.mnemonic ?? null }
             : { left: leftRhyme?.mnemonic ?? null, right: rightRhyme?.mnemonic ?? null },
-          mnemonic: sameRhyme
-            ? { left: leftRhyme?.label ?? null }
-            : { left: leftRhyme?.label ?? null, right: rightRhyme?.label ?? null },
           leftAnchor: leftRhyme?.anchorPoem ?? null,
           rightAnchor: sameRhyme ? null : (rightRhyme?.anchorPoem ?? null),
           leftLabel: leftRhyme?.label ?? pair.left.rhymeId,

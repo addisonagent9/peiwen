@@ -76,7 +76,7 @@ export interface TrainerStrings {
   // Drill 3 — Pair discrimination
   drill3SessionTitle: string;
   drill3PromptRhyme: string;
-  drill3PromptNoRhyme: string;
+
   drill3AnswerYes: string;
   drill3AnswerNo: string;
   drill3CorrectAnswer: string;
@@ -193,7 +193,7 @@ const zhHans: TrainerStrings = {
 
   drill3SessionTitle: '练习 — 辨韵',
   drill3PromptRhyme: '这两个字押韵吗?',
-  drill3PromptNoRhyme: '这两个字押韵吗?',
+
   drill3AnswerYes: '押韵',
   drill3AnswerNo: '不押韵',
   drill3CorrectAnswer: '正确答案',
@@ -304,7 +304,7 @@ const zhHant: TrainerStrings = {
 
   drill3SessionTitle: '練習 — 辨韻',
   drill3PromptRhyme: '這兩個字押韻嗎?',
-  drill3PromptNoRhyme: '這兩個字押韻嗎?',
+
   drill3AnswerYes: '押韻',
   drill3AnswerNo: '不押韻',
   drill3CorrectAnswer: '正確答案',
@@ -415,7 +415,7 @@ const enBilingual: TrainerStrings = {
 
   drill3SessionTitle: 'Drill — Discrimination',
   drill3PromptRhyme: 'Do these two chars rhyme?',
-  drill3PromptNoRhyme: 'Do these two chars rhyme?',
+
   drill3AnswerYes: 'They rhyme',
   drill3AnswerNo: "Don't rhyme",
   drill3CorrectAnswer: 'Correct answer',
