@@ -936,33 +936,51 @@ lock icons for drills not yet unlocked.
 Existing `srs_state` table stays as-is (tracks Drill 1 per-char correct/
 wrong). Other drills use the new `drill_sessions` table.
 
-### State of play
+### State of play (as of 2026-04-25)
 
 **Shipped:**
 - Tier 1 Drill 1 (Recognition). 165 chars across 5 rhymes, graded
-  Sets 1–4, interleaved, Cantonese + flagged Mandarin TTS.
-- Interleave templates (5/10/20).
+  Sets 1–4, interleaved via Bjork template, Cantonese + flagged
+  Mandarin TTS.
+- Tier 1 Drill 2 (Recall). 4×2 grid, pick 4 of 8 chars belonging to
+  target 韵部. Per-tile Cantonese audio playback that stays clickable
+  in the feedback phase. Distractors drawn from other Tier 1 rhymes
+  (safe by design). Interleave templates govern target-char difficulty.
+  Commits: e29d428 (initial), 5b18e79 (nav fix), 0331adc (vestigial
+  bar removed), f213bb2 (audio fix in feedback phase), 7395da3 (green
+  styling).
+- Trainer foundation: data model (drill_sessions, tier_drill_unlocks,
+  tier_unlocks), unlock system, admin "解锁训练" override, two-bar
+  layout. Commit 0c0442c.
+- §15 pedagogy canon. Commit 346bf6f.
 - Audio review admin dashboard.
-- Trainer home with locked tier 2/3 display.
-- Trainer foundation (`0c0442c`): data model (drill_sessions,
-  tier_drill_unlocks, tier_unlocks), unlock system, admin unlock-all
-  override, two-bar layout, 4 drill cards per tier view.
-- §15 pedagogy canon (`346bf6f`): full 3-tier × 4-drill design doc.
+- Trainer home with tier 2/3 locked; green "开始综合练习" hidden until
+  Tier 2 unlocked.
+- 疴 dropped from curriculum (TTS mispronounce). Commit 6ba3b9b.
+- Dead `src/config/trainer-beta.ts` deleted (replaced by
+  `hasPremiumAccess`). Same commit.
 
 **Next build order** (one drill at a time, deploy + verify + iterate):
 
-1. **Tier 1 Drill 2** — 韵部→字 Recall (8 chars, pick 4)
-2. **Tier 1 Drill 3** — 辨韵 Discrimination (pair judgment)
-3. **Tier 1 Drill 4** — 押韵应用 Application (10 seed poems +
-   dashboard generator)
-4. **Tier 2 Drill 1** — 字→韵部 Recognition for Tier 2 chars. Requires
-   preparatory phase: fix Tier 2 char pool, grade Sets 1–4, queue TTS
-   batch, run audio review. This phase may take longer than the drill
-   code itself. Unlocked early for admin self-learning to activate the
-   green bar.
+1. **Tier 1 Drill 3** — 辨韵 Discrimination (pair judgment). Show 2
+   chars side by side, binary "do these rhyme in 平水韵?". Within
+   Tier 1 the pairs are deliberately easy (rhymes are distinctive);
+   the UI is being battle-tested for Tier 2 where 一东/二冬 etc. are
+   the real test. On wrong answer, surface family grouping + teaching
+   note + anchor poem from `trainer-curriculum.ts` (data exists, not
+   yet displayed anywhere).
+2. **Tier 1 Drill 4** — 押韵应用 Application. 10 hardcoded Tang poems
+   per tier with one rhyme position blanked; 4 options (1 correct,
+   3 distractors that Mandarin-rhyme but are 出韵 in 平水韵). Shows
+   correct rhyme + why distractor is a trap on wrong answer. Admin
+   dashboard generator for adding more poems beyond the 10 seeds.
+3. **Tier 2 Drill 1** — preparatory phase first: fix Tier 2 char pool
+   (~30 chars × 20 rhymes = ~600 chars), grade Sets 1–4, queue TTS
+   batch, run audio review. Then drill code is trivial (reuses
+   Tier 1 Drill 1 path with `scope=tier2`).
 
-**Subsequent**: Tier 2 Drills 2/3/4 → Tier 3 Drills 1/2/3/4. Same code
-paths, reusing the infrastructure built during Tier 1.
+**Subsequent**: Tier 2 Drills 2/3/4 → Tier 3 Drills 1/2/3/4. Same
+code paths, reusing infrastructure.
 
 ### Parallel cleanup tickets (non-blocking)
 
@@ -975,6 +993,43 @@ paths, reusing the infrastructure built during Tier 1.
   bloat when Tier 2's ~600 clips ship.
 - Revert manual `.env` TRAINER_BETA_USER_IDS edit on VPS — pending
   (user will handle; not a code change).
+
+### Audio Review Library — perf constraint (parked)
+
+Approved clips list will grow. Plan when it hits ~200 clips:
+- Most recent 50 approved stay as full cards (with player + waveform)
+- Older approved collapse to clickable list rows (char + voice +
+  status + timestamp), tapping a row expands to a full card on demand
+- Pending queue stays as cards (typically small)
+- This unblocks Tier 2's ~600-clip audio review without browser bloat
+
+Trigger: when audio review page first feels sluggish, or before the
+Tier 2 TTS batch lands — whichever comes first.
+
+### Lessons learned during Drill 2 implementation
+
+- **Nested `<button>` is invalid.** A `<button disabled>` parent
+  disables ALL nested interactive elements, including child buttons
+  meant to remain active. If a card has a primary action (whole-tile
+  click) AND secondary actions (audio play), wrap the card in a
+  `<div role="button" tabIndex>` with onClick + onKeyDown, and keep
+  the inner buttons as real `<button>` elements. The audio bug in
+  Drill 2 (commit f213bb2) was exactly this.
+- **Back button routing must be explicit per subView.** Nested
+  ternaries quickly drift wrong. Use a switch/case or a lookup map
+  keyed on subView. Drill 2 shipped with a bug where every back
+  button went to home; fixed in 5b18e79.
+- **Drill completion should return to tier view, not trainer home.**
+  The learner started from tier view, just unlocked the next drill —
+  they should see the unlock take effect on the same screen. Don't
+  jump them up two layers.
+- **"开始本层练习" bar was vestigial after drill cards shipped.**
+  When the new pattern (drill cards) supersedes the old (single
+  start button), delete the old. Don't leave both — users get
+  confused which is the "real" entry point. Removed in 0331adc.
+- **Once drill cards become the sole entry, promote them visually.**
+  They were neutral border-only; learners didn't perceive them as the
+  primary CTA. Switched to emerald in 7395da3.
 
 ### Relevant files
 
