@@ -677,7 +677,9 @@ export default function App() {
         prevChar={editCell ? (lines[editCell.li]?.[editCell.pos - 1] ?? "") : ""}
         nextChar={editCell ? (lines[editCell.li]?.[editCell.pos + 1] ?? "") : ""}
         expectedTone={editCell && selectedPattern ? (selectedPattern.chars[editCell.li]?.[editCell.pos]?.expected ?? null) : null}
-        requiredRhyme={editCell && selectedPattern && analysisResult && selectedPattern.pattern.lines[editCell.li]?.rhymes
+        requiredRhyme={editCell && selectedPattern && analysisResult
+          && selectedPattern.pattern.lines[editCell.li]?.rhymes
+          && editCell.pos === (lines[editCell.li]?.length ?? 0) - 1
           ? (analysisResult.best.rhyme?.baseRhyme
               ?? analysisResult.best.chars[1]?.[analysisResult.best.chars[1].length - 1]?.entries[0]?.rhyme
               ?? null)
