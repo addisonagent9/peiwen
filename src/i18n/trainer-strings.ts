@@ -72,6 +72,18 @@ export interface TrainerStrings {
   drill2Submit: string;
   drill2Next: string;
   drill2Correct: (n: number) => string;
+
+  // Drill 3 — Pair discrimination
+  drill3SessionTitle: string;
+  drill3PromptRhyme: string;
+  drill3PromptNoRhyme: string;
+  drill3AnswerYes: string;
+  drill3AnswerNo: string;
+  drill3CorrectAnswer: string;
+  drill3TeachingNote: string;
+  drill3Mnemonic: string;
+  drill3AnchorPoem: string;
+  drill3Continue: string;
   drillTierScoped: string;
   drillGlobal: string;
 
@@ -179,6 +191,17 @@ const zhHans: TrainerStrings = {
   drill2Next: '下一题',
   drill2Correct: (n) => `正确 ${n} / 4`,
 
+  drill3SessionTitle: '练习 — 辨韵',
+  drill3PromptRhyme: '这两个字押韵吗?',
+  drill3PromptNoRhyme: '这两个字押韵吗?',
+  drill3AnswerYes: '押韵',
+  drill3AnswerNo: '不押韵',
+  drill3CorrectAnswer: '正确答案',
+  drill3TeachingNote: '教学说明',
+  drill3Mnemonic: '记忆口诀',
+  drill3AnchorPoem: '锚定诗篇',
+  drill3Continue: '继续',
+
   drillSessionTitle: '练习 — 字→韵部',
   drillPromptCharToRhyme: '这个字属于哪个韵?',
   drillStats: (drilled, total) => `已练习 ${drilled} / ${total}`,
@@ -279,6 +302,17 @@ const zhHant: TrainerStrings = {
   drill2Next: '下一題',
   drill2Correct: (n) => `正確 ${n} / 4`,
 
+  drill3SessionTitle: '練習 — 辨韻',
+  drill3PromptRhyme: '這兩個字押韻嗎?',
+  drill3PromptNoRhyme: '這兩個字押韻嗎?',
+  drill3AnswerYes: '押韻',
+  drill3AnswerNo: '不押韻',
+  drill3CorrectAnswer: '正確答案',
+  drill3TeachingNote: '教學說明',
+  drill3Mnemonic: '記憶口訣',
+  drill3AnchorPoem: '錨定詩篇',
+  drill3Continue: '繼續',
+
   drillSessionTitle: '練習 — 字→韻部',
   drillPromptCharToRhyme: '這個字屬於哪個韻?',
   drillStats: (drilled, total) => `已練習 ${drilled} / ${total}`,
@@ -378,6 +412,17 @@ const enBilingual: TrainerStrings = {
   drill2Submit: 'Submit',
   drill2Next: 'Next',
   drill2Correct: (n) => `Correct ${n} / 4`,
+
+  drill3SessionTitle: 'Drill — Discrimination',
+  drill3PromptRhyme: 'Do these two chars rhyme?',
+  drill3PromptNoRhyme: 'Do these two chars rhyme?',
+  drill3AnswerYes: 'They rhyme',
+  drill3AnswerNo: "Don't rhyme",
+  drill3CorrectAnswer: 'Correct answer',
+  drill3TeachingNote: 'Teaching note',
+  drill3Mnemonic: 'Mnemonic',
+  drill3AnchorPoem: 'Anchor poem',
+  drill3Continue: 'Continue',
 
   drillSessionTitle: 'Drill — Char → Rhyme',
   drillPromptCharToRhyme: 'Which rhyme does this belong to?',

@@ -38,6 +38,7 @@ import { FoundationModule } from './FoundationModule';
 import { RhymeDetail } from './RhymeDetail';
 import { DrillSession } from './DrillSession';
 import { DrillRecallSession } from './DrillRecallSession';
+import { DrillPairSession } from './DrillPairSession';
 
 export type SubView =
   | 'home'
@@ -46,6 +47,7 @@ export type SubView =
   | 'detail'
   | 'drill'
   | 'drill-recall'
+  | 'drill-pair'
   | 'dashboard';
 
 export interface PingshuiTrainerProps {
@@ -170,6 +172,7 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
           : subView === 'detail' ? () => setSubView('tier')
           : subView === 'drill' ? () => setSubView('tier')
           : subView === 'drill-recall' ? () => setSubView('tier')
+          : subView === 'drill-pair' ? () => setSubView('tier')
           : subView === 'dashboard' ? () => setSubView('home')
           : goHome
         }
@@ -219,6 +222,8 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
               setDrillScope('tier1');
               if (drillNum === 2) {
                 setSubView('drill-recall');
+              } else if (drillNum === 3) {
+                setSubView('drill-pair');
               } else {
                 setSubView('drill');
               }
@@ -247,6 +252,15 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
 
         {subView === 'drill-recall' && (
           <DrillRecallSession
+            strings={strings}
+            scope={drillScope}
+            onExit={() => setSubView('tier')}
+            onSessionComplete={refreshUnlocks}
+          />
+        )}
+
+        {subView === 'drill-pair' && (
+          <DrillPairSession
             strings={strings}
             scope={drillScope}
             onExit={() => setSubView('tier')}
