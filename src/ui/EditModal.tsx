@@ -213,7 +213,9 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
         const nextSeen = new Set(prevSeen);
         for (const s of fresh) nextSeen.add(s.char);
         setSeenChars(nextSeen);
+        console.log('[字境 setSuggestions called]', fresh.map(s => s.char));
         setSuggestions(fresh);
+        console.log('[字境 setSuggestions returned]');
       })
       .catch(err => setSuggestError(String(err.message ?? err)))
       .finally(() => setSuggestLoading(false));
@@ -221,10 +223,11 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
 
   const openSuggest = () => {
     setView("suggest");
-    if (!initialLoaded && !suggestLoading) {
-      setInitialLoaded(true);
-      fetchBatch(seenChars);
-    }
+    setSuggestions([]);
+    setSeenChars(new Set());
+    setExhausted(false);
+    setInitialLoaded(true);
+    fetchBatch(new Set());
   };
 
   const loadNextPage = () => {
