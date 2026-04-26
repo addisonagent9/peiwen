@@ -111,10 +111,6 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
   }, [initial, open]);
 
   useEffect(() => {
-    console.log('[字境 render state]', { view, suggestionsCount: suggestions.length, suggestLoading, suggestError, initialLoaded, exhausted, seenCharsSize: seenChars.size });
-  });
-
-  useEffect(() => {
     if (!open || dictsReady) return;
     let cancelled = false;
     setDictError(null);
@@ -165,7 +161,7 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
   const fetchBatch = (prevSeen: Set<string>) => {
     if (!val) return;
     if (mismatch && !actualTone) return;
-    console.log('[字境 entry]', { val, valLength: Array.from(val).length, expectedTone, actualTone, requiredRhyme, mismatch, toneMismatch, rhymeMismatch, skill });
+
     setSuggestLoading(true);
     setSuggestError(null);
     const rhymeClause = requiredRhyme
@@ -186,12 +182,12 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
     if (prevSeen.size > 0) {
       prompt += `\n請勿重複上一批：${Array.from(prevSeen).join("、")}`;
     }
-    console.log('[字境 prompt]', prompt);
+
     callAnthropic(prompt)
       .then(text => {
-        console.log('[字境 raw response]', text);
+
         const raw = parseSuggestions(text);
-        console.log('[字境 parsed]', raw);
+
         const dedupSeen = new Set<string>();
         const deduped = raw.filter(s => {
           if (dedupSeen.has(s.char)) return false;
@@ -204,11 +200,11 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
               return info.entries.some(e => (e.tone === '平' ? '平' : '仄') === expectedTone);
             })
           : deduped;
-        console.log('[字境 toneFiltered]', toneFiltered.map(s => s.char), 'expectedTone:', expectedTone);
+
         const verified = requiredRhyme
           ? toneFiltered.filter(s => rhymesOf(s.char).includes(requiredRhyme))
           : toneFiltered;
-        console.log('[字境 verified]', verified.map(s => s.char), 'requiredRhyme:', requiredRhyme);
+
         const fresh = verified.map(s => {
           const actual = rhymesOf(s.char);
           return { ...s, rhyme: actual.length ? actual.join("/") : s.rhyme };
@@ -219,9 +215,9 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
         const nextSeen = new Set(prevSeen);
         for (const s of fresh) nextSeen.add(s.char);
         setSeenChars(nextSeen);
-        console.log('[字境 setSuggestions called]', fresh.map(s => s.char));
+
         setSuggestions(fresh);
-        console.log('[字境 setSuggestions returned]');
+
       })
       .catch(err => setSuggestError(String(err.message ?? err)))
       .finally(() => setSuggestLoading(false));
