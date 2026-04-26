@@ -7,7 +7,7 @@ import AdminConsole from "./ui/AdminConsole";
 import { PingshuiTrainer } from "./components/trainer/PingshuiTrainer";
 
 import { detectBest, formFromDims } from "./analysis/detect";
-import { lookupExpecting } from "./analysis/tone";
+import { lookup, lookupExpecting } from "./analysis/tone";
 import { analyzeAgainst, computeLiveIssues } from "./analysis/validate";
 import { toTraditional, toSimplified } from "./analysis/s2t";
 import { T, localizeIssue, type Locale, type Translations } from "./i18n";
@@ -677,13 +677,18 @@ export default function App() {
         prevChar={editCell ? (lines[editCell.li]?.[editCell.pos - 1] ?? "") : ""}
         nextChar={editCell ? (lines[editCell.li]?.[editCell.pos + 1] ?? "") : ""}
         expectedTone={editCell && selectedPattern ? (selectedPattern.chars[editCell.li]?.[editCell.pos]?.expected ?? null) : null}
-        requiredRhyme={editCell && selectedPattern && analysisResult
-          && selectedPattern.pattern.lines[editCell.li]?.rhymes
-          && editCell.pos === (lines[editCell.li]?.length ?? 0) - 1
-          ? (analysisResult.best.rhyme?.baseRhyme
-              ?? analysisResult.best.chars[1]?.[analysisResult.best.chars[1].length - 1]?.entries[0]?.rhyme
-              ?? null)
-          : null}
+        requiredRhyme={(() => {
+          if (!editCell || !selectedPattern) return null;
+          if (!selectedPattern.pattern.lines[editCell.li]?.rhymes) return null;
+          if (editCell.pos !== (lines[editCell.li]?.length ?? 0) - 1) return null;
+          const line2 = lines[1];
+          if (!line2 || line2.length === 0) return null;
+          const line2LastChar = line2[line2.length - 1];
+          if (!line2LastChar) return null;
+          const entries = lookup(line2LastChar).entries;
+          const pingReading = entries.find(e => e.tone === '平');
+          return pingReading?.rhyme ?? null;
+        })()}
         isLoggedIn={!!user}
         isAdmin={user?.is_admin === 1}
         locale={locale}

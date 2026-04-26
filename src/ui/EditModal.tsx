@@ -170,11 +170,13 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
     const rhymeFilter = requiredRhyme
       ? `、屬於「${requiredRhyme}」韻部`
       : "";
+    const isPhrase = Array.from(val).filter(ch => /\p{Script=Han}/u.test(ch)).length > 1;
+    const seedDescriptor = isPhrase ? `詞語「${val}」` : `「${val}」`;
     let prompt: string;
     if (mismatch) {
-      prompt = `「${val}」讀${actualTone}聲，現需替換為${toneConstraint}聲字${rhymeClause}。請列出15個意思與「${val}」相近、可用於古典詩詞${rhymeFilter}的${toneConstraint}聲字。每個字用一行，格式：字 - 平水韻韻部 - 簡短釋義。只列字，不要其他說明。`;
+      prompt = `「${val}」讀${actualTone}聲，現需替換為${toneConstraint}聲字${rhymeClause}。請列出15個意思與${seedDescriptor}相近、可用於古典詩詞${rhymeFilter}的${toneConstraint}聲字。每個字用一行，格式：字 - 平水韻韻部 - 簡短釋義。只列字，不要其他說明。`;
     } else {
-      prompt = `請列出15個意思與「${val}」相近、可用於古典詩詞${rhymeFilter}的${toneConstraint}聲字。每個字用一行，格式：字 - 平水韻韻部 - 簡短釋義。只列字，不要其他說明。`;
+      prompt = `請列出15個意思與${seedDescriptor}相近、可用於古典詩詞${rhymeFilter}的${toneConstraint}聲字。每個字用一行，格式：字 - 平水韻韻部 - 簡短釋義。只列字，不要其他說明。`;
     }
     if (prevSeen.size > 0) {
       prompt += `\n請勿重複上一批：${Array.from(prevSeen).join("、")}`;
@@ -188,9 +190,13 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
           dedupSeen.add(s.char);
           return true;
         });
+        const toneFiltered = deduped.filter(s => {
+          const info = lookup(s.char);
+          return info.entries.some(e => (e.tone === '平' ? '平' : '仄') === expectedTone);
+        });
         const verified = requiredRhyme
-          ? deduped.filter(s => rhymesOf(s.char).includes(requiredRhyme))
-          : deduped;
+          ? toneFiltered.filter(s => rhymesOf(s.char).includes(requiredRhyme))
+          : toneFiltered;
         const fresh = verified.map(s => {
           const actual = rhymesOf(s.char);
           return { ...s, rhyme: actual.length ? actual.join("/") : s.rhyme };
@@ -435,8 +441,12 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
             <div className="mt-5 flex justify-end gap-2">
               <button onClick={onClose} className="px-3 py-1.5 text-sm text-creamDim hover:text-cream">{t.cancel}</button>
               <button
-                onClick={() => { onCommit(val); onClose(); }}
-                disabled={val.length !== 1}
+                onClick={() => {
+                  const chars = Array.from(val).filter(ch => /\p{Script=Han}/u.test(ch));
+                  const lastChar = chars[chars.length - 1] ?? "";
+                  if (lastChar) { onCommit(lastChar); onClose(); }
+                }}
+                disabled={!val}
                 className="px-3 py-1.5 text-sm bg-gold text-ink-bg rounded hover:opacity-90 disabled:opacity-30"
               >{t.confirm}</button>
             </div>
