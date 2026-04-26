@@ -163,12 +163,11 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
   })();
 
   const fetchBatch = (prevSeen: Set<string>) => {
-    if (!val || !expectedTone) return;
+    if (!val) return;
     if (mismatch && !actualTone) return;
     console.log('[字境 entry]', { val, valLength: Array.from(val).length, expectedTone, actualTone, requiredRhyme, mismatch, toneMismatch, rhymeMismatch, skill });
     setSuggestLoading(true);
     setSuggestError(null);
-    const toneConstraint = expectedTone;
     const rhymeClause = requiredRhyme
       ? `，且必須屬於平水韻「${requiredRhyme}」韻部`
       : "";
@@ -177,11 +176,12 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
       : "";
     const isPhrase = Array.from(val).filter(ch => /\p{Script=Han}/u.test(ch)).length > 1;
     const seedDescriptor = isPhrase ? `詞語「${val}」` : `「${val}」`;
+    const toneNoun = expectedTone ? `${expectedTone}聲字` : `字`;
     let prompt: string;
     if (mismatch) {
-      prompt = `「${val}」讀${actualTone}聲，現需替換為${toneConstraint}聲字${rhymeClause}。請列出15個意思與${seedDescriptor}相近、可用於古典詩詞${rhymeFilter}的${toneConstraint}聲字。每個字用一行，格式：字 - 平水韻韻部 - 簡短釋義。只列字，不要其他說明。`;
+      prompt = `「${val}」讀${actualTone}聲，現需替換為${toneNoun}${rhymeClause}。請列出15個意思與${seedDescriptor}相近、可用於古典詩詞${rhymeFilter}的${toneNoun}。每個字用一行，格式：字 - 平水韻韻部 - 簡短釋義。只列字，不要其他說明。`;
     } else {
-      prompt = `請列出15個意思與${seedDescriptor}相近、可用於古典詩詞${rhymeFilter}的${toneConstraint}聲字。每個字用一行，格式：字 - 平水韻韻部 - 簡短釋義。只列字，不要其他說明。`;
+      prompt = `請列出15個意思與${seedDescriptor}相近、可用於古典詩詞${rhymeFilter}的${toneNoun}。每個字用一行，格式：字 - 平水韻韻部 - 簡短釋義。只列字，不要其他說明。`;
     }
     if (prevSeen.size > 0) {
       prompt += `\n請勿重複上一批：${Array.from(prevSeen).join("、")}`;
@@ -198,10 +198,12 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
           dedupSeen.add(s.char);
           return true;
         });
-        const toneFiltered = deduped.filter(s => {
-          const info = lookup(s.char);
-          return info.entries.some(e => (e.tone === '平' ? '平' : '仄') === expectedTone);
-        });
+        const toneFiltered = expectedTone
+          ? deduped.filter(s => {
+              const info = lookup(s.char);
+              return info.entries.some(e => (e.tone === '平' ? '平' : '仄') === expectedTone);
+            })
+          : deduped;
         console.log('[字境 toneFiltered]', toneFiltered.map(s => s.char), 'expectedTone:', expectedTone);
         const verified = requiredRhyme
           ? toneFiltered.filter(s => rhymesOf(s.char).includes(requiredRhyme))
