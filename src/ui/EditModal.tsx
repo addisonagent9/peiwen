@@ -111,6 +111,10 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
   }, [initial, open]);
 
   useEffect(() => {
+    console.log('[字境 render state]', { view, suggestionsCount: suggestions.length, suggestLoading, suggestError, initialLoaded, exhausted, seenCharsSize: seenChars.size });
+  });
+
+  useEffect(() => {
     if (!open || dictsReady) return;
     let cancelled = false;
     setDictError(null);
