@@ -4,6 +4,7 @@ import { RHYMES_PINGSHENG } from '../../data/pingshui/trainer-curriculum';
 import { useAudio } from '../../hooks/useAudio';
 import { formatJyutping } from './FoundationModule';
 import { HintTogglePill } from './HintTogglePill';
+import { LibraryAddButton } from './LibraryAddButton';
 
 export interface DrillItem {
   type: string;
@@ -141,6 +142,11 @@ export const DrillCard: React.FC<DrillCardProps> = ({
           <p className="text-center text-creamDim text-xs">
             {strings.drillExplanation(item.text, rhymeLabel(item.rhymeId))}
           </p>
+          {isCorrect && (
+            <div className="flex justify-center">
+              <LibraryAddButton rhymeId={rhymeLabel(item.rhymeId)} char={item.text} strings={strings} size="sm" />
+            </div>
+          )}
         </div>
       )}
     </div>

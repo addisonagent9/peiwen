@@ -391,11 +391,26 @@ export function createDrillRouter(db, composedGate) {
       const limit = Math.min(20, Math.max(1, parseInt(req.query.limit) || 10));
       const allEntries = [];
       for (const rName of TIER1_RHYME_IDS) {
-        const rhymeLabel = RHYMES_PINGSHENG.find(r => r.id === rName)?.label;
-        const bucket = drill4Corpus[rhymeLabel] ?? [];
-        allEntries.push(...bucket);
+        const label = RHYMES_PINGSHENG.find(r => r.id === rName)?.label;
+        allEntries.push(...(drill4Corpus[label] ?? []));
       }
-      const items = shuffle(allEntries).slice(0, limit);
+      const classicalPool = shuffle(allEntries.filter(e => e.tier === 'classical'));
+      const rarePool = shuffle(allEntries.filter(e => e.rare_set >= 3));
+      const template = buildInterleaveTemplate(limit);
+      const items = [];
+      const seen = new Set();
+      for (const targetSet of template) {
+        let candidate = null;
+        for (let attempt = 0; attempt < 5 && !candidate; attempt++) {
+          const pool = targetSet <= 2
+            ? (classicalPool.length > 0 ? classicalPool : allEntries)
+            : (rarePool.length > 0 ? rarePool : allEntries);
+          const pick = pool[Math.floor(Math.random() * pool.length)];
+          if (pick && !seen.has(pick.word + '|' + pick.answer)) candidate = pick;
+        }
+        if (!candidate) candidate = allEntries.find(e => !seen.has(e.word + '|' + e.answer));
+        if (candidate) { seen.add(candidate.word + '|' + candidate.answer); items.push(candidate); }
+      }
       res.json({ items });
     } catch (err) { next(err); }
   });

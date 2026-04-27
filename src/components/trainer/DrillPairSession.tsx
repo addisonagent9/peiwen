@@ -6,6 +6,7 @@ import { formatJyutping } from './FoundationModule';
 import { useHintToggle } from './useHintToggle';
 import { HintTogglePill } from './HintTogglePill';
 import { CountdownBar } from './CountdownBar';
+import { LibraryAddButton } from './LibraryAddButton';
 import { fetchAppSettings, getSettingNumber } from '../../hooks/useAppSettings';
 
 interface PairChar {
@@ -243,7 +244,13 @@ const PairCard: React.FC<{
       )}
 
       {isCorrect && (
-        <p className="text-center text-emerald-500 font-serif text-xl font-bold">✓ {strings.drillCorrect}</p>
+        <>
+          <p className="text-center text-emerald-500 font-serif text-xl font-bold">✓ {strings.drillCorrect}</p>
+          <div className="flex justify-center gap-3">
+            <LibraryAddButton rhymeId={item.leftLabel} char={item.left.char} strings={strings} size="sm" />
+            <LibraryAddButton rhymeId={item.rightLabel} char={item.right.char} strings={strings} size="sm" />
+          </div>
+        </>
       )}
 
       {isWrong && (

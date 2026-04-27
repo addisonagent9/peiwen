@@ -4,6 +4,7 @@ import type { Rhyme, SeedCharacter } from '../../types/pingshui-trainer';
 import { RHYMES_PINGSHENG } from '../../data/pingshui/trainer-curriculum';
 import { useAudio } from '../../hooks/useAudio';
 import { AnchorDemoSection, formatJyutping } from './FoundationModule';
+import { LibraryAddButton } from './LibraryAddButton';
 
 export interface RhymeDetailProps {
   rhymeId: string;
@@ -108,6 +109,8 @@ export const RhymeDetail: React.FC<RhymeDetailProps> = ({
                 audio={audio}
                 mandarinAvailable={mandarinAvailable}
                 cantoneseAvailable={cantoneseAvailable}
+                rhymeLabel={rhyme.label}
+                strings={strings}
               />
             );
           })}
@@ -148,7 +151,9 @@ const SeedCharCard: React.FC<{
   audio: UseAudioReturn;
   mandarinAvailable: boolean;
   cantoneseAvailable: boolean;
-}> = ({ sc, audio, mandarinAvailable, cantoneseAvailable }) => {
+  rhymeLabel: string;
+  strings: TrainerStrings;
+}> = ({ sc, audio, mandarinAvailable, cantoneseAvailable, rhymeLabel, strings }) => {
   const isPlaying = audio.currentText === sc.char;
   return (
     <div className={`border border-ink-line rounded-md p-2 flex flex-col items-center gap-1 transition-colors ${
@@ -186,6 +191,7 @@ const SeedCharCard: React.FC<{
             普
           </button>
         )}
+        <LibraryAddButton rhymeId={rhymeLabel} char={sc.char} strings={strings} size="sm" />
       </div>
     </div>
   );

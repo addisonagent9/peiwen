@@ -4,6 +4,7 @@ import { useAudio } from '../../hooks/useAudio';
 import { formatJyutping } from './FoundationModule';
 import { useHintToggle } from './useHintToggle';
 import { HintTogglePill } from './HintTogglePill';
+import { LibraryAddButton } from './LibraryAddButton';
 
 interface RecallTile {
   char: string;
@@ -226,6 +227,9 @@ const RecallCard: React.FC<{
             >
               {icon && <span className="absolute top-1 left-1">{icon}</span>}
               <span className="font-serif text-cream text-2xl">{tile.char}</span>
+              {cardPhase === 'revealed' && isPicked && tile.belongsToTarget && (
+                <LibraryAddButton rhymeId={item.targetLabel} char={tile.char} strings={strings} size="sm" />
+              )}
               {hintOn && (
                 <span className="text-creamDim/60 text-[10px] font-mono leading-tight">
                   {tile.pinyin} · {formatJyutping(tile.jyutping)}
