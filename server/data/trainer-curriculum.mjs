@@ -149,7 +149,7 @@ export const RHYMES_PINGSHENG = [
   {
     id: 'shangping-01-dong',
     ordinal: 1,
-    label: '一东',
+    label: '一東',
     rhymeCharacter: '东',
     tone: 'ping',
     half: 'shangping',
@@ -175,7 +175,7 @@ export const RHYMES_PINGSHENG = [
   {
     id: 'xiaping-07-yang',
     ordinal: 7,
-    label: '七阳',
+    label: '七陽',
     rhymeCharacter: '阳',
     tone: 'ping',
     half: 'xiaping',
@@ -327,7 +327,7 @@ export const RHYMES_PINGSHENG = [
   {
     id: 'shangping-06-yu',
     ordinal: 6,
-    label: '六鱼',
+    label: '六魚',
     rhymeCharacter: '鱼',
     tone: 'ping',
     half: 'shangping',
@@ -357,7 +357,7 @@ export const RHYMES_PINGSHENG = [
   {
     id: 'shangping-08-qi',
     ordinal: 8,
-    label: '八齐',
+    label: '八齊',
     rhymeCharacter: '齐',
     tone: 'ping',
     half: 'shangping',
@@ -476,7 +476,7 @@ export const RHYMES_PINGSHENG = [
   {
     id: 'shangping-15-shan',
     ordinal: 15,
-    label: '十五删',
+    label: '十五刪',
     rhymeCharacter: '删',
     tone: 'ping',
     half: 'shangping',
@@ -514,7 +514,7 @@ export const RHYMES_PINGSHENG = [
   {
     id: 'xiaping-02-xiao',
     ordinal: 2,
-    label: '二萧',
+    label: '二蕭',
     rhymeCharacter: '萧',
     tone: 'ping',
     half: 'xiaping',
@@ -676,7 +676,7 @@ export const RHYMES_PINGSHENG = [
   {
     id: 'xiaping-14-yan',
     ordinal: 14,
-    label: '十四盐',
+    label: '十四鹽',
     rhymeCharacter: '盐',
     tone: 'ping',
     half: 'xiaping',
