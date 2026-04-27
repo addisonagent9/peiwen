@@ -291,7 +291,12 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
                     if (prevStr.endsWith(newVal)) return prevStr;
                     return prevStr + newVal;
                   });
-                  setVal(chinese[0]);
+                  setVal(prev => {
+                    const prevChinese = Array.from(prev).filter(ch => /\p{Script=Han}/u.test(ch));
+                    const prevStr = prevChinese.join("");
+                    if (prevStr.endsWith(newVal)) return prevStr;
+                    return prevStr + newVal;
+                  });
                 }
               }}
               onChange={(e) => {
