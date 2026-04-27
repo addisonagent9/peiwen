@@ -243,7 +243,7 @@ const PairCard: React.FC<{
       )}
 
       {isCorrect && (
-        <p className="text-center text-green-400 font-serif text-sm">✓ {strings.drillCorrect}</p>
+        <p className="text-center text-emerald-500 font-serif text-xl font-bold">✓ {strings.drillCorrect}</p>
       )}
 
       {isWrong && (

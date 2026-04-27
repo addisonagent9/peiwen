@@ -135,7 +135,7 @@ export const DrillCard: React.FC<DrillCardProps> = ({
           >
             {strings.drillContinueNext}
           </button>
-          <p className={`text-center text-base font-serif font-bold ${isCorrect ? 'text-emerald-400' : 'text-red-400'}`}>
+          <p className={`text-center text-xl font-serif font-bold ${isCorrect ? 'text-emerald-500' : 'text-rose-500'}`}>
             {isCorrect ? strings.drillCorrect : strings.drillIncorrect}
           </p>
           <p className="text-center text-creamDim text-xs">

@@ -262,7 +262,7 @@ const RecallCard: React.FC<{
         </div>
       ) : (
         <div className="space-y-3">
-          <p className={`text-center text-sm font-serif ${correctCount === 4 ? 'text-green-400' : 'text-amber-300'}`}>
+          <p className={`text-center text-xl font-serif font-bold ${correctCount === 4 ? 'text-emerald-500' : 'text-rose-500'}`}>
             {strings.drill2Correct(correctCount)}
           </p>
           <button
