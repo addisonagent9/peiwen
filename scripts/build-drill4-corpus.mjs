@@ -117,15 +117,24 @@ for (const line of cedictRaw.split('\n')) {
     }
   }
 
+  const pinyinParts = pinyin.split(/\s+/);
+
   for (const { rhyme, pos } of matches) {
     // Skip if both chars are in the same rhyme
     if (rhymesWithBoth.has(rhyme)) continue;
+
+    // Skip if answer char has multiple 平 readings across distinct rhymes
+    const answerCharEntries = data.chars[chars[pos]] ?? [];
+    const answerPingRhymes = new Set(answerCharEntries.filter(e => e.tone === '平').map(e => e.rhyme));
+    if (answerPingRhymes.size > 1) continue;
 
     entries.push({
       word: trad,
       blank_pos: pos,
       answer: chars[pos],
+      answer_pinyin: pinyinParts[pos] ?? '',
       hint_char: chars[1 - pos],
+      hint_pinyin: pinyinParts[1 - pos] ?? '',
       rhyme,
       pinyin,
       gloss,

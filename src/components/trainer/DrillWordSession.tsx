@@ -8,7 +8,9 @@ interface Drill4Entry {
   word: string;
   blank_pos: number;
   answer: string;
+  answer_pinyin?: string;
   hint_char: string;
+  hint_pinyin?: string;
   rhyme: string;
   pinyin: string;
   gloss: string;
@@ -203,9 +205,12 @@ const WordCard: React.FC<{
         </div>
         {hintOn && (
           <div className="text-creamDim/60 text-xs font-mono">
-            {pinyinParts.map((p, i) => (
-              <span key={i}>{i === item.blank_pos && !feedback ? '?' : p}{i < pinyinParts.length - 1 ? ' ' : ''}</span>
-            ))}
+            {displayChars.map((_, i) => {
+              const py = i === item.blank_pos
+                ? (feedback ? (item.answer_pinyin ?? pinyinParts[i] ?? '') : (item.answer_pinyin ?? '?'))
+                : (item.hint_pinyin ?? pinyinParts[i] ?? '');
+              return <span key={i}>{py}{i < displayChars.length - 1 ? ' ' : ''}</span>;
+            })}
           </div>
         )}
       </div>
