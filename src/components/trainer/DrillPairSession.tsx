@@ -116,7 +116,6 @@ export const DrillPairSession: React.FC<DrillPairSessionProps> = ({
   if (phase === 'active' && items[currentIndex]) {
     return (
       <div className="pt-6 pb-24">
-        <HintTogglePill hintOn={hintOn} onToggle={toggleHint} strings={strings} />
         <PairCard
           key={currentIndex}
           item={items[currentIndex]}
@@ -124,6 +123,7 @@ export const DrillPairSession: React.FC<DrillPairSessionProps> = ({
           progress={{ current: currentIndex + 1, total: items.length }}
           onComplete={handleCardComplete}
           hintOn={hintOn}
+          onToggleHint={toggleHint}
         />
       </div>
     );
@@ -151,7 +151,8 @@ const PairCard: React.FC<{
   progress: { current: number; total: number };
   onComplete: (correct: boolean) => void;
   hintOn: boolean;
-}> = ({ item, strings, progress, onComplete, hintOn }) => {
+  onToggleHint: () => void;
+}> = ({ item, strings, progress, onComplete, hintOn, onToggleHint }) => {
   const [answered, setAnswered] = useState<boolean | null>(null);
   const audio = useAudio();
   const cantoneseAvailable = audio.available && audio.probed && audio.approvedCounts.cantonese > 0;
@@ -195,7 +196,8 @@ const PairCard: React.FC<{
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-end">
+      <div className="flex items-center justify-between">
+        <HintTogglePill hintOn={hintOn} onToggle={onToggleHint} strings={strings} />
         <span className="text-xs text-creamDim">{progress.current} / {progress.total}</span>
       </div>
 
