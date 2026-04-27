@@ -115,5 +115,31 @@ d.chars["濫"] = [
 for (const e of d.chars["濫"]) ensureBucket("濫", e);
 console.log(`  濫 → ${d.chars["濫"].map(e => e.tone + " " + e.rhyme).join(" | ")}`);
 
+// Group D: alternate-繁 variant mirroring (not in tc2sc.json)
+// These are variant traditional forms where the source CSV used one form
+// but the common-usage form is different. Mirror entries bidirectionally.
+const variantPairs = [
+  ["牀", "床"],   // 牀 (source) → 床 (common)
+  ["畱", "留"],   // 畱 (source) → 留 (common)
+  ["眞", "真"],   // 眞 (source) → 真 (common)
+  ["鈎", "鉤"],   // 鈎 (source) → 鉤 (common)
+  ["鈎", "钩"],   // 鈎 (source) → 钩 (simplified)
+];
+for (const [src, dst] of variantPairs) {
+  const srcEntries = d.chars[src];
+  const dstEntries = d.chars[dst];
+  if (srcEntries && srcEntries.length > 0 && (!dstEntries || dstEntries.length === 0)) {
+    d.chars[dst] = [...srcEntries];
+    for (const e of d.chars[dst]) ensureBucket(dst, e);
+    console.log(`  ${dst} ← ${src}: ${d.chars[dst].map(e => e.tone + " " + e.rhyme).join(" | ")}`);
+  } else if (dstEntries && dstEntries.length > 0 && (!srcEntries || srcEntries.length === 0)) {
+    d.chars[src] = [...dstEntries];
+    for (const e of d.chars[src]) ensureBucket(src, e);
+    console.log(`  ${src} ← ${dst}: ${d.chars[src].map(e => e.tone + " " + e.rhyme).join(" | ")}`);
+  } else {
+    console.log(`  ${src}/${dst}: both present or both missing, skipped`);
+  }
+}
+
 fs.writeFileSync(jsonPath, JSON.stringify(d));
-console.log("Done — 15 entries patched.");
+console.log("Done — patching complete.");

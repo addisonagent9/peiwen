@@ -40,6 +40,36 @@ for (const f of files) {
   }
 }
 
+// Bidirectional variant-key mirroring via tc2sc.json
+const tc2scPath = path.join(ROOT, "data/references/tc2sc.json");
+if (fs.existsSync(tc2scPath)) {
+  const tc2sc = JSON.parse(fs.readFileSync(tc2scPath, "utf8"));
+  let mirrored = 0;
+  for (const [trad, simp] of Object.entries(tc2sc)) {
+    if (trad === simp) continue;
+    const tEntries = charToEntries.get(trad);
+    const sEntries = charToEntries.get(simp);
+    if (tEntries && tEntries.length > 0 && (!sEntries || sEntries.length === 0)) {
+      charToEntries.set(simp, [...tEntries]);
+      for (const e of tEntries) {
+        const bucket = rhymeToBucket.get(e.rhyme);
+        if (bucket && !bucket.chars.includes(simp)) bucket.chars.push(simp);
+      }
+      mirrored++;
+    } else if (sEntries && sEntries.length > 0 && (!tEntries || tEntries.length === 0)) {
+      charToEntries.set(trad, [...sEntries]);
+      for (const e of sEntries) {
+        const bucket = rhymeToBucket.get(e.rhyme);
+        if (bucket && !bucket.chars.includes(trad)) bucket.chars.push(trad);
+      }
+      mirrored++;
+    }
+  }
+  console.log(`variant-key mirroring: ${mirrored} chars mirrored via tc2sc.json`);
+} else {
+  console.log("WARN: tc2sc.json not found, skipping variant-key mirroring");
+}
+
 const charObj = Object.fromEntries(charToEntries);
 const rhymeObj = Object.fromEntries(rhymeToBucket);
 
