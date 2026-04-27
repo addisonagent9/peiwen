@@ -139,11 +139,11 @@ export const TrainerTierView: React.FC<TrainerTierViewProps> = ({
               return (
                 <button
                   key={num}
-                  onClick={unlocked && num <= 3 && onStartDrill ? () => onStartDrill(num) : undefined}
-                  disabled={!unlocked || num > 3}
+                  onClick={unlocked && num <= 4 && onStartDrill ? () => onStartDrill(num) : undefined}
+                  disabled={!unlocked || num > 4}
                   className={`w-full text-left py-3 px-4 border rounded-md transition-colors ${
                     unlocked
-                      ? num <= 3
+                      ? num <= 4
                         ? 'border-emerald-600/40 bg-emerald-600/10 text-cream hover:bg-emerald-600/20 cursor-pointer'
                         : 'border-emerald-600/20 bg-emerald-600/5 text-cream/70 cursor-default'
                       : 'border-ink-line/50 text-creamDim/40 cursor-not-allowed'
@@ -159,7 +159,7 @@ export const TrainerTierView: React.FC<TrainerTierViewProps> = ({
                       <span className="text-sm font-serif">{title}</span>
                     </div>
                     {!unlocked && <LockIcon />}
-                    {unlocked && num > 3 && (
+                    {unlocked && num > 4 && (
                       <span className="text-xs text-creamDim/50">{strings.drillComingSoon}</span>
                     )}
                   </div>

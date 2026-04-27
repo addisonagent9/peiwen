@@ -34,6 +34,7 @@ export interface TrainerHomeProps {
   onStartFoundation: () => void;
   onOpenTier: (tier: RhymeTier) => void;
   onOpenDashboard: () => void;
+  onOpenLibrary?: () => void;
   onStartDrill?: () => void;
 }
 
@@ -45,6 +46,7 @@ export const TrainerHome: React.FC<TrainerHomeProps> = ({
   onStartFoundation,
   onOpenTier,
   onOpenDashboard,
+  onOpenLibrary,
   onStartDrill,
 }) => {
   const tiers: Array<{
@@ -156,6 +158,16 @@ export const TrainerHome: React.FC<TrainerHomeProps> = ({
             <span className="font-serif">{strings.dashboardTitle}</span>
             <Chevron />
           </button>
+
+          {onOpenLibrary && (
+            <button
+              onClick={onOpenLibrary}
+              className="w-full flex items-center justify-between py-3 px-4 border border-ink-line rounded-md text-cream hover:bg-cream/5 transition-colors"
+            >
+              <span className="font-serif">{strings.libraryNavLabel}</span>
+              <Chevron />
+            </button>
+          )}
 
           {/* Foundation review — demoted to 其他 section after completion */}
           {state.foundationCompleted && (

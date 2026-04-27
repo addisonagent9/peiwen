@@ -7,9 +7,19 @@
  */
 
 import express from 'express';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { TIER1_SEED_CHARS, TIER1_RHYME_IDS } from '../data/tier1-seed-chars.mjs';
 import { RHYMES_PINGSHENG, FAMILIES } from '../data/trainer-curriculum.mjs';
 import { getUnlockStatus, recordDrillCompletion, getDrillSessionCount, isDrillUnlocked } from '../trainer/unlocks.mjs';
+
+const __drill_dirname = path.dirname(fileURLToPath(import.meta.url));
+let drill4Corpus = null;
+try {
+  const corpusPath = path.resolve(__drill_dirname, '../../src/data/pingshui/drill4-corpus.json');
+  drill4Corpus = JSON.parse(fs.readFileSync(corpusPath, 'utf8'));
+} catch { drill4Corpus = {}; }
 
 function shuffle(arr) {
   const a = [...arr];
@@ -369,6 +379,80 @@ export function createDrillRouter(db, composedGate) {
     } catch (err) {
       next(err);
     }
+  });
+
+  // GET /word-queue?scope=tier1&limit=10
+  router.get('/word-queue', composedGate, (req, res, next) => {
+    try {
+      const userId = req.user.id;
+      if (!isDrillUnlocked(db, userId, 1, 4)) {
+        return res.status(403).json({ error: 'DRILL_LOCKED' });
+      }
+      const limit = Math.min(20, Math.max(1, parseInt(req.query.limit) || 10));
+      const allEntries = [];
+      for (const rName of TIER1_RHYME_IDS) {
+        const rhymeLabel = RHYMES_PINGSHENG.find(r => r.id === rName)?.label;
+        const bucket = drill4Corpus[rhymeLabel] ?? [];
+        allEntries.push(...bucket);
+      }
+      const items = shuffle(allEntries).slice(0, limit);
+      res.json({ items });
+    } catch (err) { next(err); }
+  });
+
+  // POST /word-response
+  router.post('/word-response', composedGate, express.json(), (req, res, next) => {
+    try {
+      const userId = req.user.id;
+      const { answer, expected, rhyme } = req.body ?? {};
+      if (!answer || !expected) return res.status(400).json({ error: 'INVALID_BODY' });
+      const correct = answer.trim() === expected.trim();
+      let addedToLibrary = false;
+      if (correct && rhyme) {
+        const result = db.prepare(
+          "INSERT OR IGNORE INTO user_rhyme_library (user_id, rhyme_id, char, source) VALUES (?, ?, ?, 'drill4')"
+        ).run(userId, rhyme, expected);
+        addedToLibrary = (result.changes ?? 0) > 0;
+      }
+      res.json({ correct, expected, addedToLibrary });
+    } catch (err) { next(err); }
+  });
+
+  // POST /library/add (manual add)
+  const sLibAdd = null; // lazy
+  router.post('/library/add', composedGate, express.json(), (req, res, next) => {
+    try {
+      const userId = req.user.id;
+      const { rhyme_id, char } = req.body ?? {};
+      if (!rhyme_id || !char) return res.status(400).json({ error: 'INVALID_BODY' });
+      const result = db.prepare(
+        "INSERT OR IGNORE INTO user_rhyme_library (user_id, rhyme_id, char, source) VALUES (?, ?, ?, 'manual')"
+      ).run(userId, rhyme_id, char);
+      res.json({ added: (result.changes ?? 0) > 0 });
+    } catch (err) { next(err); }
+  });
+
+  // GET /library
+  router.get('/library', composedGate, (req, res, next) => {
+    try {
+      const userId = req.user.id;
+      const rows = db.prepare(
+        'SELECT rhyme_id, char FROM user_rhyme_library WHERE user_id = ? ORDER BY added_at DESC'
+      ).all(userId);
+      const ps = JSON.parse(fs.readFileSync(path.resolve(__drill_dirname, '../../src/data/pingshui.json'), 'utf8'));
+      const tier1Labels = TIER1_RHYME_IDS.map(id => RHYMES_PINGSHENG.find(r => r.id === id)?.label).filter(Boolean);
+      const rhymes = tier1Labels.map(label => {
+        const bucket = ps.rhymes[label];
+        const userChars = rows.filter(r => r.rhyme_id === label).map(r => r.char);
+        return {
+          rhyme_id: label,
+          rhyme_label: label,
+          total_chars: bucket?.chars?.length ?? 0,
+          user_chars: userChars,
+        };
+      });
+      res.json({ rhymes });
+    } catch (err) { next(err); }
   });
 
   return router;

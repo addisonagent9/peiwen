@@ -39,6 +39,8 @@ import { RhymeDetail } from './RhymeDetail';
 import { DrillSession } from './DrillSession';
 import { DrillRecallSession } from './DrillRecallSession';
 import { DrillPairSession } from './DrillPairSession';
+import { DrillWordSession } from './DrillWordSession';
+import { RhymeLibrary } from './RhymeLibrary';
 
 export type SubView =
   | 'home'
@@ -48,6 +50,8 @@ export type SubView =
   | 'drill'
   | 'drill-recall'
   | 'drill-pair'
+  | 'drill-word'
+  | 'library'
   | 'dashboard';
 
 export interface PingshuiTrainerProps {
@@ -173,6 +177,8 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
           : subView === 'drill' ? () => setSubView('tier')
           : subView === 'drill-recall' ? () => setSubView('tier')
           : subView === 'drill-pair' ? () => setSubView('tier')
+          : subView === 'drill-word' ? () => setSubView('tier')
+          : subView === 'library' ? () => setSubView('home')
           : subView === 'dashboard' ? () => setSubView('home')
           : goHome
         }
@@ -192,6 +198,7 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
               setSubView('tier');
             }}
             onOpenDashboard={() => setSubView('dashboard')}
+            onOpenLibrary={() => setSubView('library')}
             onStartDrill={() => { setDrillScope('all'); setSubView('drill'); }}
           />
         )}
@@ -224,6 +231,8 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
                 setSubView('drill-recall');
               } else if (drillNum === 3) {
                 setSubView('drill-pair');
+              } else if (drillNum === 4) {
+                setSubView('drill-word');
               } else {
                 setSubView('drill');
               }
@@ -265,6 +274,22 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
             scope={drillScope}
             onExit={() => setSubView('tier')}
             onSessionComplete={refreshUnlocks}
+          />
+        )}
+
+        {subView === 'drill-word' && (
+          <DrillWordSession
+            strings={strings}
+            scope={drillScope}
+            onExit={() => setSubView('tier')}
+            onSessionComplete={refreshUnlocks}
+          />
+        )}
+
+        {subView === 'library' && (
+          <RhymeLibrary
+            strings={strings}
+            onBack={() => setSubView('home')}
           />
         )}
 

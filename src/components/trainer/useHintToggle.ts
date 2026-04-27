@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-export function useHintToggle(drillKey: 'drill1' | 'drill2' | 'drill3', defaultOn: boolean) {
+export function useHintToggle(drillKey: 'drill1' | 'drill2' | 'drill3' | 'drill4', defaultOn: boolean) {
   const storageKey = `peiwen.trainer.${drillKey}.hint`;
   const [hintOn, setHintOn] = useState(() => {
     try {

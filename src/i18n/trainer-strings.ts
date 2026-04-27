@@ -84,6 +84,22 @@ export interface TrainerStrings {
   drill3Mnemonic: string;
   drill3AnchorPoem: string;
   drill3Continue: string;
+
+  // Drill 4 — Word completion
+  drill4SessionTitle: string;
+  drill4Prompt: (rhyme: string) => string;
+  drill4Submit: string;
+  drill4InputPlaceholder: string;
+  drill4AddedToLibrary: string;
+  drill4AlreadyInLibrary: string;
+
+  // Rhyme library
+  libraryNavLabel: string;
+  libraryEmpty: string;
+  libraryProgressFmt: (cur: number, total: number) => string;
+  libraryTotalsFmt: (chars: number, rhymes: number) => string;
+  libraryAddBtn: string;
+  libraryAddSm: string;
   drillTierScoped: string;
   drillGlobal: string;
 
@@ -202,6 +218,20 @@ const zhHans: TrainerStrings = {
   drill3AnchorPoem: '锚定诗篇',
   drill3Continue: '继续',
 
+  drill4SessionTitle: '应用 — 词语补齐',
+  drill4Prompt: (r) => `这个词语属于 ${r} 韵：`,
+  drill4Submit: '提交',
+  drill4InputPlaceholder: '输入字',
+  drill4AddedToLibrary: '已加入韵部库',
+  drill4AlreadyInLibrary: '已在库中',
+
+  libraryNavLabel: '我的韵部库',
+  libraryEmpty: '还没有收字',
+  libraryProgressFmt: (cur, total) => `${cur} / ${total} 字`,
+  libraryTotalsFmt: (chars, rhymes) => `累计收 ${chars} 字 · 共 ${rhymes} 韵`,
+  libraryAddBtn: '加入韵部库',
+  libraryAddSm: '+库',
+
   drillSessionTitle: '练习 — 字→韵部',
   drillPromptCharToRhyme: '这个字属于哪个韵?',
   drillStats: (drilled, total) => `已练习 ${drilled} / ${total}`,
@@ -313,6 +343,20 @@ const zhHant: TrainerStrings = {
   drill3AnchorPoem: '錨定詩篇',
   drill3Continue: '繼續',
 
+  drill4SessionTitle: '應用 — 詞語補齊',
+  drill4Prompt: (r) => `這個詞語屬於 ${r} 韻：`,
+  drill4Submit: '提交',
+  drill4InputPlaceholder: '輸入字',
+  drill4AddedToLibrary: '已加入韻部庫',
+  drill4AlreadyInLibrary: '已在庫中',
+
+  libraryNavLabel: '我的韻部庫',
+  libraryEmpty: '還沒有收字',
+  libraryProgressFmt: (cur, total) => `${cur} / ${total} 字`,
+  libraryTotalsFmt: (chars, rhymes) => `累計收 ${chars} 字 · 共 ${rhymes} 韻`,
+  libraryAddBtn: '加入韻部庫',
+  libraryAddSm: '+庫',
+
   drillSessionTitle: '練習 — 字→韻部',
   drillPromptCharToRhyme: '這個字屬於哪個韻?',
   drillStats: (drilled, total) => `已練習 ${drilled} / ${total}`,
@@ -423,6 +467,20 @@ const enBilingual: TrainerStrings = {
   drill3Mnemonic: 'Mnemonic',
   drill3AnchorPoem: 'Anchor poem',
   drill3Continue: 'Continue',
+
+  drill4SessionTitle: 'Application — Word Completion',
+  drill4Prompt: (r) => `This word is in ${r} rhyme:`,
+  drill4Submit: 'Submit',
+  drill4InputPlaceholder: 'Enter character',
+  drill4AddedToLibrary: 'Added to library',
+  drill4AlreadyInLibrary: 'Already in library',
+
+  libraryNavLabel: 'My Rhyme Library',
+  libraryEmpty: 'No characters yet',
+  libraryProgressFmt: (cur, total) => `${cur} / ${total} chars`,
+  libraryTotalsFmt: (chars, rhymes) => `${chars} chars across ${rhymes} rhymes`,
+  libraryAddBtn: 'Add to library',
+  libraryAddSm: '+lib',
 
   drillSessionTitle: 'Drill — Char → Rhyme',
   drillPromptCharToRhyme: 'Which rhyme does this belong to?',
