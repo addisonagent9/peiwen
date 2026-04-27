@@ -19,7 +19,7 @@ export const LibraryAddButton: React.FC<Props> = ({ rhymeId, char, strings, size
     if (added || loading) return;
     setLoading(true);
     try {
-      const res = await fetch('/api/trainer/library/add', {
+      const res = await fetch('/api/trainer/drill/library/add', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         credentials: 'include',

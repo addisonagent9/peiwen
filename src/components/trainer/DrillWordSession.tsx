@@ -9,8 +9,10 @@ interface Drill4Entry {
   blank_pos: number;
   answer: string;
   answer_pinyin?: string;
+  answer_jyutping?: string | null;
   hint_char: string;
   hint_pinyin?: string;
+  hint_jyutping?: string | null;
   rhyme: string;
   pinyin: string;
   gloss: string;
@@ -190,60 +192,68 @@ const WordCard: React.FC<{
       <p className="text-cream/80 text-sm font-serif text-center">{strings.drill4Prompt(item.rhyme)}</p>
 
       <div className="text-center space-y-2">
-        <div className="font-serif text-cream" style={{ fontSize: '48px', lineHeight: 1.2 }}>
+        <div className="font-serif text-cream flex items-center justify-center gap-1" style={{ fontSize: '48px', lineHeight: 1.2 }}>
           {displayChars.map((ch, i) => (
             <span key={i}>
               {i === item.blank_pos ? (
                 feedback ? (
                   <span className={feedback.correct ? 'text-emerald-500' : 'text-rose-500'}>{item.answer}</span>
                 ) : (
-                  <span className="text-gold/30">___</span>
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={userInput}
+                    autoFocus
+                    autoComplete="off"
+                    autoCapitalize="off"
+                    autoCorrect="off"
+                    onCompositionStart={() => { isComposing.current = true; }}
+                    onCompositionEnd={(e) => {
+                      isComposing.current = false;
+                      setUserInput((e.currentTarget as HTMLInputElement).value);
+                    }}
+                    onChange={(e) => setUserInput(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter' && !isComposing.current) handleSubmit(); }}
+                    className="w-16 h-16 text-center font-serif bg-ink-bg border-b-2 border-gold/50 text-cream outline-none focus:border-gold"
+                    style={{ fontSize: '48px', lineHeight: 1.2 }}
+                  />
                 )
               ) : ch}
             </span>
           ))}
         </div>
         {hintOn && (
-          <div className="text-creamDim/60 text-xs font-mono">
-            {displayChars.map((_, i) => {
-              const py = i === item.blank_pos
-                ? (feedback ? (item.answer_pinyin ?? pinyinParts[i] ?? '') : (item.answer_pinyin ?? '?'))
-                : (item.hint_pinyin ?? pinyinParts[i] ?? '');
-              return <span key={i}>{py}{i < displayChars.length - 1 ? ' ' : ''}</span>;
-            })}
+          <div className="text-creamDim/60 text-xs font-mono space-y-0.5">
+            <div>
+              {displayChars.map((_, i) => {
+                const py = i === item.blank_pos
+                  ? (feedback ? (item.answer_pinyin ?? pinyinParts[i] ?? '') : (item.answer_pinyin ?? '?'))
+                  : (item.hint_pinyin ?? pinyinParts[i] ?? '');
+                return <span key={i}>{py}{i < displayChars.length - 1 ? ' ' : ''}</span>;
+              })}
+            </div>
+            {(item.answer_jyutping || item.hint_jyutping) && (
+              <div>
+                {displayChars.map((_, i) => {
+                  const jy = i === item.blank_pos
+                    ? (feedback ? (item.answer_jyutping ?? '') : (item.answer_jyutping ?? '?'))
+                    : (item.hint_jyutping ?? '');
+                  return <span key={i}>{jy}{i < displayChars.length - 1 ? ' ' : ''}</span>;
+                })}
+              </div>
+            )}
           </div>
         )}
       </div>
 
       {!feedback && (
-        <div className="space-y-3">
-          <input
-            ref={inputRef}
-            type="text"
-            value={userInput}
-            autoFocus
-            autoComplete="off"
-            autoCapitalize="off"
-            autoCorrect="off"
-            placeholder={strings.drill4InputPlaceholder}
-            onCompositionStart={() => { isComposing.current = true; }}
-            onCompositionEnd={(e) => {
-              isComposing.current = false;
-              const v = (e.currentTarget as HTMLInputElement).value;
-              setUserInput(v);
-            }}
-            onChange={(e) => setUserInput(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter' && !isComposing.current) handleSubmit(); }}
-            className="w-full px-4 py-3 text-2xl font-serif text-cream text-center bg-ink-bg border border-ink-line rounded focus:border-gold/50 focus:outline-none"
-          />
-          <button
-            onClick={handleSubmit}
-            disabled={!userInput.trim()}
-            className="w-full py-3 bg-gold text-ink-bg font-serif tracking-wider rounded hover:opacity-90 transition-opacity disabled:opacity-30"
-          >
-            {strings.drill4Submit}
-          </button>
-        </div>
+        <button
+          onClick={handleSubmit}
+          disabled={!userInput.trim()}
+          className="w-full py-3 bg-gold text-ink-bg font-serif tracking-wider rounded hover:opacity-90 transition-opacity disabled:opacity-30"
+        >
+          {strings.drill4Submit}
+        </button>
       )}
 
       {feedback && (

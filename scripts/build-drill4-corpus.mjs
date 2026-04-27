@@ -13,8 +13,21 @@ const outPath = path.resolve(__dirname, '../src/data/pingshui/drill4-corpus.json
 
 const data = JSON.parse(fs.readFileSync(pingshuiPath, 'utf8'));
 const cedictRaw = fs.readFileSync(cedictPath, 'utf8').replace(/\r/g, '');
+const seedCharsPath = path.resolve(__dirname, '../server/data/tier1-seed-chars.mjs');
+const seedCharsText = fs.readFileSync(seedCharsPath, 'utf8');
 
 const TIER1_RHYMES = ['一東', '七陽', '十一尤', '六麻', '五歌'];
+
+// Build jyutping + curriculum lookup from tier1 seed chars
+const jyutpingMap = new Map();
+const seedCharSet = new Set();
+const seedRe = /char:\s*'([^']+)',\s*rhymeId:\s*'[^']+',\s*pinyin:\s*'[^']+',\s*jyutping:\s*'([^']+)'/g;
+let seedMatch;
+while ((seedMatch = seedRe.exec(seedCharsText)) !== null) {
+  jyutpingMap.set(seedMatch[1], seedMatch[2]);
+  seedCharSet.add(seedMatch[1]);
+}
+console.log(`Loaded ${seedCharSet.size} seed chars with jyutping`);
 
 const tier1Sets = {};
 for (const name of TIER1_RHYMES) {
@@ -128,13 +141,18 @@ for (const line of cedictRaw.split('\n')) {
     const answerPingRhymes = new Set(answerCharEntries.filter(e => e.tone === '平').map(e => e.rhyme));
     if (answerPingRhymes.size > 1) continue;
 
+    // Skip if answer char not in curriculum seed chars
+    if (!seedCharSet.has(chars[pos])) continue;
+
     entries.push({
       word: trad,
       blank_pos: pos,
       answer: chars[pos],
       answer_pinyin: pinyinParts[pos] ?? '',
+      answer_jyutping: jyutpingMap.get(chars[pos]) ?? null,
       hint_char: chars[1 - pos],
       hint_pinyin: pinyinParts[1 - pos] ?? '',
+      hint_jyutping: jyutpingMap.get(chars[1 - pos]) ?? null,
       rhyme,
       pinyin,
       gloss,

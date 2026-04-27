@@ -389,29 +389,27 @@ export function createDrillRouter(db, composedGate) {
         return res.status(403).json({ error: 'DRILL_LOCKED' });
       }
       const limit = Math.min(20, Math.max(1, parseInt(req.query.limit) || 10));
-      const allEntries = [];
-      for (const rName of TIER1_RHYME_IDS) {
-        const label = RHYMES_PINGSHENG.find(r => r.id === rName)?.label;
-        allEntries.push(...(drill4Corpus[label] ?? []));
-      }
-      const classicalPool = shuffle(allEntries.filter(e => e.tier === 'classical'));
-      const rarePool = shuffle(allEntries.filter(e => e.rare_set >= 3));
-      const template = buildInterleaveTemplate(limit);
+      const tier1Labels = TIER1_RHYME_IDS
+        .map(id => RHYMES_PINGSHENG.find(r => r.id === id)?.label)
+        .filter(Boolean);
+      const perRhyme = Math.floor(limit / tier1Labels.length);
+      const remainder = limit % tier1Labels.length;
       const items = [];
       const seen = new Set();
-      for (const targetSet of template) {
-        let candidate = null;
-        for (let attempt = 0; attempt < 5 && !candidate; attempt++) {
-          const pool = targetSet <= 2
-            ? (classicalPool.length > 0 ? classicalPool : allEntries)
-            : (rarePool.length > 0 ? rarePool : allEntries);
-          const pick = pool[Math.floor(Math.random() * pool.length)];
-          if (pick && !seen.has(pick.word + '|' + pick.answer)) candidate = pick;
+      for (let ri = 0; ri < tier1Labels.length; ri++) {
+        const bucket = shuffle(drill4Corpus[tier1Labels[ri]] ?? []);
+        const target = perRhyme + (ri < remainder ? 1 : 0);
+        let picked = 0;
+        for (const entry of bucket) {
+          if (picked >= target) break;
+          if (!seen.has(entry.word + '|' + entry.answer)) {
+            seen.add(entry.word + '|' + entry.answer);
+            items.push(entry);
+            picked++;
+          }
         }
-        if (!candidate) candidate = allEntries.find(e => !seen.has(e.word + '|' + e.answer));
-        if (candidate) { seen.add(candidate.word + '|' + candidate.answer); items.push(candidate); }
       }
-      res.json({ items });
+      res.json({ items: shuffle(items) });
     } catch (err) { next(err); }
   });
 

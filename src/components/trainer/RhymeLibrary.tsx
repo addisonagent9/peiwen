@@ -18,7 +18,7 @@ export const RhymeLibrary: React.FC<Props> = ({ strings, onBack }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/trainer/library', { credentials: 'include' })
+    fetch('/api/trainer/drill/library', { credentials: 'include' })
       .then(r => r.json())
       .then(d => setRhymes(d.rhymes ?? []))
       .catch(() => {})
