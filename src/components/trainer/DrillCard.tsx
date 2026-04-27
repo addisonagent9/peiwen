@@ -131,7 +131,7 @@ export const DrillCard: React.FC<DrillCardProps> = ({
         <div className="space-y-3">
           <button
             onClick={handleContinue}
-            className="w-full py-3 bg-gold/10 border border-gold/40 text-gold font-serif tracking-wider rounded hover:bg-gold/20 transition-colors"
+            className="w-full py-3 bg-gold text-ink-bg font-serif tracking-wider rounded hover:opacity-90 transition-opacity"
           >
             {strings.drillContinueNext}
           </button>

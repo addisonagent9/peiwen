@@ -270,7 +270,7 @@ const WrongAnswerPanel: React.FC<{
   <div className="space-y-4 border border-rose-400/30 rounded-lg p-4 bg-rose-400/5">
     {/* Answer reveal */}
     <div>
-      <p className="text-xs text-creamDim mb-1">{strings.drill3CorrectAnswer}</p>
+      <p className="text-xs uppercase tracking-wider text-creamDim/70 font-sans mb-1">{strings.drill3CorrectAnswer}</p>
       <p className="text-cream text-sm font-serif">
         {item.left.char} → <span className="text-gold">{item.leftLabel}</span>
         {' · '}
@@ -285,7 +285,7 @@ const WrongAnswerPanel: React.FC<{
     {/* Family */}
     {item.family && (
       <div>
-        <p className="text-xs text-creamDim mb-1">家族</p>
+        <p className="text-xs uppercase tracking-wider text-creamDim/70 font-sans mb-1">家族</p>
         <p className="text-cream text-sm">{item.family}</p>
       </div>
     )}
@@ -293,7 +293,7 @@ const WrongAnswerPanel: React.FC<{
     {/* Teaching note */}
     {item.teachingNote && (item.teachingNote.left || item.teachingNote.right) && (
       <div>
-        <p className="text-xs text-creamDim mb-1">{strings.drill3TeachingNote}</p>
+        <p className="text-xs uppercase tracking-wider text-creamDim/70 font-sans mb-1">{strings.drill3TeachingNote}</p>
         {item.teachingNote.left === item.teachingNote.right || !item.teachingNote.right ? (
           <p className="text-cream/80 text-sm">{item.teachingNote.left}</p>
         ) : (
@@ -308,7 +308,7 @@ const WrongAnswerPanel: React.FC<{
     {/* Mnemonic */}
     {item.mnemonic && (item.mnemonic.left || item.mnemonic.right) && (
       <div>
-        <p className="text-xs text-creamDim mb-1">{strings.drill3Mnemonic}</p>
+        <p className="text-xs uppercase tracking-wider text-creamDim/70 font-sans mb-1">{strings.drill3Mnemonic}</p>
         {item.mnemonic.left === item.mnemonic.right || !item.mnemonic.right ? (
           <p className="text-creamDim/80 text-sm italic">{item.mnemonic.left}</p>
         ) : (
@@ -323,7 +323,7 @@ const WrongAnswerPanel: React.FC<{
     {/* Anchor poems */}
     {(item.leftAnchor || item.rightAnchor) && (
       <div>
-        <p className="text-xs text-creamDim mb-2">{strings.drill3AnchorPoem}</p>
+        <p className="text-xs uppercase tracking-wider text-creamDim/70 font-sans mb-2">{strings.drill3AnchorPoem}</p>
         {item.leftAnchor && <AnchorPoemInline poem={item.leftAnchor} />}
         {item.rightAnchor && item.rightAnchor !== item.leftAnchor && (
           <div className="mt-2"><AnchorPoemInline poem={item.rightAnchor} /></div>
