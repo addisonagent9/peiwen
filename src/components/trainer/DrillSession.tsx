@@ -2,6 +2,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import type { TrainerStrings } from '../../i18n/trainer-strings';
 import { DrillCard } from './DrillCard';
 import type { DrillItem } from './DrillCard';
+import { useHintToggle } from './useHintToggle';
+import { HintTogglePill } from './HintTogglePill';
 
 type Phase = 'start' | 'active' | 'summary';
 
@@ -25,17 +27,7 @@ export const DrillSession: React.FC<DrillSessionProps> = ({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [results, setResults] = useState<boolean[]>([]);
   const [loading, setLoading] = useState(false);
-
-  const [hintEnabled, setHintEnabled] = useState(() => {
-    try {
-      const saved = localStorage.getItem('drillHintEnabled');
-      return saved === null ? true : saved === 'true';
-    } catch { return true; }
-  });
-
-  useEffect(() => {
-    try { localStorage.setItem('drillHintEnabled', String(hintEnabled)); } catch {}
-  }, [hintEnabled]);
+  const { hintOn: hintEnabled, toggle: toggleHint } = useHintToggle('drill1', false);
 
   useEffect(() => {
     fetch('/api/trainer/drill/status', { credentials: 'include' })
@@ -121,20 +113,7 @@ export const DrillSession: React.FC<DrillSessionProps> = ({
           )}
         </header>
 
-        {/* Hint toggle */}
-        <div className="flex items-center justify-center gap-2">
-          <span className="text-creamDim text-sm">{strings.drillHintLabel}</span>
-          <button
-            onClick={() => setHintEnabled(!hintEnabled)}
-            className={`px-3 py-1 rounded border text-xs transition-colors ${
-              hintEnabled
-                ? 'border-gold/60 bg-gold/10 text-gold'
-                : 'border-ink-line text-creamDim hover:text-cream'
-            }`}
-          >
-            {hintEnabled ? strings.drillHintOn : strings.drillHintOff}
-          </button>
-        </div>
+        <HintTogglePill hintOn={hintEnabled} onToggle={toggleHint} strings={strings} />
 
         {/* Card count buttons */}
         <div className="grid grid-cols-2 gap-3">
@@ -169,7 +148,7 @@ export const DrillSession: React.FC<DrillSessionProps> = ({
           progress={{ current: currentIndex + 1, total: items.length }}
           strings={strings}
           hintEnabled={hintEnabled}
-          onToggleHint={() => setHintEnabled(h => !h)}
+          onToggleHint={toggleHint}
         />
       </div>
     );

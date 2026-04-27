@@ -3,6 +3,8 @@ import type { TrainerStrings } from '../../i18n/trainer-strings';
 import type { AnchorPoem } from '../../types/pingshui-trainer';
 import { useAudio } from '../../hooks/useAudio';
 import { formatJyutping } from './FoundationModule';
+import { useHintToggle } from './useHintToggle';
+import { HintTogglePill } from './HintTogglePill';
 
 interface PairChar {
   char: string;
@@ -41,6 +43,7 @@ export const DrillPairSession: React.FC<DrillPairSessionProps> = ({
   onSessionComplete,
 }) => {
   const [phase, setPhase] = useState<Phase>('start');
+  const { hintOn, toggle: toggleHint } = useHintToggle('drill3', true);
   const [items, setItems] = useState<PairItem[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [sessionResults, setSessionResults] = useState<boolean[]>([]);
@@ -92,6 +95,8 @@ export const DrillPairSession: React.FC<DrillPairSessionProps> = ({
           </button>
           <h2 className="font-serif text-cream text-2xl tracking-wide">{strings.drill3SessionTitle}</h2>
         </header>
+        <HintTogglePill hintOn={hintOn} onToggle={toggleHint} strings={strings} />
+
         <div className="grid grid-cols-2 gap-3">
           {[
             { count: 5, label: strings.drillPickCount5 },
@@ -111,12 +116,14 @@ export const DrillPairSession: React.FC<DrillPairSessionProps> = ({
   if (phase === 'active' && items[currentIndex]) {
     return (
       <div className="pt-6 pb-24">
+        <HintTogglePill hintOn={hintOn} onToggle={toggleHint} strings={strings} />
         <PairCard
           key={currentIndex}
           item={items[currentIndex]}
           strings={strings}
           progress={{ current: currentIndex + 1, total: items.length }}
           onComplete={handleCardComplete}
+          hintOn={hintOn}
         />
       </div>
     );
@@ -143,7 +150,8 @@ const PairCard: React.FC<{
   strings: TrainerStrings;
   progress: { current: number; total: number };
   onComplete: (correct: boolean) => void;
-}> = ({ item, strings, progress, onComplete }) => {
+  hintOn: boolean;
+}> = ({ item, strings, progress, onComplete, hintOn }) => {
   const [answered, setAnswered] = useState<boolean | null>(null);
   const audio = useAudio();
   const cantoneseAvailable = audio.available && audio.probed && audio.approvedCounts.cantonese > 0;
@@ -166,7 +174,7 @@ const PairCard: React.FC<{
       className="relative border border-ink-line rounded-lg p-4 flex flex-col items-center gap-2 flex-1 min-w-0"
     >
       <span className="font-serif text-cream text-4xl sm:text-5xl">{c.char}</span>
-      <span className="text-creamDim/60 text-xs font-mono">{c.pinyin} · {formatJyutping(c.jyutping)}</span>
+      {hintOn && <span className="text-creamDim/60 text-xs font-mono">{c.pinyin} · {formatJyutping(c.jyutping)}</span>}
       {answered !== null && (
         <span className="text-xs text-gold font-serif">{label}</span>
       )}

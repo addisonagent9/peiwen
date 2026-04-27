@@ -3,6 +3,7 @@ import type { TrainerStrings } from '../../i18n/trainer-strings';
 import { RHYMES_PINGSHENG } from '../../data/pingshui/trainer-curriculum';
 import { useAudio } from '../../hooks/useAudio';
 import { formatJyutping } from './FoundationModule';
+import { HintTogglePill } from './HintTogglePill';
 
 export interface DrillItem {
   type: string;
@@ -62,12 +63,7 @@ export const DrillCard: React.FC<DrillCardProps> = ({
     <div className="space-y-8">
       {/* Progress + hint toggle */}
       <div className="flex items-center justify-between">
-        <button
-          onClick={() => { setCardHint(h => !h); onToggleHint(); }}
-          className="text-[10px] text-creamDim/50 hover:text-creamDim transition-colors"
-        >
-          {cardHint ? strings.drillHintHide : strings.drillHintShow}
-        </button>
+        <HintTogglePill hintOn={cardHint} onToggle={() => { setCardHint(h => !h); onToggleHint(); }} strings={strings} />
         <span className="text-xs text-creamDim">
           {progress.current} / {progress.total}
         </span>

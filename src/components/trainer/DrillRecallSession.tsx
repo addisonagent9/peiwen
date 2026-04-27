@@ -2,6 +2,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import type { TrainerStrings } from '../../i18n/trainer-strings';
 import { useAudio } from '../../hooks/useAudio';
 import { formatJyutping } from './FoundationModule';
+import { useHintToggle } from './useHintToggle';
+import { HintTogglePill } from './HintTogglePill';
 
 interface RecallTile {
   char: string;
@@ -34,6 +36,7 @@ export const DrillRecallSession: React.FC<DrillRecallSessionProps> = ({
   onSessionComplete,
 }) => {
   const [phase, setPhase] = useState<Phase>('start');
+  const { hintOn, toggle: toggleHint } = useHintToggle('drill2', false);
   const [items, setItems] = useState<RecallItem[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [sessionResults, setSessionResults] = useState<number[]>([]);
@@ -87,6 +90,8 @@ export const DrillRecallSession: React.FC<DrillRecallSessionProps> = ({
           </button>
           <h2 className="font-serif text-cream text-2xl tracking-wide">{strings.drill2SessionTitle}</h2>
         </header>
+        <HintTogglePill hintOn={hintOn} onToggle={toggleHint} strings={strings} />
+
         <div className="grid grid-cols-2 gap-3">
           {[
             { count: 5, label: strings.drillPickCount5 },
@@ -106,12 +111,14 @@ export const DrillRecallSession: React.FC<DrillRecallSessionProps> = ({
   if (phase === 'active' && items[currentIndex]) {
     return (
       <div className="pt-6 pb-24">
+        <HintTogglePill hintOn={hintOn} onToggle={toggleHint} strings={strings} />
         <RecallCard
           key={currentIndex}
           item={items[currentIndex]}
           strings={strings}
           progress={{ current: currentIndex + 1, total: items.length }}
           onComplete={handleCardComplete}
+          hintOn={hintOn}
         />
       </div>
     );
@@ -142,7 +149,8 @@ const RecallCard: React.FC<{
   strings: TrainerStrings;
   progress: { current: number; total: number };
   onComplete: (correctCount: number) => void;
-}> = ({ item, strings, progress, onComplete }) => {
+  hintOn: boolean;
+}> = ({ item, strings, progress, onComplete, hintOn }) => {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [cardPhase, setCardPhase] = useState<CardPhase>('picking');
   const audio = useAudio();
@@ -216,6 +224,11 @@ const RecallCard: React.FC<{
             >
               {icon && <span className="absolute top-1 left-1">{icon}</span>}
               <span className="font-serif text-cream text-2xl">{tile.char}</span>
+              {hintOn && (
+                <span className="text-creamDim/60 text-[10px] font-mono leading-tight">
+                  {tile.pinyin} · {formatJyutping(tile.jyutping)}
+                </span>
+              )}
               {cantoneseAvailable && (
                 <button
                   type="button"
