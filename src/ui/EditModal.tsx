@@ -93,6 +93,7 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
   const [val, setVal] = useState(initial);
   const [inputVal, setInputVal] = useState(initial);
   const isComposing = useRef(false);
+  const fetchReqId = useRef(0);
   const [dictsReady, setDictsReady] = useState(isCedictLoaded() && isMoedictLoaded());
   const [dictError, setDictError] = useState<string | null>(null);
   const [view, setView] = useState<"edit" | "suggest">("edit");
@@ -105,6 +106,7 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
   const [ancientMeaning, setAncientMeaning] = useState<{ zh: string; en: string } | null>(null);
 
   useEffect(() => {
+    fetchReqId.current++;
     setVal(initial); setInputVal(initial); setView("edit"); setSuggestions([]); setSuggestError(null);
     setSeenChars(new Set()); setExhausted(false); setInitialLoaded(false);
     setAncientMeaning(null);
@@ -161,7 +163,7 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
   const fetchBatch = (prevSeen: Set<string>) => {
     if (!val) return;
     if (mismatch && !actualTone) return;
-
+    const reqId = ++fetchReqId.current;
     setSuggestLoading(true);
     setSuggestError(null);
     const rhymeClause = requiredRhyme
@@ -185,7 +187,7 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
 
     callAnthropic(prompt)
       .then(text => {
-
+        if (reqId !== fetchReqId.current) return;
         const raw = parseSuggestions(text);
 
         const dedupSeen = new Set<string>();
@@ -219,8 +221,14 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
         setSuggestions(fresh);
 
       })
-      .catch(err => setSuggestError(String(err.message ?? err)))
-      .finally(() => setSuggestLoading(false));
+      .catch(err => {
+        if (reqId !== fetchReqId.current) return;
+        setSuggestError(String(err.message ?? err));
+      })
+      .finally(() => {
+        if (reqId !== fetchReqId.current) return;
+        setSuggestLoading(false);
+      });
   };
 
   const openSuggest = () => {
@@ -453,7 +461,7 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
         ) : (
           <>
             <button
-              onClick={() => setView("edit")}
+              onClick={() => { fetchReqId.current++; setView("edit"); }}
               className="text-sm font-sans text-creamDim hover:text-gold"
             >{t.back2}</button>
             <div className="mt-3 text-base font-serif text-cream">
