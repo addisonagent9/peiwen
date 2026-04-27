@@ -128,19 +128,19 @@ export const DrillCard: React.FC<DrillCardProps> = ({
 
       {/* Reveal */}
       {phase === 'revealed' && (
-        <div className="space-y-4">
-          <p className={`text-center text-sm font-serif ${isCorrect ? 'text-green-400' : 'text-rose-400'}`}>
-            {isCorrect ? strings.drillCorrect : strings.drillIncorrect}
-          </p>
-          <p className="text-center text-creamDim text-xs">
-            {strings.drillExplanation(item.text, rhymeLabel(item.rhymeId))}
-          </p>
+        <div className="space-y-3">
           <button
             onClick={handleContinue}
             className="w-full py-3 bg-gold/10 border border-gold/40 text-gold font-serif tracking-wider rounded hover:bg-gold/20 transition-colors"
           >
             {strings.drillContinueNext}
           </button>
+          <p className={`text-center text-base font-serif font-bold ${isCorrect ? 'text-emerald-400' : 'text-red-400'}`}>
+            {isCorrect ? strings.drillCorrect : strings.drillIncorrect}
+          </p>
+          <p className="text-center text-creamDim text-xs">
+            {strings.drillExplanation(item.text, rhymeLabel(item.rhymeId))}
+          </p>
         </div>
       )}
     </div>
