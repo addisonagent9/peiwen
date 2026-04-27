@@ -27,7 +27,7 @@ export const DrillSession: React.FC<DrillSessionProps> = ({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [results, setResults] = useState<boolean[]>([]);
   const [loading, setLoading] = useState(false);
-  const { hintOn: hintEnabled, toggle: toggleHint } = useHintToggle('drill1', false);
+  const { hintOn: hintEnabled, toggle: toggleHint } = useHintToggle('drill1', true);
 
   useEffect(() => {
     fetch('/api/trainer/drill/status', { credentials: 'include' })

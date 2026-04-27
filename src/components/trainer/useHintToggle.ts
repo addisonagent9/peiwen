@@ -7,6 +7,11 @@ export function useHintToggle(drillKey: 'drill1' | 'drill2' | 'drill3', defaultO
       const v = localStorage.getItem(storageKey);
       if (v === '1') return true;
       if (v === '0') return false;
+      if (drillKey === 'drill1') {
+        const legacy = localStorage.getItem('drillHintEnabled');
+        if (legacy === 'true') return true;
+        if (legacy === 'false') return false;
+      }
       return defaultOn;
     } catch { return defaultOn; }
   });
