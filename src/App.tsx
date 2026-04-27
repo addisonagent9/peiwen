@@ -87,6 +87,12 @@ export default function App() {
       .catch(() => {});
   }, []);
 
+  useEffect(() => {
+    const stashed = sessionStorage.getItem('peiwen.composer.draft');
+    if (stashed) setRaw(stashed);
+    sessionStorage.removeItem('peiwen.composer.draft');
+  }, []);
+
   const loadPoems = useCallback(() => {
     fetch("/api/poems", { credentials: "same-origin" })
       .then(r => r.json())
@@ -374,6 +380,7 @@ export default function App() {
           <a href="/api/auth/logout" className={`${px} text-creamDim hover:text-cream`}>{t.signOut}</a>
         ) : (
           <a href="/api/auth/google"
+            onClick={() => { if (raw) sessionStorage.setItem('peiwen.composer.draft', raw); }}
             className={`${px} rounded border border-ink-line text-creamDim hover:text-cream hover:border-cream`}
           >{t.signIn}</a>
         )}
