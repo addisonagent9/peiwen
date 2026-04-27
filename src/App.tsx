@@ -5,6 +5,8 @@ import { EditModal } from "./ui/EditModal";
 import { RhymeReference } from "./ui/RhymeReference";
 import AdminConsole from "./ui/AdminConsole";
 import { PingshuiTrainer } from "./components/trainer/PingshuiTrainer";
+import { SlideToConfirm } from "./ui/SlideToConfirm";
+import { ConfirmDialog } from "./ui/ConfirmDialog";
 
 import { detectBest, formFromDims } from "./analysis/detect";
 import { lookup, lookupExpecting } from "./analysis/tone";
@@ -43,6 +45,7 @@ interface SavedPoem {
   id: number;
   text: string;
   saved_at: string;
+  is_locked?: number;
 }
 
 function convertText(text: string, to: Locale): string {
@@ -79,6 +82,8 @@ export default function App() {
   const [savedMsg, setSavedMsg] = useState(false);
   const [poemsOpen, setPoemsOpen] = useState(false);
   const [poems, setPoems] = useState<SavedPoem[]>([]);
+  const [unlockingId, setUnlockingId] = useState<number | null>(null);
+  const [confirmingDeleteId, setConfirmingDeleteId] = useState<number | null>(null);
 
   useEffect(() => {
     fetch("/api/auth/me", { credentials: "same-origin" })
@@ -112,7 +117,20 @@ export default function App() {
 
   const deletePoem = (id: number) => {
     fetch(`/api/poems/${id}`, { method: "DELETE", credentials: "same-origin" })
-      .then(r => { if (r.ok) setPoems(prev => prev.filter(p => p.id !== id)); });
+      .then(r => { if (r.ok) { setPoems(prev => prev.filter(p => p.id !== id)); setConfirmingDeleteId(null); } });
+  };
+
+  const toggleLock = (id: number, lock: boolean) => {
+    fetch(`/api/poems/${id}/lock`, {
+      method: "PATCH", credentials: "same-origin",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ is_locked: lock ? 1 : 0 }),
+    }).then(r => {
+      if (r.ok) {
+        setPoems(prev => prev.map(p => p.id === id ? { ...p, is_locked: lock ? 1 : 0 } : p));
+        if (!lock) setUnlockingId(null);
+      }
+    });
   };
 
   const openPoems = () => { setPoemsOpen(true); loadPoems(); };
@@ -654,23 +672,53 @@ export default function App() {
                 {poems.map(p => {
                   const firstLine = p.text.split(/\r?\n/)[0] ?? "";
                   const date = p.saved_at?.replace("T", " ").slice(0, 16) ?? "";
+                  const locked = p.is_locked === 1;
                   return (
-                    <div key={p.id} className="flex items-center justify-between gap-2 px-4 py-3 border-b border-ink-line hover:bg-ink-card/60 transition">
-                      <button
-                        className="flex-1 text-left min-w-0"
-                        onClick={() => { setRaw(p.text); setSubmitted(false); setLockedPattern(null); setAnalysisResult(null); setPoemsOpen(false); }}
-                      >
-                        <div className="text-cream font-serif truncate">{firstLine}</div>
-                        <div className="text-[10px] text-creamDim font-sans mt-0.5">{date}</div>
-                      </button>
-                      <button
-                        onClick={() => deletePoem(p.id)}
-                        className="text-creamDim hover:text-rose text-sm flex-shrink-0"
-                        title="Delete"
-                      >🗑</button>
+                    <div key={p.id}>
+                      <div className="flex items-center justify-between gap-2 px-4 py-3 border-b border-ink-line hover:bg-ink-card/60 transition">
+                        <button
+                          className="flex-1 text-left min-w-0"
+                          onClick={() => { setRaw(p.text); setSubmitted(false); setLockedPattern(null); setAnalysisResult(null); setPoemsOpen(false); }}
+                        >
+                          <div className="text-cream font-serif truncate">{firstLine}</div>
+                          <div className="text-[10px] text-creamDim font-sans mt-0.5">{date}</div>
+                        </button>
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          <button
+                            onClick={() => locked ? setUnlockingId(p.id) : toggleLock(p.id, true)}
+                            className="text-creamDim hover:text-gold text-sm"
+                            title={locked ? t.poemUnlock : t.poemLock}
+                          >{locked ? '🔒' : '🔓'}</button>
+                          {!locked && (
+                            <button
+                              onClick={() => setConfirmingDeleteId(p.id)}
+                              className="text-creamDim hover:text-rose text-sm"
+                              title={t.deleteAction}
+                            >🗑</button>
+                          )}
+                        </div>
+                      </div>
+                      {unlockingId === p.id && (
+                        <div className="px-4 py-2 border-b border-ink-line">
+                          <SlideToConfirm
+                            label={t.slideToUnlock}
+                            onConfirm={() => toggleLock(p.id, false)}
+                            onCancel={() => setUnlockingId(null)}
+                          />
+                        </div>
+                      )}
                     </div>
                   );
                 })}
+                <ConfirmDialog
+                  open={confirmingDeleteId !== null}
+                  message={t.confirmDeleteMessage(poems.find(p => p.id === confirmingDeleteId)?.text.split(/\r?\n/)[0] ?? "")}
+                  confirmLabel={t.deleteAction}
+                  cancelLabel={t.cancel}
+                  onConfirm={() => { if (confirmingDeleteId !== null) deletePoem(confirmingDeleteId); }}
+                  onCancel={() => setConfirmingDeleteId(null)}
+                  destructive
+                />
               </div>
             )}
           </div>

@@ -127,7 +127,7 @@ app.get("/api/auth/me", (req, res) => {
 // --- Poems routes ---
 app.get("/api/poems", requireAuth, (req, res) => {
   const rows = db.prepare(
-    "SELECT id, text, saved_at FROM poems WHERE user_id = ? ORDER BY saved_at DESC"
+    "SELECT id, text, saved_at, is_locked FROM poems WHERE user_id = ? ORDER BY saved_at DESC"
   ).all(req.user.id);
   res.json({ poems: rows });
 });
@@ -141,10 +141,22 @@ app.post("/api/poems", requireAuth, (req, res) => {
   res.json({ id: result.lastInsertRowid });
 });
 
-app.delete("/api/poems/:id", requireAuth, (req, res) => {
-  const poem = db.prepare("SELECT user_id FROM poems WHERE id = ?").get(req.params.id);
+app.patch("/api/poems/:id/lock", requireAuth, express.json(), (req, res) => {
+  const id = parseInt(req.params.id);
+  const { is_locked } = req.body ?? {};
+  if (is_locked !== 0 && is_locked !== 1) return res.status(400).json({ error: "INVALID_LOCK_VALUE" });
+  const poem = db.prepare("SELECT user_id FROM poems WHERE id = ?").get(id);
   if (!poem) return res.status(404).json({ error: "not found" });
   if (poem.user_id !== req.user.id) return res.status(403).json({ error: "forbidden" });
+  db.prepare("UPDATE poems SET is_locked = ? WHERE id = ?").run(is_locked, id);
+  res.json({ id, is_locked });
+});
+
+app.delete("/api/poems/:id", requireAuth, (req, res) => {
+  const poem = db.prepare("SELECT user_id, is_locked FROM poems WHERE id = ?").get(req.params.id);
+  if (!poem) return res.status(404).json({ error: "not found" });
+  if (poem.user_id !== req.user.id) return res.status(403).json({ error: "forbidden" });
+  if (poem.is_locked === 1) return res.status(409).json({ error: "POEM_LOCKED" });
   db.prepare("DELETE FROM poems WHERE id = ?").run(req.params.id);
   res.json({ ok: true });
 });
