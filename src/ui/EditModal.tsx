@@ -281,34 +281,17 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
               onCompositionStart={() => { isComposing.current = true; }}
               onCompositionEnd={(e) => {
                 isComposing.current = false;
-                const composed = e.data ?? "";
-                const chinese = Array.from(composed).filter(ch => /\p{Script=Han}/u.test(ch));
-                if (chinese.length > 0) {
-                  const newVal = chinese.join("");
-                  setInputVal(prev => {
-                    const prevChinese = Array.from(prev).filter(ch => /\p{Script=Han}/u.test(ch));
-                    const prevStr = prevChinese.join("");
-                    if (prevStr.endsWith(newVal)) return prevStr;
-                    return prevStr + newVal;
-                  });
-                  setVal(prev => {
-                    const prevChinese = Array.from(prev).filter(ch => /\p{Script=Han}/u.test(ch));
-                    const prevStr = prevChinese.join("");
-                    if (prevStr.endsWith(newVal)) return prevStr;
-                    return prevStr + newVal;
-                  });
-                }
+                const v = (e.currentTarget as HTMLInputElement).value;
+                setInputVal(v);
+                const chinese = Array.from(v).filter(ch => /\p{Script=Han}/u.test(ch));
+                setVal(chinese.length > 0 ? chinese.join("") : "");
               }}
               onChange={(e) => {
                 const v = e.target.value;
                 setInputVal(v);
                 if (isComposing.current) return;
                 const chinese = Array.from(v).filter(ch => /\p{Script=Han}/u.test(ch));
-                if (chinese.length > 0) {
-                  setVal(chinese.join(""));
-                } else if (v === "") {
-                  setVal("");
-                }
+                setVal(chinese.length > 0 ? chinese.join("") : "");
               }}
               maxLength={20}
               className="w-full bg-ink-bg border border-ink-line rounded px-3 py-2 text-4xl font-serif text-cream text-center outline-none focus:border-gold"
