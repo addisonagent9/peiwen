@@ -76,12 +76,15 @@ export default function AdminConsole({ locale, onBack }: AdminConsoleProps) {
   const [userPoems, setUserPoems] = useState<AdminPoem[] | null>(null);
   const [poemsLoading, setPoemsLoading] = useState(false);
   const [expandedPoemId, setExpandedPoemId] = useState<number | null>(null);
-  const [adminTab, setAdminTab] = useState<"users" | "audio">("users");
+  const [adminTab, setAdminTab] = useState<"users" | "audio" | "settings">("users");
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [page, setPage] = useState(0);
   const [toggleLoading, setToggleLoading] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [appSettings, setAppSettings] = useState<Array<{ key: string; value: string; description: string | null; updated_at: string; updated_by: string | null }>>([]);
+  const [editValues, setEditValues] = useState<Record<string, string>>({});
+  const [savingKey, setSavingKey] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/auth/me", { credentials: "include" })
@@ -315,12 +318,76 @@ export default function AdminConsole({ locale, onBack }: AdminConsoleProps) {
                 : "text-creamDim hover:text-gold"
             }`}
           >音频审核</button>
+          <button
+            onClick={() => {
+              setAdminTab("settings");
+              if (appSettings.length === 0) {
+                fetch("/api/admin/settings", { credentials: "include" })
+                  .then(r => r.json())
+                  .then(d => {
+                    setAppSettings(d.settings ?? []);
+                    const init: Record<string, string> = {};
+                    for (const s of d.settings ?? []) init[s.key] = s.value;
+                    setEditValues(init);
+                  })
+                  .catch(() => {});
+              }
+            }}
+            className={`pb-2 text-sm font-sans transition ${
+              adminTab === "settings"
+                ? "text-gold border-b-2 border-gold"
+                : "text-creamDim hover:text-gold"
+            }`}
+          >训练设置</button>
         </div>
 
         {adminTab === "audio" && (
           <Suspense fallback={<div className="text-creamDim">...</div>}>
             <AudioReview />
           </Suspense>
+        )}
+
+        {adminTab === "settings" && (
+          <div>
+            <h2 className="text-lg text-cream mb-4">训练设置</h2>
+            {appSettings.length === 0 ? (
+              <div className="text-creamDim text-sm">加载中…</div>
+            ) : (
+              <div className="border border-ink-line rounded">
+                {appSettings.map(s => (
+                  <div key={s.key} className="flex items-center gap-3 px-4 py-3 border-b border-ink-line last:border-b-0">
+                    <div className="flex-1 min-w-0">
+                      <div className="text-cream font-mono text-xs">{s.key}</div>
+                      {s.description && <div className="text-creamDim text-xs mt-0.5">{s.description}</div>}
+                    </div>
+                    <input
+                      type="text"
+                      value={editValues[s.key] ?? ''}
+                      onChange={e => setEditValues(prev => ({ ...prev, [s.key]: e.target.value }))}
+                      className="w-32 px-2 py-1 text-sm bg-ink-bg border border-ink-line rounded text-cream font-mono text-right"
+                    />
+                    <button
+                      onClick={() => {
+                        setSavingKey(s.key);
+                        fetch(`/api/admin/settings/${encodeURIComponent(s.key)}`, {
+                          method: 'PATCH', credentials: 'include',
+                          headers: { 'content-type': 'application/json' },
+                          body: JSON.stringify({ value: editValues[s.key] }),
+                        })
+                          .then(r => r.json())
+                          .then(() => setAppSettings(prev => prev.map(x => x.key === s.key ? { ...x, value: editValues[s.key], updated_at: new Date().toISOString() } : x)))
+                          .finally(() => setSavingKey(null));
+                      }}
+                      disabled={savingKey === s.key || editValues[s.key] === s.value}
+                      className="px-3 py-1 text-sm bg-gold text-ink-bg rounded disabled:opacity-30"
+                    >
+                      {savingKey === s.key ? '…' : '保存'}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         )}
 
         {adminTab === "users" && (<>

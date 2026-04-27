@@ -5,6 +5,8 @@ import { useAudio } from '../../hooks/useAudio';
 import { formatJyutping } from './FoundationModule';
 import { useHintToggle } from './useHintToggle';
 import { HintTogglePill } from './HintTogglePill';
+import { CountdownBar } from './CountdownBar';
+import { fetchAppSettings, getSettingNumber } from '../../hooks/useAppSettings';
 
 interface PairChar {
   char: string;
@@ -44,10 +46,18 @@ export const DrillPairSession: React.FC<DrillPairSessionProps> = ({
 }) => {
   const [phase, setPhase] = useState<Phase>('start');
   const { hintOn, toggle: toggleHint } = useHintToggle('drill3', true);
+  const [pacing, setPacing] = useState({ correctMs: 700, wrongMs: 1400 });
   const [items, setItems] = useState<PairItem[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [sessionResults, setSessionResults] = useState<boolean[]>([]);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchAppSettings().then(s => setPacing({
+      correctMs: getSettingNumber(s, 'drill3_correct_advance_ms', 700),
+      wrongMs: getSettingNumber(s, 'drill3_wrong_advance_ms', 1400),
+    }));
+  }, []);
 
   const startDrill = useCallback(async (count: number) => {
     setLoading(true);
@@ -124,6 +134,7 @@ export const DrillPairSession: React.FC<DrillPairSessionProps> = ({
           onComplete={handleCardComplete}
           hintOn={hintOn}
           onToggleHint={toggleHint}
+          pacing={pacing}
         />
       </div>
     );
@@ -152,8 +163,10 @@ const PairCard: React.FC<{
   onComplete: (correct: boolean) => void;
   hintOn: boolean;
   onToggleHint: () => void;
-}> = ({ item, strings, progress, onComplete, hintOn, onToggleHint }) => {
+  pacing: { correctMs: number; wrongMs: number };
+}> = ({ item, strings, progress, onComplete, hintOn, onToggleHint, pacing }) => {
   const [answered, setAnswered] = useState<boolean | null>(null);
+  const [countdownStart, setCountdownStart] = useState<number | null>(null);
   const audio = useAudio();
   const cantoneseAvailable = audio.available && audio.probed && audio.approvedCounts.cantonese > 0;
 
@@ -163,8 +176,12 @@ const PairCard: React.FC<{
   const handleAnswer = (userSaysRhymes: boolean) => {
     if (answered !== null) return;
     setAnswered(userSaysRhymes);
-    if (userSaysRhymes === item.rhymes) {
-      setTimeout(() => onComplete(true), 600);
+    const correct = userSaysRhymes === item.rhymes;
+    if (correct) {
+      setTimeout(() => onComplete(true), pacing.correctMs);
+    } else {
+      setCountdownStart(Date.now());
+      setTimeout(() => onComplete(false), pacing.wrongMs);
     }
   };
 
@@ -230,7 +247,12 @@ const PairCard: React.FC<{
       )}
 
       {isWrong && (
-        <WrongAnswerPanel item={item} strings={strings} onContinue={() => onComplete(false)} />
+        <>
+          <WrongAnswerPanel item={item} strings={strings} onContinue={() => onComplete(false)} />
+          {countdownStart !== null && (
+            <CountdownBar startMs={countdownStart} durationMs={pacing.wrongMs} />
+          )}
+        </>
       )}
     </div>
   );

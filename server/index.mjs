@@ -161,6 +161,37 @@ app.delete("/api/poems/:id", requireAuth, (req, res) => {
   res.json({ ok: true });
 });
 
+// --- Settings routes ---
+const PUBLIC_SETTINGS_WHITELIST = new Set([
+  'drill3_correct_advance_ms',
+  'drill3_wrong_advance_ms',
+]);
+
+app.get("/api/settings", (req, res) => {
+  const placeholders = Array.from(PUBLIC_SETTINGS_WHITELIST).map(() => '?').join(',');
+  const rows = db.prepare(`SELECT key, value FROM app_settings WHERE key IN (${placeholders})`).all(...PUBLIC_SETTINGS_WHITELIST);
+  const out = {};
+  for (const row of rows) out[row.key] = row.value;
+  res.json(out);
+});
+
+app.get("/api/admin/settings", requireAdmin, (req, res) => {
+  const rows = db.prepare("SELECT key, value, description, updated_at, updated_by FROM app_settings ORDER BY key").all();
+  res.json({ settings: rows });
+});
+
+app.patch("/api/admin/settings/:key", requireAdmin, express.json(), (req, res) => {
+  const { value } = req.body ?? {};
+  if (typeof value !== "string" || value.length === 0 || value.length > 500) {
+    return res.status(400).json({ error: "INVALID_VALUE" });
+  }
+  const existing = db.prepare("SELECT key FROM app_settings WHERE key = ?").get(req.params.key);
+  if (!existing) return res.status(404).json({ error: "NOT_FOUND" });
+  db.prepare("UPDATE app_settings SET value = ?, updated_at = datetime('now'), updated_by = ? WHERE key = ?")
+    .run(value, req.user?.email ?? req.user?.id ?? "unknown", req.params.key);
+  res.json({ key: req.params.key, value });
+});
+
 // --- Suggest route ---
 app.post("/api/suggest", requireAdmin, async (req, res) => {
   const prompt = req.body?.prompt;
