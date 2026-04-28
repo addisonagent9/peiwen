@@ -118,6 +118,7 @@ console.log(`  濫 → ${d.chars["濫"].map(e => e.tone + " " + e.rhyme).join(" 
 // Group D: alternate-繁 variant mirroring (not in tc2sc.json)
 // These are variant traditional forms where the source CSV used one form
 // but the common-usage form is different. Mirror entries bidirectionally.
+// NOTE: Also mirrored in server/lib/variants.mjs GROUP_D_PAIRS for runtime equality checks.
 const variantPairs = [
   ["牀", "床"],   // 牀 (source) → 床 (common)
   ["畱", "留"],   // 畱 (source) → 留 (common)

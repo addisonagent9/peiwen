@@ -13,6 +13,7 @@ import { fileURLToPath } from 'url';
 import { TIER1_SEED_CHARS, TIER1_RHYME_IDS } from '../data/tier1-seed-chars.mjs';
 import { RHYMES_PINGSHENG, FAMILIES } from '../data/trainer-curriculum.mjs';
 import { getUnlockStatus, recordDrillCompletion, getDrillSessionCount, isDrillUnlocked } from '../trainer/unlocks.mjs';
+import { getVariants } from '../lib/variants.mjs';
 
 const __drill_dirname = path.dirname(fileURLToPath(import.meta.url));
 let drill4Corpus = null;
@@ -426,7 +427,9 @@ export function createDrillRouter(db, composedGate) {
       const userId = req.user.id;
       const { answer, expected, rhyme } = req.body ?? {};
       if (!answer || !expected) return res.status(400).json({ error: 'INVALID_BODY' });
-      const correct = answer.trim() === expected.trim();
+      const a = answer.trim();
+      const e = expected.trim();
+      const correct = a.length === 1 && e.length === 1 && getVariants(e).has(a);
       let addedToLibrary = false;
       if (correct && rhyme) {
         const result = db.prepare(
