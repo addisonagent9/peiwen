@@ -16,10 +16,17 @@ import { getUnlockStatus, recordDrillCompletion, getDrillSessionCount, isDrillUn
 
 const __drill_dirname = path.dirname(fileURLToPath(import.meta.url));
 let drill4Corpus = null;
+let pingshuiData = null;
 try {
   const corpusPath = path.resolve(__drill_dirname, '../../src/data/pingshui/drill4-corpus.json');
   drill4Corpus = JSON.parse(fs.readFileSync(corpusPath, 'utf8'));
 } catch { drill4Corpus = {}; }
+try {
+  const psPath = path.resolve(__drill_dirname, '../../src/data/pingshui.json');
+  pingshuiData = JSON.parse(fs.readFileSync(psPath, 'utf8'));
+} catch { pingshuiData = { chars: {}, rhymes: {} }; }
+
+const VALID_RHYME_LABELS = new Set(Object.keys(pingshuiData.rhymes));
 
 function shuffle(arr) {
   const a = [...arr];
@@ -431,13 +438,22 @@ export function createDrillRouter(db, composedGate) {
     } catch (err) { next(err); }
   });
 
-  // POST /library/add (manual add)
-  const sLibAdd = null; // lazy
+  // POST /library/add (manual add — validated)
   router.post('/library/add', composedGate, express.json(), (req, res, next) => {
     try {
       const userId = req.user.id;
       const { rhyme_id, char } = req.body ?? {};
-      if (!rhyme_id || !char) return res.status(400).json({ error: 'INVALID_BODY' });
+      if (!rhyme_id || typeof rhyme_id !== 'string' || !char || typeof char !== 'string') {
+        return res.status(400).json({ ok: false, reason: 'missing_field' });
+      }
+      if (!VALID_RHYME_LABELS.has(rhyme_id)) {
+        return res.status(422).json({ ok: false, reason: 'unknown_rhyme_id' });
+      }
+      const charEntries = pingshuiData.chars[char] ?? [];
+      const hasPingInRhyme = charEntries.some(e => e.tone === '平' && e.rhyme === rhyme_id);
+      if (!hasPingInRhyme) {
+        return res.status(422).json({ ok: false, reason: 'char_not_in_rhyme' });
+      }
       const result = db.prepare(
         "INSERT OR IGNORE INTO user_rhyme_library (user_id, rhyme_id, char, source) VALUES (?, ?, ?, 'manual')"
       ).run(userId, rhyme_id, char);
