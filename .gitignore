@@ -7,6 +7,10 @@ server/node_modules/
 server/data.db
 server/sessions.db
 data/audit/
-data/references/
+data/references/*
+# tc2sc.json — runtime input for variants.mjs (commit e6f3e7a) and
+# build-time input for build-pingshui.mjs (commit 214f533). Other
+# data/references/* files are audit-pipeline downloads, stay ignored.
+!data/references/tc2sc.json
 server/data/audio-cache/
 server/backups/
