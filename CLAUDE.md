@@ -1043,3 +1043,266 @@ Tier 2 TTS batch lands — whichever comes first.
 - `server/trainer/index.mjs` — mounts trainer routes, composedGate.
 - `server/middleware/trainer-beta.mjs` — beta allowlist (bypasses for
   admins/premium per commit `af49416`).
+
+---
+
+## 16. 字境 — AI character-suggestion feature
+
+Admin-only AI assistant in EditModal that suggests replacement characters
+under prosodic constraints. Invoked via a gold "字境" pill button that
+renders whenever `isAdmin && val` (any cell with a character).
+
+### Three skills
+
+Dispatched deterministically from cell position × char state:
+
+```
+| Position                    | Char state     | Skill |
+|-----------------------------|----------------|-------|
+| Line 2 last char            | any            | 3     |
+| Other rhyme-position last   | 韵部 mismatch  | 2     |
+| Other rhyme-position last   | matched        | 3     |
+| Non-rhyme position          | tone mismatch  | 1     |
+| Non-rhyme position          | tone matched   | 3     |
+```
+
+- **Skill 1** (tone fix): current char as semantic anchor, asks Claude for
+  similar-meaning chars with the corrected tone. Prompt: "「X」讀Y聲，現需
+  替換為Z聲字..."
+- **Skill 2** (tone+韵部 fix): like Skill 1 plus a rhyme constraint clause.
+  Prompt appends "且必須屬於平水韻「R」韻部".
+- **Skill 3** (exploration): no mismatch. User types freely in the cell
+  (multi-char for compound seeds), taps 字境. Prompt: "請列出15個意思與
+  「seed」相近、可用於古典詩詞的Z聲字..."
+
+### requiredRhyme (App.tsx)
+
+Sourced dynamically from line 2's current last char's first 平 reading:
+
+```tsx
+const entries = lookup(line2LastChar).entries;
+const pingReading = entries.find(e => e.tone === '平');
+return pingReading?.rhyme ?? null;
+```
+
+This follows the line-2-canonical principle: line 2 defines the poem's
+rhyme. Editing line 2 dynamically updates what 字境 suggests for other
+rhyme positions. The analyzer's red-coloring (checkRhyme majority vote)
+is separate — visible inconsistency is acknowledged (Issue B, parked).
+
+### Server
+
+`POST /api/suggest` in `server/index.mjs`. Gated by `requireAdmin`
+(not premium). Proxies to Anthropic Messages API:
+- Model: `claude-sonnet-4-5` (hardcoded)
+- Temperature: 0
+- Max tokens: 2048
+- No rate limiting, no cost monitoring (each tap = one billed API call)
+
+### Post-filter pipeline
+
+Results are parsed line-by-line, deduped, then filtered:
+1. Tone filter: `lookup(char).entries.some(e => tone matches expectedTone)`
+2. Rhyme filter (if requiredRhyme): `rhymesOf(char).includes(requiredRhyme)`
+3. prevSeen dedup across pagination batches
+
+Stale-fetch guard: `fetchReqId` ref counter incremented per fetch; callbacks
+bail if their captured ID doesn't match current. Bumped on modal open and
+← 返回 to invalidate in-flight requests.
+
+### Key commits
+
+字境 cluster spans 16+ commits. Major categories:
+- Feature: `ffcadf0` (Skill 3 + always-show + 🙏→字境 rename)
+- requiredRhyme fixes: `dc63ae0` (pin to frozen analysisResult),
+  `ff15444` (position check — last char only), `53faa99` (dynamic
+  from line 2), `47a9906` (flexible-tone support)
+- Rhyme-mismatch detection: `7cb744c` (show button for 韵部 mismatches)
+- IME: `0b6ce42`, `5d57fe4` (DOM-value-as-source-of-truth)
+- Stale fetch: `ac920a4` (request-ID guard)
+
+---
+
+## 17. Trainer Drills 3 and 4 (post-§15 changes)
+
+### Drill 3 — 辨韵 (pair discrimination)
+
+Show two chars side by side, binary "do these rhyme in 平水韵?". Tier 1
+pairs are deliberately easy (rhymes are distinctive, no family overlap);
+the UI was hardened here for Tier 2 where within-family pairs (一東/二冬)
+become the core challenge.
+
+**Pair generation per Set:**
+- Set 1: same-rhyme, both from per-char Set 1 (common+common, `rhymes: true`)
+- Set 2: cross-rhyme, both from per-char Set 1 (common+common, `rhymes: false`)
+- Set 3: same-rhyme, one common + one rare (Set 3∪4, `rhymes: true`)
+- Set 4: cross-rhyme, both rare (Set 3∪4, `rhymes: false`)
+
+Bounded retry (5 attempts) on collision; redraw if `left.char === right.char`.
+
+**Wrong-answer panel** surfaces curriculum data:
+1. Answer reveal: both chars' 韵部 labels
+2. Family name (null in Tier 1; populated for Tier 2+)
+3. teachingNote from FAMILIES (separate from mnemonic)
+4. Mnemonic from the rhyme entry (italic, softer weight)
+5. Anchor poem(s) with rhyming chars highlighted in gold
+
+Relevant commits: `be2c394` (initial), `dfb88c5` (field mapping fix),
+`f213bb2` (audio button fix in feedback), `7395da3` (green styling).
+
+### Drill 4 v2 — 词语补齐
+
+**Design pivot:** §15's original Drill 4 spec ("Tang poem with rhyme
+position blanked, 10 hardcoded poems per tier") was abandoned. Reason:
+hardcoding 10 seed poems per tier requires classical-poet content review
+that no one has done. The v2 design uses algorithmically-derived 2-char
+词语 from CC-CEDICT.
+
+**Corpus pipeline** (`scripts/build-drill4-corpus.mjs`):
+1. Parse CC-CEDICT (124K entries, 62K 2-char compounds)
+2. Filter: 2-char trad only, all chars in pingshui.json, no Extension B+
+3. Junk filter: skip proper nouns (capitalized pinyin), modern tech/science
+   terms (regex on English gloss + Chinese terms)
+4. Tier classification: "classical" (literary/poetic markers) or "neutral"
+5. Multi-平-reading skip: chars with >1 distinct 平 rhyme cannot be
+   honestly taught as belonging to a single rhyme
+6. Curriculum cap: answer char must be in Tier 1 seedCharacters (165 chars)
+7. Per-rhyme cap: 500 entries per rhyme, classical-first
+
+Output: `src/data/pingshui/drill4-corpus.json` (committed, ~2500 entries).
+
+**Card UX:** 2-char word displayed with one char blanked (inline `<input>`
+matching surrounding 48px serif font). Free Chinese IME input. Submit
+validates exact match against expected char. Auto-advance on correct
+(1500ms, admin-tunable via app_settings). Manual 下一题 on wrong.
+
+**Round-robin distribution:** word-queue allocates per-rhyme slots.
+5-card = 1 per rhyme; 10-card = 2; 20-card = 4. Shuffled before return.
+
+### 韵部库 (user_rhyme_library)
+
+Per-user persistent collection of chars earned through Drill 4. Schema:
+
+```sql
+CREATE TABLE user_rhyme_library (
+  user_id TEXT NOT NULL,
+  rhyme_id TEXT NOT NULL,
+  char TEXT NOT NULL,
+  source TEXT NOT NULL,  -- 'drill4' | 'manual' (manual unwired in v1)
+  added_at TEXT DEFAULT (datetime('now')),
+  PRIMARY KEY (user_id, rhyme_id, char)
+);
+```
+
+Auto-filled: `/word-response` handler INSERTs on correct answer.
+Read-only dashboard: `RhymeLibrary.tsx` at subView `'library'`.
+
+`LibraryAddButton.tsx` component and `/library/add` route exist but are
+unwired — reserved for a future 韵部库 self-practice feature.
+
+Relevant commits: `8760fdf` (initial), `c26dc83` (Bjork queue + button
+wiring, later reverted), `4487dcb` (multi-reading fix + hint pinyin),
+`52ac63b` (five-bug round), `2bbdaf3` (繁 label fix).
+
+---
+
+## 18. app_settings — admin-tunable runtime config
+
+Generic key-value store for runtime configuration. Schema:
+
+```sql
+CREATE TABLE app_settings (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL,
+  description TEXT,
+  updated_at TEXT DEFAULT (datetime('now')),
+  updated_by TEXT
+);
+```
+
+**Endpoints:**
+- `GET /api/settings` — public, returns only whitelisted keys
+- `GET /api/admin/settings` — admin-only, all rows with audit metadata
+- `PATCH /api/admin/settings/:key` — admin-only, updates value + audit trail
+
+**Frontend:** `src/hooks/useAppSettings.ts` — no caching (each call fetches
+fresh). Drill components call `fetchAppSettings()` once on session start.
+Admin console shows a "训练设置" tab with per-row editing.
+
+**Current settings:**
+- `drill3_correct_advance_ms` (default 700)
+- `drill3_wrong_advance_ms` (default 1400)
+- `drill4_correct_advance_ms` (default 1500)
+
+**Adding a new setting:** INSERT row in a migration → add to
+`PUBLIC_SETTINGS_WHITELIST` in `server/index.mjs` if user-readable →
+admin UI row appears automatically.
+
+Relevant commit: `0a98523`.
+
+---
+
+## 19. Operational lessons learned (post-§15)
+
+### IME compositionEnd: read DOM value, don't accumulate
+
+`onCompositionEnd` and `onChange` both fire during IME input. Accumulating
+via `prev + newVal` double-writes (onChange already updated prev). Fix:
+both handlers read `e.currentTarget.value` as source of truth.
+Commits: `0b6ce42`, `5d57fe4`.
+
+### Module-level fetch caches break admin propagation
+
+`useAppSettings` originally had `let cachedSettings = null` at module
+scope — never invalidated. Admin edits to settings values didn't take
+effect until page reload. Fix: drop the cache; each call fetches fresh.
+Commit: `2b13b6e`.
+
+### 簡↔繁 label mismatches cause silent 0-result lookups
+
+`server/data/trainer-curriculum.mjs` had 7 rhyme labels in 簡 form while
+pingshui.json/drill4-corpus.json keys are 繁 throughout. Lookups like
+`drill4Corpus['一东']` returned undefined (key is `'一東'`). User saw 60%
+short-delivery. Fix: correct all labels to 繁. Commit: `2bbdaf3`.
+
+### Stale-fetch race: request-ID guard pattern
+
+When user navigates away mid-fetch then starts a new fetch, the old
+promise's `.then()` can overwrite the new state. Fix: `useRef` counter
+incremented per fetch; callbacks check captured ID. Commit: `ac920a4`.
+
+### Tailwind opacity-modifier may not compile for custom colors
+
+`text-gold/70` didn't produce a CSS rule because the custom `gold` color
+lacks alpha-channel mapping. Fix: use `text-gold opacity-70` (two separate
+utilities). Commit: `9380318`.
+
+### Variant-key bidirectional mirroring in pingshui build
+
+Source CSV uses one 繁 form; common-usage form may differ (牀→床, 畱→留,
+眞→真). Additionally, 繁↔簡 variants (涼→凉, 鉤→钩) weren't mirrored.
+2063 chars were missing their variant-form entries. Fix: build-time
+mirroring via `tc2sc.json` + targeted patches for alternate-繁 pairs
+not in tc2sc. Variant-key mismatch count: 2063 → 0. See §6 for the
+existing patch-pingshui convention. Commit: `214f533`.
+
+### Poem lock + confirm-delete
+
+Per-poem `is_locked` column (migration 009). Lock is instant; unlock
+requires `SlideToConfirm` drag bar (deliberate friction). Locked poems
+hide delete button; backend DELETE rejects with 409. All deletes show
+`ConfirmDialog` modal. Commit: `5db754f`.
+
+### Composer draft across OAuth round-trip
+
+Typing a poem then clicking sign-in loses the textarea content (full-page
+redirect to Google). Fix: stash `raw` to `sessionStorage` key
+`peiwen.composer.draft` on auth-button click; restore on next mount.
+Commit: `f717d75`.
+
+### Hint toggle pill convention
+
+`HintTogglePill` component + `useHintToggle` hook. Per-drill localStorage
+keys (`peiwen.trainer.{drill1|drill2|drill3|drill4}.hint`). Drill 1 has
+legacy migration from `drillHintEnabled`. Defaults: Drill 1 on, Drill 2
+off, Drill 3 on, Drill 4 on. Commits: `04ffef6`, `848dcd8`, `6a7c2d5`.
