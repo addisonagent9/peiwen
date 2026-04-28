@@ -26,7 +26,7 @@ try {
   pingshuiData = JSON.parse(fs.readFileSync(psPath, 'utf8'));
 } catch { pingshuiData = { chars: {}, rhymes: {} }; }
 
-const VALID_RHYME_LABELS = new Set(Object.keys(pingshuiData.rhymes));
+const VALID_RHYME_LABELS = new Set(RHYMES_PINGSHENG.map(r => r.label));
 
 function shuffle(arr) {
   const a = [...arr];
