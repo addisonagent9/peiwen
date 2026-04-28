@@ -429,6 +429,11 @@ export function createDrillRouter(db, composedGate) {
       if (!answer || !expected) return res.status(400).json({ error: 'INVALID_BODY' });
       const a = answer.trim();
       const e = expected.trim();
+      const corpusForRhyme = drill4Corpus[rhyme] ?? [];
+      const isIssuedPrompt = corpusForRhyme.some(entry => entry.answer === e);
+      if (!isIssuedPrompt) {
+        return res.status(422).json({ ok: false, reason: 'unknown_prompt' });
+      }
       const correct = a.length === 1 && e.length === 1 && getVariants(e).has(a);
       let addedToLibrary = false;
       if (correct && rhyme) {
