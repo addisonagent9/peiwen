@@ -446,13 +446,17 @@ export function createDrillRouter(db, composedGate) {
     } catch (err) { next(err); }
   });
 
-  // POST /library/add (manual add — validated)
+  // POST /library/add (manual or practice add — validated)
   router.post('/library/add', composedGate, express.json(), (req, res, next) => {
     try {
       const userId = req.user.id;
-      const { rhyme_id, char } = req.body ?? {};
+      const { rhyme_id, char, source } = req.body ?? {};
       if (!rhyme_id || typeof rhyme_id !== 'string' || !char || typeof char !== 'string') {
         return res.status(400).json({ ok: false, reason: 'missing_field' });
+      }
+      const src = source ?? 'manual';
+      if (src !== 'manual' && src !== 'practice') {
+        return res.status(400).json({ ok: false, reason: 'invalid_source' });
       }
       if (!VALID_RHYME_LABELS.has(rhyme_id)) {
         return res.status(422).json({ ok: false, reason: 'unknown_rhyme_id' });
@@ -463,9 +467,36 @@ export function createDrillRouter(db, composedGate) {
         return res.status(422).json({ ok: false, reason: 'char_not_in_rhyme' });
       }
       const result = db.prepare(
-        "INSERT OR IGNORE INTO user_rhyme_library (user_id, rhyme_id, char, source) VALUES (?, ?, ?, 'manual')"
-      ).run(userId, rhyme_id, char);
+        'INSERT OR IGNORE INTO user_rhyme_library (user_id, rhyme_id, char, source) VALUES (?, ?, ?, ?)'
+      ).run(userId, rhyme_id, char, src);
       res.json({ added: (result.changes ?? 0) > 0 });
+    } catch (err) { next(err); }
+  });
+
+  // POST /practice-queue
+  router.post('/practice-queue', composedGate, express.json(), (req, res, next) => {
+    try {
+      const { rhyme_id, size } = req.body ?? {};
+      if (!VALID_RHYME_LABELS.has(rhyme_id)) {
+        return res.status(422).json({ ok: false, reason: 'unknown_rhyme_id' });
+      }
+      if (size !== 5 && size !== 10 && size !== 20) {
+        return res.status(400).json({ ok: false, reason: 'invalid_size' });
+      }
+      const template = buildInterleaveTemplate(size);
+      const rhyme = RHYMES_PINGSHENG.find(r => r.label === rhyme_id);
+      const seedsBySet = { 1: [], 2: [], 3: [], 4: [] };
+      for (const sc of TIER1_SEED_CHARS) {
+        if (sc.rhymeId === rhyme?.id) {
+          seedsBySet[sc.set].push(sc.char);
+        }
+      }
+      const queue = template.map((tierHint, i) => ({
+        slot_index: i,
+        tier_hint: tierHint,
+        seed_examples: shuffle(seedsBySet[tierHint] ?? []).slice(0, 3),
+      }));
+      res.json({ rhyme_id, size, queue });
     } catch (err) { next(err); }
   });
 

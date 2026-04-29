@@ -1524,8 +1524,11 @@ ensures only the 30 平声 rhymes the user is learning are accepted
 
 Commit history: `527afaf` (initial server-side validation), `f2b8d43`
 (narrowed `VALID_RHYME_LABELS` from 106 to 30 curriculum rhymes).
-Currently unwired in the UI — the route is hardened in preparation
-for the 韵部库 self-practice feature.
+As of Phase 1+2 of the 韵部库 self-practice feature (`8649641`),
+/library/add accepts an optional `source` field — `'manual'`
+(default, for direct user adds) or `'practice'` (for the
+self-practice exercise). The CHECK constraint added in migration
+012 enumerates the three valid source values.
 
 The asymmetry is not a strictness gradient — it is two correct
 validations against two different sources. `/word-response` asks "is

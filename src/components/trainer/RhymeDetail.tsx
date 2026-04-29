@@ -1,9 +1,10 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import type { TrainerStrings } from '../../i18n/trainer-strings';
 import type { Rhyme, SeedCharacter } from '../../types/pingshui-trainer';
 import { RHYMES_PINGSHENG } from '../../data/pingshui/trainer-curriculum';
 import { useAudio } from '../../hooks/useAudio';
 import { AnchorDemoSection, formatJyutping } from './FoundationModule';
+import { PracticeSession } from './PracticeSession';
 
 export interface RhymeDetailProps {
   rhymeId: string;
@@ -43,6 +44,18 @@ export const RhymeDetail: React.FC<RhymeDetailProps> = ({
 
   const mandarinAvailable = audio.available && audio.probed && audio.approvedCounts.mandarin > 0;
   const cantoneseAvailable = audio.available && audio.probed && audio.approvedCounts.cantonese > 0;
+  const [inPractice, setInPractice] = useState(false);
+
+  if (inPractice && rhyme) {
+    return (
+      <PracticeSession
+        rhymeId={rhyme.id}
+        rhymeLabel={rhyme.label}
+        size={5}
+        onExit={() => setInPractice(false)}
+      />
+    );
+  }
 
   if (!rhyme) {
     return (
@@ -79,6 +92,12 @@ export const RhymeDetail: React.FC<RhymeDetailProps> = ({
         <p className="text-creamDim text-sm mt-2 font-mono tracking-wide">
           {rhyme.modernRime}
         </p>
+        <button
+          onClick={() => setInPractice(true)}
+          className="mt-4 px-5 py-2 bg-gold text-ink-bg font-serif tracking-wider rounded hover:opacity-90 transition-opacity"
+        >
+          开始练习
+        </button>
       </header>
 
       {/* Mnemonic */}
