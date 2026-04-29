@@ -45,6 +45,7 @@ export const PracticeSession: React.FC<PracticeSessionProps> = ({
           progress={{ current: currentIndex + 1, total: size }}
           onCorrect={handleSlotComplete}
           onWrong={handleSlotWrong}
+          onExit={onExit}
         />
       </div>
     );
@@ -77,7 +78,8 @@ const PracticeCard: React.FC<{
   progress: { current: number; total: number };
   onCorrect: (added: boolean) => void;
   onWrong: () => void;
-}> = ({ rhymeLabel, progress, onCorrect, onWrong }) => {
+  onExit: () => void;
+}> = ({ rhymeLabel, progress, onCorrect, onWrong, onExit }) => {
   const [userInput, setUserInput] = useState('');
   const [feedback, setFeedback] = useState<{ correct: boolean; added: boolean; message?: string } | null>(null);
   const isComposing = useRef(false);
@@ -121,6 +123,12 @@ const PracticeCard: React.FC<{
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
+        <button onClick={onExit} className="text-creamDim text-xs hover:text-cream transition-colors flex items-center gap-1">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
+            <path d="M6 2 L3 5 L6 8" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          退出
+        </button>
         <span className="text-xs text-creamDim font-mono">{rhymeLabel}</span>
         <span className="text-xs text-creamDim">{progress.current} / {progress.total}</span>
       </div>
