@@ -474,33 +474,6 @@ export function createDrillRouter(db, composedGate) {
     } catch (err) { next(err); }
   });
 
-  // POST /practice-queue
-  router.post('/practice-queue', composedGate, express.json(), (req, res, next) => {
-    try {
-      const { rhyme_id, size } = req.body ?? {};
-      if (!VALID_RHYME_LABELS.has(rhyme_id)) {
-        return res.status(422).json({ ok: false, reason: 'unknown_rhyme_id' });
-      }
-      if (size !== 5 && size !== 10 && size !== 20) {
-        return res.status(400).json({ ok: false, reason: 'invalid_size' });
-      }
-      const template = buildInterleaveTemplate(size);
-      const rhyme = RHYMES_PINGSHENG.find(r => r.label === rhyme_id);
-      const seedsBySet = { 1: [], 2: [], 3: [], 4: [] };
-      for (const sc of TIER1_SEED_CHARS) {
-        if (sc.rhymeId === rhyme?.id) {
-          seedsBySet[sc.set].push(sc.char);
-        }
-      }
-      const queue = template.map((tierHint, i) => ({
-        slot_index: i,
-        tier_hint: tierHint,
-        seed_examples: shuffle(seedsBySet[tierHint] ?? []).slice(0, 3),
-      }));
-      res.json({ rhyme_id, size, queue });
-    } catch (err) { next(err); }
-  });
-
   // GET /library
   router.get('/library', composedGate, (req, res, next) => {
     try {

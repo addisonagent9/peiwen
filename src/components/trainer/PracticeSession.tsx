@@ -1,90 +1,48 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 
-interface QueueSlot {
-  slot_index: number;
-  tier_hint: number;
-  seed_examples: string[];
-}
-
-type Phase = 'loading' | 'active' | 'summary';
-
-const TIER_LABELS: Record<number, string> = {
-  1: '简单',
-  2: '中等',
-  3: '进阶',
-  4: '罕见',
-};
+type Phase = 'active' | 'summary';
 
 interface PracticeSessionProps {
-  rhymeId: string;
   rhymeLabel: string;
   size: 5 | 10 | 20;
   onExit: () => void;
 }
 
 export const PracticeSession: React.FC<PracticeSessionProps> = ({
-  rhymeId,
   rhymeLabel,
   size,
   onExit,
 }) => {
-  const [phase, setPhase] = useState<Phase>('loading');
-  const [queue, setQueue] = useState<QueueSlot[]>([]);
+  const [phase, setPhase] = useState<Phase>('active');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [newCount, setNewCount] = useState(0);
   const [dupeCount, setDupeCount] = useState(0);
 
-  useEffect(() => {
-    fetch('/api/trainer/drill/practice-queue', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ rhyme_id: rhymeLabel, size }),
-    })
-      .then(r => r.json())
-      .then(d => {
-        if (d.queue?.length > 0) {
-          setQueue(d.queue);
-          setPhase('active');
-        }
-      })
-      .catch(() => {});
-  }, [rhymeLabel, size]);
-
   const handleSlotComplete = useCallback((added: boolean) => {
     if (added) setNewCount(n => n + 1);
     else setDupeCount(n => n + 1);
-    if (currentIndex + 1 >= queue.length) {
+    if (currentIndex + 1 >= size) {
       setPhase('summary');
     } else {
       setCurrentIndex(i => i + 1);
     }
-  }, [currentIndex, queue.length]);
+  }, [currentIndex, size]);
 
   const handleSlotWrong = useCallback(() => {
-    if (currentIndex + 1 >= queue.length) {
+    if (currentIndex + 1 >= size) {
       setPhase('summary');
     } else {
       setCurrentIndex(i => i + 1);
     }
-  }, [currentIndex, queue.length]);
+  }, [currentIndex, size]);
 
-  if (phase === 'loading') {
-    return (
-      <div className="pt-6 pb-24 text-center">
-        <p className="text-creamDim text-sm">加载中…</p>
-      </div>
-    );
-  }
-
-  if (phase === 'active' && queue[currentIndex]) {
+  if (phase === 'active') {
     return (
       <div className="pt-6 pb-24">
         <PracticeCard
           key={currentIndex}
-          slot={queue[currentIndex]}
           rhymeLabel={rhymeLabel}
-          progress={{ current: currentIndex + 1, total: queue.length }}
+          progress={{ current: currentIndex + 1, total: size }}
           onCorrect={handleSlotComplete}
           onWrong={handleSlotWrong}
         />
@@ -115,23 +73,15 @@ export const PracticeSession: React.FC<PracticeSessionProps> = ({
 // ---------------------------------------------------------------------------
 
 const PracticeCard: React.FC<{
-  slot: QueueSlot;
   rhymeLabel: string;
   progress: { current: number; total: number };
   onCorrect: (added: boolean) => void;
   onWrong: () => void;
-}> = ({ slot, rhymeLabel, progress, onCorrect, onWrong }) => {
+}> = ({ rhymeLabel, progress, onCorrect, onWrong }) => {
   const [userInput, setUserInput] = useState('');
   const [feedback, setFeedback] = useState<{ correct: boolean; added: boolean; message?: string } | null>(null);
-  const [hintIndex, setHintIndex] = useState(-1);
   const isComposing = useRef(false);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  const revealHint = () => {
-    if (hintIndex + 1 < slot.seed_examples.length) {
-      setHintIndex(i => i + 1);
-    }
-  };
 
   const handleSubmit = useCallback(async () => {
     const trimmed = userInput.trim();
@@ -168,9 +118,6 @@ const PracticeCard: React.FC<{
     }
   }, [userInput, rhymeLabel, onCorrect, onWrong]);
 
-  const tierLabel = TIER_LABELS[slot.tier_hint] ?? '';
-  const hintExhausted = hintIndex + 1 >= slot.seed_examples.length;
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -178,11 +125,10 @@ const PracticeCard: React.FC<{
         <span className="text-xs text-creamDim">{progress.current} / {progress.total}</span>
       </div>
 
-      <div className="text-center space-y-2">
+      <div className="text-center">
         <p className="text-cream/80 text-sm font-serif">
           请写出一个属于 <span className="text-gold">{rhymeLabel}</span> 韵部的平声字
         </p>
-        <p className="text-creamDim/60 text-xs">难度: {tierLabel}</p>
       </div>
 
       <div className="flex justify-center">
@@ -216,31 +162,13 @@ const PracticeCard: React.FC<{
       </div>
 
       {!feedback && (
-        <div className="space-y-3">
-          <div className="flex justify-center gap-3">
-            <button
-              onClick={revealHint}
-              disabled={hintExhausted}
-              className="px-3 py-1.5 border border-ink-line rounded-full text-creamDim text-xs hover:text-cream hover:border-cream/40 transition-colors disabled:opacity-30"
-            >
-              {hintExhausted ? '已用完该难度示例' : '提示'}
-            </button>
-          </div>
-          {hintIndex >= 0 && (
-            <div className="flex justify-center gap-2">
-              {slot.seed_examples.slice(0, hintIndex + 1).map(ch => (
-                <span key={ch} className="font-serif text-gold text-xl">{ch}</span>
-              ))}
-            </div>
-          )}
-          <button
-            onClick={handleSubmit}
-            disabled={!userInput.trim()}
-            className="w-full py-3 bg-gold text-ink-bg font-serif tracking-wider rounded hover:opacity-90 transition-opacity disabled:opacity-30"
-          >
-            提交
-          </button>
-        </div>
+        <button
+          onClick={handleSubmit}
+          disabled={!userInput.trim()}
+          className="w-full py-3 bg-gold text-ink-bg font-serif tracking-wider rounded hover:opacity-90 transition-opacity disabled:opacity-30"
+        >
+          提交
+        </button>
       )}
 
       {feedback && (

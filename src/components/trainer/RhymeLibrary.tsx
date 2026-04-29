@@ -35,7 +35,6 @@ export const RhymeLibrary: React.FC<Props> = ({ strings, onBack }) => {
   if (practiceRhymeLabel) {
     return (
       <PracticeSession
-        rhymeId={practiceRhymeLabel}
         rhymeLabel={practiceRhymeLabel}
         size={5}
         onExit={() => { setPracticeRhymeLabel(null); fetchLibrary(); }}
