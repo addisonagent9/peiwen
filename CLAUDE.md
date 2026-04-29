@@ -1342,3 +1342,302 @@ Commit: `f717d75`.
 keys (`peiwen.trainer.{drill1|drill2|drill3|drill4}.hint`). Drill 1 has
 legacy migration from `drillHintEnabled`. Defaults: Drill 1 on, Drill 2
 off, Drill 3 on, Drill 4 on. Commits: `04ffef6`, `848dcd8`, `6a7c2d5`.
+
+---
+
+## 20. April 2026 — schemas, library writes, lessons
+
+This section consolidates reference material and reasoning rules
+that emerged from the April 2026 session. Subsections are intended
+to be linked from elsewhere in the doc rather than read in order.
+
+### Canonical schemas
+
+These are the trainer-relevant tables, pasted verbatim from their
+migrations. Use `sqlite3 server/data.db '.schema <table>'` for
+newer tables (migrations ≥012) before trusting any of the below.
+
+**`drill_sessions`** (migration 008)
+
+```sql
+CREATE TABLE IF NOT EXISTS drill_sessions (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id TEXT NOT NULL,
+  tier INTEGER NOT NULL,
+  drill_number INTEGER NOT NULL,
+  rhyme_id TEXT,
+  size INTEGER NOT NULL,
+  correct_count INTEGER NOT NULL DEFAULT 0,
+  wrong_count INTEGER NOT NULL DEFAULT 0,
+  completed_at TEXT NOT NULL DEFAULT (datetime('now')),
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+```
+
+Per-completed-drill-session record. One row per session regardless of
+drill type.
+
+**`tier_drill_unlocks`** (migration 008)
+
+```sql
+CREATE TABLE IF NOT EXISTS tier_drill_unlocks (
+  user_id TEXT NOT NULL,
+  tier INTEGER NOT NULL,
+  drill_number INTEGER NOT NULL,
+  unlocked_at TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (user_id, tier, drill_number),
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+```
+
+Per-user drill unlock state within a tier. Completing drill N unlocks
+drill N+1; completing drill 4 unlocks the next tier.
+
+**`tier_unlocks`** (migration 008)
+
+```sql
+CREATE TABLE IF NOT EXISTS tier_unlocks (
+  user_id TEXT NOT NULL,
+  tier INTEGER NOT NULL,
+  unlocked_at TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (user_id, tier),
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+```
+
+Per-user tier-level unlock state. All existing users were backfilled
+with Tier 1 unlocked at migration time.
+
+**`app_settings`** (migration 010)
+
+```sql
+CREATE TABLE IF NOT EXISTS app_settings (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL,
+  description TEXT,
+  updated_at TEXT DEFAULT (datetime('now')),
+  updated_by TEXT
+);
+```
+
+Generic key-value runtime config, admin-editable. See §18.
+
+Seed rows from migrations 010 and 011:
+
+```sql
+-- migration 010
+INSERT OR IGNORE INTO app_settings (key, value, description) VALUES
+  ('drill3_correct_advance_ms', '700', 'Drill 3 auto-advance delay after correct answer (ms)'),
+  ('drill3_wrong_advance_ms', '1400', 'Drill 3 auto-advance delay after wrong answer, with countdown bar (ms)');
+
+-- migration 011
+INSERT OR IGNORE INTO app_settings (key, value, description) VALUES
+  ('drill4_correct_advance_ms', '1500', 'Drill 4 auto-advance delay after correct answer (ms)');
+```
+
+**`user_rhyme_library`** (migration 011)
+
+```sql
+CREATE TABLE IF NOT EXISTS user_rhyme_library (
+  user_id TEXT NOT NULL,
+  rhyme_id TEXT NOT NULL,
+  char TEXT NOT NULL,
+  source TEXT NOT NULL,
+  added_at TEXT DEFAULT (datetime('now')),
+  PRIMARY KEY (user_id, rhyme_id, char),
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+```
+
+Per-user persistent collection of chars earned through Drill 4 or
+added manually. `source` is `'drill4'` or `'manual'`. See "Library
+write paths" below for the two routes that write to this table.
+
+### Library write paths
+
+Two routes write to `user_rhyme_library`. They solve different
+problems and validate against different authoritative sources, but
+share the integrity invariant that every `(user_id, rhyme_id, char)`
+row corresponds to a real classical pairing.
+
+**`POST /api/trainer/drill/word-response`**
+
+Endpoint signature: POST, gated by `composedGate` (authenticated +
+trainer-beta). Request body: `{ answer, expected, rhyme }`.
+
+Validation order:
+
+1. `answer` and `expected` must be truthy strings → 400
+   `{ error: 'INVALID_BODY' }`
+2. Trim both; corpus-lookup gate: `drill4Corpus[rhyme]` must contain
+   an entry where `entry.answer === expected` → 422
+   `{ ok: false, reason: 'unknown_prompt' }`
+3. Length-1 guard + variant-equivalence correctness:
+   `a.length === 1 && e.length === 1 && getVariants(e).has(a)`
+4. On correct: INSERT into `user_rhyme_library` with `source = 'drill4'`
+   and `char = expected` (server-canonical form, not user-typed variant)
+
+Source of truth: `drill4-corpus.json`. The corpus is the authoritative
+record of which prompts the server issues via `/word-queue`. A
+successful lookup at step 2 means "this is a card the server would
+have given out." The `getVariants` helper (`server/lib/variants.mjs`)
+widens the answer-equality check to accept 繁↔簡 and alt-繁 variant
+forms of the expected char.
+
+The forge gap (pre-`62f1e18`): any authenticated user could POST
+arbitrary `(rhyme, expected, answer)` triples and, by setting
+`answer === expected`, forge "correct in Drill 4" rows. The
+corpus-lookup gate at step 2 closes this — forged `(rhyme, expected)`
+pairs that don't exist in the corpus are rejected before the
+correctness check runs.
+
+Commit history: `62f1e18` (corpus-lookup forge gate), `e6f3e7a`
+(variant tolerance via `getVariants`), `c6a39b2` (deploy hotfix —
+tracked `tc2sc.json` in the repo after e6f3e7a's runtime
+`readFileSync` crashed VPS with ENOENT on the gitignored file).
+
+**`POST /api/trainer/drill/library/add`**
+
+Endpoint signature: POST, gated by `composedGate`. Request body:
+`{ rhyme_id, char }`.
+
+Validation order:
+
+1. `rhyme_id` and `char` must be truthy strings → 400
+   `{ ok: false, reason: 'missing_field' }`
+2. `rhyme_id` must be in `VALID_RHYME_LABELS` (the 30 curriculum
+   rhymes from `RHYMES_PINGSHENG`) → 422
+   `{ ok: false, reason: 'unknown_rhyme_id' }`
+3. `pingshuiData.chars[char]` must have a 平 reading in that rhyme
+   → 422 `{ ok: false, reason: 'char_not_in_rhyme' }`
+4. INSERT into `user_rhyme_library` with `source = 'manual'` and
+   `char` as user-supplied
+
+Source of truth: 30-rhyme curriculum (`RHYMES_PINGSHENG`) +
+`pingshui.json` char data. For manual adds, the right question is
+"is this char classically rhyming in this rhyme?" — not "is this in
+the Drill 4 corpus?" — because the manual-add feature is for chars
+the user encountered outside Drill 4. The curriculum gate at step 2
+ensures only the 30 平声 rhymes the user is learning are accepted
+(not the broader 106 平水韻 set), so a 仄 rhyme like '一董' returns
+`unknown_rhyme_id` rather than falling through to `char_not_in_rhyme`.
+
+Commit history: `527afaf` (initial server-side validation), `f2b8d43`
+(narrowed `VALID_RHYME_LABELS` from 106 to 30 curriculum rhymes).
+Currently unwired in the UI — the route is hardened in preparation
+for the 韵部库 self-practice feature.
+
+The asymmetry is not a strictness gradient — it is two correct
+validations against two different sources. `/word-response` asks "is
+this prompt real?" because Drill 4's authority is the corpus.
+`/library/add` asks "is this pairing real?" because the upcoming
+self-practice feature's authority is the rhyme dictionary itself.
+
+### Deploy guards for new disk-resident files
+
+When a code change introduces a module-load `readFileSync` of a new
+disk-resident file, verify the file is committed before deploying.
+Otherwise the service crashes on startup with ENOENT.
+
+The incident: commit `e6f3e7a` added `server/lib/variants.mjs`, which
+calls `readFileSync('data/references/tc2sc.json')` at module load to
+build variant-equivalence classes. `tc2sc.json` had always been a
+build-time input only — `build-pingshui.mjs` reads it locally, mirrors
+entries into `pingshui.json`, and `pingshui.json` IS committed. VPS
+received the post-mirror artifact without needing tc2sc.json at runtime.
+But `e6f3e7a` introduced the first runtime consumer, and
+`data/references/` was gitignored (`.gitignore` line 10). The deploy
+crashed VPS on startup. Commit `c6a39b2` fixed it by adding a targeted
+`.gitignore` exception (`data/references/*` with
+`!data/references/tc2sc.json`) and tracking the file in place.
+
+Before approving any diff that adds a runtime `readFileSync`:
+
+```bash
+git ls-files <path>          # must list the file
+git check-ignore <path>      # must be empty (file not ignored)
+```
+
+VPS deploy block for commits introducing new disk-resident files:
+
+```bash
+[ -f <path> ] && systemctl restart poetry-checker || { echo "ABORT: missing file"; exit 1; }
+```
+
+This fails fast rather than letting the service crash into a restart
+loop.
+
+### Drill 4 corpus integrity (April 2026 audit)
+
+Verified across the full `src/data/pingshui/drill4-corpus.json`:
+
+- **2500 entries** across **5 rhymes** (一東, 七陽, 十一尤, 六麻, 五歌).
+- **Cross-rhyme `answer` collisions: 0.** No answer char appears as
+  the expected fill in two different rhymes. This means the corpus
+  cannot produce contradictory library rows.
+- **Within-rhyme variant-equivalent collisions: 0.** No rhyme contains
+  both a 繁 and 簡 form of the same char as distinct expected answers.
+  Library fragmentation across variant forms cannot occur from
+  legitimate Drill 4 play.
+- **Intentional `(rhyme, answer)` duplicates: 76.** The same answer
+  char fills the blank in many different 词语 within the same rhyme
+  (e.g. 中 in 136 different 一東 compounds). The `/word-response`
+  corpus-lookup gate (`62f1e18`) uses `(rhyme, answer)` not just
+  `answer`, which makes these duplicates safe — any matching entry
+  confirms the prompt is real.
+
+Any future "library fragmentation" worries that emerge from variant
+forms should be checked against this audit baseline before being
+treated as a real problem. The April session's initial worry was
+test-induced — synthesized verification calls were the only way to
+produce variant-fragmented rows, and the `62f1e18` forge gate closes
+that synthesis path.
+
+### DB queries vs. API GETs
+
+When investigating "what's actually in the data," go to sqlite3.
+When investigating "what does the UI see," go to the API. Don't
+blend.
+
+Endpoints filter, paginate, and project — they are correct for their
+purpose but they hide rows that don't match their filters. The
+`GET /api/trainer/drill/library` endpoint surfaces only Tier 1 rhymes;
+querying it and concluding "library has N entries" hides rows in
+non-Tier-1 rhymes.
+
+The April session's specific failure: assistant claimed a user's
+library had 2 entries based on the GET endpoint's response. Actual DB
+had 3 rows (2 in 十一真, hidden by the Tier-1 filter). The mistake
+compounded because subsequent reasoning ran forward from the wrong
+baseline.
+
+For "is this row in the DB?" questions:
+
+```bash
+sqlite3 server/data.db 'SELECT * FROM user_rhyme_library WHERE user_id = ?' <id>
+```
+
+For unfamiliar tables, get the schema first:
+
+```bash
+sqlite3 server/data.db '.schema <table>'
+```
+
+§20's "Canonical schemas" subsection above contains verbatim schemas
+for all trainer-relevant tables; for newer migrations (≥012) always
+`.schema` before writing SQL.
+
+### Tools deferred via tool_search
+
+The visible tool list in a Claude.ai session is partial. Many tools
+(Chrome extension, MCP integrations, calendar/email, etc.) load via
+`tool_search` and don't appear in the initial set. Before claiming a
+capability is unavailable, run `tool_search` with relevant keywords.
+"Not in my list" does not mean "unavailable."
+
+The April session's specific case: the assistant offered a curl-based
+workaround for live-site verification, claiming Chrome tools weren't
+available. The user flagged that they should be deferred-loaded.
+`tool_search` retrieved the full Chrome toolset on first call. If
+`tool_search` returns nothing relevant, the tool is genuinely
+unavailable and the user can decide on a workaround.
