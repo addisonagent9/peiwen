@@ -464,7 +464,8 @@ export function createDrillRouter(db, composedGate) {
       const charEntries = pingshuiData.chars[char] ?? [];
       const hasPingInRhyme = charEntries.some(e => e.tone === '平' && e.rhyme === rhyme_id);
       if (!hasPingInRhyme) {
-        return res.status(422).json({ ok: false, reason: 'char_not_in_rhyme' });
+        const actualPingRhymes = [...new Set(charEntries.filter(e => e.tone === '平').map(e => e.rhyme))];
+        return res.status(422).json({ ok: false, reason: 'char_not_in_rhyme', actual_rhymes: actualPingRhymes });
       }
       const result = db.prepare(
         'INSERT OR IGNORE INTO user_rhyme_library (user_id, rhyme_id, char, source) VALUES (?, ?, ?, ?)'

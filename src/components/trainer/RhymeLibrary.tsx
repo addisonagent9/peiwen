@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import type { TrainerStrings } from '../../i18n/trainer-strings';
+import { PracticeSession } from './PracticeSession';
 
 interface LibraryRhyme {
   rhyme_id: string;
@@ -16,17 +17,31 @@ interface Props {
 export const RhymeLibrary: React.FC<Props> = ({ strings, onBack }) => {
   const [rhymes, setRhymes] = useState<LibraryRhyme[]>([]);
   const [loading, setLoading] = useState(true);
+  const [practiceRhymeLabel, setPracticeRhymeLabel] = useState<string | null>(null);
 
-  useEffect(() => {
+  const fetchLibrary = () => {
     fetch('/api/trainer/drill/library', { credentials: 'include' })
       .then(r => r.json())
       .then(d => setRhymes(d.rhymes ?? []))
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, []);
+  };
+
+  useEffect(() => { fetchLibrary(); }, []);
 
   const totalChars = rhymes.reduce((n, r) => n + r.user_chars.length, 0);
   const activeRhymes = rhymes.filter(r => r.user_chars.length > 0).length;
+
+  if (practiceRhymeLabel) {
+    return (
+      <PracticeSession
+        rhymeId={practiceRhymeLabel}
+        rhymeLabel={practiceRhymeLabel}
+        size={5}
+        onExit={() => { setPracticeRhymeLabel(null); fetchLibrary(); }}
+      />
+    );
+  }
 
   return (
     <div className="pt-6 pb-24 space-y-6">
@@ -55,6 +70,12 @@ export const RhymeLibrary: React.FC<Props> = ({ strings, onBack }) => {
             <div className="w-full h-1 bg-ink-line/30 rounded-full overflow-hidden mb-3">
               <div className="h-full bg-gold" style={{ width: `${Math.min(100, (r.user_chars.length / Math.max(1, r.total_chars)) * 100)}%` }} />
             </div>
+            <button
+              onClick={() => setPracticeRhymeLabel(r.rhyme_label)}
+              className="mb-3 px-4 py-1.5 bg-gold text-ink-bg font-serif text-sm tracking-wider rounded hover:opacity-90 transition-opacity"
+            >
+              练习
+            </button>
             {r.user_chars.length > 0 ? (
               <div className="flex flex-wrap gap-1">
                 {r.user_chars.map(ch => (

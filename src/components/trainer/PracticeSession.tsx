@@ -155,8 +155,11 @@ const PracticeCard: React.FC<{
         setFeedback({ correct: true, added: body.added ?? false });
         setTimeout(() => onCorrect(body.added ?? false), 800);
       } else if (body.reason === 'char_not_in_rhyme') {
-        setFeedback({ correct: false, added: false, message: `「${char}」不属于${rhymeLabel}韵部` });
-        setTimeout(() => onWrong(), 1500);
+        const actuals: string[] = body.actual_rhymes ?? [];
+        const msg = actuals.length > 0
+          ? `「${char}」属于${actuals.join('、')}韵部，不属于${rhymeLabel}`
+          : `「${char}」无平声读音，不属于${rhymeLabel}`;
+        setFeedback({ correct: false, added: false, message: msg });
       } else {
         setFeedback({ correct: false, added: false, message: '提交失败,请重试' });
       }
@@ -247,6 +250,14 @@ const PracticeCard: React.FC<{
           </p>
           {feedback.message && (
             <p className="text-center text-cream/80 text-sm">{feedback.message}</p>
+          )}
+          {!feedback.correct && (
+            <button
+              onClick={onWrong}
+              className="w-full py-3 bg-gold text-ink-bg font-serif tracking-wider rounded hover:opacity-90 transition-opacity"
+            >
+              下一题
+            </button>
           )}
         </div>
       )}
