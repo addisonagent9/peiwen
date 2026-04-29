@@ -1197,12 +1197,41 @@ CREATE TABLE user_rhyme_library (
 Auto-filled: `/word-response` handler INSERTs on correct answer.
 Read-only dashboard: `RhymeLibrary.tsx` at subView `'library'`.
 
-`LibraryAddButton.tsx` component and `/library/add` route exist but are
-unwired — reserved for a future 韵部库 self-practice feature.
+`LibraryAddButton.tsx` is unwired in the UI (reserved for a future
+韵部库 self-practice feature), but the `/library/add` route itself was
+hardened with full server-side validation in preparation
+(`527afaf`, `f2b8d43`). See "Endpoint hardening" below.
 
 Relevant commits: `8760fdf` (initial), `c26dc83` (Bjork queue + button
 wiring, later reverted), `4487dcb` (multi-reading fix + hint pinyin),
 `52ac63b` (five-bug round), `2bbdaf3` (繁 label fix).
+
+### Endpoint hardening (post-7cf4416)
+
+Three commits tightened the Drill 4 write paths after the §17 prose
+above was written:
+
+- **62f1e18** — `/word-response` corpus-lookup forge gate. Before
+  62f1e18, any authenticated user could POST `(rhyme, expected, answer)`
+  with arbitrary values and forge "correct in Drill 4" rows in their
+  own `user_rhyme_library`. The fix verifies `(rhyme, expected)` appears
+  in the actual drill4 corpus before running the correctness check.
+  New 422 reason code: `unknown_prompt`.
+- **e6f3e7a + c6a39b2** — variant tolerance in `/word-response`. The
+  answer-equality check widened from strict `===` to a variant-
+  equivalence Set membership test (繁↔簡 via tc2sc.json plus alt-繁
+  pairs from `patch-pingshui.mjs` Group D, with union-find for
+  transitive triples like 鈎/鉤/钩). c6a39b2 was a deploy hotfix
+  tracking `tc2sc.json` in the repo — it had been gitignored, and
+  e6f3e7a's runtime `readFileSync` crashed the service on startup
+  with ENOENT.
+- **527afaf + f2b8d43** — server-side validation in `/library/add`.
+  `rhyme_id` must be in the 30-rhyme curriculum (not just the broader
+  106 平水韻 set); `char` must have a 平 reading in that rhyme. Three
+  reason codes: `missing_field`, `unknown_rhyme_id`, `char_not_in_rhyme`.
+
+§20(b) carries the full treatment of both library-write paths and
+their validation contracts.
 
 ---
 
@@ -1233,6 +1262,13 @@ Admin console shows a "训练设置" tab with per-row editing.
 - `drill3_correct_advance_ms` (default 700)
 - `drill3_wrong_advance_ms` (default 1400)
 - `drill4_correct_advance_ms` (default 1500)
+
+Note: `drill4_correct_advance_ms` is in the DB and editable from the
+admin UI, but is NOT in `PUBLIC_SETTINGS_WHITELIST` — `/api/settings`
+(public) does not return it, so `DrillWordSession` falls back to its
+hardcoded 1500ms default regardless of what the admin sets. Adding it
+to the whitelist is a small follow-up; until then the admin edit
+doesn't propagate.
 
 **Adding a new setting:** INSERT row in a migration → add to
 `PUBLIC_SETTINGS_WHITELIST` in `server/index.mjs` if user-readable →
