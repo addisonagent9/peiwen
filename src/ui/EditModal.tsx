@@ -177,14 +177,16 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
     const rhymeFilter = requiredRhyme
       ? `、屬於「${requiredRhyme}」韻部`
       : "";
+    const examples = requiredRhyme ? charsInRhyme(requiredRhyme).slice(0, 7).join('、') : null;
+    const examplesClause = examples ? `「${requiredRhyme}」韻部包括以下字（僅作示例）：${examples}。` : '';
     const isPhrase = Array.from(val).filter(ch => /\p{Script=Han}/u.test(ch)).length > 1;
     const seedDescriptor = isPhrase ? `詞語「${val}」` : `「${val}」`;
     const toneNoun = effectiveTone ? `${effectiveTone}聲字` : `字`;
     let prompt: string;
     if (mismatch) {
-      prompt = `「${val}」讀${actualTone}聲，現需替換為${toneNoun}${rhymeClause}。請列出15個意思與${seedDescriptor}相近、可用於古典詩詞${rhymeFilter}的${toneNoun}。每個字用一行，格式：字 - 平水韻韻部 - 簡短釋義。只列字，不要其他說明。`;
+      prompt = `「${val}」讀${actualTone}聲，現需替換為${toneNoun}${rhymeClause}。${examplesClause}請列出15個意思與${seedDescriptor}相近、可用於古典詩詞${rhymeFilter}的${toneNoun}。每個字用一行，格式：字 - 平水韻韻部 - 簡短釋義。只列字，不要其他說明。`;
     } else {
-      prompt = `請列出15個意思與${seedDescriptor}相近、可用於古典詩詞${rhymeFilter}的${toneNoun}。每個字用一行，格式：字 - 平水韻韻部 - 簡短釋義。只列字，不要其他說明。`;
+      prompt = `${examplesClause}請列出15個意思與${seedDescriptor}相近、可用於古典詩詞${rhymeFilter}的${toneNoun}。每個字用一行，格式：字 - 平水韻韻部 - 簡短釋義。只列字，不要其他說明。`;
     }
     if (prevSeen.size > 0) {
       prompt += `\n請勿重複上一批：${Array.from(prevSeen).join("、")}`;
@@ -506,7 +508,7 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
                 </div>
               )}
               {suggestError && <div className="text-rose text-sm">{suggestError}</div>}
-              {!suggestLoading && !suggestError && suggestions.length === 0 && initialLoaded && (
+              {!suggestLoading && !suggestError && suggestions.length === 0 && initialLoaded && !(exhausted && requiredRhyme) && (
                 <div className="text-creamDim text-sm">{t.noSuggestion}</div>
               )}
               {!suggestLoading && !exhausted && initialLoaded && (
