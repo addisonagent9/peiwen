@@ -125,11 +125,27 @@ app.get("/api/auth/me", (req, res) => {
 });
 
 // --- Poems routes ---
+function parseReadings(raw) {
+  if (!raw) return {};
+  try { const o = JSON.parse(raw); return (o && typeof o === 'object' && !Array.isArray(o)) ? o : {}; }
+  catch { return {}; }
+}
+
+function validateReadingsShape(obj) {
+  if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return false;
+  for (const [k, v] of Object.entries(obj)) {
+    if (!/^\d+$/.test(k)) return false;
+    if (!v || typeof v !== 'object' || Array.isArray(v)) return false;
+    if (typeof v.tone !== 'string' || typeof v.rhyme !== 'string') return false;
+  }
+  return true;
+}
+
 app.get("/api/poems", requireAuth, (req, res) => {
   const rows = db.prepare(
-    "SELECT id, text, saved_at, is_locked FROM poems WHERE user_id = ? ORDER BY saved_at DESC"
+    "SELECT id, text, saved_at, is_locked, intended_readings FROM poems WHERE user_id = ? ORDER BY saved_at DESC"
   ).all(req.user.id);
-  res.json({ poems: rows });
+  res.json({ poems: rows.map(r => ({ ...r, intended_readings: parseReadings(r.intended_readings) })) });
 });
 
 app.post("/api/poems", requireAuth, (req, res) => {
@@ -137,7 +153,15 @@ app.post("/api/poems", requireAuth, (req, res) => {
   if (typeof text !== "string" || !text.trim()) {
     return res.status(400).json({ error: "missing text" });
   }
-  const result = db.prepare("INSERT INTO poems (user_id, text) VALUES (?, ?)").run(req.user.id, text);
+  const rawReadings = req.body?.intended_readings;
+  let readings = '{}';
+  if (rawReadings !== undefined && rawReadings !== null) {
+    if (!validateReadingsShape(rawReadings)) {
+      return res.status(400).json({ error: "invalid_intended_readings" });
+    }
+    readings = JSON.stringify(rawReadings);
+  }
+  const result = db.prepare("INSERT INTO poems (user_id, text, intended_readings) VALUES (?, ?, ?)").run(req.user.id, text, readings);
   res.json({ id: result.lastInsertRowid });
 });
 
@@ -150,6 +174,20 @@ app.patch("/api/poems/:id/lock", requireAuth, express.json(), (req, res) => {
   if (poem.user_id !== req.user.id) return res.status(403).json({ error: "forbidden" });
   db.prepare("UPDATE poems SET is_locked = ? WHERE id = ?").run(is_locked, id);
   res.json({ id, is_locked });
+});
+
+app.patch("/api/poems/:id/readings", requireAuth, express.json(), (req, res) => {
+  const id = parseInt(req.params.id);
+  const poem = db.prepare("SELECT user_id, is_locked FROM poems WHERE id = ?").get(id);
+  if (!poem) return res.status(404).json({ error: "not found" });
+  if (poem.user_id !== req.user.id) return res.status(403).json({ error: "forbidden" });
+  if (poem.is_locked === 1) return res.status(409).json({ error: "poem_locked" });
+  const { intended_readings } = req.body ?? {};
+  if (!validateReadingsShape(intended_readings)) {
+    return res.status(400).json({ error: "invalid_intended_readings" });
+  }
+  db.prepare("UPDATE poems SET intended_readings = ? WHERE id = ?").run(JSON.stringify(intended_readings), id);
+  res.json({ ok: true });
 });
 
 app.delete("/api/poems/:id", requireAuth, (req, res) => {
