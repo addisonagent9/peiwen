@@ -240,7 +240,8 @@ export default function App() {
       const slotKind = (slot === "P" || slot === "Z" ? "fixed" : slot === "f" ? "free" : "constrained") as "fixed" | "free" | "constrained";
       if (ch) {
         const isRhymePos = line.rhymes && si === line.slots.length - 1;
-        const info = lookupExpecting(ch, expected, reqRhyme, isRhymePos);
+        const pin = intendedReadings[`${li},${si}`] ?? null;
+        const info = lookupExpecting(ch, expected, reqRhyme, isRhymePos, pin);
         let mismatch = false;
         if (expected && info.tone && info.tone !== expected) mismatch = true;
         return { ...info, expected, slotKind, mismatch, pos: si + 1, lineIdx: li };
@@ -263,8 +264,8 @@ export default function App() {
     if (!analysisResult) return null;
     const hasContent = lines.length > 0 && lines[0].length > 0;
     if (!hasContent) return analysisResult.ranked;
-    return analysisResult.ranked.map(r => analyzeAgainst(lines, r.pattern));
-  }, [analysisResult, lines]);
+    return analysisResult.ranked.map(r => analyzeAgainst(lines, r.pattern, intendedReadings));
+  }, [analysisResult, lines, intendedReadings]);
 
   const selectedPattern = useMemo(() => {
     const targetKey = lockedPattern ?? (analysisResult ? patternKey(analysisResult.best.pattern) : null);

@@ -28,7 +28,7 @@ export interface PatternMatchResult {
   nianDuiOk: boolean;
 }
 
-export function analyzeAgainst(lines: string[][], pattern: PoemPattern): PatternMatchResult {
+export function analyzeAgainst(lines: string[][], pattern: PoemPattern, pins?: Record<string, { tone: string; rhyme: string }>): PatternMatchResult {
   const issues: LineIssue[] = [];
   const chars: CharAnalysis[][] = [];
   let fixedTotal = 0, fixedMatched = 0;
@@ -45,7 +45,8 @@ export function analyzeAgainst(lines: string[][], pattern: PoemPattern): Pattern
       const expected: Tone | null =
         slot === "P" ? "平" : slot === "Z" ? "仄" : null;
       const isRhymePos = tmpl.rhymes && i === tmpl.slots.length - 1;
-      const info = ch ? lookupExpecting(ch, expected, reqRhyme, isRhymePos) : {
+      const pin = pins?.[`${li},${i}`] ?? null;
+      const info = ch ? lookupExpecting(ch, expected, reqRhyme, isRhymePos, pin) : {
         char: "", entries: [], chosen: null, tone: null as Tone | null,
         isRu: false, ambiguous: false, unknown: true
       } as ToneInfo;

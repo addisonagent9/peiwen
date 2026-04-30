@@ -71,7 +71,7 @@ export function CharCell({ c, isRhyme, isRhymeMismatch = false, onClickChar, onC
           </button>
         ) : null}
       </div>
-      {c.ambiguous && (
+      {c.ambiguous && !c.pinned && (
         <div className="group absolute top-1 right-1 cursor-help">
           <div className="w-1.5 h-1.5 rounded-full bg-amber" />
           <div className="pointer-events-none absolute bottom-full right-0 mb-1 hidden group-hover:block z-50 whitespace-nowrap rounded border border-ink-line bg-ink-bg px-2 py-1 text-[10px] text-cream shadow">

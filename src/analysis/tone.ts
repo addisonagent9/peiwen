@@ -10,6 +10,7 @@ export interface ToneInfo {
   isRu: boolean;               // 入聲 flag for UI (even though it validates as 仄)
   ambiguous: boolean;          // multi-tone 多音字
   unknown: boolean;            // not in data
+  pinned?: boolean;            // true when chosen was set by user pin
 }
 
 export function lookup(char: string): ToneInfo {
@@ -35,18 +36,25 @@ function withChosen(char: string, entries: PSEntry[], chosen: PSEntry): ToneInfo
   };
 }
 
-// Pick a preferred entry given a position's expected tone, so 多音字 snap to
-// whichever reading makes the line legal. If no preference or no fit, keep first entry.
-// When requiredRhyme + isRhymePosition are provided, prefer the reading whose rhyme
-// matches the poem's canonical rhyme before falling back to first-tone-match.
+// Resolution hierarchy: pin > auto-rhyme-match > first-tone-match.
+// Pin searches ALL entries (user can declare a tone violation by pinning
+// a reading whose tone doesn't match the slot). Falls back to auto-rhyme-match
+// if pin doesn't match any reading (invalid/stale pin).
 export function lookupExpecting(
   char: string,
   expected: Tone | null,
   requiredRhyme?: string | null,
   isRhymePosition?: boolean,
+  pin?: { tone: string; rhyme: string } | null,
 ): ToneInfo {
   const base = lookup(char);
   if (base.unknown || !expected) return base;
+
+  if (pin) {
+    const pinMatch = base.entries.find(e => e.tone === pin.tone && e.rhyme === pin.rhyme);
+    if (pinMatch) return { ...withChosen(char, base.entries, pinMatch), pinned: true };
+  }
+
   const toneMatching = base.entries.filter(e => (e.tone === "平" ? "平" : "仄") === expected);
   if (toneMatching.length === 0) return base;
   if (isRhymePosition && requiredRhyme && toneMatching.length > 1) {
