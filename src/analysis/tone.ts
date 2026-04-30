@@ -37,12 +37,51 @@ function withChosen(char: string, entries: PSEntry[], chosen: PSEntry): ToneInfo
 
 // Pick a preferred entry given a position's expected tone, so 多音字 snap to
 // whichever reading makes the line legal. If no preference or no fit, keep first entry.
-export function lookupExpecting(char: string, expected: Tone | null): ToneInfo {
+// When requiredRhyme + isRhymePosition are provided, prefer the reading whose rhyme
+// matches the poem's canonical rhyme before falling back to first-tone-match.
+export function lookupExpecting(
+  char: string,
+  expected: Tone | null,
+  requiredRhyme?: string | null,
+  isRhymePosition?: boolean,
+): ToneInfo {
   const base = lookup(char);
   if (base.unknown || !expected) return base;
-  const fit = base.entries.find(e => (e.tone === "平" ? "平" : "仄") === expected);
-  if (fit && fit !== base.chosen) return withChosen(char, base.entries, fit);
+  const toneMatching = base.entries.filter(e => (e.tone === "平" ? "平" : "仄") === expected);
+  if (toneMatching.length === 0) return base;
+  if (isRhymePosition && requiredRhyme && toneMatching.length > 1) {
+    const rhymeMatch = toneMatching.find(e => e.rhyme === requiredRhyme);
+    if (rhymeMatch) return withChosen(char, base.entries, rhymeMatch);
+  }
+  const fit = toneMatching[0];
+  if (fit !== base.chosen) return withChosen(char, base.entries, fit);
   return base;
+}
+
+export function computeRequiredRhyme(lines: string[][]): string | null {
+  if (lines.length < 2) return null;
+  const line2 = lines[1];
+  if (!line2 || line2.length === 0) return null;
+  const line2Last = line2[line2.length - 1];
+  if (!line2Last) return null;
+  const line2Readings = lookup(line2Last).entries.filter(e => e.tone === '平');
+  if (line2Readings.length === 0) return null;
+  if (line2Readings.length === 1) return line2Readings[0].rhyme;
+  const distinctRhymes = new Set(line2Readings.map(e => e.rhyme));
+  if (distinctRhymes.size === 1) return line2Readings[0].rhyme;
+  const line1 = lines[0];
+  if (line1 && line1.length > 0) {
+    const line1Last = line1[line1.length - 1];
+    if (line1Last) {
+      const line1PingRhymes = new Set(
+        lookup(line1Last).entries.filter(e => e.tone === '平').map(e => e.rhyme)
+      );
+      for (const lr of line2Readings) {
+        if (line1PingRhymes.has(lr.rhyme)) return lr.rhyme;
+      }
+    }
+  }
+  return line2Readings[0].rhyme;
 }
 
 export function toneOf(char: string): Tone | null {

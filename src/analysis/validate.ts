@@ -1,5 +1,5 @@
 import type { LineTemplate, PoemPattern, Tone } from "../patterns/types";
-import { lookup, lookupExpecting, type ToneInfo } from "./tone";
+import { lookup, lookupExpecting, computeRequiredRhyme, type ToneInfo } from "./tone";
 import { checkRhymes, type RhymeCheckResult } from "./rhyme";
 
 export interface CharAnalysis extends ToneInfo {
@@ -32,6 +32,7 @@ export function analyzeAgainst(lines: string[][], pattern: PoemPattern): Pattern
   const issues: LineIssue[] = [];
   const chars: CharAnalysis[][] = [];
   let fixedTotal = 0, fixedMatched = 0;
+  const reqRhyme = computeRequiredRhyme(lines);
 
   // Per-line fixed-slot validation + 多音字 resolution via expected tone.
   for (let li = 0; li < pattern.lines.length; li++) {
@@ -43,7 +44,8 @@ export function analyzeAgainst(lines: string[][], pattern: PoemPattern): Pattern
       const slot = tmpl.slots[i];
       const expected: Tone | null =
         slot === "P" ? "平" : slot === "Z" ? "仄" : null;
-      const info = ch ? lookupExpecting(ch, expected) : {
+      const isRhymePos = tmpl.rhymes && i === tmpl.slots.length - 1;
+      const info = ch ? lookupExpecting(ch, expected, reqRhyme, isRhymePos) : {
         char: "", entries: [], chosen: null, tone: null as Tone | null,
         isRu: false, ambiguous: false, unknown: true
       } as ToneInfo;

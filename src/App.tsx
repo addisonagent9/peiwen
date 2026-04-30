@@ -9,7 +9,7 @@ import { SlideToConfirm } from "./ui/SlideToConfirm";
 import { ConfirmDialog } from "./ui/ConfirmDialog";
 
 import { detectBest, formFromDims } from "./analysis/detect";
-import { lookup, lookupExpecting } from "./analysis/tone";
+import { lookup, lookupExpecting, computeRequiredRhyme } from "./analysis/tone";
 import { analyzeAgainst, computeLiveIssues } from "./analysis/validate";
 import { toTraditional, toSimplified } from "./analysis/s2t";
 import { T, localizeIssue, type Locale, type Translations } from "./i18n";
@@ -233,12 +233,14 @@ export default function App() {
   });
 
   const buildFromPoem = (p: PoemPattern) => {
+    const reqRhyme = computeRequiredRhyme(lines);
     const chars = p.lines.map((line, li) => line.slots.map((slot, si) => {
       const ch = lines[li]?.[si] ?? "";
       const expected = (slot === "P" ? "平" : slot === "Z" ? "仄" : null) as "平" | "仄" | null;
       const slotKind = (slot === "P" || slot === "Z" ? "fixed" : slot === "f" ? "free" : "constrained") as "fixed" | "free" | "constrained";
       if (ch) {
-        const info = lookupExpecting(ch, expected);
+        const isRhymePos = line.rhymes && si === line.slots.length - 1;
+        const info = lookupExpecting(ch, expected, reqRhyme, isRhymePos);
         let mismatch = false;
         if (expected && info.tone && info.tone !== expected) mismatch = true;
         return { ...info, expected, slotKind, mismatch, pos: si + 1, lineIdx: li };
@@ -775,13 +777,7 @@ export default function App() {
           if (!editCell || !selectedPattern) return null;
           if (!selectedPattern.pattern.lines[editCell.li]?.rhymes) return null;
           if (editCell.pos !== (lines[editCell.li]?.length ?? 0) - 1) return null;
-          const line2 = lines[1];
-          if (!line2 || line2.length === 0) return null;
-          const line2LastChar = line2[line2.length - 1];
-          if (!line2LastChar) return null;
-          const entries = lookup(line2LastChar).entries;
-          const pingReading = entries.find(e => e.tone === '平');
-          return pingReading?.rhyme ?? null;
+          return computeRequiredRhyme(lines);
         })()}
         isLoggedIn={!!user}
         isAdmin={user?.is_admin === 1}
