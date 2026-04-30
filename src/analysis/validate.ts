@@ -116,15 +116,15 @@ export function analyzeAgainst(lines: string[][], pattern: PoemPattern): Pattern
   issues.push(...nianDui.issues);
 
   // 押韻.
-  const endChars: Array<{ char: string; lineIdx: number; isFirst: boolean }> = [];
+  const endChars: Array<{ char: string; chosenRhyme: string | null; lineIdx: number; isFirst: boolean }> = [];
   let totalRhymeLines = 0;
   const missingRhymeLines: number[] = [];
   for (let li = 0; li < pattern.lines.length; li++) {
     if (pattern.lines[li].rhymes) {
       totalRhymeLines++;
       const row = chars[li];
-      const ch = row[row.length - 1]?.char;
-      if (ch) endChars.push({ char: ch, lineIdx: li, isFirst: li === 0 });
+      const lastCell = row[row.length - 1];
+      if (lastCell?.char) endChars.push({ char: lastCell.char, chosenRhyme: lastCell.chosen?.rhyme ?? null, lineIdx: li, isFirst: li === 0 });
       else missingRhymeLines.push(li);
     }
   }
@@ -132,7 +132,7 @@ export function analyzeAgainst(lines: string[][], pattern: PoemPattern): Pattern
     issues.push({ kind: "出律", severity: "error", lineIdx: li,
       message: `第${li+1}句缺韻腳（此句未完成）` });
   }
-  const rhyme = endChars.length ? checkRhymes(endChars, pattern.kind) : null;
+  const rhyme = endChars.length ? checkRhymes(endChars, reqRhyme) : null;
   if (rhyme) {
     for (const o of rhyme.offending) {
       issues.push({ kind: "出律", severity: "error", lineIdx: o.lineIdx,

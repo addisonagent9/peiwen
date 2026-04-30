@@ -55,67 +55,33 @@ export interface RhymeCheckResult {
   duplicates: { lineIdx: number; char: string }[];  // 重韻
 }
 
-// Given end-chars of rhyming lines, determine if they share a rhyme department
-// (or L1 can be a neighbor), and flag errors.
+// Compare each rhyme-position cell's chosen reading against requiredRhyme.
+// Line 1 gets 孤雁出群格 neighbor tolerance. 重韻 detection preserved.
 export function checkRhymes(
-  endChars: Array<{ char: string; lineIdx: number; isFirst: boolean }>,
-  kind: "平韻" | "仄韻"
+  endChars: Array<{ char: string; chosenRhyme: string | null; lineIdx: number; isFirst: boolean }>,
+  requiredRhyme: string | null,
 ): RhymeCheckResult {
   const offending: RhymeCheckResult["offending"] = [];
   const duplicates: RhymeCheckResult["duplicates"] = [];
-  const allowed = (r: string): boolean => {
-    const bucket = PINGSHUI_RHYME[r];
-    if (!bucket) return false;
-    return kind === "平韻" ? bucket.tone === "平" : (bucket.tone !== "平");
-  };
 
-  // Find the best "base rhyme" = the rhyme department shared by the most non-first rhyming lines.
-  const nonFirst = endChars.filter(e => !e.isFirst);
-  const candidateBases = new Map<string, number>();
-  for (const e of nonFirst) {
-    for (const r of rhymesOf(e.char)) {
-      if (!allowed(r)) continue;
-      candidateBases.set(r, (candidateBases.get(r) ?? 0) + 1);
-    }
-  }
-  let baseRhyme: string | null = null;
-  let bestCount = -1;
-  for (const [r, c] of candidateBases) {
-    if (c > bestCount) { bestCount = c; baseRhyme = r; }
-  }
-
-  // No consensus among non-first rhyming lines: if more than one non-first
-  // line exists but no rhyme department appears on at least 2 of them, there
-  // is no agreed base — mark all as offending.
-  if (nonFirst.length > 1 && bestCount <= 1) {
-    for (const e of endChars) {
-      const rs = rhymesOf(e.char).filter(allowed);
-      offending.push({
-        lineIdx: e.lineIdx,
-        char: e.char,
-        reason: rs.length ? `韻部 ${rs.join("/")}，各韻句無共同韻部` : `「${e.char}」無${kind === "平韻" ? "平" : "仄"}聲讀`
-      });
-    }
-    return { ok: false, baseRhyme: null, firstLineNeighbor: false, offending, duplicates };
-  }
-
-  if (!baseRhyme) {
-    return { ok: false, baseRhyme: null, firstLineNeighbor: false, offending, duplicates };
+  if (!requiredRhyme) {
+    return { ok: true, baseRhyme: null, firstLineNeighbor: false, offending, duplicates };
   }
 
   let firstLineNeighbor = false;
   const seenChars = new Map<string, number>();
   for (const e of endChars) {
-    const rs = rhymesOf(e.char).filter(allowed);
-    if (rs.includes(baseRhyme)) {
-      // fine
-    } else if (e.isFirst && rs.some(r => areNeighbors(r, baseRhyme!))) {
+    if (e.chosenRhyme === requiredRhyme) {
+      // passes
+    } else if (e.isFirst && e.chosenRhyme && areNeighbors(e.chosenRhyme, requiredRhyme)) {
       firstLineNeighbor = true;
     } else {
       offending.push({
         lineIdx: e.lineIdx,
         char: e.char,
-        reason: rs.length ? `韻部 ${rs.join("/")}，與主韻 ${baseRhyme} 不合` : `「${e.char}」無${kind === "平韻" ? "平" : "仄"}聲讀`
+        reason: e.chosenRhyme
+          ? `韻部 ${e.chosenRhyme}，與主韻 ${requiredRhyme} 不合`
+          : `「${e.char}」無對應讀音`
       });
     }
     if (!e.isFirst) {
@@ -124,5 +90,5 @@ export function checkRhymes(
     }
   }
 
-  return { ok: offending.length === 0, baseRhyme, firstLineNeighbor, offending, duplicates };
+  return { ok: offending.length === 0, baseRhyme: requiredRhyme, firstLineNeighbor, offending, duplicates };
 }
