@@ -389,6 +389,25 @@ export function createDrillRouter(db, composedGate) {
     }
   });
 
+  function leniencyOrder(t) {
+    if (t === 4) return [4, 3, 2, 1];
+    if (t === 3) return [3, 2, 1, 4];
+    if (t === 2) return [2, 1, 3, 4];
+    return [1, 2, 3, 4];
+  }
+
+  function pickFromCorpus(corpus, rhyme, requestedSet, seen) {
+    for (const s of leniencyOrder(requestedSet)) {
+      const candidates = (corpus[rhyme] ?? []).filter(
+        e => e.rare_set === s && !seen.has(e.word + '|' + e.answer)
+      );
+      if (candidates.length > 0) {
+        return candidates[Math.floor(Math.random() * candidates.length)];
+      }
+    }
+    return null;
+  }
+
   // GET /word-queue?scope=tier1&limit=10
   router.get('/word-queue', composedGate, (req, res, next) => {
     try {
@@ -396,28 +415,30 @@ export function createDrillRouter(db, composedGate) {
       if (!isDrillUnlocked(db, userId, 1, 4)) {
         return res.status(403).json({ error: 'DRILL_LOCKED' });
       }
-      const limit = Math.min(20, Math.max(1, parseInt(req.query.limit) || 10));
+      const limit = Math.min(20, Math.max(5, parseInt(req.query.limit) || 10));
+      const size = [5, 10, 20].includes(limit) ? limit : 10;
       const tier1Labels = TIER1_RHYME_IDS
         .map(id => RHYMES_PINGSHENG.find(r => r.id === id)?.label)
         .filter(Boolean);
-      const perRhyme = Math.floor(limit / tier1Labels.length);
-      const remainder = limit % tier1Labels.length;
+      const shuffledRhymes = shuffle(tier1Labels);
+      const perRhyme = Math.floor(size / shuffledRhymes.length);
+      const remainder = size % shuffledRhymes.length;
+      const rhymeSequence = [];
+      for (let ri = 0; ri < shuffledRhymes.length; ri++) {
+        const count = perRhyme + (ri < remainder ? 1 : 0);
+        for (let j = 0; j < count; j++) rhymeSequence.push(shuffledRhymes[ri]);
+      }
+      const template = buildInterleaveTemplate(size);
       const items = [];
       const seen = new Set();
-      for (let ri = 0; ri < tier1Labels.length; ri++) {
-        const bucket = shuffle(drill4Corpus[tier1Labels[ri]] ?? []);
-        const target = perRhyme + (ri < remainder ? 1 : 0);
-        let picked = 0;
-        for (const entry of bucket) {
-          if (picked >= target) break;
-          if (!seen.has(entry.word + '|' + entry.answer)) {
-            seen.add(entry.word + '|' + entry.answer);
-            items.push(entry);
-            picked++;
-          }
+      for (let i = 0; i < rhymeSequence.length; i++) {
+        const entry = pickFromCorpus(drill4Corpus, rhymeSequence[i], template[i], seen);
+        if (entry) {
+          seen.add(entry.word + '|' + entry.answer);
+          items.push(entry);
         }
       }
-      res.json({ items: shuffle(items) });
+      res.json({ items });
     } catch (err) { next(err); }
   });
 
