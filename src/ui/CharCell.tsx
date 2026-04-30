@@ -36,7 +36,7 @@ export function CharCell({ c, isRhyme, isRhymeMismatch = false, onClickChar, onC
       : "border-teal/30";
 
   const charColor = isRhymeMismatch ? "text-rose" : isRhyme ? "text-gold" : "text-cream";
-  const rhymeLabel = c.entries[0]?.rhyme ?? null;
+  const rhymeLabel = c.chosen?.rhyme ?? c.entries[0]?.rhyme ?? null;
 
   return (
     <div className={`relative aspect-square flex flex-col items-center justify-between gap-0.5 px-1 py-1.5 rounded-md border ${borderClass} bg-ink-card/60`}>
