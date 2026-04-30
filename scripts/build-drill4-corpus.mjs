@@ -18,14 +18,31 @@ const seedCharsText = fs.readFileSync(seedCharsPath, 'utf8');
 
 const TIER1_RHYMES = ['一東', '七陽', '十一尤', '六麻', '五歌'];
 
-// Build jyutping + curriculum lookup from tier1 seed chars
+const moedictPath = path.resolve(__dirname, '../src/data/moedict-map.json');
+const moedict = JSON.parse(fs.readFileSync(moedictPath, 'utf8'));
+console.log(`Loaded moedict-map: ${Object.keys(moedict).length} entries`);
+
+const RHYMEID_TO_LABEL = {
+  'shangping-01-dong': '一東',
+  'xiaping-07-yang': '七陽',
+  'xiaping-11-you': '十一尤',
+  'xiaping-06-ma': '六麻',
+  'xiaping-05-ge': '五歌',
+};
+
+// Build jyutping + curriculum set lookup from tier1 seed chars
 const jyutpingMap = new Map();
 const seedCharSet = new Set();
-const seedRe = /char:\s*'([^']+)',\s*rhymeId:\s*'[^']+',\s*pinyin:\s*'[^']+',\s*jyutping:\s*'([^']+)'/g;
+const curriculumSetLookup = {};
+for (const label of TIER1_RHYMES) curriculumSetLookup[label] = {};
+const seedRe = /char:\s*'([^']+)',\s*rhymeId:\s*'([^']+)',\s*pinyin:\s*'[^']+',\s*jyutping:\s*'([^']+)',\s*set:\s*([1-4])/g;
 let seedMatch;
 while ((seedMatch = seedRe.exec(seedCharsText)) !== null) {
-  jyutpingMap.set(seedMatch[1], seedMatch[2]);
-  seedCharSet.add(seedMatch[1]);
+  const [, char, rhymeId, jyutping, setStr] = seedMatch;
+  jyutpingMap.set(char, jyutping);
+  seedCharSet.add(char);
+  const label = RHYMEID_TO_LABEL[rhymeId];
+  if (label) curriculumSetLookup[label][char] = parseInt(setStr);
 }
 console.log(`Loaded ${seedCharSet.size} seed chars with jyutping`);
 
@@ -62,14 +79,7 @@ function classify(gloss, trad) {
 }
 
 function computeRareSet(char, rhymeName) {
-  const chars = data.rhymes[rhymeName].chars;
-  const idx = chars.indexOf(char);
-  if (idx === -1) return 3; // fallback
-  const ratio = idx / chars.length;
-  if (ratio < 0.3) return 1;
-  if (ratio < 0.6) return 2;
-  if (ratio < 0.85) return 3;
-  return 4;
+  return curriculumSetLookup[rhymeName]?.[char] ?? 1;
 }
 
 const entries = []; // all candidate entries
@@ -104,7 +114,10 @@ for (const line of cedictRaw.split('\n')) {
   // Skip science junk
   if (scienceJunkEn.test(firstGloss) || scienceJunkZh.test(firstGloss)) continue;
 
-  const gloss = firstGloss.length > 80 ? firstGloss.slice(0, 80) : firstGloss;
+  const moeDefs = moedict[trad];
+  const chineseGloss = moeDefs && moeDefs.length > 0 ? moeDefs[0] : null;
+  const rawGloss = chineseGloss || firstGloss;
+  const gloss = rawGloss.length > 80 ? rawGloss.slice(0, 80) : rawGloss;
   const tier = classify(firstGloss, trad);
 
   // ── 4. Check which char(s) are in a Tier 1 rhyme ───────────────────────────
