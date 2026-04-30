@@ -151,6 +151,9 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
 
   const info = val ? lookup(val) : null;
   const actualTone: Tone | null = info?.tone ?? null;
+  const effectiveTone: Tone | null = pinnedReading
+    ? (pinnedReading.tone === '平' ? '平' : '仄') as Tone
+    : expectedTone;
   const toneMismatch = !!(expectedTone && actualTone && expectedTone !== actualTone);
   const rhymeMismatch = !!(requiredRhyme && val && !rhymesOf(val).includes(requiredRhyme));
   const mismatch = toneMismatch || rhymeMismatch;
@@ -176,7 +179,7 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
       : "";
     const isPhrase = Array.from(val).filter(ch => /\p{Script=Han}/u.test(ch)).length > 1;
     const seedDescriptor = isPhrase ? `詞語「${val}」` : `「${val}」`;
-    const toneNoun = expectedTone ? `${expectedTone}聲字` : `字`;
+    const toneNoun = effectiveTone ? `${effectiveTone}聲字` : `字`;
     let prompt: string;
     if (mismatch) {
       prompt = `「${val}」讀${actualTone}聲，現需替換為${toneNoun}${rhymeClause}。請列出15個意思與${seedDescriptor}相近、可用於古典詩詞${rhymeFilter}的${toneNoun}。每個字用一行，格式：字 - 平水韻韻部 - 簡短釋義。只列字，不要其他說明。`;
@@ -198,10 +201,10 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
           dedupSeen.add(s.char);
           return true;
         });
-        const toneFiltered = expectedTone
+        const toneFiltered = effectiveTone
           ? deduped.filter(s => {
               const info = lookup(s.char);
-              return info.entries.some(e => (e.tone === '平' ? '平' : '仄') === expectedTone);
+              return info.entries.some(e => (e.tone === '平' ? '平' : '仄') === effectiveTone);
             })
           : deduped;
 

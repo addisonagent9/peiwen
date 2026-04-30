@@ -32,7 +32,7 @@ export function analyzeAgainst(lines: string[][], pattern: PoemPattern, pins?: R
   const issues: LineIssue[] = [];
   const chars: CharAnalysis[][] = [];
   let fixedTotal = 0, fixedMatched = 0;
-  const reqRhyme = computeRequiredRhyme(lines);
+  const reqRhyme = computeRequiredRhyme(lines, pins);
 
   // Per-line fixed-slot validation + 多音字 resolution via expected tone.
   for (let li = 0; li < pattern.lines.length; li++) {

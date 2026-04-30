@@ -233,7 +233,7 @@ export default function App() {
   });
 
   const buildFromPoem = (p: PoemPattern) => {
-    const reqRhyme = computeRequiredRhyme(lines);
+    const reqRhyme = computeRequiredRhyme(lines, intendedReadings);
     const chars = p.lines.map((line, li) => line.slots.map((slot, si) => {
       const ch = lines[li]?.[si] ?? "";
       const expected = (slot === "P" ? "平" : slot === "Z" ? "仄" : null) as "平" | "仄" | null;
@@ -778,7 +778,7 @@ export default function App() {
           if (!editCell || !selectedPattern) return null;
           if (!selectedPattern.pattern.lines[editCell.li]?.rhymes) return null;
           if (editCell.pos !== (lines[editCell.li]?.length ?? 0) - 1) return null;
-          return computeRequiredRhyme(lines);
+          return computeRequiredRhyme(lines, intendedReadings);
         })()}
         isLoggedIn={!!user}
         isAdmin={user?.is_admin === 1}

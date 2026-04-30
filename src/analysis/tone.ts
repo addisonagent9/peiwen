@@ -66,10 +66,17 @@ export function lookupExpecting(
   return base;
 }
 
-export function computeRequiredRhyme(lines: string[][]): string | null {
+export function computeRequiredRhyme(
+  lines: string[][],
+  pins?: Record<string, { tone: string; rhyme: string }>,
+): string | null {
   if (lines.length < 2) return null;
   const line2 = lines[1];
   if (!line2 || line2.length === 0) return null;
+  if (pins) {
+    const anchorPin = pins[`1,${line2.length - 1}`];
+    if (anchorPin) return anchorPin.rhyme;
+  }
   const line2Last = line2[line2.length - 1];
   if (!line2Last) return null;
   const line2Readings = lookup(line2Last).entries.filter(e => e.tone === '平');
