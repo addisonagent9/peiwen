@@ -134,7 +134,7 @@ function parseReadings(raw) {
 function validateReadingsShape(obj) {
   if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return false;
   for (const [k, v] of Object.entries(obj)) {
-    if (!/^\d+$/.test(k)) return false;
+    if (!/^\d+,\d+$/.test(k)) return false;
     if (!v || typeof v !== 'object' || Array.isArray(v)) return false;
     if (typeof v.tone !== 'string' || typeof v.rhyme !== 'string') return false;
   }

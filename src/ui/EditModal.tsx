@@ -23,6 +23,8 @@ interface Props {
   isAdmin?: boolean;
   locale: Locale;
   t: Translations;
+  pinnedReading?: { tone: string; rhyme: string } | null;
+  onPinReading?: (lineIdx: number, pos: number, reading: { tone: string; rhyme: string }) => void;
   onClose: () => void;
   onCommit: (ch: string) => void;
 }
@@ -89,7 +91,7 @@ function classifyChar(ch: string): "common" | "rare" | "unrenderable" {
   return "rare";
 }
 
-export function EditModal({ open, initial, prevChar = "", nextChar = "", expectedTone = null, requiredRhyme = null, isLoggedIn = false, isAdmin = false, locale, lineIdx, pos, t, onClose, onCommit }: Props) {
+export function EditModal({ open, initial, prevChar = "", nextChar = "", expectedTone = null, requiredRhyme = null, isLoggedIn = false, isAdmin = false, locale, lineIdx, pos, pinnedReading = null, onPinReading, t, onClose, onCommit }: Props) {
   const [val, setVal] = useState(initial);
   const [inputVal, setInputVal] = useState(initial);
   const isComposing = useRef(false);
@@ -326,8 +328,15 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
                     <div className="mt-1 flex flex-wrap gap-2">
                       {info.entries.map((e, i) => {
                         const rn = AMBIGUOUS_READINGS[val]?.per_reading_notes?.find(n => n.rhyme === e.rhyme);
+                        const isPinned = pinnedReading?.tone === e.tone && pinnedReading?.rhyme === e.rhyme;
                         return (
-                          <span key={i} className="px-2 py-1 rounded bg-ink-bg border border-ink-line">
+                          <span
+                            key={i}
+                            role={info.entries.length > 1 && onPinReading ? 'button' : undefined}
+                            tabIndex={info.entries.length > 1 && onPinReading ? 0 : undefined}
+                            onClick={info.entries.length > 1 && onPinReading ? () => onPinReading(lineIdx, pos, { tone: e.tone, rhyme: e.rhyme }) : undefined}
+                            className={`px-2 py-1 rounded bg-ink-bg border ${isPinned ? 'border-gold ring-2 ring-gold' : 'border-ink-line'} ${info.entries.length > 1 && onPinReading ? 'cursor-pointer' : ''}`}
+                          >
                             {rn && (
                               <span className={`mr-1 ${rn.status === "attested" ? "text-teal" : "text-amber"}`}>
                                 {rn.status === "attested" ? "✓" : "ⓘ"}

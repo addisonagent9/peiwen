@@ -46,6 +46,7 @@ interface SavedPoem {
   text: string;
   saved_at: string;
   is_locked?: number;
+  intended_readings?: Record<string, { tone: string; rhyme: string }>;
 }
 
 function convertText(text: string, to: Locale): string {
@@ -84,6 +85,8 @@ export default function App() {
   const [poems, setPoems] = useState<SavedPoem[]>([]);
   const [unlockingId, setUnlockingId] = useState<number | null>(null);
   const [confirmingDeleteId, setConfirmingDeleteId] = useState<number | null>(null);
+  const [activePoemId, setActivePoemId] = useState<number | null>(null);
+  const [intendedReadings, setIntendedReadings] = useState<Record<string, { tone: string; rhyme: string }>>({});
 
   useEffect(() => {
     fetch("/api/auth/me", { credentials: "same-origin" })
@@ -111,8 +114,14 @@ export default function App() {
       method: "POST",
       headers: { "content-type": "application/json" },
       credentials: "same-origin",
-      body: JSON.stringify({ text: raw })
-    }).then(r => { if (r.ok) { setSavedMsg(true); setTimeout(() => setSavedMsg(false), 2000); } });
+      body: JSON.stringify({ text: raw, intended_readings: intendedReadings })
+    }).then(r => {
+      if (r.ok) {
+        r.json().then(d => { if (d.id) setActivePoemId(d.id); });
+        setSavedMsg(true);
+        setTimeout(() => setSavedMsg(false), 2000);
+      }
+    });
   };
 
   const deletePoem = (id: number) => {
@@ -304,15 +313,45 @@ export default function App() {
     });
   }, [liveRanked, analysisResult, form, allowZe]);
 
+  const patchReadings = (next: Record<string, { tone: string; rhyme: string }>) => {
+    if (activePoemId) {
+      const prev = intendedReadings;
+      setIntendedReadings(next);
+      fetch(`/api/poems/${activePoemId}/readings`, {
+        method: 'PATCH', credentials: 'same-origin',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ intended_readings: next }),
+      }).then(r => { if (!r.ok) setIntendedReadings(prev); })
+        .catch(() => setIntendedReadings(prev));
+    } else {
+      setIntendedReadings(next);
+    }
+  };
+
+  const handlePinReading = (li: number, pos: number, reading: { tone: string; rhyme: string }) => {
+    const key = `${li},${pos}`;
+    if (intendedReadings[key]?.tone === reading.tone && intendedReadings[key]?.rhyme === reading.rhyme) return;
+    const next = { ...intendedReadings, [key]: reading };
+    patchReadings(next);
+  };
+
   const updateChar = (li: number, pos: number, ch: string) => {
     const next = raw.split(/\r?\n/);
     while (next.length <= li) next.push("");
     const line = Array.from(next[li].replace(/\s+/g, ""));
     while (line.length <= pos) line.push("\uE001");
+    const oldChar = line[pos];
     line[pos] = ch;
     while (line.length > 0 && line[line.length - 1] === "\uE001") line.pop();
     next[li] = line.join("");
     setRaw(next.join("\n"));
+    if (oldChar !== ch) {
+      const key = `${li},${pos}`;
+      if (key in intendedReadings) {
+        const { [key]: _, ...rest } = intendedReadings;
+        patchReadings(rest);
+      }
+    }
   };
 
   const zeYunCaution = selectedPattern?.pattern.kind === "仄韻";
@@ -548,7 +587,7 @@ export default function App() {
               />
               {raw && (
                 <button
-                  onClick={() => { setRaw(""); setSubmitted(false); setLockedPattern(null); setAnalysisResult(null); }}
+                  onClick={() => { setRaw(""); setSubmitted(false); setLockedPattern(null); setAnalysisResult(null); setActivePoemId(null); setIntendedReadings({}); }}
                   aria-label="Clear"
                   className="absolute top-2 right-2 text-creamDim hover:text-rose text-xl leading-none"
                 >×</button>
@@ -678,7 +717,7 @@ export default function App() {
                       <div className="flex items-center justify-between gap-2 px-4 py-3 border-b border-ink-line hover:bg-ink-card/60 transition">
                         <button
                           className="flex-1 text-left min-w-0"
-                          onClick={() => { setRaw(p.text); setSubmitted(false); setLockedPattern(null); setAnalysisResult(null); setPoemsOpen(false); }}
+                          onClick={() => { setRaw(p.text); setSubmitted(false); setLockedPattern(null); setAnalysisResult(null); setPoemsOpen(false); setActivePoemId(p.id); setIntendedReadings(p.intended_readings ?? {}); }}
                         >
                           <div className="text-cream font-serif truncate">{firstLine}</div>
                           <div className="text-[10px] text-creamDim font-sans mt-0.5">{date}</div>
@@ -749,6 +788,8 @@ export default function App() {
         locale={locale}
         lineIdx={editCell?.li ?? 0}
         pos={editCell?.pos ?? 0}
+        pinnedReading={editCell ? (intendedReadings[`${editCell.li},${editCell.pos}`] ?? null) : null}
+        onPinReading={handlePinReading}
         t={t}
         onClose={() => setEditCell(null)}
         onCommit={ch => editCell && updateChar(editCell.li, editCell.pos, ch)}
