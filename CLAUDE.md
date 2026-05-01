@@ -936,75 +936,91 @@ lock icons for drills not yet unlocked.
 Existing `srs_state` table stays as-is (tracks Drill 1 per-char correct/
 wrong). Other drills use the new `drill_sessions` table.
 
-### State of play (as of 2026-04-25)
+### State of play (as of 2026-11-01)
 
-**Shipped:**
-- Tier 1 Drill 1 (Recognition). 165 chars across 5 rhymes, graded
-  Sets 1–4, interleaved via Bjork template, Cantonese + flagged
-  Mandarin TTS.
-- Tier 1 Drill 2 (Recall). 4×2 grid, pick 4 of 8 chars belonging to
-  target 韵部. Per-tile Cantonese audio playback that stays clickable
-  in the feedback phase. Distractors drawn from other Tier 1 rhymes
-  (safe by design). Interleave templates govern target-char difficulty.
-  Commits: e29d428 (initial), 5b18e79 (nav fix), 0331adc (vestigial
-  bar removed), f213bb2 (audio fix in feedback phase), 7395da3 (green
-  styling).
-- Trainer foundation: data model (drill_sessions, tier_drill_unlocks,
-  tier_unlocks), unlock system, admin "解锁训练" override, two-bar
-  layout. Commit 0c0442c.
-- §15 pedagogy canon. Commit 346bf6f.
-- Audio review admin dashboard.
-- Trainer home with tier 2/3 locked; green "开始综合练习" hidden until
-  Tier 2 unlocked.
-- 疴 dropped from curriculum (TTS mispronounce). Commit 6ba3b9b.
-- Dead `src/config/trainer-beta.ts` deleted (replaced by
-  `hasPremiumAccess`). Same commit.
+The trainer module ships Tier 1 fully (4 drills, 5 rhymes:
+一東/七陽/十一尤/六麻/五歌). Tier 2 and Tier 3 are locked behind
+content prep + TTS batch generation; admin can override via the admin
+console.
 
-**Next build order** (one drill at a time, deploy + verify + iterate):
+**Drills shipped:**
+- **Drill 1 (识韵)**: Recognition. Bjork interleave templates for
+  5/10/20-card sessions.
+- **Drill 2 (回韵)**: Recall. 4-of-8 selection from a 韵部 prompt.
+- **Drill 3 (辨韵)**: Discrimination. Pair judgment with
+  WrongAnswerPanel showing family + teaching note + mnemonic + anchor
+  poem.
+- **Drill 4 (词语补齐)**: Word completion. 2-char compound with one
+  char blanked. Round-robin distribution + Bjork tier filtering
+  (post-`8e19693`, `3157d90`). Chinese glosses from MOE (72% coverage);
+  English fallback for 28% (parked ticket #14).
 
-1. **Tier 1 Drill 3** — 辨韵 Discrimination (pair judgment). Show 2
-   chars side by side, binary "do these rhyme in 平水韵?". Within
-   Tier 1 the pairs are deliberately easy (rhymes are distinctive);
-   the UI is being battle-tested for Tier 2 where 一东/二冬 etc. are
-   the real test. On wrong answer, surface family grouping + teaching
-   note + anchor poem from `trainer-curriculum.ts` (data exists, not
-   yet displayed anywhere).
-2. **Tier 1 Drill 4** — 押韵应用 Application. 10 hardcoded Tang poems
-   per tier with one rhyme position blanked; 4 options (1 correct,
-   3 distractors that Mandarin-rhyme but are 出韵 in 平水韵). Shows
-   correct rhyme + why distractor is a trap on wrong answer. Admin
-   dashboard generator for adding more poems beyond the 10 seeds.
-3. **Tier 2 Drill 1** — preparatory phase first: fix Tier 2 char pool
-   (~30 chars × 20 rhymes = ~600 chars), grade Sets 1–4, queue TTS
-   batch, run audio review. Then drill code is trivial (reuses
-   Tier 1 Drill 1 path with `scope=tier2`).
+**Post-curriculum 韵部库:**
+- Read-only dashboard showing collected chars per rhyme (auto-filled by
+  Drill 4).
+- Per-rhyme 温韵默考 button launches pure-recall self-test
+  (post-`adf137b`).
 
-**Subsequent**: Tier 2 Drills 2/3/4 → Tier 3 Drills 1/2/3/4. Same
-code paths, reusing infrastructure.
+**Analyzer:**
+- 字境 (admin-only AI char suggestion): three-skill dispatch, MOE +
+  few-shot anchoring, suppressed contradictory "暫無建議"
+  (post-`9c19932`).
+- Multi-tone (多音字) user pinning: full feature shipped across 4
+  phases (see §21).
+- Auto-rhyme-match for rhyme-position cells (post-`6bc476e`).
+- `checkRhymes` uses chosen rhyme + requiredRhyme (post-`e52cdb0`,
+  Issue B resolved).
 
-### Parallel cleanup tickets (non-blocking)
+**Tier 1 audit batch**: 4 of 14 一東 findings reviewed. 10 一東
+findings remain (烽, 蘢, 谾, 漎, 逄, 攏, 總, 蓊, 菶, 翪). ~519
+findings remain across other rhymes (530 total HIGH-tier per
+dictionary-audit-v2.md).
 
-- ✅ Drop 疴 from curriculum — done. Orphan clips 520/567 remain in DB
-  (harmless, can be purged manually via admin).
-- ✅ Delete `src/config/trainer-beta.ts` — done. Dead code since `c1005ef`.
-- Audio Review Library perf fix: once pending queue is empty, approved
-  list needs pagination or list-collapse. Plan: last 50 approved stay
-  as cards, rest collapse to clickable list items to prevent browser
-  bloat when Tier 2's ~600 clips ship.
-- Revert manual `.env` TRAINER_BETA_USER_IDS edit on VPS — pending
-  (user will handle; not a code change).
+### Parked queue (as of 2026-11-01)
 
-### Audio Review Library — perf constraint (parked)
+**Active backlog (real work to do):**
 
-Approved clips list will grow. Plan when it hits ~200 clips:
-- Most recent 50 approved stay as full cards (with player + waveform)
-- Older approved collapse to clickable list rows (char + voice +
-  status + timestamp), tapping a row expands to a full card on demand
-- Pending queue stays as cards (typically small)
-- This unblocks Tier 2's ~600-clip audio review without browser bloat
+- **#6**: Audit pipeline batch. 一東 cluster paused at 4 of 14 findings
+  (10 remain: 烽, 蘢, 谾, 漎, 逄, 攏, 總, 蓊, 菶, 翪). ~519 findings
+  across other rhymes (530 total HIGH-tier per dictionary-audit-v2.md).
+- **#7**: 簡↔繁 rhyme-merger annotations. Some 簡 chars merge multiple
+  繁 forms with classically-distinct rhymes (丰/豐 pattern: 丰 → 二冬,
+  豐 → 一東). Pedagogical content addition; surfaces during audit work.
+- **#8**: Build-time guardrail. Automated check that fails if
+  curriculum-vs-pingshui drift. Closes the bug class behind `31de576`
+  (Tier 1 audit, 8 chars) and `fb6c378` (一東 audit batch, 茸 misseed).
+- **#10**: CLAUDE.md docs sweep. Phases 1+2 shipped; this commit closes
+  #10.
+- **#14**: Fill MOE coverage gap. Source additional classical Chinese
+  dictionaries (漢語大詞典, 中華語文知識庫, Wiktionary Chinese, manual
+  curation) for the 28% of Drill 4 corpus 词语 not covered by MOE.
+  Until shipped, those 词语 display English CC-CEDICT glosses as
+  temporary fallback.
 
-Trigger: when audio review page first feels sluggish, or before the
-Tier 2 TTS batch lands — whichever comes first.
+**Older parked items (pre-November 2026):**
+
+- Audio Review Library perf: at ~200+ approved clips the Library tab
+  becomes sluggish (renders all clips at once). Pagination or
+  collapse-by-default solution sketched in earlier briefings; not yet
+  built. Trigger: when audio review page first feels sluggish, or
+  before the Tier 2 TTS batch lands.
+- Revert manual `.env` TRAINER_BETA_USER_IDS edit on VPS: a manual
+  VPS-side `.env` modification was made during early Tier 1 testing;
+  should be reverted to whatever the canonical state is now that
+  production has stable beta gating.
+
+**Recently shipped (closed this session):**
+
+- ~~#3 Bjork tier filtering inside Drill 4 round-robin~~ → `8e19693` +
+  `3157d90` (corpus re-grading activated the queue logic)
+- ~~#4 Multi-tone (多音字) user selection~~ → 4-phase ship (`e61ccfc` →
+  `9c19932`; see §21)
+- ~~#5 Issue B: line-2-canonical analyzer change~~ → `e52cdb0` (resolved
+  as part of multi-tone work)
+- ~~#9 Per-card char count restore~~ → `fb6c378`
+- ~~#11 Drill 4 corpus rare_set re-grading~~ → `3157d90`
+- ~~Drop 疴 from curriculum~~ → done (commit `6ba3b9b`)
+- ~~Delete `src/config/trainer-beta.ts`~~ → done (same commit)
 
 ### Lessons learned during Drill 2 implementation
 
@@ -1787,3 +1803,259 @@ available. The user flagged that they should be deferred-loaded.
 `tool_search` retrieved the full Chrome toolset on first call. If
 `tool_search` returns nothing relevant, the tool is genuinely
 unavailable and the user can decide on a workaround.
+
+---
+
+## 21. Multi-tone (多音字) user selection
+
+Some classical Chinese chars have multiple (tone, rhyme) readings. 暖
+has 4 readings spanning 仄/仄/仄/平 across 4 different rhymes. Per
+CLAUDE.md §5, the analyzer's `lookupExpecting` is permissive: any
+reading matching the slot's expected pattern is accepted (多音字入兩韻
+convention).
+
+This feature lets the user explicitly pin a reading per cell, declaring
+compositional intent. The pin overrides auto-match and flows through to
+scoring, display, 字境 suggestions, and requiredRhyme computation.
+
+### Architecture
+
+Pin storage shape (per poem):
+
+```json
+{
+  "1,6": { "tone": "平", "rhyme": "一先" },
+  "3,6": { "tone": "平", "rhyme": "一先" }
+}
+```
+
+Keys are composite "lineIdx,pos" strings. Values identify the reading
+by (tone, rhyme) pair. Stored as TEXT in poems table's
+`intended_readings` column (migration 013).
+
+### Override hierarchy
+
+The chosen reading for a cell is determined by:
+
+  pin > auto-rhyme-match > first-tone-match
+
+1. **Pin (if present)**: search ALL char readings for one matching
+   pin's (tone, rhyme). User pin can declare a tone violation (pinning
+   仄 reading on 平 slot is valid intent — slot mismatch surfaces via
+   downstream tone violation detection).
+2. **Auto-rhyme-match (if at rhyme position with requiredRhyme)**:
+   prefer reading whose rhyme matches the canonical anchor.
+3. **First-tone-match (default)**: first reading whose tone matches
+   the slot's expected pattern.
+
+If pin is invalid (stale after data update — the (tone, rhyme) no
+longer matches any reading), fall back to auto-rhyme-match defensively.
+
+### requiredRhyme + line-1 affinity
+
+`computeRequiredRhyme(lines, pins)`:
+
+1. **Anchor pin override**: if line 2's last char is pinned, return
+   `pin.rhyme` regardless of tone. The user's anchor declaration is
+   authoritative.
+2. **Single 平 reading**: line 2 last char's only 平 reading.
+3. **Multi-平 with line-1 affinity**: if line 2 has multiple 平
+   readings, find one shared with line 1's last char's 平 readings.
+   Line 1 is corroboration, not authority — only consulted when line 2
+   is ambiguous.
+4. **Fallback**: line 2 first 平 reading.
+
+Line 1's pin is NOT consulted for the anchor calculation. Only line 2's
+pin can drive requiredRhyme.
+
+### 字境 integration
+
+字境's prompt includes pinned tone instead of slot tone:
+
+```ts
+const effectiveTone: Tone | null = pinnedReading
+  ? (pinnedReading.tone === '平' ? '平' : '仄') as Tone
+  : expectedTone;
+```
+
+`/api/suggest` request and post-filter both use `effectiveTone`.
+Suggestions match user-declared intent, not slot template.
+
+### Phases shipped
+
+The feature shipped across 4 phases plus 4 prerequisite/follow-up
+commits:
+
+- **Phase 1** (`e61ccfc`): schema + persistence. Migration 013 adds
+  `intended_readings TEXT NOT NULL DEFAULT '{}'` column. New
+  `PATCH /api/poems/:id/readings` route with optimistic update +
+  rollback on non-2xx. Locked poems reject pin writes (409).
+- **Phase 2** (`d274a31`): picker UI in EditModal. Tone/rhyme pills
+  become tappable. Pinned pill shows `ring-2 ring-gold` highlight.
+  Tap pinned pill = no-op (no unpin per locked decision; opening
+  picker IS the commit). Char change cascades the pin clear.
+- **Pre-Phase 3 fix** (`c0bee68`): CharCell rhyme display. Pre-existing
+  bug where rhyme label rendered `c.entries[0].rhyme` regardless of
+  which reading was chosen. Fixed to use `c.chosen?.rhyme`.
+- **Pre-Phase 3** (`6bc476e`): auto-rhyme-match. `lookupExpecting`
+  extended with optional `requiredRhyme` + `isRhymePosition` params.
+  When at rhyme position with requiredRhyme set and char has multiple 平
+  readings, prefer the rhyme-matching reading. `computeRequiredRhyme` +
+  line-1-affinity introduced here.
+- **Pre-Phase 3** (`e52cdb0`): Issue B fix. `checkRhymes` refactored to
+  use (chosen rhymes, requiredRhyme) instead of independent `rhymesOf()`
+  iteration. Strict comparison: cell passes IFF `chosen.rhyme ===
+  requiredRhyme`. 孤雁出群格 line-1 neighbor tolerance preserved.
+- **Phase 3** (`0a55c1f`): pinned reading drives chosen.
+  `lookupExpecting` gains optional `pin` param. Pin path searches ALL
+  entries (not just tone-matching) — pin can override tone. `ToneInfo`
+  gains `pinned?: boolean` field. CharCell suppresses amber-dot
+  ambiguity indicator when `c.pinned` (pin resolves ambiguity).
+- **Phase 4** (`8b3acc8`): 字境 integration + anchor pin overrides
+  requiredRhyme. `computeRequiredRhyme` consults line-2 pin first.
+  EditModal computes `effectiveTone` from `pinnedReading.tone` for
+  字境 prompt + post-filter.
+- **Phase 4 follow-up** (`9c19932`): few-shot 字境 prompt + suppress
+  contradictory "暫無建議" (see §16).
+
+### Backwards compat
+
+Poems with empty `intended_readings = '{}'` (the default for new poems
+and all pre-feature poems) score and display IDENTICALLY to pre-feature
+behavior. The override hierarchy degenerates to auto-rhyme-match →
+first-tone-match, both of which existed before.
+
+The pin-overrides-tone behavior is intentional: a user pinning a 仄
+reading on a 平 slot declares an intentional tone violation (possibly
+for 仄韻 forms, possibly for explicit edge-case exploration). Form
+ranking re-evaluates against pinned values; if the user truly intended
+a 仄韻 form, that form ranks higher in liveRanked.
+
+### Cell-index encoding
+
+Composite "lineIdx,pos" string keys. Phase 1's validator regex was
+loosened from `/^\d+$/` to `/^\d+,\d+$/` in Phase 2 to support this.
+2D coordinates avoid the brittleness of flat-index encoding (which
+would shift if charsPerLine changed across edits or form changes).
+
+### Tap semantics
+
+- Tap unpinned pill → pin that reading
+- Tap pinned pill → no-op (per locked decision: opening picker is the
+  commit; "no opinion" state is unreachable post-pick)
+- Tap different pill → switch pin to that reading
+
+Justification: forces the user to declare intent rather than oscillate
+between "kind of meaning this" and "no opinion." The visual ring
+highlight communicates which reading is committed.
+
+### Cascade-clear on char change
+
+When a cell's char changes (user replaces it via EditModal's input),
+the cell's pin is removed:
+
+```ts
+if (oldChar !== ch) {
+  const key = `${li},${pos}`;
+  if (key in intendedReadings) {
+    const { [key]: _, ...rest } = intendedReadings;
+    patchReadings(rest);  // optimistic update, PATCH if saved poem
+  }
+}
+```
+
+State + PATCH if poem is saved. State-only if unsaved draft.
+
+---
+
+## 22. Drill 4 corpus build pipeline
+
+`scripts/build-drill4-corpus.mjs` generates `src/data/pingshui/drill4-corpus.json`
+(2500 entries) from multiple sources. The pipeline runs at build time,
+not runtime — corpus is committed.
+
+### Input sources
+
+- **CC-CEDICT** (`src/data/cedict_ts.u8`): 124K bilingual entries.
+  Provides the 2-char compound pool plus English glosses (used as
+  fallback when MOE doesn't cover).
+- **MOE 重編國語辭典** (`src/data/moedict-map.json`): 162K entries.
+  Provides Chinese definitions. Coverage: 72% of Tier 1 corpus 词语
+  (1808 of 2500).
+- **tier1-seed-chars.mjs** (`server/data/`): 156 Tier 1 seed chars
+  with rhymeId, jyutping, and curriculum `SeedCharacter.set` (1-4).
+  Used for jyutping lookup and `rare_set` inheritance.
+- **pingshui.json** (`src/data/`): authoritative classical rhyme data.
+  Used to filter to chars in scope and for the curriculum cap.
+
+### Processing stages
+
+1. **Parse CC-CEDICT** to 2-char compound entries with trad, simp,
+   pinyin, English gloss.
+2. **Junk filter**: regex on English gloss + Chinese terms to skip
+   proper nouns (capitalized pinyin) and modern tech/science compounds.
+3. **Tier classification**: each entry tagged `tier: 'classical' |
+   'neutral'` based on classical markers in gloss text ("literary",
+   "ancient", etc.).
+4. **Multi-平-reading skip**: chars with multiple distinct 平 readings
+   across different rhymes are excluded — the drill can't honestly
+   teach a single rhyme assignment for them (commit `4487dcb`). The
+   exclusion check uses pingshui's full readings list per char.
+5. **Curriculum cap**: answer chars must appear in Tier 1
+   seedCharacters (~30 chars per rhyme). Caps the corpus to the
+   curriculum's pedagogical scope.
+6. **MOE gloss lookup**: for each entry, look up trad form in
+   moedict-map. If found, use first MOE definition as gloss. Otherwise
+   fall back to first CC-CEDICT English gloss.
+7. **rare_set inheritance**: each entry's `rare_set` field = the answer
+   char's curriculum `SeedCharacter.set` value (1-4) from
+   `trainer-curriculum.ts`. Replaces an earlier algorithm that graded by
+   position in the full pingshui rhyme bucket (which put all curriculum
+   chars in Set 1 because they're high-frequency).
+8. **Per-rhyme cap**: 500 entries per Tier 1 rhyme, classical-first
+   ordering.
+
+### Entry shape
+
+```json
+{
+  "word": "中古",
+  "blank_pos": 0,
+  "answer": "中",
+  "answer_pinyin": "zhong1",
+  "answer_jyutping": "zung1",
+  "hint_char": "古",
+  "hint_pinyin": "gu3",
+  "hint_jyutping": null,
+  "rhyme": "一東",
+  "pinyin": "zhong1 gu3",
+  "gloss": "上古之後，近代之前的時代。",
+  "tier": "classical",
+  "rare_set": 1
+}
+```
+
+### Known gaps
+
+- **hint_jyutping**: 96% null (2400 of 2500 entries). The jyutping
+  lookup table only covers Tier 1 seed chars (~156); hint chars are
+  typically not seed chars. No broader jyutping dictionary is currently
+  sourced. The frontend hides empty jyutping rows gracefully.
+- **English gloss fallback**: 28% of entries (692) display English
+  glosses where MOE doesn't cover the 词语. Tracked as parked ticket
+  #14 (source additional classical Chinese dictionaries).
+
+### Rebuild
+
+The corpus is committed; rebuild only when:
+- pingshui.json changes (variant mirroring, char additions)
+- `trainer-curriculum.ts` seedCharacters change
+- Junk filter or classification rules change
+- New gloss source integrated
+
+```bash
+node scripts/build-drill4-corpus.mjs
+```
+
+Output is overwritten in place. Commit the regenerated JSON alongside
+the script change.
