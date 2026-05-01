@@ -1110,6 +1110,22 @@ Stale-fetch guard: `fetchReqId` ref counter incremented per fetch; callbacks
 bail if their captured ID doesn't match current. Bumped on modal open and
 ← 返回 to invalidate in-flight requests.
 
+**Few-shot prompt anchoring (post-`9c19932`)**: when requiredRhyme is
+set, the prompt includes 7 high-frequency chars from
+PINGSHUI_RHYME[requiredRhyme].chars as concrete example anchors
+("「一先」韻部包括以下字（僅作示例）：年、天、然、前、邊、仙、船。"). The
+"（僅作示例）" parenthetical is non-negotiable — without it, the model
+regurgitates the few-shot chars as suggestions instead of using them
+as references. Applied uniformly to mismatch (Skill 1/2) and
+non-mismatch (Skill 3) prompts when requiredRhyme is truthy.
+
+**Suppressed contradictory "暫無建議" (post-`9c19932`)**: when AI
+suggestions are filtered to empty AND the rhyme-fallback grid is
+rendering, the "暫無建議" text is suppressed via guard
+`!(exhausted && requiredRhyme)`. The fallback grid's own heading
+("「一先」韻部所有平聲字：") makes clear what's being shown — saying
+"no suggestions" while visibly listing chars contradicts itself.
+
 ### Key commits
 
 字境 cluster spans 16+ commits. Major categories:
@@ -1171,13 +1187,39 @@ that no one has done. The v2 design uses algorithmically-derived 2-char
 
 Output: `src/data/pingshui/drill4-corpus.json` (committed, ~2500 entries).
 
+**Glosses (post-`3157d90`)**: Chinese definitions from MOE 重編國語辭典
+(`src/data/moedict-map.json`, 162K entries). Coverage: 72% of corpus 词语
+(1808 of 2500). Remaining 28% (mostly modern compounds + rare literary
+terms) keep English CC-CEDICT gloss as TEMPORARY fallback until parked
+ticket #14 sources additional classical Chinese dictionaries.
+
+**rare_set algorithm (post-`3157d90`)**: `computeRareSet` inherits each
+answer char's curriculum `SeedCharacter.set` (1-4) from
+`trainer-curriculum.ts`. Replaces the original algorithm that graded by
+position in the full pingshui rhyme bucket (which put all curriculum chars
+in Set 1 because they're high-frequency).
+
 **Card UX:** 2-char word displayed with one char blanked (inline `<input>`
 matching surrounding 48px serif font). Free Chinese IME input. Submit
 validates exact match against expected char. Auto-advance on correct
 (1500ms, admin-tunable via app_settings). Manual 下一题 on wrong.
 
 **Round-robin distribution:** word-queue allocates per-rhyme slots.
-5-card = 1 per rhyme; 10-card = 2; 20-card = 4. Shuffled before return.
+5-card = 1 per rhyme; 10-card = 2; 20-card = 4. Rhyme order shuffled per
+session; queue returned in Bjork-template tier order (per
+INTERLEAVE_TEMPLATES) — warm-up → stretch → settle preserved.
+
+**Bjork tier filtering (post-`8e19693`, `3157d90`)**: per-position tier
+comes from INTERLEAVE_TEMPLATES. Char selection within each (rhyme,
+rare_set) bucket is random; if the bucket is empty, lenient fallback
+descends through tiers (Set 4 → 3 → 2 → 1) before ascending. The
+rare_set field inherits each answer char's curriculum SeedCharacter.set
+(1-4) from trainer-curriculum.ts — Drill 1 and Drill 4 share Bjork tier
+per char (pedagogical consistency). Entry-count skew within rhymes
+(Set 1 dominant) is expected: high-frequency Set 1 chars generate many
+CC-CEDICT compounds; rare Set 4 chars generate few. Per-answer-char set
+assignment is correct; the skew is a property of the compound distribution,
+not the grading algorithm.
 
 ### 韵部库 (user_rhyme_library)
 
@@ -1195,12 +1237,31 @@ CREATE TABLE user_rhyme_library (
 ```
 
 Auto-filled: `/word-response` handler INSERTs on correct answer.
-Read-only dashboard: `RhymeLibrary.tsx` at subView `'library'`.
+Dashboard view: `RhymeLibrary.tsx` at subView `'library'`.
 
-`LibraryAddButton.tsx` is unwired in the UI (reserved for a future
-韵部库 self-practice feature), but the `/library/add` route itself was
-hardened with full server-side validation in preparation
-(`527afaf`, `f2b8d43`). See "Endpoint hardening" below.
+**温韵默考 (post-curriculum self-test, commits `adf137b`, `5f11655`)**:
+dashboard's per-rhyme button launches a pure-recall session. The user
+types chars from memory matching the rhyme; no scaffolding (no hints,
+no difficulty labels, no answer-target chars). Justification: the
+library is post-Drill-4 territory — users have already been taught
+these chars; this exercise is for retrieval, not first-encounter
+learning.
+
+**Single entry surface**: dashboard's per-rhyme "温韵默考" button.
+RhymeDetail's "开始练习" was removed in `5f11655` — single entry,
+single mental model.
+
+**Wrong-answer feedback**: manual "下一题" advance (no auto-advance);
+error message names the actual rhyme via `/library/add`'s extended
+422 response ("「龙」属于二冬韵部，不属于一東").
+
+**Session-scoped back**: "← 退出" top-left of session header returns
+to the 我的韵部库 dashboard (NOT trainer home — the trainer's global
+"<" header button does its own job).
+
+`LibraryAddButton.tsx` and `/library/add` are no longer the path for
+this feature; the route remains hardened from `527afaf` + `f2b8d43`
+and could be reused for a different future feature.
 
 Relevant commits: `8760fdf` (initial), `c26dc83` (Bjork queue + button
 wiring, later reverted), `4487dcb` (multi-reading fix + hint pinyin),
@@ -1342,6 +1403,83 @@ Commit: `f717d75`.
 keys (`peiwen.trainer.{drill1|drill2|drill3|drill4}.hint`). Drill 1 has
 legacy migration from `drillHintEnabled`. Defaults: Drill 1 on, Drill 2
 off, Drill 3 on, Drill 4 on. Commits: `04ffef6`, `848dcd8`, `6a7c2d5`.
+
+### Curriculum-vs-pingshui drift causes silent miseducation
+
+**Symptom**: Drill 1/3/4 teach a char as belonging to a rhyme it doesn't
+classically belong to. User typing "correct" answers gets correct feedback
+for wrong prosody.
+
+**Cause**: `trainer-curriculum.ts` seedCharacters and `pingshui.json`
+char-to-rhyme assignments can disagree without any automated check
+catching it. Drift accumulates silently across edits.
+
+**Fix**: per-batch audits comparing the two sources (commit `31de576`
+fixed 8 chars in Tier 1; `fb6c378` fixed 茸). A build-time guardrail to
+prevent recurrence is parked as a separate ticket.
+
+**Lesson**: data sources that should agree must have automated agreement
+checks. Without them, silent drift becomes user-facing miseducation.
+
+### Migration runner wraps in db.transaction(); FK rebuilds need defer_foreign_keys
+
+**Symptom**: migration crashes on deploy with `cannot start a transaction
+within a transaction` OR `FOREIGN KEY constraint failed` during DROP TABLE.
+Service enters restart loop.
+
+**Cause**: `server/db/migrate.mjs` already wraps each migration in
+better-sqlite3's `db.transaction()`. Migration files MUST NOT include
+explicit `BEGIN TRANSACTION` / `COMMIT` — the wrapper provides this. For
+table-rebuild migrations (CREATE new + INSERT copy + DROP old + RENAME),
+`foreign_keys=ON` in production triggers FK validation at DROP TABLE; need
+`PRAGMA defer_foreign_keys = ON` inside the migration to defer until COMMIT.
+
+**Fix**: `c2cf4fc` removed BEGIN/COMMIT and added defer_foreign_keys to
+migration 012. Both fixes verified by running through actual
+`runMigrations()` path before deploy.
+
+**Lesson**: test migrations through the actual runner (not bare
+`sqlite3 < file`) before claiming done. Bare CLI doesn't apply the
+runner's transaction wrapper or production's FK-on PRAGMA.
+
+### AI hallucination + post-filter rejection produces contradictory UI
+
+**Symptom**: 字境 dialog shows "暫無建議" while simultaneously displaying a
+fallback grid of valid chars. User concludes the feature is broken.
+
+**Cause**: AI model hallucinates chars in wrong rhymes; post-filter
+correctly rejects them (filtered list goes to zero); UI renders "no
+suggestions" alongside the rhyme-fallback grid that's actually showing
+valid chars. Two contradictory signals.
+
+**Fix (`9c19932`)**: (a) few-shot the prompt with 7 example chars from
+PINGSHUI_RHYME — anchors the model to ground truth. (b) suppress
+"暫無建議" when fallback grid renders via `!(exhausted && requiredRhyme)`.
+
+**Lesson**: AI suggestions need ground-truth anchoring (few-shot) AND
+graceful UX when post-filter empties results. Don't show "no suggestions"
+alongside a working fallback.
+
+### New analyzer behavior surfaces a parked Issue
+
+**Symptom**: auto-rhyme-match (`6bc476e`) shipped; cells correctly
+displayed chosen reading post-rhyme-match. But the analyzer's red-coloring
+flagged cells whose chosen rhyme actually matched the canonical anchor.
+
+**Cause**: `checkRhymes` computed its own dominant rhyme via `rhymesOf()`
+(all-readings iteration), independent of auto-rhyme-match's chosen reading.
+Two algorithms disagreed. Documented as Issue B in CLAUDE.md, parked as
+"only worth doing if the inconsistency is actually bothering you in
+practice."
+
+**Fix (`e52cdb0`)**: `checkRhymes` now takes (chosen rhymes, requiredRhyme)
+as parameters. Strict comparison: cell passes IFF `chosen.rhyme ===
+requiredRhyme`. Auto-rhyme-match made the disagreement user-visible,
+forcing the resolution.
+
+**Lesson**: parked issues can become "actually bothering" the moment a
+related feature ships. New behavior shipping atop unresolved parked issues
+exposes them. Re-audit parked items when shipping changes that overlap.
 
 ---
 
@@ -1533,8 +1671,13 @@ self-practice exercise). The CHECK constraint added in migration
 The asymmetry is not a strictness gradient — it is two correct
 validations against two different sources. `/word-response` asks "is
 this prompt real?" because Drill 4's authority is the corpus.
-`/library/add` asks "is this pairing real?" because the upcoming
-self-practice feature's authority is the rhyme dictionary itself.
+`/library/add` asks "is this pairing real?" because any manual-add
+feature's authority is the rhyme dictionary itself.
+
+Note (post-`5f11655`): the 韵部库 self-practice feature referenced
+above pivoted to a pure-recall design that does not use `/library/add`.
+See §17's 温韵默考 subsection. The route remains hardened and the
+prose here serves as historical context.
 
 ### Deploy guards for new disk-resident files
 
