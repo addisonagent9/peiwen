@@ -137,6 +137,11 @@ const variantPairs = [
   ["眞", "真"],   // 眞 (source) → 真 (common)
   ["鈎", "鉤"],   // 鈎 (source) → 鉤 (common)
   ["鈎", "钩"],   // 鈎 (source) → 钩 (simplified)
+  // Audit-batch-2 variant-key sweep (榆/俞/喻 common forms absent,
+  // rare alternate-繁 variants 楡/兪/喩 present with correct readings)
+  ["楡", "榆"],   // 楡 (source) → 榆 (common)
+  ["兪", "俞"],   // 兪 (source) → 俞 (common)
+  ["喩", "喻"],   // 喩 (source) → 喻 (common)
 ];
 for (const [src, dst] of variantPairs) {
   const srcEntries = d.chars[src];

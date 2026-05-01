@@ -14,3 +14,4 @@ data/references/*
 !data/references/tc2sc.json
 server/data/audio-cache/
 server/backups/
+audit-batch-*.md

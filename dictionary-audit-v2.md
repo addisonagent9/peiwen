@@ -6,18 +6,18 @@ Generated: 2026-05-01
 
 | Metric | Count |
 |--------|-------|
-| Our dictionary chars | 21771 |
+| Our dictionary chars | 21774 |
 | Consensus chars (union of 3 refs) | 19700 |
-| In both | 19211 |
+| In both | 19214 |
 | Only in ours | 2560 |
-| Only in consensus | 489 |
+| Only in consensus | 486 |
 
 ## Findings Summary
 
 | Severity | Count |
 |----------|-------|
 | CRITICAL | 9 |
-| HIGH | 517 |
+| HIGH | 514 |
 | MEDIUM | 5 |
 | LOW | 2560 |
 
@@ -72,12 +72,9 @@ Default reading wrong (but may exist in secondary), or char in consensus but mis
 | 谞 | missing | consensus: 平/六魚, 仄/六語 (charles, jkak) |
 | 瑹 | default mismatch | default: 平/七虞, consensus: 平/六魚 (charles,jkak) |
 | 铻 | missing | consensus: 平/六魚 (charles, jkak) |
-| 榆 | missing | consensus: 平/七虞 (charles, jkak, cope) |
-| 俞 | missing | consensus: 平/七虞 (charles, jkak, cope) |
 | 溇 | missing | consensus: 平/七虞, 仄/二十五有 (charles, jkak) |
 | 媭 | missing | consensus: 平/七虞 (charles, jkak) |
 | 阇 | missing | consensus: 平/七虞, 平/六麻 (charles, jkak) |
-| 喻 | missing | consensus: 平/七虞, 仄/七遇 (charles, jkak, cope) |
 | 齊 | default mismatch | default: 平/九佳, consensus: 平/八齊 (charles,jkak,cope); 仄/八霽 (charles,jkak) |
 | 笄 | missing | consensus: 平/八齊 (charles, jkak) |
 | 鹥 | missing | consensus: 平/八齊 (charles, jkak) |
@@ -243,7 +240,10 @@ Default reading wrong (but may exist in secondary), or char in consensus but mis
 | 蔖 | default mismatch | default: 平/五歌, consensus: 仄/七麌 (charles,jkak) |
 | 豎 | missing | consensus: 仄/七麌 (charles, jkak, cope) |
 | 莆 | default mismatch | default: 平/七虞, consensus: 仄/七麌 (charles,jkak) |
-| ... | ... | (317 more) |
+| 喣 | default mismatch | default: 平/七虞, consensus: 仄/七麌 (charles,jkak) |
+| 窶 | default mismatch | default: 平/十一尤, consensus: 仄/七麌 (charles,jkak,cope) |
+| 啟 | missing | consensus: 仄/八薺 (charles, jkak, cope) |
+| ... | ... | (314 more) |
 
 ## MEDIUM Findings
 
