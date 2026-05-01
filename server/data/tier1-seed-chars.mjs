@@ -31,7 +31,6 @@ export const TIER1_SEED_CHARS = [
   { char: '蒙', rhymeId: 'shangping-01-dong', pinyin: 'méng', jyutping: 'mung4', set: 4 },
   { char: '衷', rhymeId: 'shangping-01-dong', pinyin: 'zhōng', jyutping: 'zung1', set: 4 },
   { char: '嵩', rhymeId: 'shangping-01-dong', pinyin: 'sōng', jyutping: 'sung1', set: 4 },
-  { char: '茸', rhymeId: 'shangping-01-dong', pinyin: 'róng', jyutping: 'jung4', set: 4 },
   { char: '曈', rhymeId: 'shangping-01-dong', pinyin: 'tóng', jyutping: 'tung4', set: 4 },
   { char: '瞳', rhymeId: 'shangping-01-dong', pinyin: 'tóng', jyutping: 'tung4', set: 4 },
   { char: '桐', rhymeId: 'shangping-01-dong', pinyin: 'tóng', jyutping: 'tung4', set: 4 },

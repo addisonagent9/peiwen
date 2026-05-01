@@ -85,7 +85,8 @@ export const RhymeLibrary: React.FC<Props> = ({ strings, onBack }) => {
                 >
                   温韵默考
                 </button>
-                <span className="font-serif text-gold text-base">{r.rhyme_label}</span>
+                <span className="font-serif text-gold text-base flex-1">{r.rhyme_label}</span>
+                <span className="text-creamDim text-xs">{strings.libraryProgressFmt(r.user_chars.length, r.total_chars)}</span>
               </div>
               {hasChars && (
                 <div className="flex flex-wrap gap-1 items-center">

@@ -185,7 +185,6 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
       { char: '蒙', pinyin: 'méng', jyutping: 'mung4', set: 4 },
       { char: '衷', pinyin: 'zhōng', jyutping: 'zung1', set: 4, showMandarinAudio: true },
       { char: '嵩', pinyin: 'sōng', jyutping: 'sung1', set: 4, showMandarinAudio: true },
-      { char: '茸', pinyin: 'róng', jyutping: 'jung4', set: 4, showMandarinAudio: true },
       { char: '曈', pinyin: 'tóng', jyutping: 'tung4', set: 4, showMandarinAudio: true },
       { char: '瞳', pinyin: 'tóng', jyutping: 'tung4', set: 4, showMandarinAudio: true },
       { char: '桐', pinyin: 'tóng', jyutping: 'tung4', set: 4, showMandarinAudio: true },
@@ -473,7 +472,7 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
     family: 'ong-family',
     confusables: ['shangping-01-dong'],
     modernRime: '-ong',
-    seedCharacters: ['冬', '龙', '农', '钟', '松', '峰', '封', '逢', '浓', '宗', '重', '从', '丰', '熔', '蜂', '彤'],
+    seedCharacters: ['冬', '龙', '农', '钟', '松', '峰', '封', '逢', '浓', '宗', '重', '从', '丰', '熔', '蜂', '彤', '茸'],
     mnemonic:
       '冬夜寒钟响,与一东相似却不同。二冬多为 zh/ch/sh 声母开头的字。',
   },

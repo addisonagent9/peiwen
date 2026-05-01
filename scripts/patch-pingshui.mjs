@@ -142,5 +142,36 @@ for (const [src, dst] of variantPairs) {
   }
 }
 
+// Group E: 一東 audit batch (Findings 1-3)
+// Chars missing from source CSV, added per 康熙字典/廣韻/集韻 + audit triangulation.
+
+// 鲖 — tóng (鱼名), variant zhòu (地名 鲖陽)
+d.chars["鲖"] = [
+  { tone: "平", group: "上平", rhyme: "一東" },
+  { tone: "仄", group: "上聲", rhyme: "二腫" },
+  { tone: "仄", group: "上聲", rhyme: "二十五有" },
+];
+for (const e of d.chars["鲖"]) ensureBucket("鲖", e);
+console.log(`  鲖 → ${d.chars["鲖"].map(e => e.tone + " " + e.rhyme).join(" | ")}`);
+
+// 曨/昽 — lóng (dawn light, dim morning). Not in tc2sc.json; mirror explicitly.
+d.chars["曨"] = [{ tone: "平", group: "上平", rhyme: "一東" }];
+for (const e of d.chars["曨"]) ensureBucket("曨", e);
+d.chars["昽"] = [{ tone: "平", group: "上平", rhyme: "一東" }];
+for (const e of d.chars["昽"]) ensureBucket("昽", e);
+console.log(`  曨/昽 → 平 一東`);
+
+// 渢/沨 — féng (water sound), fán (左傳), fàn (去聲). Not in tc2sc.json; mirror explicitly.
+const fengReadings = [
+  { tone: "平", group: "上平", rhyme: "一東" },
+  { tone: "平", group: "下平", rhyme: "十五咸" },
+  { tone: "仄", group: "去聲", rhyme: "三十陷" },
+];
+d.chars["渢"] = [...fengReadings];
+for (const e of d.chars["渢"]) ensureBucket("渢", e);
+d.chars["沨"] = [...fengReadings];
+for (const e of d.chars["沨"]) ensureBucket("沨", e);
+console.log(`  渢/沨 → ${fengReadings.map(e => e.tone + " " + e.rhyme).join(" | ")}`);
+
 fs.writeFileSync(jsonPath, JSON.stringify(d));
 console.log("Done — patching complete.");
