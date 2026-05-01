@@ -113,5 +113,37 @@ export const AMBIGUOUS_READINGS: Record<string, AmbiguousReading> = {
         note_zh_cn: "入声十药之读法见于原始资料及外部字典（jkak），为次要读音。"
       }
     ]
+  },
+  "攏": {
+    per_reading_notes: [
+      {
+        rhyme: "一董",
+        status: "attested",
+        note_zh_tw: "《廣韻》力董切、《集韻》魯孔切，上聲一董。",
+        note_zh_cn: "《广韵》力董切、《集韵》鲁孔切，上声一董。"
+      },
+      {
+        rhyme: "一東",
+        status: "retained_legacy",
+        note_zh_tw: "古韻書未見平聲用法，來源誤錄保留條目。",
+        note_zh_cn: "古韵书未见平声用法，来源误录保留条目。"
+      }
+    ]
+  },
+  "拢": {
+    per_reading_notes: [
+      {
+        rhyme: "一董",
+        status: "attested",
+        note_zh_tw: "《廣韻》力董切、《集韻》魯孔切，上聲一董。",
+        note_zh_cn: "《广韵》力董切、《集韵》鲁孔切，上声一董。"
+      },
+      {
+        rhyme: "一東",
+        status: "retained_legacy",
+        note_zh_tw: "古韻書未見平聲用法，來源誤錄保留條目。",
+        note_zh_cn: "古韵书未见平声用法，来源误录保留条目。"
+      }
+    ]
   }
 };

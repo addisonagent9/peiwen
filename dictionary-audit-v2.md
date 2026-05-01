@@ -1,23 +1,23 @@
 # Pingshui Dictionary Audit Report v2
 
-Generated: 2026-04-30
+Generated: 2026-05-01
 
 ## Coverage Statistics
 
 | Metric | Count |
 |--------|-------|
-| Our dictionary chars | 21768 |
+| Our dictionary chars | 21771 |
 | Consensus chars (union of 3 refs) | 19700 |
-| In both | 19208 |
+| In both | 19211 |
 | Only in ours | 2560 |
-| Only in consensus | 492 |
+| Only in consensus | 489 |
 
 ## Findings Summary
 
 | Severity | Count |
 |----------|-------|
 | CRITICAL | 9 |
-| HIGH | 530 |
+| HIGH | 517 |
 | MEDIUM | 5 |
 | LOW | 2560 |
 
@@ -44,20 +44,11 @@ Default reading wrong (but may exist in secondary), or char in consensus but mis
 | Char | Issue | Details |
 |------|-------|---------|
 | 鬃 | default mismatch | default: 平/三江, consensus: 平/二冬 (charles,jkak) |
-| 鲖 | missing | consensus: 平/一東, 仄/二腫 (charles, jkak) |
-| 昽 | missing | consensus: 平/一東 (charles, jkak) |
-| 沨 | missing | consensus: 平/一東 (charles, jkak) |
 | 茸 | default mismatch | default: 平/一東, consensus: 平/二冬 (charles,jkak,cope); 仄/二腫 (charles,jkak) |
-| 烽 | default mismatch | default: 平/一東, consensus: 平/二冬 (charles,jkak,cope) |
-| 蘢 | default mismatch | default: 平/一東, consensus: 平/二冬 (charles,jkak,cope) |
 | 镕 | missing | consensus: 平/二冬 (charles, jkak) |
 | 秾 | missing | consensus: 平/二冬 (charles, jkak) |
 | 颙 | missing | consensus: 平/二冬 (charles, jkak) |
 | 噥 | default mismatch | default: 平/三江, consensus: 平/二冬 (charles,jkak) |
-| 谾 | default mismatch | default: 平/一東, consensus: 平/三江 (charles,jkak) |
-| 漎 | default mismatch | default: 平/一東, consensus: 平/三江 (charles,jkak) |
-| 逄 | default mismatch | default: 平/一東, consensus: 平/三江 (charles,jkak) |
-| 攏 | default mismatch | default: 平/一東, consensus: 仄/一董 (charles,jkak,cope) |
 | 思 | default mismatch | default: 平/十灰, consensus: 平/四支 (charles,jkak,cope); 仄/四寘 (charles,jkak,cope) |
 | 媯 | missing | consensus: 平/四支 (charles, jkak) |
 | 飔 | missing | consensus: 平/四支 (charles, jkak, cope) |
@@ -222,11 +213,7 @@ Default reading wrong (but may exist in secondary), or char in consensus but mis
 | 崄 | missing | consensus: 仄/二十八琰 (charles, jkak) |
 | 黚 | default mismatch | default: 平/十二侵, consensus: 平/十四鹽 (charles,jkak); 仄/二十八勘 (charles,jkak) |
 | 镵 | missing | consensus: 平/十五咸, 仄/三十陷 (charles, jkak) |
-| 總 | default mismatch | default: 平/一東, consensus: 仄/一董 (charles,jkak,cope) |
-| 蓊 | default mismatch | default: 平/一東, consensus: 仄/一董 (charles,jkak,cope) |
-| 菶 | default mismatch | default: 平/一東, consensus: 仄/一董 (charles,jkak) |
 | 唝 | missing | consensus: 仄/一董 (charles, jkak) |
-| 翪 | default mismatch | default: 平/一東, consensus: 仄/一董 (charles,jkak) |
 | 蓯 | default mismatch | default: 平/二冬, consensus: 仄/一董 (charles,jkak) |
 | 垄 | missing | consensus: 仄/二腫 (charles, jkak) |
 | 否 | default mismatch | default: 平/十一尤, consensus: 仄/四紙 (charles,jkak,cope); 仄/七麌 (charles,jkak,cope); 仄/二十五有 (charles,jkak,cope) |
@@ -243,7 +230,20 @@ Default reading wrong (but may exist in secondary), or char in consensus but mis
 | 仳 | default mismatch | default: 平/四支, consensus: 仄/四紙 (charles,jkak) |
 | 呰 | default mismatch | default: 平/四支, consensus: 仄/四紙 (charles,jkak) |
 | 蟣 | default mismatch | default: 平/五微, consensus: 仄/五尾 (charles,jkak,cope) |
-| ... | ... | (330 more) |
+| 蜚 | default mismatch | default: 平/五微, consensus: 仄/五尾 (charles,jkak); 仄/五未 (charles,jkak,cope) |
+| 蜰 | default mismatch | default: 平/五微, consensus: 仄/五尾 (charles,jkak) |
+| 唏 | default mismatch | default: 平/五微, consensus: 仄/五尾 (charles,jkak) |
+| 纻 | missing | consensus: 仄/六語 (charles, jkak) |
+| 敘 | missing | consensus: 仄/六語 (charles, jkak, cope) |
+| 詛 | default mismatch | default: 仄/七遇, consensus: 仄/六語 (charles,cope); 仄/六御 (charles,jkak) |
+| 齟 | default mismatch | default: 平/六麻, consensus: 仄/六語 (charles,jkak) |
+| 嶁 | default mismatch | default: 平/十一尤, consensus: 仄/七麌 (charles,jkak); 仄/二十五有 (charles,jkak) |
+| 冔 | default mismatch | default: 平/七虞, consensus: 仄/七麌 (charles,jkak) |
+| 瞴 | default mismatch | default: 平/七虞, consensus: 仄/七麌 (charles,jkak) |
+| 蔖 | default mismatch | default: 平/五歌, consensus: 仄/七麌 (charles,jkak) |
+| 豎 | missing | consensus: 仄/七麌 (charles, jkak, cope) |
+| 莆 | default mismatch | default: 平/七虞, consensus: 仄/七麌 (charles,jkak) |
+| ... | ... | (317 more) |
 
 ## MEDIUM Findings
 

@@ -38,6 +38,18 @@ function reorder(char, preferTone) {
   }
 }
 
+// Helper: reorder entries so the entry matching targetRhyme comes first
+function reorderToRhyme(char, targetRhyme) {
+  const entries = d.chars[char];
+  if (!entries || entries.length < 2) return;
+  const idx = entries.findIndex(e => e.rhyme === targetRhyme);
+  if (idx > 0) {
+    const [preferred] = entries.splice(idx, 1);
+    entries.unshift(preferred);
+    console.log(`  ${char} reordered → ${entries.map(e => e.tone + " " + e.rhyme).join(" | ")}`);
+  }
+}
+
 console.log("Patching pingshui.json...");
 
 // Group A: 8 simplified chars with wrong default reading
@@ -172,6 +184,34 @@ for (const e of d.chars["渢"]) ensureBucket("渢", e);
 d.chars["沨"] = [...fengReadings];
 for (const e of d.chars["沨"]) ensureBucket("沨", e);
 console.log(`  渢/沨 → ${fengReadings.map(e => e.tone + " " + e.rhyme).join(" | ")}`);
+
+// === 一東 audit batch findings 5–14 — reorder wrong defaults ===
+//
+// Both readings already exist; entries[0] was 平/一東 but consensus
+// (charlesix59 + jkak + cope where present, plus 廣韻/集韻 verification
+// from user) puts the primary reading in another rhyme. Reorder only;
+// no entry adds. 攏 receives an additional retained_legacy annotation
+// in ambiguous-readings.ts (its 平/一東 secondary is dictionary-error
+// data — preserved per locked decision "annotate, don't drop").
+
+// Group A — default → 二冬
+reorderToRhyme("烽", "二冬");
+reorderToRhyme("蘢", "二冬");
+reorderToRhyme("茏", "二冬");  // 簡 of 蘢
+
+// Group B — default → 三江
+reorderToRhyme("谾", "三江");
+reorderToRhyme("漎", "三江");
+reorderToRhyme("逄", "三江");
+
+// Group C — default → 仄/一董
+reorderToRhyme("攏", "一董");
+reorderToRhyme("拢", "一董");  // 簡 of 攏
+reorderToRhyme("總", "一董");
+reorderToRhyme("总", "一董");  // 簡 of 總
+reorderToRhyme("蓊", "一董");
+reorderToRhyme("菶", "一董");
+reorderToRhyme("翪", "一董");
 
 fs.writeFileSync(jsonPath, JSON.stringify(d));
 console.log("Done — patching complete.");
