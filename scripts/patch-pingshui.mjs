@@ -240,6 +240,19 @@ const variantPairs = [
   ["駡", "罵"],   // 駡 → 罵 — 仄/二十二禡
   ["蝨", "虱"],   // 蝨 → 虱 — 入/四質
   ["濫", "滥"],   // 濫 → 滥 — multi: 二十八勘 + 二十九豏 + 二十七感
+  // Audit batch 6: 12 variant pairs
+  ["寛", "寬"],   // 寛 → 寬 — 平/十四寒
+  ["顔", "顏"],   // 顔 → 顏 — 平/十五刪
+  ["鷳", "鷴"],   // 鷳 → 鷴 — 平/十五刪
+  ["巓", "巔"],   // 巓 → 巔 — 平/一先
+  ["氊", "氈"],   // 氊 → 氈 — 平/一先
+  ["嶢", "峣"],   // 嶢 → 峣 — 平/二蕭
+  ["謡", "謠"],   // 謡 → 謠 — 平/二蕭
+  ["鑽", "鉆"],   // 鑽 → 鉆 — multi: 十四寒 + 十五翰
+  ["啓", "啟"],   // 啓 → 啟 — 仄/八薺
+  ["餧", "餵"],   // 餧 → 餵 — multi: 十賄 + 四寘
+  ["壼", "壸"],   // 壼 → 壸 — 仄/十三阮
+  ["産", "產"],   // 産 → 產 — 仄/十五潸
 ];
 for (const [src, dst] of variantPairs) {
   const srcEntries = d.chars[src];
@@ -833,6 +846,146 @@ addMultiReading("籀", [
   { tone: "仄", group: "去聲", rhyme: "二十六宥" },
   { tone: "入", group: "入聲", rhyme: "一屋" }
 ]);
+
+// === Audit batch 6 — Group D extensions (12 pairs) ===
+// All case A/B per prior investigation — clean mirrors.
+// variantPairs additions already in the array above.
+// (These 12 pairs were added to the variantPairs array in Part 2.)
+
+// === Audit batch 6 — reorders (51 繁 + 10 簡 = 61 calls) ===
+// → 十二文
+reorderToRhyme("玟", "十二文");
+reorderToRhyme("汶", "十二文");
+// → 十三元 (NOT 論 — 論 is user-override to 十四願 below)
+// → 十四寒
+reorderToRhyme("梡", "十四寒");
+// → 一先
+reorderToRhyme("脧", "一先"); reorderToRhyme("睃", "一先");
+reorderToRhyme("媊", "一先");
+reorderToRhyme("磌", "一先");
+reorderToRhyme("漹", "一先");
+reorderToRhyme("嬛", "一先");
+// → 四豪
+reorderToRhyme("艘", "四豪");
+reorderToRhyme("匋", "四豪");
+// → 七麌
+reorderToRhyme("莆", "七麌");
+reorderToRhyme("喣", "七麌");
+reorderToRhyme("窶", "七麌"); reorderToRhyme("窭", "七麌");
+// → 八薺
+reorderToRhyme("柢", "八薺");
+reorderToRhyme("欐", "八薺");
+// → 十賄
+reorderToRhyme("櫑", "十賄");
+reorderToRhyme("廆", "十賄");
+reorderToRhyme("娞", "十賄");
+// → 十一軫
+reorderToRhyme("湣", "十一軫"); reorderToRhyme("愍", "十一軫");
+reorderToRhyme("馻", "十一軫");
+// → 十二吻
+reorderToRhyme("弅", "十二吻");
+reorderToRhyme("韞", "十二吻"); reorderToRhyme("韫", "十二吻");
+// → 十三阮
+reorderToRhyme("焜", "十三阮");
+reorderToRhyme("齦", "十三阮"); reorderToRhyme("龈", "十三阮");
+reorderToRhyme("睕", "十三阮");
+reorderToRhyme("愃", "十三阮");
+// → 十四旱
+reorderToRhyme("緩", "十四旱"); reorderToRhyme("缓", "十四旱");
+reorderToRhyme("繵", "十四旱");
+reorderToRhyme("捖", "十四旱");
+reorderToRhyme("裋", "十四旱");
+// → 十六銑
+reorderToRhyme("舛", "十六銑");
+reorderToRhyme("鄟", "十六銑");
+reorderToRhyme("繾", "十六銑"); reorderToRhyme("缱", "十六銑");
+reorderToRhyme("諞", "十六銑"); reorderToRhyme("谝", "十六銑");
+reorderToRhyme("謰", "十六銑");
+reorderToRhyme("沇", "十六銑");
+// → 十七筱
+reorderToRhyme("殍", "十七筱");
+reorderToRhyme("憭", "十七筱");
+// → 十八巧
+reorderToRhyme("茆", "十八巧");
+// → 十九皓
+reorderToRhyme("繰", "十九皓"); reorderToRhyme("缲", "十九皓");
+reorderToRhyme("轑", "十九皓");
+reorderToRhyme("芺", "十九皓");
+// → 二十哿
+reorderToRhyme("舸", "二十哿");
+reorderToRhyme("柁", "二十哿");
+reorderToRhyme("蠃", "二十哿");
+reorderToRhyme("砢", "二十哿");
+reorderToRhyme("婀", "二十哿");
+reorderToRhyme("縒", "二十哿");
+reorderToRhyme("袲", "二十哿");
+// → 二十一馬
+reorderToRhyme("下", "二十一馬");
+// Watch-list: 論 → user override to 十四願
+reorderToRhyme("論", "十四願"); reorderToRhyme("论", "十四願");
+
+// === Audit batch 6 — single-reading ADDs (47 calls) ===
+// → 平 rhymes
+addReading("煴", "平", "上平", "十二文");
+addReading("豮", "平", "上平", "十二文");
+addReading("涢", "平", "上平", "十二文");
+addReading("筼", "平", "上平", "十二文");
+addReading("辒", "平", "上平", "十三元");
+addReading("裈", "平", "上平", "十三元");
+addReading("鹓", "平", "上平", "十三元");
+addReading("襕", "平", "上平", "十四寒");
+addReading("鳣", "平", "下平", "一先");
+addReading("阛", "平", "上平", "十五刪");
+addReading("镮", "平", "上平", "十五刪");
+addReading("妍", "平", "下平", "一先");
+addReading("篯", "平", "下平", "一先");
+addReading("鹯", "平", "下平", "一先");
+addReading("钘", "平", "下平", "九青");
+addReading("梿", "平", "下平", "一先");
+addReading("飖", "平", "下平", "二蕭");
+addReading("蟏", "平", "下平", "二蕭");
+addReading("绦", "平", "下平", "四豪");
+addReading("绹", "平", "下平", "四豪");
+addReading("鱽", "平", "下平", "四豪");
+addReading("梼", "平", "下平", "四豪");
+addReading("嗥", "平", "下平", "四豪");
+// → 仄 rhymes
+addReading("豎", "仄", "上聲", "七麌");
+addReading("奶", "仄", "上聲", "九蟹");
+addReading("闿", "仄", "上聲", "十賄");
+addReading("叆", "仄", "去聲", "十一隊");
+addReading("叇", "仄", "去聲", "十一隊");
+addReading("纼", "仄", "上聲", "十一軫");
+addReading("讱", "仄", "去聲", "十二震");
+addReading("醞", "仄", "去聲", "十三問");
+addReading("滚", "仄", "上聲", "十三阮");
+addReading("浐", "仄", "上聲", "十五潸");
+addReading("狝", "仄", "上聲", "十六銑");
+addReading("剪", "仄", "上聲", "十六銑");
+addReading("亸", "仄", "上聲", "二十哿");
+
+// === Audit batch 6 — multi-reading ADDs (7 calls) ===
+addMultiReading("侥", [
+  { tone: "平", group: "下平", rhyme: "二蕭" },
+  { tone: "仄", group: "上聲", rhyme: "十七筱" }
+]);
+addMultiReading("剿", [
+  { tone: "平", group: "下平", rhyme: "三肴" },
+  { tone: "仄", group: "上聲", rhyme: "十七筱" }
+]);
+addMultiReading("鸼", [
+  { tone: "平", group: "下平", rhyme: "三肴" },
+  { tone: "平", group: "下平", rhyme: "十一尤" }
+]);
+addMultiReading("啴", [
+  { tone: "平", group: "上平", rhyme: "十四寒" },
+  { tone: "仄", group: "上聲", rhyme: "十六銑" }
+]);
+addMultiReading("揾", [
+  { tone: "仄", group: "上聲", rhyme: "十二吻" },
+  { tone: "仄", group: "去聲", rhyme: "十四願" }
+]);
+addReading("鸮", "平", "下平", "二蕭");
 
 fs.writeFileSync(jsonPath, JSON.stringify(d));
 console.log("Done — patching complete.");
