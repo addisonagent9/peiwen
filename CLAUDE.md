@@ -1176,24 +1176,58 @@ dictionary-audit-v2.md).
   whichever reading pill is currently ring-highlighted. Pedagogically
   wrong: each reading SHOULD be its own card with its own 字義,
   pinyin/jyutping, and 词语 (compound list filtered by the reading's
-  pinyin). Blocking work: per-reading 字義 source. MOE returns one
-  entry per char-key, not per (char, rhyme, pinyin). Three approaches
+  pinyin).
+  Blocking work: per-reading 字義 source. MOE returns one entry
+  per char-key, not per (char, rhyme, pinyin). Three approaches
   considered: (1) AI-generated `reading-glosses.json` with user
   verdict pipeline, similar shape to the dictionary-audit-v2
   triangulation flow — multi-session. (2) Source from 漢語大詞典 /
   康熙字典 / Wiktionary multi-reading sections — highest quality,
-  slowest, overlaps with #14. (3) Hybrid: AI seed + user verdict,
-  classical-source triangulation only when AI is uncertain. UI work
-  after data lands: swap RhymeCharCard from "share content across
-  pills" to "swap content per pill" — re-derive 字義, py, jyut,
+  slowest, overlaps with #17 (popup card coverage gap). (3) Hybrid:
+  AI seed + user verdict, classical-source triangulation only when AI
+  is uncertain.
+  UI work after data lands: swap RhymeCharCard from "share content
+  across pills" to "swap content per pill" — re-derive 字義, py, jyut,
   compounds based on currentRhyme's reading. Pill click already wires
-  through `onRhymeChange`; just need the data plumbing. Library work
-  needed: probably a new `src/data/reading-glosses.json` (or `.ts` if
-  curated by hand) keyed by `{char}__{rhyme}__{pinyin}` with
-  `{gloss_zh, gloss_en, notes}` shape. Builds alongside the existing
-  `ambiguous-readings.ts` per-reading-notes infra (currently 14 chars).
+  through `onRhymeChange`; just need the data plumbing.
+  Library work needed: probably a new `src/data/reading-glosses.json`
+  (or `.ts` if curated by hand) keyed by `{char}__{rhyme}__{pinyin}`
+  with `{gloss_zh, gloss_en, notes}` shape. Builds alongside the
+  existing `ambiguous-readings.ts` per-reading-notes infra (currently
+  14 chars).
   Multi-session arc. Likely sequence: data-source decision → seed
   generation → verdict pipeline → UI swap → deploy.
+- **#17**: Fill unique word with meaning and 词语. The popup card on
+  the rhyme reference page (§11.C, shipped in `7a37b8a`) shows empty
+  字義 row and empty 词语 section for chars where MOE has no entry
+  AND CC-CEDICT has no 2-char compounds containing the char. Most
+  visible on rare/archaic chars surfaced via the 显示僻字 toggle
+  (e.g. 簽 in 一東 area shows char + pinyin only — no meaning, no
+  compounds). Affected surface is the popup card; affected chars are
+  the long tail of pingshui's ~19,600-char corpus that modern
+  dictionaries don't cover.
+  Distinct from #14 — #14 scopes to Drill 4's `drill4-corpus.json`
+  (compound glosses for the trainer corpus). #17 scopes to per-char
+  meaning + compound coverage on the reference page. Same family of
+  "fill the dictionary gap" work; different surfaces, different
+  remediation deliverables.
+  Distinct from #16 — #16 is per-reading content for multi-音字 chars
+  with multiple meanings. #17 is single-meaning chars that simply
+  lack any meaning entry today.
+  Sources to evaluate (overlap with #14 + #16): 康熙字典 OCR/digital
+  corpus, 漢語大詞典, Wiktionary Chinese, 教育部異體字字典, 中華語文
+  知識庫. Pipeline: per-char triangulation across sources, user
+  verdict on disagreements, auto-merge on consensus, ship as a
+  patch file consumed by the reference card's lookup chain
+  (probably extends moedict.ts to fall back to a supplement table
+  when MOE returns empty).
+  CC tooling angle: have CC search candidate sources online per char,
+  surface findings in audit-batch-N.md format (current readings vs
+  candidate gloss vs source per source), user verdicts, batch-patch.
+  Same shape as the dictionary-audit-v2 sweep that closed in May 2026.
+  Multi-session arc. Likely sequence: source-candidate evaluation →
+  pilot batch (~20 chars) → verdict-pipeline shape settles → corpus-
+  wide sweep.
 
 **Older parked items (pre-November 2026):**
 
