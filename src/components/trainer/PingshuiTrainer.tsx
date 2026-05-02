@@ -220,7 +220,7 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
           <TrainerTierView
             strings={strings}
             tier={selectedTier}
-            unlockedTier={state.currentTier}
+            unlockedTiers={unlocks?.tiers}
             onSelectRhyme={(id) => {
               setSelectedRhymeId(id);
               setSubView('detail');

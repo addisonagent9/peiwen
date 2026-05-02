@@ -84,8 +84,6 @@ export interface TrainerApi {
   getState: () => Promise<UserTrainerState>;
   patchState: (patch: Partial<UserTrainerState>) => Promise<UserTrainerState>;
   completeFoundation: () => Promise<UserTrainerState>;
-  unlockNextTier: () => Promise<UserTrainerState>;
-
   // SRS
   getDueCards: () => Promise<SRSCard[]>;
   seedRhyme: (rhymeId: string) => Promise<SeedResponse>;
@@ -120,14 +118,6 @@ export function useTrainerApi(opts: UseTrainerApiOptions = {}): TrainerApi {
   const completeFoundation = useCallback(async () => {
     const r = await request<StateResponse>(
       `${base}/trainer/foundation/complete`,
-      { method: 'POST' },
-    );
-    return r.state;
-  }, [base]);
-
-  const unlockNextTier = useCallback(async () => {
-    const r = await request<StateResponse>(
-      `${base}/trainer/tier/unlock`,
       { method: 'POST' },
     );
     return r.state;
@@ -172,7 +162,6 @@ export function useTrainerApi(opts: UseTrainerApiOptions = {}): TrainerApi {
       getState,
       patchState,
       completeFoundation,
-      unlockNextTier,
       getDueCards,
       seedRhyme,
       reviewCard,
@@ -182,7 +171,6 @@ export function useTrainerApi(opts: UseTrainerApiOptions = {}): TrainerApi {
       getState,
       patchState,
       completeFoundation,
-      unlockNextTier,
       getDueCards,
       seedRhyme,
       reviewCard,

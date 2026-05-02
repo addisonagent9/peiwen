@@ -21,7 +21,7 @@ export interface DrillUnlockInfo {
 export interface TrainerTierViewProps {
   strings: TrainerStrings;
   tier: RhymeTier;
-  unlockedTier: RhymeTier;
+  unlockedTiers?: number[];
   onSelectRhyme: (rhymeId: string) => void;
   onStartDrill?: (drillNumber?: number) => void;
   unlockedDrills?: DrillUnlockInfo[];
@@ -31,7 +31,7 @@ export interface TrainerTierViewProps {
 export const TrainerTierView: React.FC<TrainerTierViewProps> = ({
   strings,
   tier,
-  unlockedTier,
+  unlockedTiers = [1],
   onSelectRhyme,
   onStartDrill,
   unlockedDrills = [],
@@ -48,7 +48,7 @@ export const TrainerTierView: React.FC<TrainerTierViewProps> = ({
     return Array.from(byFamily.entries());
   }, [tier]);
 
-  const isUnlocked = tier <= unlockedTier;
+  const isUnlocked = unlockedTiers.includes(tier);
 
   const isDrillUnlocked = (drillNum: number) =>
     (tier === 1 && drillNum === 1) ||

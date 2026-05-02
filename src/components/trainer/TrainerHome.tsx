@@ -115,7 +115,7 @@ export const TrainerHome: React.FC<TrainerHomeProps> = ({
         <SectionLabel>韵部层级</SectionLabel>
         <div className="space-y-2">
           {tiers.map(({ tier, title, description, count }) => {
-            const unlocked = tier <= state.currentTier && state.foundationCompleted;
+            const unlocked = (unlockedTiers?.includes(tier) ?? tier === 1) && state.foundationCompleted;
             return (
               <TierRow
                 key={tier}
