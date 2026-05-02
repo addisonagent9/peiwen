@@ -6,18 +6,18 @@ Generated: 2026-05-02
 
 | Metric | Count |
 |--------|-------|
-| Our dictionary chars | 21863 |
+| Our dictionary chars | 21920 |
 | Consensus chars (union of 3 refs) | 19700 |
-| In both | 19303 |
+| In both | 19360 |
 | Only in ours | 2560 |
-| Only in consensus | 397 |
+| Only in consensus | 340 |
 
 ## Findings Summary
 
 | Severity | Count |
 |----------|-------|
 | CRITICAL | 9 |
-| HIGH | 375 |
+| HIGH | 228 |
 | MEDIUM | 5 |
 | LOW | 2560 |
 
@@ -193,57 +193,57 @@ Default reading wrong (but may exist in secondary), or char in consensus but mis
 | 飐 | missing | consensus: 仄/二十八琰 (charles, jkak) |
 | 慊 | default mismatch | default: 平/十四鹽, consensus: 仄/二十八琰 (charles,jkak) |
 | 溓 | default mismatch | default: 平/十五咸, consensus: 仄/二十八琰 (charles,jkak) |
-| 黡 | missing | consensus: 仄/二十八琰 (charles, jkak) |
-| 蘞 | default mismatch | default: 平/十四鹽, consensus: 仄/二十八琰 (charles,jkak) |
-| 譣 | default mismatch | default: 平/十四鹽, consensus: 仄/二十八琰 (charles,jkak) |
-| 嬐 | default mismatch | default: 平/十四鹽, consensus: 仄/二十八琰 (charles,jkak) |
-| 黯 | default mismatch | default: 平/十五咸, consensus: 仄/二十九豏 (charles,jkak,cope) |
-| 滥 | missing | consensus: 仄/二十九豏, 仄/二十八勘 (charles, jkak, cope) |
-| 哄 | default mismatch | default: 平/一東, consensus: 仄/一送 (charles,jkak,cope) |
-| 赗 | missing | consensus: 仄/一送 (charles, jkak) |
-| 統 | default mismatch | default: 仄/一董, consensus: 仄/二宋 (charles,jkak,cope) |
-| 疭 | missing | consensus: 仄/二宋 (charles, jkak) |
-| 緟 | default mismatch | default: 平/二冬, consensus: 仄/二宋 (charles,jkak) |
-| 餌 | default mismatch | default: 仄/四紙, consensus: 仄/四寘 (charles,jkak,cope) |
-| 廁 | missing | consensus: 仄/四寘 (charles, jkak, cope) |
-| 睟 | default mismatch | default: 仄/十一隊, consensus: 仄/四寘 (charles,jkak) |
-| 穊 | default mismatch | default: 仄/五未, consensus: 仄/四寘 (charles,jkak) |
-| 赑 | missing | consensus: 仄/四寘 (charles, jkak) |
-| 饎 | default mismatch | default: 平/四支, consensus: 仄/四寘 (charles,jkak) |
-| 勚 | missing | consensus: 仄/四寘 (charles, jkak) |
-| 值 | missing | consensus: 仄/四寘, 仄/十三職 (charles, jkak, cope) |
-| 蠔 | default mismatch | default: 平/四豪, consensus: 仄/四寘 (charles,jkak) |
-| 塈 | missing | consensus: 仄/四寘, 仄/五未 (charles, jkak) |
-| 甀 | default mismatch | default: 平/四支, consensus: 仄/四寘 (charles,jkak) |
-| 疐 | default mismatch | default: 仄/八霽, consensus: 仄/四寘 (charles,jkak) |
-| 袘 | default mismatch | default: 平/四支, consensus: 仄/四寘 (charles,jkak) |
-| 偽 | missing | consensus: 仄/四寘 (charles, jkak, cope) |
-| 槜 | missing | consensus: 仄/四寘 (charles, jkak) |
-| 屃 | missing | consensus: 仄/四寘 (charles, jkak) |
-| 溉 | missing | consensus: 仄/五未, 仄/十一隊 (charles, jkak, cope) |
-| 既 | missing | consensus: 仄/五未 (charles, jkak, cope) |
-| 禨 | default mismatch | default: 平/五微, consensus: 仄/五未 (charles,jkak) |
-| 概 | missing | consensus: 仄/十一隊 (charles, jkak, cope) |
-| 慮 | default mismatch | default: 平/六魚, consensus: 仄/六御 (charles,jkak,cope) |
-| 滪 | missing | consensus: 仄/六御 (charles, jkak) |
-| 瘀 | default mismatch | default: 平/六魚, consensus: 仄/六御 (charles,jkak) |
-| 鸒 | default mismatch | default: 平/六魚, consensus: 仄/六御 (charles,jkak) |
-| 跗 | default mismatch | default: 平/七虞, consensus: 仄/七遇 (charles,jkak) |
-| 作 | default mismatch | default: 仄/六語, consensus: 仄/七遇 (charles,jkak); 仄/二十一箇 (charles,jkak,cope); 仄/十藥 (charles,jkak,cope) |
-| 婟 | default mismatch | default: 仄/七麌, consensus: 仄/七遇 (charles,jkak) |
-| 銳 | missing | consensus: 仄/八霽 (charles, jkak, cope) |
-| 蒂 | missing | consensus: 仄/八霽 (charles, jkak, cope) |
-| 轪 | missing | consensus: 仄/八霽, 仄/九泰 (charles, jkak) |
-| 鳀 | missing | consensus: 仄/八霽 (charles, jkak) |
-| 忕 | default mismatch | default: 仄/九泰, consensus: 仄/八霽 (charles,jkak) |
-| 盻 | default mismatch | default: 仄/八薺, consensus: 仄/八霽 (charles,jkak) |
-| 裞 | default mismatch | default: 仄/九泰, consensus: 仄/八霽 (charles,jkak) |
-| 犡 | default mismatch | default: 仄/九泰, consensus: 仄/八霽 (charles,jkak) |
-| 翙 | missing | consensus: 仄/九泰 (charles, jkak) |
 | 瞆 | missing | consensus:  (charles, jkak) |
-| 攦 | default mismatch | default: 仄/四紙, consensus: 仄/十卦 (charles,jkak) |
-| 繢 | default mismatch | default: 平/十灰, consensus: 仄/十一隊 (charles,jkak) |
-| ... | ... | (175 more) |
+| 佐 | default mismatch | default: 仄/二十哿, consensus: 仄/二十一箇 (charles,jkak,cope) |
+| 跼 | missing | consensus:  (charles, cope) |
+| 矞 | default mismatch | default: 仄/九屑, consensus: 仄/四質 (charles,jkak) |
+| 韨 | missing | consensus: 仄/五物 (charles, jkak) |
+| 熨 | default mismatch | default: 仄/五未, consensus: 仄/五物 (charles,jkak,cope) |
+| 歇 | default mismatch | default: 仄/七曷, consensus: 仄/六月 (charles,jkak,cope) |
+| 碣 | default mismatch | default: 仄/七曷, consensus: 仄/六月 (charles,jkak,cope); 仄/九屑 (charles,jkak,cope) |
+| 龁 | missing | consensus: 仄/六月 (charles, jkak) |
+| 麧 | default mismatch | default: 仄/九屑, consensus: 仄/六月 (charles,jkak) |
+| 棁 | missing | consensus: 仄/六月, 仄/九屑 (charles, jkak) |
+| 抈 | default mismatch | default: 仄/七曷, consensus: 仄/六月 (charles,jkak) |
+| 閼 | default mismatch | default: 平/一先, consensus: 仄/六月 (charles,jkak); 仄/七曷 (charles,jkak) |
+| 堨 | default mismatch | default: 仄/九泰, consensus: 仄/六月 (charles,jkak); 仄/七曷 (charles,jkak) |
+| 阢 | default mismatch | default: 平/十灰, consensus: 仄/六月 (charles,jkak) |
+| 達 | default mismatch | default: 仄/八霽, consensus: 仄/七曷 (charles,jkak,cope) |
+| 鹖 | missing | consensus: 仄/七曷 (charles, jkak) |
+| 袯 | missing | consensus: 仄/七曷 (charles, jkak) |
+| 缽 | missing | consensus: 仄/七曷 (charles, jkak, cope) |
+| 妲 | default mismatch | default: 仄/十五翰, consensus: 仄/七曷 (charles,jkak) |
+| 靼 | default mismatch | default: 仄/十四旱, consensus: 仄/七曷 (charles,jkak) |
+| 狚 | default mismatch | default: 仄/十四旱, consensus: 仄/七曷 (charles,jkak) |
+| 瘌 | default mismatch | default: 仄/九泰, consensus: 仄/七曷 (charles,jkak,cope) |
+| 脟 | default mismatch | default: 平/三肴, consensus: 仄/七曷 (charles,jkak) |
+| 汃 | default mismatch | default: 平/十一真, consensus: 仄/八黠 (charles,jkak) |
+| 叭 | default mismatch | default: 平/六麻, consensus: 仄/八黠 (charles,jkak,cope) |
+| 朳 | default mismatch | default: 仄/九屑, consensus: 仄/八黠 (charles,jkak) |
+| 捌 | default mismatch | default: 仄/九屑, consensus: 仄/八黠 (charles,jkak,cope) |
+| 絕 | missing | consensus: 仄/九屑 (charles, jkak, cope) |
+| 噎 | default mismatch | default: 仄/八霽, consensus: 仄/九屑 (charles,jkak,cope) |
+| 閱 | missing | consensus: 仄/九屑 (charles, jkak, cope) |
+| 绖 | missing | consensus: 仄/九屑 (charles, jkak) |
+| 孽 | missing | consensus: 仄/九屑 (charles, jkak, cope) |
+| 猰 | default mismatch | default: 平/八齊, consensus: 仄/九屑 (charles,jkak) |
+| 幕 | default mismatch | default: 仄/十二錫, consensus: 仄/十藥 (charles,jkak,cope) |
+| 谑 | missing | consensus: 仄/十藥 (charles, jkak, cope) |
+| 莫 | default mismatch | default: 仄/七遇, consensus: 仄/十藥 (charles,jkak,cope); 仄/十一陌 (charles,jkak) |
+| 饦 | missing | consensus: 仄/十藥 (charles, jkak) |
+| 镈 | missing | consensus: 仄/十藥 (charles, jkak) |
+| 臛 | default mismatch | default: 仄/二沃, consensus: 仄/十藥 (charles,jkak) |
+| 萚 | missing | consensus: 仄/十藥 (charles, jkak) |
+| 摸 | default mismatch | default: 平/七虞, consensus: 仄/十藥 (charles,jkak,cope) |
+| 婼 | default mismatch | default: 平/六麻, consensus: 仄/十藥 (charles,jkak) |
+| 剫 | default mismatch | default: 仄/七麌, consensus: 仄/十藥 (charles,jkak) |
+| 婥 | default mismatch | default: 仄/十九效, consensus: 仄/十藥 (charles,jkak) |
+| 渃 | default mismatch | default: 仄/二十二禡, consensus: 仄/十藥 (charles,jkak) |
+| 跅 | default mismatch | default: 仄/十一陌, consensus: 仄/十藥 (charles,jkak) |
+| 腭 | missing | consensus: 仄/十藥 (charles, jkak) |
+| 鱷 | missing | consensus: 仄/十藥 (charles, jkak, cope) |
+| 婳 | missing | consensus: 仄/十一陌 (charles, jkak) |
+| ... | ... | (28 more) |
 
 ## MEDIUM Findings
 

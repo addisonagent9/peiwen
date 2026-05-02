@@ -149,6 +149,44 @@ console.log(`  濫 → ${d.chars["濫"].map(e => e.tone + " " + e.rhyme).join(" 
   console.log("  嶮 reconstructed → 平 十四鹽 | 仄 二十八琰");
 })();
 
+// === Audit batch 5: dedup + reconstruction (before Group D) ===
+
+(function dedup蝍() {
+  const entries = d.chars["蝍"];
+  if (!entries) return;
+  const seen = new Set();
+  d.chars["蝍"] = entries.filter(e => {
+    const key = e.tone + "|" + e.rhyme;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  console.log("  蝍 deduped → " + d.chars["蝍"].map(e => e.tone + " " + e.rhyme).join(" | "));
+})();
+
+(function dedup楥() {
+  const entries = d.chars["楥"];
+  if (!entries) return;
+  const seen = new Set();
+  d.chars["楥"] = entries.filter(e => {
+    const key = e.tone + "|" + e.rhyme;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  console.log("  楥 deduped → " + d.chars["楥"].map(e => e.tone + " " + e.rhyme).join(" | "));
+})();
+
+(function reconstruct値() {
+  const existing = d.chars["値"];
+  if (!existing) { console.warn("  値 missing"); return; }
+  if (existing.some(e => e.rhyme === "十三職")) { console.log("  値 already has 十三職"); return; }
+  const newEntry = { tone: "入", group: "入聲", rhyme: "十三職" };
+  existing.push(newEntry);
+  ensureBucket("値", newEntry);
+  console.log("  値 supplemented → " + existing.map(e => e.tone + " " + e.rhyme).join(" | "));
+})();
+
 // Group D: alternate-繁 variant mirroring (not in tc2sc.json)
 // These are variant traditional forms where the source CSV used one form
 // but the common-usage form is different. Mirror entries bidirectionally.
@@ -183,6 +221,25 @@ const variantPairs = [
   ["鑱", "镵"],   // 鑱 (source) → 镵 (common) — multi: 十五咸 + 三十陷
   ["壟", "垄"],   // 壟 (source) → 垄 (common) — 仄/二腫
   ["紵", "纻"],   // 紵 (source) → 纻 (common) — 仄/六語
+  // Audit batch 5: 18 variant pairs
+  ["旣", "既"],   // 旣 → 既 — 仄/五未
+  ["尙", "尚"],   // 尙 → 尚 — multi: 七陽 + 二十三漾
+  ["鑑", "鑒"],   // 鑑 → 鑒 — 仄/三十陷
+  ["殻", "殼"],   // 殻 → 殼 — 入/三覺
+  ["値", "值"],   // 値 (supplemented) → 值 — multi: 四寘 + 十三職
+  ["僞", "偽"],   // 僞 → 偽 — 仄/四寘
+  ["漑", "溉"],   // 漑 → 溉 — multi: 五未 + 十一隊
+  ["槩", "概"],   // 槩 → 概 — 仄/十一隊
+  ["鋭", "銳"],   // 鋭 → 銳 — 仄/八霽
+  ["蔕", "蒂"],   // 蔕 → 蒂 — 仄/八霽
+  ["愼", "慎"],   // 愼 → 慎 — 仄/十二震
+  ["楥", "楦"],   // 楥 (deduped) → 楦 — multi: 十三元 + 一先 + 十七霰 + 十四願
+  ["贋", "贗"],   // 贋 → 贗 — 仄/十六諫
+  ["綫", "線"],   // 綫 → 線 — 仄/十七霰
+  ["弔", "吊"],   // 弔 → 吊 — multi: 十八嘯 + 十二錫
+  ["駡", "罵"],   // 駡 → 罵 — 仄/二十二禡
+  ["蝨", "虱"],   // 蝨 → 虱 — 入/四質
+  ["濫", "滥"],   // 濫 → 滥 — multi: 二十八勘 + 二十九豏 + 二十七感
 ];
 for (const [src, dst] of variantPairs) {
   const srcEntries = d.chars[src];
@@ -550,6 +607,232 @@ addMultiReading("並", [
 addReading("媮", "平", "下平", "十一尤");
 addReading("唝", "仄", "上聲", "一董");
 addReading("敘", "仄", "上聲", "六語");
+
+// === Audit batch 5 — reorders (86 繁 + 19 簡 = 105 calls) ===
+// → 二十八琰
+reorderToRhyme("蘞", "二十八琰"); reorderToRhyme("蔹", "二十八琰");
+reorderToRhyme("譣", "二十八琰");
+reorderToRhyme("嬐", "二十八琰");
+// → 二十九豏
+reorderToRhyme("黯", "二十九豏");
+// → 一送
+reorderToRhyme("哄", "一送");
+// → 二宋
+reorderToRhyme("統", "二宋"); reorderToRhyme("统", "二宋");
+reorderToRhyme("緟", "二宋");
+// → 四寘
+reorderToRhyme("餌", "四寘"); reorderToRhyme("饵", "四寘");
+reorderToRhyme("睟", "四寘");
+// → 五未
+reorderToRhyme("穊", "四寘");
+reorderToRhyme("禨", "五未");
+// → 七遇
+reorderToRhyme("饎", "四寘");
+// → 九泰
+reorderToRhyme("蠔", "四寘"); reorderToRhyme("蚝", "四寘");
+// → 十卦
+reorderToRhyme("甀", "四寘");
+reorderToRhyme("攦", "十卦");
+// → 十一隊
+reorderToRhyme("疐", "四寘");
+reorderToRhyme("繢", "十一隊"); reorderToRhyme("缋", "十一隊");
+// → 六御
+reorderToRhyme("袘", "四寘");
+// → 十二震
+reorderToRhyme("信", "十二震");
+reorderToRhyme("揗", "十二震");
+// → 十三問
+reorderToRhyme("餫", "十三問");
+// → 十四願
+reorderToRhyme("硍", "十四願");
+reorderToRhyme("焌", "十四願");
+// → 十五翰
+reorderToRhyme("憚", "十五翰"); reorderToRhyme("惮", "十五翰");
+reorderToRhyme("判", "十五翰");
+// → 十六諫
+reorderToRhyme("繯", "十六諫"); reorderToRhyme("缳", "十六諫");
+// → 十七霰
+reorderToRhyme("眩", "十七霰");
+reorderToRhyme("縓", "十七霰");
+// → 十八嘯
+reorderToRhyme("僆", "十七霰");
+// → 十九效
+reorderToRhyme("礉", "十九效");
+reorderToRhyme("挍", "十九效");
+// → 二十號
+reorderToRhyme("媢", "二十號");
+reorderToRhyme("耗", "二十號");
+// → 二十一箇
+reorderToRhyme("侳", "二十一箇");
+// → 二十三漾
+reorderToRhyme("踼", "二十三漾");
+reorderToRhyme("曏", "二十三漾");
+// → 二十四敬
+reorderToRhyme("凈", "二十四敬"); reorderToRhyme("净", "二十四敬");
+reorderToRhyme("璥", "二十四敬");
+// → 二十五徑
+reorderToRhyme("鐙", "二十五徑"); reorderToRhyme("镫", "二十五徑");
+reorderToRhyme("訂", "二十五徑"); reorderToRhyme("订", "二十五徑");
+// → 二十六宥
+reorderToRhyme("漱", "二十六宥");
+reorderToRhyme("糅", "二十六宥");
+reorderToRhyme("酘", "二十六宥");
+reorderToRhyme("椆", "二十六宥");
+// → 二十七沁
+reorderToRhyme("蔭", "二十七沁"); reorderToRhyme("荫", "二十七沁");
+reorderToRhyme("妗", "二十七沁");
+// → 二十九艷
+reorderToRhyme("爓", "二十九艷");
+// → 一屋
+reorderToRhyme("鱐", "一屋");
+reorderToRhyme("莤", "一屋");
+// → 二沃
+reorderToRhyme("澩", "二沃"); reorderToRhyme("泶", "二沃");
+reorderToRhyme("洬", "二沃");
+// → 三覺
+reorderToRhyme("角", "三覺");
+reorderToRhyme("濁", "三覺"); reorderToRhyme("浊", "三覺");
+reorderToRhyme("齪", "三覺"); reorderToRhyme("龊", "三覺");
+// → 四質
+reorderToRhyme("佚", "四質");
+// → 九屑
+reorderToRhyme("覕", "九屑");
+// → 十三職
+reorderToRhyme("蝍", "四質");
+// → 十藥
+reorderToRhyme("噣", "三覺");
+reorderToRhyme("齱", "三覺");
+reorderToRhyme("汋", "十藥");
+// → 十一陌
+reorderToRhyme("熚", "四質");
+// → 八黠
+reorderToRhyme("站", "三十陷");
+reorderToRhyme("錎", "三十陷");
+reorderToRhyme("譀", "三十陷");
+// → additional reorders from watch-list / misc
+reorderToRhyme("慮", "六御"); reorderToRhyme("虑", "六御");
+reorderToRhyme("瘀", "六御");
+reorderToRhyme("鸒", "六御");
+reorderToRhyme("跗", "七遇");
+reorderToRhyme("婟", "七遇");
+reorderToRhyme("忕", "八霽");
+reorderToRhyme("盻", "八霽");
+reorderToRhyme("裞", "八霽");
+reorderToRhyme("犡", "八霽");
+reorderToRhyme("攛", "十五翰"); reorderToRhyme("撺", "十五翰");
+reorderToRhyme("疸", "十五翰");
+reorderToRhyme("褑", "十七霰");
+reorderToRhyme("抃", "十七霰");
+reorderToRhyme("驃", "十八嘯"); reorderToRhyme("骠", "十八嘯");
+reorderToRhyme("獥", "十八嘯");
+reorderToRhyme("顤", "十八嘯");
+reorderToRhyme("蓧", "十八嘯"); reorderToRhyme("莜", "十八嘯");
+reorderToRhyme("票", "十八嘯");
+reorderToRhyme("宓", "四質");
+reorderToRhyme("詄", "四質");
+reorderToRhyme("咭", "四質");
+reorderToRhyme("鮚", "四質"); reorderToRhyme("鲒", "四質");
+reorderToRhyme("欯", "四質");
+reorderToRhyme("灸", "二十六宥");
+
+// Batch 5 correction: mis-targeted reorders caught in STEP 2 review
+// + missing reorders for watch-list chars 作/佑
+// + Group D post-mirror default fixes for 楦/尚
+// + 入→仄 reorders for 鹔/箓
+reorderToRhyme("作", "二十一箇");   // user verdict: 仄/二十一箇 default
+reorderToRhyme("佑", "二十六宥");   // user verdict: 仄/二十六宥 default
+reorderToRhyme("楦", "十四願");     // Group D inherited wrong default from 楥
+reorderToRhyme("尚", "二十三漾");   // Group D inherited wrong default from 尙
+reorderToRhyme("鹔", "一屋");       // 入→仄 normalized target
+reorderToRhyme("箓", "二沃");       // 入→仄 normalized target
+
+// 角 4th reading: 平/十一尤 (jiǎo sense, per user classical verdict)
+(function add角4thReading() {
+  const existing = d.chars["角"];
+  if (!existing) { console.warn("  角 missing"); return; }
+  if (existing.some(e => e.rhyme === "十一尤")) { console.log("  角 already has 十一尤"); return; }
+  const newEntry = { tone: "平", group: "下平", rhyme: "十一尤" };
+  existing.push(newEntry);
+  ensureBucket("角", newEntry);
+  console.log("  角 3rd reading added → " + existing.map(e => e.tone + " " + e.rhyme).join(" | "));
+})();
+
+// === Audit batch 5 — single-reading ADDs (in-scope only) ===
+// → 仄 rhymes
+addReading("黡", "仄", "上聲", "二十八琰");
+addReading("赗", "仄", "去聲", "一送");
+addReading("疭", "仄", "去聲", "二宋");
+addReading("廁", "仄", "去聲", "四寘");
+addReading("赑", "仄", "去聲", "四寘");
+addReading("勚", "仄", "去聲", "四寘");
+addReading("阓", "仄", "去聲", "十一隊");
+addReading("硙", "仄", "去聲", "十一隊");
+addReading("颣", "仄", "去聲", "十一隊");
+addReading("慭", "仄", "去聲", "十二震");
+addReading("馂", "仄", "去聲", "十二震");
+addReading("闬", "仄", "去聲", "十五翰");
+addReading("剁", "仄", "去聲", "二十一箇");
+addReading("祃", "仄", "去聲", "二十二禡");
+addReading("迸", "仄", "去聲", "二十四敬");
+addReading("饤", "仄", "去聲", "二十五徑");
+addReading("剩", "仄", "去聲", "二十五徑");
+addReading("饾", "仄", "去聲", "二十六宥");
+addReading("垫", "仄", "去聲", "二十九艷");
+// → 入聲 rhymes
+addReading("踘", "入", "入聲", "一屋");
+addReading("峃", "入", "入聲", "三覺");
+addReading("鸴", "入", "入聲", "三覺");
+addReading("唧", "入", "入聲", "四質");
+addReading("锧", "入", "入聲", "四質");
+addReading("驲", "入", "入聲", "四質");
+addReading("铚", "入", "入聲", "四質");
+// Batch 5 correction: missing ADDs caught in STEP 2 review
+addReading("槜", "仄", "去聲", "四寘");
+addReading("屃", "仄", "去聲", "四寘");
+addReading("滪", "仄", "去聲", "六御");
+
+// === Audit batch 5 — multi-reading ADDs (in-scope only) ===
+addMultiReading("塈", [
+  { tone: "仄", group: "去聲", rhyme: "四寘" },
+  { tone: "仄", group: "去聲", rhyme: "五未" }
+]);
+addMultiReading("翙", [
+  { tone: "仄", group: "去聲", rhyme: "九泰" },
+  { tone: "入", group: "入聲", rhyme: "五物" }
+]);
+addMultiReading("轪", [
+  { tone: "仄", group: "去聲", rhyme: "八霽" },
+  { tone: "入", group: "入聲", rhyme: "十二錫" }
+]);
+addMultiReading("鳀", [
+  { tone: "仄", group: "去聲", rhyme: "八霽" },
+  { tone: "入", group: "入聲", rhyme: "六月" }
+]);
+addMultiReading("灩", [
+  { tone: "仄", group: "去聲", rhyme: "二十九艷" },
+  { tone: "入", group: "入聲", rhyme: "十六葉" }
+]);
+addMultiReading("箓", [
+  { tone: "仄", group: "去聲", rhyme: "七遇" },
+  { tone: "入", group: "入聲", rhyme: "二沃" }
+]);
+addMultiReading("伣", [
+  { tone: "仄", group: "去聲", rhyme: "十七霰" },
+  { tone: "入", group: "入聲", rhyme: "九屑" }
+]);
+// 滥 handled by Group D mirror from 濫 — no separate ADD needed
+addMultiReading("骕", [
+  { tone: "入", group: "入聲", rhyme: "一屋" },
+  { tone: "入", group: "入聲", rhyme: "三覺" }
+]);
+addMultiReading("鹔", [
+  { tone: "仄", group: "去聲", rhyme: "七遇" },
+  { tone: "入", group: "入聲", rhyme: "一屋" }
+]);
+addMultiReading("籀", [
+  { tone: "仄", group: "去聲", rhyme: "二十六宥" },
+  { tone: "入", group: "入聲", rhyme: "一屋" }
+]);
 
 fs.writeFileSync(jsonPath, JSON.stringify(d));
 console.log("Done — patching complete.");
