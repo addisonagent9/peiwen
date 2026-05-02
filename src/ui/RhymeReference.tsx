@@ -1,10 +1,12 @@
 import React, { useMemo, useState } from "react";
 import { PINGSHUI_RHYME } from "../data/pingshui";
 import { pinyin } from "pinyin-pro";
-import type { Translations } from "../i18n";
+import { RhymeCharCard } from "./RhymeCharCard";
+import type { Locale, Translations } from "../i18n";
 
 interface Props {
   t: Translations;
+  locale: Locale;
   onBack: () => void;
 }
 
@@ -50,14 +52,16 @@ function isCommon(ch: string): boolean {
   return code >= 0x4E00 && code <= 0x9FFF;
 }
 
-const RhymeGroup = React.memo(({ name, chars, showPinyin, showRare }: {
+const RhymeGroup = React.memo(({ name, chars, showPinyin, showRare, onCharClick }: {
   name: string;
   chars: string[];
   showPinyin: boolean;
   showRare: boolean;
+  onCharClick: (ch: string, rhyme: string) => void;
 }) => {
   const filtered = showRare ? chars : chars.filter(isCommon);
   if (filtered.length === 0) return null;
+  const rhyme = shortName(name);
 
   const pinyinMap = useMemo(() => {
     if (!showPinyin) return null;
@@ -73,15 +77,31 @@ const RhymeGroup = React.memo(({ name, chars, showPinyin, showRare }: {
       <div className="text-creamDim text-sm font-sans mb-1">{name}</div>
       <div className={showPinyin ? "flex flex-wrap gap-x-3 gap-y-1" : ""}>
         {showPinyin ? (
-          filtered.map((ch, i) => (
-            <span key={i} className="inline-flex flex-col items-center">
-              <span className="text-lg font-serif text-cream leading-tight">{ch}</span>
-              <span className="text-[10px] text-creamDim font-sans leading-tight">{pinyinMap?.get(ch) ?? ""}</span>
-            </span>
-          ))
+          filtered.map((ch, i) => {
+            const rare = showRare && !isCommon(ch);
+            return (
+              <button
+                key={i}
+                onClick={() => onCharClick(ch, rhyme)}
+                className="inline-flex flex-col items-center hover:text-gold transition-colors"
+              >
+                <span className={`text-lg font-serif leading-tight ${rare ? "text-rose-400" : "text-cream"}`}>{ch}</span>
+                <span className="text-[10px] text-creamDim font-sans leading-tight">{pinyinMap?.get(ch) ?? ""}</span>
+              </button>
+            );
+          })
         ) : (
-          <span className="text-lg font-serif text-cream leading-[2] tracking-wide">
-            {filtered.join("")}
+          <span className="text-lg font-serif leading-[2] tracking-wide">
+            {filtered.map((ch, i) => {
+              const rare = showRare && !isCommon(ch);
+              return (
+                <button
+                  key={i}
+                  onClick={() => onCharClick(ch, rhyme)}
+                  className={`hover:text-gold transition-colors ${rare ? "text-rose-400" : "text-cream"}`}
+                >{ch}</button>
+              );
+            })}
           </span>
         )}
       </div>
@@ -89,10 +109,11 @@ const RhymeGroup = React.memo(({ name, chars, showPinyin, showRare }: {
   );
 });
 
-function RhymeGroupList({ groups, showPinyin, showRare }: {
+function RhymeGroupList({ groups, showPinyin, showRare, onCharClick }: {
   groups: string[];
   showPinyin: boolean;
   showRare: boolean;
+  onCharClick: (ch: string, rhyme: string) => void;
 }) {
   return (
     <>
@@ -106,6 +127,7 @@ function RhymeGroupList({ groups, showPinyin, showRare }: {
             chars={bucket.chars}
             showPinyin={showPinyin}
             showRare={showRare}
+            onCharClick={onCharClick}
           />
         );
       })}
@@ -113,10 +135,15 @@ function RhymeGroupList({ groups, showPinyin, showRare }: {
   );
 }
 
-export function RhymeReference({ t, onBack }: Props) {
+export function RhymeReference({ t, locale, onBack }: Props) {
   const [showPinyin, setShowPinyin] = useState(false);
   const [showRare, setShowRare] = useState(false);
   const [activeTab, setActiveTab] = useState<"平" | "仄">("平");
+  const [cardTarget, setCardTarget] = useState<{ char: string; rhyme: string } | null>(null);
+
+  const handleCharClick = (ch: string, rhyme: string) => {
+    setCardTarget({ char: ch, rhyme });
+  };
 
   return (
     <div className="min-h-screen bg-ink-bg text-cream">
@@ -159,7 +186,7 @@ export function RhymeReference({ t, onBack }: Props) {
         </div>
 
         {activeTab === "平" && (
-          <RhymeGroupList groups={PING_GROUPS} showPinyin={showPinyin} showRare={showRare} />
+          <RhymeGroupList groups={PING_GROUPS} showPinyin={showPinyin} showRare={showRare} onCharClick={handleCharClick} />
         )}
 
         {activeTab === "仄" && (
@@ -170,11 +197,22 @@ export function RhymeReference({ t, onBack }: Props) {
                 groups={section.groups}
                 showPinyin={showPinyin}
                 showRare={showRare}
+                onCharClick={handleCharClick}
               />
             ))}
           </>
         )}
       </div>
+
+      {cardTarget && (
+        <RhymeCharCard
+          char={cardTarget.char}
+          currentRhyme={cardTarget.rhyme}
+          locale={locale}
+          t={t}
+          onClose={() => setCardTarget(null)}
+        />
+      )}
     </div>
   );
 }

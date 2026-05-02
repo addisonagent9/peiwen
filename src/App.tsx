@@ -533,7 +533,7 @@ export default function App() {
   );
 
   if (view === "rhyme-reference") {
-    return <RhymeReference t={t} onBack={() => setView("main")} />;
+    return <RhymeReference t={t} locale={locale} onBack={() => setView("main")} />;
   }
 
   if (view === "admin") {

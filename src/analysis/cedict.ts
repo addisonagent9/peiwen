@@ -40,6 +40,25 @@ export function cedictLookup(char: string): CedictEntry | null {
   return null;
 }
 
+function isHan(code: number): boolean {
+  return (code >= 0x4E00 && code <= 0x9FFF) || (code >= 0x3400 && code <= 0x4DBF);
+}
+
+export function cedictCompounds(char: string): { word: string; pinyin: string; gloss: string }[] {
+  if (!char || !CEDICT) return [];
+  const out: { word: string; pinyin: string; gloss: string }[] = [];
+  for (const key in CEDICT) {
+    const cps = Array.from(key);
+    if (cps.length !== 2) continue;
+    if (!isHan(cps[0].codePointAt(0)!) || !isHan(cps[1].codePointAt(0)!)) continue;
+    if (!cps.includes(char)) continue;
+    const e = CEDICT[key];
+    out.push({ word: key, pinyin: e.pinyin, gloss: e.definitions[0] ?? "" });
+    if (out.length >= 5) break;
+  }
+  return out;
+}
+
 export function cedictContext(prev: string, char: string, next: string): { word: string; entry: CedictEntry } | null {
   const candidates: string[] = [];
   if (prev) candidates.push(prev + char);

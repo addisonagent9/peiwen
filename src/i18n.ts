@@ -77,6 +77,10 @@ export const T = {
     saved: "已儲存 ✓",
     signOut: "登出",
     noSavedPoems: "尚無儲存詩句",
+    refMeaning: "字義",
+    refCompounds: "詞語",
+    refNotes: "注解",
+    refJyutping: "粵拼",
   },
   簡: {
     ...common,
@@ -143,6 +147,10 @@ export const T = {
     saved: "已储存 ✓",
     signOut: "登出",
     noSavedPoems: "尚无储存诗句",
+    refMeaning: "字义",
+    refCompounds: "词语",
+    refNotes: "注解",
+    refJyutping: "粤拼",
   }
 } as const;
 
