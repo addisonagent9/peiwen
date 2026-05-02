@@ -16,7 +16,7 @@ const curriculumPath = path.resolve(__dirname, "../src/data/pingshui/trainer-cur
 const src = fs.readFileSync(curriculumPath, "utf8");
 
 const rhymeBlocks = [];
-const blockRe = /\{\s*id:\s*'([^']+)',\s*ordinal:\s*\d+,\s*label:\s*'([^']+)',[\s\S]*?tier:\s*(\d+),[\s\S]*?seedCharacters:\s*(\[[\s\S]*?\])(?:\s*,\s*(?:mnemonic|foundation))/g;
+const blockRe = /\{\s*id:\s*'([^']+)',\s*ordinal:\s*\d+,\s*label:\s*'([^']+)',[\s\S]*?tier:\s*(\d+),[\s\S]*?seedCharacters:\s*(\[[\s\S]*?\])(?:\s*,\s*(?:mnemonic|foundation|anchorPoem))/g;
 let m;
 while ((m = blockRe.exec(src)) !== null) {
   const [, id, label, tier, seedRaw] = m;

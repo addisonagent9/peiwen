@@ -539,8 +539,57 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
     family: 'i-family',
     confusables: ['shangping-05-wei', 'shangping-08-qi'],
     modernRime: '-i / -ei',
-    seedCharacters: ['支', '枝', '时', '诗', '思', '知', '儿', '师', '旗', '悲', '眉', '追'],
-    mnemonic: '四支最大、最杂 — 时、诗、思、知,写诗常用,务必熟记。',
+    seedCharacters: [
+      { char: '之', pinyin: 'zhī', jyutping: 'zi1', set: 1, showMandarinAudio: true },
+      { char: '时', pinyin: 'shí', jyutping: 'si4', set: 1, showMandarinAudio: true },
+      { char: '知', pinyin: 'zhī', jyutping: 'zi1', set: 1, showMandarinAudio: true },
+      { char: '思', pinyin: 'sī', jyutping: 'si1', set: 1, showMandarinAudio: true },
+      { char: '诗', pinyin: 'shī', jyutping: 'si1', set: 1, showMandarinAudio: true },
+      { char: '期', pinyin: 'qī', jyutping: 'kei4', set: 1, showMandarinAudio: true },
+      { char: '迟', pinyin: 'chí', jyutping: 'ci4', set: 1, showMandarinAudio: true },
+      { char: '枝', pinyin: 'zhī', jyutping: 'zi1', set: 1, showMandarinAudio: true },
+      { char: '师', pinyin: 'shī', jyutping: 'si1', set: 1, showMandarinAudio: true },
+      { char: '姿', pinyin: 'zī', jyutping: 'zi1', set: 1, showMandarinAudio: true },
+      { char: '离', pinyin: 'lí', jyutping: 'lei4', set: 1, showMandarinAudio: true },
+      { char: '儿', pinyin: 'ér', jyutping: 'ji4', set: 1, showMandarinAudio: true },
+      { char: '眉', pinyin: 'méi', jyutping: 'mei4', set: 2, showMandarinAudio: true },
+      { char: '谁', pinyin: 'shéi', jyutping: 'seoi4', set: 2, showMandarinAudio: true },
+      { char: '随', pinyin: 'suí', jyutping: 'ceoi4', set: 2, showMandarinAudio: true },
+      { char: '持', pinyin: 'chí', jyutping: 'ci4', set: 2, showMandarinAudio: true },
+      { char: '危', pinyin: 'wēi', jyutping: 'ngai4', set: 2, showMandarinAudio: true },
+      { char: '宜', pinyin: 'yí', jyutping: 'ji4', set: 2, showMandarinAudio: true },
+      { char: '辞', pinyin: 'cí', jyutping: 'ci4', set: 2, showMandarinAudio: true },
+      { char: '词', pinyin: 'cí', jyutping: 'ci4', set: 2, showMandarinAudio: true },
+      { char: '为', pinyin: 'wéi', jyutping: 'wai4', set: 3, showMandarinAudio: true },
+      { char: '衰', pinyin: 'shuāi', jyutping: 'seoi1', set: 3, showMandarinAudio: true },
+      { char: '骑', pinyin: 'qí', jyutping: 'ke4', set: 3, showMandarinAudio: true },
+      { char: '治', pinyin: 'chí', jyutping: 'ci4', set: 3, showMandarinAudio: true },
+      { char: '遗', pinyin: 'yí', jyutping: 'wai4', set: 3, showMandarinAudio: true },
+      { char: '疑', pinyin: 'yí', jyutping: 'ji4', set: 3, showMandarinAudio: true },
+      { char: '龟', pinyin: 'guī', jyutping: 'gwai1', set: 4, showMandarinAudio: true },
+      { char: '漪', pinyin: 'yī', jyutping: 'ji1', set: 4, showMandarinAudio: true },
+      { char: '嬉', pinyin: 'xī', jyutping: 'hei1', set: 4, showMandarinAudio: true },
+      { char: '麋', pinyin: 'mí', jyutping: 'mei4', set: 4, showMandarinAudio: true },
+    ],
+    anchorPoem: {
+      author: '李商隐',
+      title: '夜雨寄北',
+      text:
+        '君问归期未有期，巴山夜雨涨秋池。\n' +
+        '何当共剪西窗烛，却话巴山夜雨时。',
+      rhymingCharacters: [
+        { char: '期', jyutping: 'kei4', pinyin: 'qī' },
+        { char: '池', jyutping: 'ci4', pinyin: 'chí' },
+        { char: '时', jyutping: 'si4', pinyin: 'shí' },
+      ],
+      gloss:
+        "Li Shangyin's 《夜雨寄北》 is a 七绝 where 期·池·时 all rhyme in " +
+        "四支. All three are Set 1 high-frequency chars — among the most " +
+        "commonly drilled in the chapter.",
+    },
+    mnemonic:
+      '四支是平水韵中收字最多的韵部 — 时、诗、思、知,写诗常用。' +
+      '许多常见字在此韵兼有平/去两读（为、骑、治、遗）。',
   },
 
   {
