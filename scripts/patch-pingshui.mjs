@@ -1196,5 +1196,11 @@ addMultiReading("钑", [
 reorderToRhyme("鹔", "一屋");
 reorderToRhyme("箓", "二沃");
 
+// === Guardrail ticket #8 — variant-key gap for 熔 ===
+// 熔 is the modern form of 鎔 (二冬). opencc doesn't map 熔→鎔,
+// so the curriculum check script can't find 熔 via toTraditional().
+// Add 熔 to pingshui as a direct entry mirroring 鎔.
+addReading("熔", "平", "上平", "二冬");
+
 fs.writeFileSync(jsonPath, JSON.stringify(d));
 console.log("Done — patching complete.");

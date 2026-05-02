@@ -869,7 +869,7 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
     family: 'm-endings-family',
     confusables: ['xiaping-12-qin', 'xiaping-14-yan', 'xiaping-15-xian'],
     modernRime: '-an (was -am)',
-    seedCharacters: ['覃', '南', '男', '谭', '潭', '参', '含', '耽', '贪', '探', '涵', '堪'],
+    seedCharacters: ['覃', '南', '男', '谭', '潭', '参', '含', '耽', '贪', '探', '涵', '堪', '岚'],
     mnemonic: '十三覃古音 -am — 南、男、潭、参。现代汉语并入 -an。',
   },
 
@@ -899,7 +899,7 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
     family: 'm-endings-family',
     confusables: ['xiaping-12-qin', 'xiaping-13-tan', 'xiaping-14-yan'],
     modernRime: '-an / -ian (was -am/-iam)',
-    seedCharacters: ['咸', '衔', '凡', '岩', '帆', '杉', '监', '缄', '馋', '谗', '嵌', '岚'],
+    seedCharacters: ['咸', '衔', '凡', '岩', '帆', '杉', '监', '缄', '馋', '谗', '嵌'],
     mnemonic: '十五咸最冷僻 — 咸、衔、岩、帆。古音 -am/-iam,常与十四盐通押。',
   },
 ];
