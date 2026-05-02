@@ -319,6 +319,33 @@ with rhyme-targeting helpers). The runtime log lied. Only a post-patch
 re-read of `pingshui.json` caught the gap. Batches 6+7 made this the
 standard Part 2 STOP gate.
 
+**Never run dev-server commands in implementation sessions.**
+The Parcel dev server (e.g. `npx parcel src/index.html --port 1234`)
+writes dev-mode artifacts directly into `dist/` — specifically a
+corrupted `dist/index.html` with an importmap block and hashed
+filenames pointing to in-memory dev bundles. These artifacts persist
+after the dev server is killed. A subsequent `npm run build` produces
+correctly-hashed production `.css`/`.js` files but does not always
+overwrite the corrupted `dist/index.html` cleanly. The post-build
+`scripts/inline-bundle.mjs` step then consumes the stale dev-mode
+index.html and inlines the unminified dev bundle into
+`dist/bundle.html` (~7.4 MB, 80,000+ lines) instead of the minified
+production bundle (~2.3 MB, ~12 lines). The corrupted bundle.html
+gets committed and breaks the live site on deploy.
+
+CC has no display to verify visually anyway — code-trace verification
+is acceptable for Part 4 of an implementation ticket, and browser
+verification happens via a separate cross-session prompt against the
+deployed site (per §5's "Browser verification via cross-session
+prompt" pattern). If a dev server must run for any reason, follow it
+with `rm -rf dist && npm run build` and verify
+`wc -l dist/bundle.html` returns ~12 lines before committing.
+
+Origin: May 2 2026 popup-card deploy (commit `7cb092b`). Live site was
+down ~3 minutes. Caught by deploy log review showing 80,795-line
+insertion to `dist/bundle.html` in the merge stat. Recovered by clean
+rebuild + force-push as `7a37b8a`.
+
 ---
 
 ## 7. Deployment workflow
