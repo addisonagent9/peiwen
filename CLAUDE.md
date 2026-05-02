@@ -1167,6 +1167,33 @@ dictionary-audit-v2.md).
   curation) for the 28% of Drill 4 corpus 词语 not covered by MOE.
   Until shipped, those 词语 display English CC-CEDICT glosses as
   temporary fallback.
+- **#16**: Multi-tone must have multi-card (need strengthen Library).
+  Today the popup card on the rhyme reference page (§11.C, shipped
+  in `7a37b8a` + `0dbe9b2`) shows a single card per char with shared
+  字義 / 词语 across all readings. For multi-音字 chars where each
+  reading is historically a distinct word (种 chóng/zhǒng/zhòng,
+  殷 yīn/yān/yǐn, 中 zhōng/zhòng), the meaning shown contradicts
+  whichever reading pill is currently ring-highlighted. Pedagogically
+  wrong: each reading SHOULD be its own card with its own 字義,
+  pinyin/jyutping, and 词语 (compound list filtered by the reading's
+  pinyin). Blocking work: per-reading 字義 source. MOE returns one
+  entry per char-key, not per (char, rhyme, pinyin). Three approaches
+  considered: (1) AI-generated `reading-glosses.json` with user
+  verdict pipeline, similar shape to the dictionary-audit-v2
+  triangulation flow — multi-session. (2) Source from 漢語大詞典 /
+  康熙字典 / Wiktionary multi-reading sections — highest quality,
+  slowest, overlaps with #14. (3) Hybrid: AI seed + user verdict,
+  classical-source triangulation only when AI is uncertain. UI work
+  after data lands: swap RhymeCharCard from "share content across
+  pills" to "swap content per pill" — re-derive 字義, py, jyut,
+  compounds based on currentRhyme's reading. Pill click already wires
+  through `onRhymeChange`; just need the data plumbing. Library work
+  needed: probably a new `src/data/reading-glosses.json` (or `.ts` if
+  curated by hand) keyed by `{char}__{rhyme}__{pinyin}` with
+  `{gloss_zh, gloss_en, notes}` shape. Builds alongside the existing
+  `ambiguous-readings.ts` per-reading-notes infra (currently 14 chars).
+  Multi-session arc. Likely sequence: data-source decision → seed
+  generation → verdict pipeline → UI swap → deploy.
 
 **Older parked items (pre-November 2026):**
 
