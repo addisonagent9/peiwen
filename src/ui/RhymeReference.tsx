@@ -59,7 +59,9 @@ const RhymeGroup = React.memo(({ name, chars, showPinyin, showRare, onCharClick 
   showRare: boolean;
   onCharClick: (ch: string, rhyme: string) => void;
 }) => {
-  const filtered = showRare ? chars : chars.filter(isCommon);
+  const filtered = showRare
+    ? [...chars.filter(isCommon), ...chars.filter(c => !isCommon(c))]
+    : chars.filter(isCommon);
   if (filtered.length === 0) return null;
   const rhyme = shortName(name);
 
@@ -211,6 +213,7 @@ export function RhymeReference({ t, locale, onBack }: Props) {
           locale={locale}
           t={t}
           onClose={() => setCardTarget(null)}
+          onRhymeChange={r => setCardTarget(prev => prev && { ...prev, rhyme: r })}
         />
       )}
     </div>

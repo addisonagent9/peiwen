@@ -3,10 +3,14 @@ import { lookup } from "../analysis/tone";
 import { toTraditional, toSimplified } from "../analysis/s2t";
 import { cedictCompounds, loadCedict, isCedictLoaded } from "../analysis/cedict";
 import { moedictLookup, loadMoedict, isMoedictLoaded } from "../analysis/moedict";
-import { pinyin } from "pinyin-pro";
+import { pinyin, convert } from "pinyin-pro";
 import { AMBIGUOUS_READINGS } from "../data/ambiguous-readings";
 import { RHYMES_PINGSHENG } from "../data/pingshui/trainer-curriculum";
 import type { Locale, Translations } from "../i18n";
+
+function toneMarkPinyin(raw: string): string {
+  return convert(raw.replace(/u:/g, "ü").replace(/([a-züü])5/g, "$1"));
+}
 
 const JYUTPING_MAP: Map<string, string> = (() => {
   const m = new Map<string, string>();
@@ -16,7 +20,11 @@ const JYUTPING_MAP: Map<string, string> = (() => {
     if (!Array.isArray(seeds) || seeds.length === 0) continue;
     if (typeof seeds[0] === "string") continue;
     for (const s of seeds as Array<{ char: string; jyutping: string }>) {
-      if (s.jyutping) m.set(s.char, s.jyutping);
+      if (s.jyutping) {
+        m.set(s.char, s.jyutping);
+        const trad = toTraditional(s.char);
+        if (trad !== s.char) m.set(trad, s.jyutping);
+      }
     }
   }
   return m;
@@ -28,9 +36,10 @@ interface Props {
   locale: Locale;
   t: Translations;
   onClose: () => void;
+  onRhymeChange?: (rhyme: string) => void;
 }
 
-export function RhymeCharCard({ char, currentRhyme, locale, t, onClose }: Props) {
+export function RhymeCharCard({ char, currentRhyme, locale, t, onClose, onRhymeChange }: Props) {
   const [dictsReady, setDictsReady] = useState(isCedictLoaded() && isMoedictLoaded());
 
   useEffect(() => {
@@ -98,17 +107,18 @@ export function RhymeCharCard({ char, currentRhyme, locale, t, onClose }: Props)
             <div className="text-creamDim text-xs">{t.loading}</div>
           )}
 
-          <div>
-            <div className="text-creamDim text-xs">{t.pinyin}</div>
-            <div className="mt-1 font-serif text-lg text-gold">{py}</div>
-          </div>
-
-          {jyut && (
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <div className="text-creamDim text-xs">{t.refJyutping}</div>
-              <div className="mt-1 font-serif text-lg text-gold">{jyut}</div>
+              <div className="text-creamDim text-xs">{t.pinyin}</div>
+              <div className="mt-1 font-serif text-lg text-gold">{py}</div>
             </div>
-          )}
+            {jyut ? (
+              <div>
+                <div className="text-creamDim text-xs">{t.refJyutping}</div>
+                <div className="mt-1 font-serif text-lg text-gold">{jyut}</div>
+              </div>
+            ) : <div />}
+          </div>
 
           {info && !info.unknown && (
             <div>
@@ -118,9 +128,10 @@ export function RhymeCharCard({ char, currentRhyme, locale, t, onClose }: Props)
                   const isCtx = e.rhyme === currentRhyme;
                   const rn = ar?.per_reading_notes?.find(n => n.rhyme === e.rhyme);
                   return (
-                    <span
+                    <button
                       key={i}
-                      className={`px-2 py-1 rounded bg-ink-bg border ${isCtx ? "border-gold ring-2 ring-gold" : "border-ink-line"}`}
+                      onClick={onRhymeChange ? () => onRhymeChange(e.rhyme) : undefined}
+                      className={`px-2 py-1 rounded bg-ink-bg border hover:text-gold transition-colors ${isCtx ? "border-gold ring-2 ring-gold" : "border-ink-line"}`}
                     >
                       {rn && (
                         <span className={`mr-1 ${rn.status === "attested" ? "text-teal" : "text-amber"}`}>
@@ -131,7 +142,7 @@ export function RhymeCharCard({ char, currentRhyme, locale, t, onClose }: Props)
                         {e.tone}
                       </span>
                       <span className="text-cream ml-1">{e.rhyme}</span>
-                    </span>
+                    </button>
                   );
                 })}
               </div>
@@ -145,7 +156,7 @@ export function RhymeCharCard({ char, currentRhyme, locale, t, onClose }: Props)
                 {compounds.map((c, i) => (
                   <div key={i} className="text-cream leading-[1.6]">
                     <span className="font-serif">{c.word}</span>
-                    <span className="text-gold ml-2 text-xs">{c.pinyin}</span>
+                    <span className="text-gold ml-2 text-xs">{toneMarkPinyin(c.pinyin)}</span>
                     <span className="text-creamDim ml-2 text-xs">{c.gloss}</span>
                   </div>
                 ))}
