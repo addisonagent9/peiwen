@@ -255,6 +255,106 @@ returned by `patternsForForm(form, "仄韻")` when `allowZe: true`.
 
 The `data` npm script runs build-pingshui.mjs then patch-pingshui.mjs.
 
+### Patch script ordering invariant
+
+Operations in `patch-pingshui.mjs` run sequentially. One critical rule:
+
+**ADDs first, reorders last.**
+
+`reorderToRhyme` silently no-ops if the char doesn't exist in `entries[]`
+yet (`entries.length < 2` guard). If you ADD a char and then reorder it
+later, that's fine. But if you reorder before adding (or before
+tc2sc/Group D propagation creates the char), the reorder produces no
+error and no log — the call just returns `undefined`.
+
+This bit batch 5: 鹔 + 箓 had `reorderToRhyme` calls placed in a
+"corrections" block that ran before the `addMultiReading` section. The
+chars didn't exist yet at reorder time, so the reorders silently
+no-oped. The subsequent ADDs created them with the wrong default. Fixed
+in batch 7 by adding post-ADD reorder calls at the end of the script.
+
+Standard order in `patch-pingshui.mjs`:
+
+1. Source-supplement IIFEs (mutate variant source readings before Group D
+   loop reads them)
+2. Dedup IIFEs (clean duplicate entries before mirrors copy them)
+3. Group D `variantPairs` additions (variant pair mirroring; runs once
+   when array is iterated)
+4. Reorders (mechanical + watch-list + 簡 mirrors) — chars must exist
+5. Single-reading ADDs
+6. Multi-reading ADDs
+7. Post-ADD reorders (rare — for chars created by ADDs in step 5–6 that
+   need re-defaulting)
+
+### IIFE patterns (escape hatches)
+
+When the DSL helpers (`addReading`, `reorderToRhyme`, `addMultiReading`)
+can't express what you need, drop into a direct-mutation IIFE. Three
+patterns are established:
+
+**Source supplement** — variant source has fewer readings than audit
+expects:
+
+```javascript
+(function supplement髒() {
+  const existing = d.chars["髒"];
+  if (!existing) { console.warn("髒 missing"); return; }
+  if (existing.some(e => e.rhyme === "二十三漾")) { return; }
+  existing.push({ tone: "仄", group: "去聲", rhyme: "二十三漾" });
+  ensureBucket("髒", existing[existing.length - 1]);
+  console.log("髒 supplemented → " + existing.map(e => e.tone + " " + e.rhyme).join(" | "));
+})();
+```
+
+Used when source variant in a Group D pair (case C) needs additional
+readings before the mirror loop runs. Examples: 撏 (batch 4), 嶮
+(batch 4), 値 (batch 5), 髒 (batch 7).
+
+**Dedup** — `entries[]` has duplicate `(tone, rhyme)` pairs:
+
+```javascript
+(function dedup請() {
+  const entries = d.chars["請"];
+  if (!entries) return;
+  const seen = new Set();
+  d.chars["請"] = entries.filter(e => {
+    const key = e.tone + "|" + e.rhyme;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  // Also dedup 簡 form if applicable
+  if (d.chars["请"]) { /* same filter */ }
+  console.log("請 deduped → " + d.chars["請"].map(e => e.tone + " " + e.rhyme).join(" | "));
+})();
+```
+
+Used when CSV import or earlier patches left duplicate readings.
+Examples: 蝍 (batch 5), 楥 (batch 5), 請 (batch 7). Must run BEFORE
+Group D so mirrors copy clean arrays.
+
+**N-th reading addition** — char has 3 readings, audit confirms a 4th:
+
+```javascript
+(function add角4thReading() {
+  const existing = d.chars["角"];
+  if (!existing) { console.warn("角 missing"); return; }
+  if (existing.some(e => e.rhyme === "十一尤")) { return; }
+  existing.push({ tone: "平", group: "下平", rhyme: "十一尤" });
+  ensureBucket("角", existing[existing.length - 1]);
+  console.log("角 4th reading added → " + existing.map(e => e.tone + " " + e.rhyme).join(" | "));
+})();
+```
+
+Used when `addReading` would create a 2nd entry but you want a specific
+position, or when the DSL doesn't support multi-reading appends to
+existing chars. Examples: 角 (batch 5, +平/十一尤 jiǎo sense), 矜
+(batch 3, +平/十二文).
+
+Style conventions for IIFEs: idempotent (`existing.some(...)` before
+mutating), warn on missing chars, log final state, name the IIFE after
+the affected char.
+
 ---
 
 ## 5. Classical prosody primer
@@ -409,10 +509,81 @@ Rendered in EditModal:
 
 The older 8 chars have char-level notes only.
 
-### Still open
+### Group D — alternate-繁 variant mirroring
 
-**593 HIGH-tier audit findings unreviewed.** The per_reading_notes infra
-scales. User decides when to tackle.
+Group D handles variant pairs that `tc2sc.json` doesn't cover:
+alternate-繁 forms where two traditional variants exist for the same
+character (e.g. 恆/恒, 旣/既, 寛/寬). These pairs aren't `tc2sc.json`
+mappings (which is trad↔simp), so build-time mirroring misses them.
+`patch-pingshui.mjs` has a `variantPairs` array that explicitly mirrors
+these.
+
+Pair classification (A/B/C/D/E framework, established across batches):
+
+- **A. Clean mirror** — src has expected readings; dst absent. Default
+  action.
+- **B. Multi-reading mirror** — src has multiple readings; dst absent.
+  Same as A — `variantPairs` loop transparently handles multi-reading
+  sources.
+- **C. Source partially missing** — src exists but lacks some
+  audit-expected readings. Source-supplement IIFE (see §4) runs BEFORE
+  Group D loop. Examples: 撏 (batch 4), 嶮 (batch 4), 値 (batch 5),
+  髒 (batch 7).
+- **D. Source absent entirely** — neither src nor dst exists. Plain ADD
+  on dst, no Group D entry needed.
+- **E. dst already exists** — halt and surface; data drift, may indicate
+  a pair already shipped via different route.
+
+Group D inheritance: when src has a multi-reading default that doesn't
+match audit's primary, the dst inherits the wrong default. Fix is a
+post-mirror `reorderToRhyme` call. Examples: 楦 (batch 5, source 楥 had
+十三元 first but audit primary was 十四願), 尚 (batch 5, source 尙 had
+七陽 first but audit primary was 二十三漾).
+
+Detection: ad-hoc per batch via user pattern-matching of common chars in
+the audit's "missing" list. The ±5 codepoint-proximity heuristic
+produces ~99% false positives for this class. A systematic source
+(Unihan `kCompatibilityVariant` / `kTraditionalVariant`) would replace
+pattern-matching but isn't currently sourced. (Parked as #15.)
+
+Total Group D pairs shipped through May 2026 sweep: ~50 across 7
+batches.
+
+### Audit sweep summary (May 2026)
+
+Seven-batch audit-driven sweep ran across one extended session, closing
+518 of 530 baseline HIGH-tier audit findings. Final state: 12 HIGH
+(10 KEEPs + 2 SKIPs, all intentional), 9 CRITICAL stable (unchanged
+from baseline), MEDIUM/LOW unchanged.
+
+| Batch | Commit | Patches | KEEPs added | HIGH after |
+|---|---|---|---|---|
+| Setup (一東 + initial Group D) | fb6c378, 3e85ad3, ed9f177 | 17 | — | 530 |
+| Batch 2 | ab54ac5 | 46 | 殷 | 469 |
+| Batches 3+4 | 166ec40 | 100 | 唏, 詛 | 375 |
+| Batch 5 | 5cfed7a | 147 | 佐 | 228 |
+| Batch 6 | 051c5e5 | 105 | 圈 | 123 |
+| Batch 7 (final) | 044db7a | 111 | — | 12 |
+
+KEEPs (10 chars, audit will continue flagging — pingshui correct per
+user classical verdict):
+
+- 茸 (batch 1, 平/一東 default — 草初生 sense)
+- 殷 (batch 2, 平/十一真 default — 殷商 sense)
+- 唏 (batch 4, 平/五微 per 《唐韻》虛豈切)
+- 詛 (batch 4, 仄/七遇 per 《廣韻》莊助切)
+- 佐 (batch 5, 仄/二十哿 default)
+- 圈 (batch 6, 平/一先 default — quān 環形物 sense)
+- 浾 (batch 4, 平/八庚 default — chēng 棠棗汁 sense)
+- 挦 (batch 4 reconstruction, 平/十三覃 per 《廣韻》昨含切)
+- 鳒 (batch 4 Group D from 鰜, 平/十五咸 — jiān 比目鱼 sense)
+- 崄 (batch 4 Group D from 嶮, 平/十四鹽 — xiǎn 高峻 sense)
+
+SKIPs (2 chars, no source triangulation): 瞆, 跼.
+
+After this sweep, further audit-driven progress would require pipeline
+support for `per_reading_notes`-style annotations to suppress KEEP-class
+flags. The 12 remaining flags are documentation, not bugs.
 
 ---
 
@@ -1496,6 +1667,47 @@ forcing the resolution.
 **Lesson**: parked issues can become "actually bothering" the moment a
 related feature ships. New behavior shipping atop unresolved parked issues
 exposes them. Re-audit parked items when shipping changes that overlap.
+
+### 入→仄 normalization in audit pipeline
+
+When reproducing audit results outside the pipeline, query
+`data/audit/ours.json` — not raw `src/data/pingshui.json`.
+
+The audit pipeline's `normalize.mjs` flattens 入聲 to 仄聲 in
+`ours.json` before consensus diffing. This means a char with 入/一屋
+default in `pingshui.json` shows as 仄/一屋 in `ours.json`. Comparison
+scripts that read raw `pingshui.json` will see different tone strings
+than the audit and produce false mismatch counts.
+
+This bit batch 5 reconciliation: a verification script reading
+`pingshui.json` directly reported 457 chars matching audit consensus,
+but the actual audit report showed 517. The 60-char gap was 入聲 chars
+where pingshui's `"入"` string didn't match consensus's `"仄"` string
+in the raw comparison.
+
+**Rule**: audit-reproduction or count-reconciliation scripts always read
+`data/audit/ours.json`. `patch-pingshui.mjs` writes raw 入 in
+`pingshui.json` (correct for storage); the normalize step happens at
+audit-pipeline read-time.
+
+### Reorder targeting from audit triangulation
+
+When mechanically generating `reorderToRhyme` calls for a batch's
+findings, derive the target rhyme from the audit's "Triangulation" row
+of the per-finding output, not from heuristics like "first secondary" or
+"highest-tone reading."
+
+Batch 5 surfaced this when 24 of 105 reorders went to wrong targets.
+The script generating the reorders had picked the entry-list-order or
+tone-priority heuristic instead of the actual triangulation primary. The
+`audit-batch-N.md` output already lists the consensus target per
+finding — the patch script must consume that field directly.
+
+**Workflow rule** baked into Part 1 lockdown: every `reorderToRhyme`
+target is verified against the corresponding audit-batch finding's
+triangulation primary BEFORE patching. The Part 1 dump produces a
+per-char row showing (current default | audit primary | planned target);
+zero mismatches required to greenlight Part 2.
 
 ---
 

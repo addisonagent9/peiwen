@@ -270,6 +270,55 @@ CLAUDE.md section that mentions X tangentially. Check whether the
 existing prose actually contradicts the new state before editing. If it
 doesn't, leave it alone.
 
+### Part 1 lockdown: verify before patching
+
+When CC drafts a batch of patches affecting many records, Part 1
+(Investigation) must produce a per-record verification dump BEFORE
+Part 2 (Implementation). The dump shows, for each record, current
+state vs planned operation vs expected outcome. Mismatches surface in
+Part 1, not in Part 2 build output or post-patch verification.
+
+Rule: zero unverified targets greenlight Part 2. If Part 1 finds N
+mis-targeted operations, fix all N, re-verify, repeat. Don't proceed
+until the dump is clean.
+
+Origin: batch 5 (audit sweep, May 2026) shipped with 33 mis-targeted
+reorders that surfaced post-implementation, requiring a full STEP
+1/2/3 cleanup cycle. Batch 6 introduced strict Part 1 lockdown —
+caught 12 mis-targets BEFORE patching, zero post-implementation
+corrections. Batch 7 same: zero corrections needed. Workflow
+improvement vindicated for any data-correction batch beyond ~20
+records.
+
+This rule applies to: bulk data patches, schema migrations affecting
+many rows, batch refactors across files, anywhere the pattern is "do
+operation X across N records." It does not apply to: single-purpose
+ad-hoc fixes, one-off bug patches, exploratory debugging.
+
+### Post-patch sanity check
+
+After applying a batch of data-mutation operations, run an explicit
+verification pass that re-reads the mutated state and confirms each
+operation landed correctly. Don't rely on operation-time logs alone —
+those reflect intent, not result.
+
+For `reorderToRhyme` operations: dump `entries[0]` for every reordered
+char, compare against the planned target rhyme, count mismatches. Zero
+mismatches required to claim Part 2 complete.
+
+For ADD operations: query the char post-patch to confirm it now exists
+with expected `entries[]`.
+
+For Group D mirrors: verify dst forms now exist with src's readings
+copied correctly.
+
+Origin: batch 5 mis-targeted reorders all logged "reordered → ..."
+messages at run time, but the final `pingshui.json` had different
+defaults due to a downstream interaction (the order-of-operations bug
+with rhyme-targeting helpers). The runtime log lied. Only a post-patch
+re-read of `pingshui.json` caught the gap. Batches 6+7 made this the
+standard Part 2 STOP gate.
+
 ---
 
 ## 7. Deployment workflow
