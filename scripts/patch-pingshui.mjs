@@ -218,5 +218,145 @@ reorderToRhyme("蓊", "一董");
 reorderToRhyme("菶", "一董");
 reorderToRhyme("翪", "一董");
 
+// === Audit batch 2 — reorder wrong defaults ===
+// 17 reorders (+ 4 簡 mirrors = 21 calls). Both readings already exist;
+// entries[0] was wrong per audit consensus + user classical verification.
+
+// → 二冬
+reorderToRhyme("鬃", "二冬");
+reorderToRhyme("噥", "二冬");
+reorderToRhyme("哝", "二冬");  // 簡 of 噥
+
+// → 四支
+reorderToRhyme("思", "四支");
+reorderToRhyme("篩", "四支");
+reorderToRhyme("筛", "四支");  // 簡 of 篩
+reorderToRhyme("唲", "四支");
+reorderToRhyme("崥", "四支");
+reorderToRhyme("嗺", "四支");
+reorderToRhyme("箄", "四支");
+reorderToRhyme("趍", "四支");
+
+// → 六魚
+reorderToRhyme("瑹", "六魚");
+
+// → 八齊
+reorderToRhyme("齊", "八齊");
+reorderToRhyme("齐", "八齊");  // 簡 of 齊
+
+// → 仄/四紙
+reorderToRhyme("壘", "四紙");
+reorderToRhyme("垒", "四紙");  // 簡 of 壘
+
+// === Audit batch 2 — new entries (ADDs) ===
+// 29 chars absent from pingshui. Readings per audit consensus +
+// user classical verification for watch-list cases.
+
+function addReading(char, tone, group, rhyme) {
+  if (d.chars[char]) {
+    console.warn(`  ${char} already exists — skipping ADD`);
+    return;
+  }
+  d.chars[char] = [{ tone, group, rhyme }];
+  ensureBucket(char, d.chars[char][0]);
+  console.log(`  ${char} added → ${tone} ${rhyme}`);
+}
+
+function addMultiReading(char, entries) {
+  if (d.chars[char]) {
+    console.warn(`  ${char} already exists — skipping multi-ADD`);
+    return;
+  }
+  d.chars[char] = entries;
+  for (const e of entries) ensureBucket(char, e);
+  console.log(`  ${char} added → ${entries.map(e => e.tone + " " + e.rhyme).join(" | ")}`);
+}
+
+// Single-reading ADDs — grouped by destination rhyme
+// → 二冬
+addReading("镕", "平", "上平", "二冬");
+addReading("秾", "平", "上平", "二冬");
+addReading("颙", "平", "上平", "二冬");
+
+// → 四支
+addReading("媯", "平", "上平", "四支");
+addReading("飔", "平", "上平", "四支");
+addReading("漓", "平", "上平", "四支");
+addReading("鶿", "平", "上平", "四支");
+addReading("骙", "平", "上平", "四支");
+addReading("摛", "平", "上平", "四支");
+addReading("鸤", "平", "上平", "四支");
+addReading("祎", "平", "上平", "四支");
+
+// → 五微
+addReading("翚", "平", "上平", "五微");
+
+// → 六魚
+addReading("玙", "平", "上平", "六魚");
+addReading("铻", "平", "上平", "六魚");
+
+// → 七虞
+addReading("媭", "平", "上平", "七虞");
+
+// → 八齊
+addReading("笄", "平", "上平", "八齊");
+addReading("鹥", "平", "上平", "八齊");
+addReading("齏", "平", "上平", "八齊");
+
+// → 十灰
+addReading("缞", "平", "上平", "十灰");
+addReading("頹", "平", "上平", "十灰");
+addReading("呆", "平", "上平", "十灰");
+
+// → 十一真
+addReading("龂", "平", "上平", "十一真");
+addReading("骃", "平", "上平", "十一真");
+addReading("訚", "平", "上平", "十一真");
+
+// → 一先
+addReading("填", "平", "下平", "一先");
+
+// Multi-reading ADDs
+addMultiReading("锜", [
+  { tone: "平", group: "上平", rhyme: "四支" },
+  { tone: "仄", group: "上聲", rhyme: "四紙" }
+]);
+
+addMultiReading("诐", [
+  { tone: "平", group: "上平", rhyme: "四支" },
+  { tone: "仄", group: "去聲", rhyme: "四寘" }
+]);
+
+addMultiReading("犁", [
+  { tone: "平", group: "上平", rhyme: "八齊" },
+  { tone: "平", group: "上平", rhyme: "四支" }
+]);
+
+addMultiReading("谞", [
+  { tone: "平", group: "上平", rhyme: "六魚" },
+  { tone: "仄", group: "上聲", rhyme: "六語" }
+]);
+
+addMultiReading("溇", [
+  { tone: "平", group: "上平", rhyme: "七虞" },
+  { tone: "仄", group: "上聲", rhyme: "二十五有" }
+]);
+
+addMultiReading("阇", [
+  { tone: "平", group: "上平", rhyme: "七虞" },
+  { tone: "平", group: "下平", rhyme: "六麻" }
+]);
+
+addMultiReading("琎", [
+  { tone: "平", group: "上平", rhyme: "十一真" },
+  { tone: "仄", group: "去聲", rhyme: "十二震" }
+]);
+
+addMultiReading("缊", [
+  { tone: "平", group: "上平", rhyme: "十二文" },
+  { tone: "平", group: "上平", rhyme: "十三元" },
+  { tone: "仄", group: "上聲", rhyme: "十二吻" }
+]);
+
 fs.writeFileSync(jsonPath, JSON.stringify(d));
 console.log("Done — patching complete.");
