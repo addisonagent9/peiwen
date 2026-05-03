@@ -89,6 +89,13 @@ export const RhymeDetail: React.FC<RhymeDetailProps> = ({
         </aside>
       )}
 
+      {/* Teaching note */}
+      {rhyme.teachingNote && (
+        <aside className="pl-4 border-l-2 border-amber/40">
+          <p className="text-cream/80 text-[13px] leading-[1.7]">{rhyme.teachingNote}</p>
+        </aside>
+      )}
+
       {/* Seed characters */}
       <section>
         <p className="text-creamDim text-xs mb-3">{strings.rhymeDetailSeedChars}</p>

@@ -1202,5 +1202,26 @@ reorderToRhyme("箓", "二沃");
 // Add 熔 to pingshui as a direct entry mirroring 鎔.
 addReading("熔", "平", "上平", "二冬");
 
+// === Tier 2 batch 1 — missing pingshui entries for cross-rhyme / rare chars ===
+// 醩: rare 籀文 異體 of 糟, sou-yun confirms 四豪 平聲
+addReading("醩", "平", "下平", "四豪");
+
+// Cross-rhyme additions (chars already exist with primary rhyme)
+(function addCrossRhymes() {
+  const additions = [
+    { char: "奸", tone: "平", group: "上平", rhyme: "十五刪" },
+    { char: "茎", tone: "平", group: "下平", rhyme: "九青" },
+    { char: "莖", tone: "平", group: "下平", rhyme: "九青" },
+  ];
+  for (const a of additions) {
+    const existing = d.chars[a.char];
+    if (!existing) { console.warn(`  ${a.char} missing`); continue; }
+    if (existing.some(e => e.rhyme === a.rhyme)) { console.log(`  ${a.char} already has ${a.rhyme}`); continue; }
+    existing.push({ tone: a.tone, group: a.group, rhyme: a.rhyme });
+    ensureBucket(a.char, existing[existing.length - 1]);
+    console.log(`  ${a.char} cross-rhyme added → ${a.tone} ${a.rhyme}`);
+  }
+})();
+
 fs.writeFileSync(jsonPath, JSON.stringify(d));
 console.log("Done — patching complete.");

@@ -110,6 +110,8 @@ export interface Rhyme {
   mnemonic: string;
   /** Modern-Mandarin rime signature, e.g. "-ong", "-ang". Informational only. */
   modernRime: string;
+  /** Optional pedagogical caveat specific to this 韻部 (cross-rhyme traps, Type B notes). */
+  teachingNote?: string;
   /** Optional anchor poem. Tier 1 should always have one. */
   anchorPoem?: AnchorPoem;
 }
