@@ -590,6 +590,10 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
     mnemonic:
       '四支是平水韵中收字最多的韵部 — 时、诗、思、知,写诗常用。' +
       '许多常见字在此韵兼有平/去两读（为、骑、治、遗）。',
+    teachingNote:
+      '四支韻為 -i 系最寬之韻, 與五微、八齊為近鄰韻。' +
+      '注意「衰」(shuāi) 平水韻單屬四支；賀知章《回鄉偶書》「鬢毛衰」與來/迴押韻為傳世名篇之出韵 (非異讀, 非文白異讀)。' +
+      '「兒」字四支讀 ér (常見) / 八齊讀 ní (姓氏), 為 Type A 跨韻例。',
   },
 
   {
@@ -603,8 +607,60 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
     family: 'i-family',
     confusables: ['shangping-04-zhi', 'shangping-08-qi'],
     modernRime: '-ei / -ui',
-    seedCharacters: ['微', '飞', '归', '非', '衣', '依', '威', '晖', '扉', '违', '稀', '肥'],
-    mnemonic: '细微之声,飞归故里。五微多含 -ei/-ui 收音,注意与四支区别。',
+    seedCharacters: [
+      { char: '微', pinyin: 'wēi', jyutping: 'mei4', set: 1, showMandarinAudio: true },
+      { char: '归', pinyin: 'guī', jyutping: 'gwai1', set: 1, showMandarinAudio: true },
+      { char: '飞', pinyin: 'fēi', jyutping: 'fei1', set: 1, showMandarinAudio: true },
+      { char: '稀', pinyin: 'xī', jyutping: 'hei1', set: 1, showMandarinAudio: true },
+      { char: '衣', pinyin: 'yī', jyutping: 'ji1', set: 1, showMandarinAudio: true },
+      { char: '非', pinyin: 'fēi', jyutping: 'fei1', set: 1, showMandarinAudio: true },
+      { char: '违', pinyin: 'wéi', jyutping: 'wai4', set: 1, showMandarinAudio: true },
+      { char: '机', pinyin: 'jī', jyutping: 'gei1', set: 1, showMandarinAudio: true },
+      { char: '晖', pinyin: 'huī', jyutping: 'fai1', set: 1, showMandarinAudio: true },
+      { char: '依', pinyin: 'yī', jyutping: 'ji1', set: 1, showMandarinAudio: true },
+      { char: '肥', pinyin: 'féi', jyutping: 'fei4', set: 1, showMandarinAudio: true },
+      { char: '围', pinyin: 'wéi', jyutping: 'wai4', set: 1, showMandarinAudio: true },
+      { char: '扉', pinyin: 'fēi', jyutping: 'fei1', set: 2, showMandarinAudio: true },
+      { char: '辉', pinyin: 'huī', jyutping: 'fai1', set: 2, showMandarinAudio: true },
+      { char: '威', pinyin: 'wēi', jyutping: 'wai1', set: 2, showMandarinAudio: true },
+      { char: '挥', pinyin: 'huī', jyutping: 'fai1', set: 2, showMandarinAudio: true },
+      { char: '妃', pinyin: 'fēi', jyutping: 'fei1', set: 2, showMandarinAudio: true },
+      { char: '饥', pinyin: 'jī', jyutping: 'gei1', set: 2, showMandarinAudio: true },
+      { char: '菲', pinyin: 'fēi', jyutping: 'fei1', set: 2, showMandarinAudio: true },
+      { char: '薇', pinyin: 'wēi', jyutping: 'mei4', set: 2, showMandarinAudio: true },
+      { char: '几', pinyin: 'jī', jyutping: 'gei2', set: 3, showMandarinAudio: true },
+      { char: '霏', pinyin: 'fēi', jyutping: 'fei1', set: 3, showMandarinAudio: true },
+      { char: '闱', pinyin: 'wéi', jyutping: 'wai4', set: 3, showMandarinAudio: true },
+      { char: '绯', pinyin: 'fēi', jyutping: 'fei1', set: 3, showMandarinAudio: true },
+      { char: '韦', pinyin: 'wéi', jyutping: 'wai5', set: 3, showMandarinAudio: true },
+      { char: '巍', pinyin: 'wēi', jyutping: 'ngai4', set: 3, showMandarinAudio: true },
+      { char: '騑', pinyin: 'fēi', jyutping: 'fei1', set: 4, showMandarinAudio: true },
+      { char: '鞿', pinyin: 'jī', jyutping: 'gei1', set: 4, showMandarinAudio: true },
+      { char: '翚', pinyin: 'huī', jyutping: 'fai1', set: 4, showMandarinAudio: true },
+      { char: '沂', pinyin: 'yí', jyutping: 'ji4', set: 4, showMandarinAudio: true },
+    ],
+    anchorPoem: {
+      author: '杜甫',
+      title: '秋兴·其三',
+      text: '千家山郭静朝晖，日日江楼坐翠微。\n信宿渔人还泛泛，清秋燕子故飞飞。\n匡衡抗疏功名薄，刘向传经心事违。\n同学少年多不贱，五陵衣马自轻肥。',
+      rhymingCharacters: [
+        { char: '晖', jyutping: 'fai1', pinyin: 'huī' },
+        { char: '微', jyutping: 'mei4', pinyin: 'wēi' },
+        { char: '飞', jyutping: 'fei1', pinyin: 'fēi' },
+        { char: '违', jyutping: 'wai4', pinyin: 'wéi' },
+        { char: '肥', jyutping: 'fei4', pinyin: 'féi' },
+      ],
+      gloss:
+        "Du Fu's third poem in the Autumn Meditations sequence — the city of " +
+        'Kuizhou at dawn, the river tower at dusk, fishermen drifting and swallows ' +
+        "in flight: a quiet world that throws his political failures into relief.",
+    },
+    mnemonic:
+      '千家山郭朝暉裡, 翠微遠樓燕飛飛 — 五微一韻, 主圍朝暉之輕微, ' +
+      '衣帶當風, 機心暫息, 是杜甫秋日的疏淡心境。',
+    teachingNote:
+      '五微韻屬 -i 系, 與四支、八齊為近鄰韻, 唐人偶有借韻於此三韻之間。' +
+      '本韻字多含 -ei / -ui 餘音 (如「歸」「微」), 與四支「兒、儀」之 -i 餘音可資辨別。',
   },
 
   {
@@ -617,9 +673,57 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
     tier: 2,
     family: 'u-family',
     confusables: ['shangping-07-yu2'],
-    modernRime: '-u / -ü',
-    seedCharacters: ['鱼', '书', '居', '渠', '初', '除', '虚', '余', '徐', '疏', '舒', '如'],
-    mnemonic: '鱼跃清渠,书卷堆居 — 六鱼多为 -ü 收音。',
+    modernRime: '-ü / -u',
+    seedCharacters: [
+      { char: '书', pinyin: 'shū', jyutping: 'syu1', set: 1, showMandarinAudio: true },
+      { char: '如', pinyin: 'rú', jyutping: 'jyu4', set: 1, showMandarinAudio: true },
+      { char: '居', pinyin: 'jū', jyutping: 'geoi1', set: 1, showMandarinAudio: true },
+      { char: '鱼', pinyin: 'yú', jyutping: 'jyu4', set: 1, showMandarinAudio: true },
+      { char: '余', pinyin: 'yú', jyutping: 'jyu4', set: 1, showMandarinAudio: true },
+      { char: '渠', pinyin: 'qú', jyutping: 'keoi4', set: 1, showMandarinAudio: true },
+      { char: '虚', pinyin: 'xū', jyutping: 'heoi1', set: 1, showMandarinAudio: true },
+      { char: '初', pinyin: 'chū', jyutping: 'co1', set: 1, showMandarinAudio: true },
+      { char: '疏', pinyin: 'shū', jyutping: 'so1', set: 1, showMandarinAudio: true },
+      { char: '庐', pinyin: 'lú', jyutping: 'lou4', set: 1, showMandarinAudio: true },
+      { char: '除', pinyin: 'chú', jyutping: 'ceoi4', set: 1, showMandarinAudio: true },
+      { char: '舒', pinyin: 'shū', jyutping: 'syu1', set: 1, showMandarinAudio: true },
+      { char: '闾', pinyin: 'lǘ', jyutping: 'leoi4', set: 2, showMandarinAudio: true },
+      { char: '蔬', pinyin: 'shū', jyutping: 'so1', set: 2, showMandarinAudio: true },
+      { char: '蕖', pinyin: 'qú', jyutping: 'keoi4', set: 2, showMandarinAudio: true },
+      { char: '储', pinyin: 'chǔ', jyutping: 'cyu5', set: 2, showMandarinAudio: true },
+      { char: '徐', pinyin: 'xú', jyutping: 'ceoi4', set: 2, showMandarinAudio: true },
+      { char: '滁', pinyin: 'chú', jyutping: 'ceoi4', set: 2, showMandarinAudio: true },
+      { char: '嘘', pinyin: 'xū', jyutping: 'heoi1', set: 2, showMandarinAudio: true },
+      { char: '墟', pinyin: 'xū', jyutping: 'heoi1', set: 2, showMandarinAudio: true },
+      { char: '锄', pinyin: 'chú', jyutping: 'co4', set: 3, showMandarinAudio: true },
+      { char: '馀', pinyin: 'yú', jyutping: 'jyu4', set: 3, showMandarinAudio: true },
+      { char: '妤', pinyin: 'yú', jyutping: 'jyu4', set: 3, showMandarinAudio: true },
+      { char: '苴', pinyin: 'jū', jyutping: 'zeoi1', set: 3, showMandarinAudio: true },
+      { char: '沮', pinyin: 'jǔ', jyutping: 'zeoi2', set: 3, showMandarinAudio: true },
+      { char: '蘧', pinyin: 'qú', jyutping: 'keoi4', set: 3, showMandarinAudio: true },
+      { char: '疽', pinyin: 'jū', jyutping: 'zeoi1', set: 4, showMandarinAudio: true },
+      { char: '樗', pinyin: 'chū', jyutping: 'cyu1', set: 4, showMandarinAudio: true },
+      { char: '龉', pinyin: 'yǔ', jyutping: 'jyu5', set: 4, showMandarinAudio: true },
+      { char: '茹', pinyin: 'rú', jyutping: 'jyu4', set: 4, showMandarinAudio: true },
+    ],
+    anchorPoem: {
+      author: '自作',
+      title: '闲居',
+      text: '闲居陋室漫翻书，窗外青山似旧如。\n不问红尘多少事，一壶清茗伴云居。',
+      rhymingCharacters: [
+        { char: '书', jyutping: 'syu1', pinyin: 'shū' },
+        { char: '如', jyutping: 'jyu4', pinyin: 'rú' },
+        { char: '居', jyutping: 'geoi1', pinyin: 'jū' },
+      ],
+      gloss:
+        "A quiet life in a humble room: turning pages, the same green mountain " +
+        "through the window, a pot of clear tea — and the world's affairs left unasked.",
+    },
+    mnemonic:
+      '陋室清茗讀書居, 青山雲外似舊如 — 六魚一韻, 主 -ü 之深圓, 隱士書齋之韻。',
+    teachingNote:
+      '六魚與七虞同屬 -u 系近鄰韻, 唐人偶有借韻通押。' +
+      '注意「魚」「苴」二字兼屬六魚、七虞 (Type A 跨韻)。',
   },
 
   {
@@ -633,8 +737,56 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
     family: 'u-family',
     confusables: ['shangping-06-yu'],
     modernRime: '-u',
-    seedCharacters: ['虞', '无', '夫', '孤', '图', '湖', '胡', '都', '枯', '呼', '扶', '壶'],
-    mnemonic: '七虞多为 -u 正收音,比六鱼更 "圆" 一些。',
+    seedCharacters: [
+      { char: '珠', pinyin: 'zhū', jyutping: 'zyu1', set: 1, showMandarinAudio: true },
+      { char: '腴', pinyin: 'yú', jyutping: 'jyu4', set: 1, showMandarinAudio: true },
+      { char: '虞', pinyin: 'yú', jyutping: 'jyu4', set: 1, showMandarinAudio: true },
+      { char: '乎', pinyin: 'hū', jyutping: 'fu4', set: 1, showMandarinAudio: true },
+      { char: '无', pinyin: 'wú', jyutping: 'mou4', set: 1, showMandarinAudio: true },
+      { char: '朱', pinyin: 'zhū', jyutping: 'zyu1', set: 1, showMandarinAudio: true },
+      { char: '须', pinyin: 'xū', jyutping: 'seoi1', set: 1, showMandarinAudio: true },
+      { char: '殊', pinyin: 'shū', jyutping: 'syu4', set: 1, showMandarinAudio: true },
+      { char: '儒', pinyin: 'rú', jyutping: 'jyu4', set: 1, showMandarinAudio: true },
+      { char: '隅', pinyin: 'yú', jyutping: 'jyu4', set: 1, showMandarinAudio: true },
+      { char: '趋', pinyin: 'qū', jyutping: 'ceoi1', set: 1, showMandarinAudio: true },
+      { char: '夫', pinyin: 'fū', jyutping: 'fu1', set: 1, showMandarinAudio: true },
+      { char: '孤', pinyin: 'gū', jyutping: 'gu1', set: 2, showMandarinAudio: true },
+      { char: '都', pinyin: 'dū', jyutping: 'dou1', set: 2, showMandarinAudio: true },
+      { char: '图', pinyin: 'tú', jyutping: 'tou4', set: 2, showMandarinAudio: true },
+      { char: '徒', pinyin: 'tú', jyutping: 'tou4', set: 2, showMandarinAudio: true },
+      { char: '模', pinyin: 'mó', jyutping: 'mou4', set: 2, showMandarinAudio: true },
+      { char: '湖', pinyin: 'hú', jyutping: 'wu4', set: 2, showMandarinAudio: true },
+      { char: '胡', pinyin: 'hú', jyutping: 'wu4', set: 2, showMandarinAudio: true },
+      { char: '吴', pinyin: 'wú', jyutping: 'ng4', set: 2, showMandarinAudio: true },
+      { char: '苏', pinyin: 'sū', jyutping: 'sou1', set: 3, showMandarinAudio: true },
+      { char: '卢', pinyin: 'lú', jyutping: 'lou4', set: 3, showMandarinAudio: true },
+      { char: '雏', pinyin: 'chú', jyutping: 'co4', set: 3, showMandarinAudio: true },
+      { char: '株', pinyin: 'zhū', jyutping: 'zyu1', set: 3, showMandarinAudio: true },
+      { char: '蛛', pinyin: 'zhū', jyutping: 'zyu1', set: 3, showMandarinAudio: true },
+      { char: '谀', pinyin: 'yú', jyutping: 'jyu4', set: 3, showMandarinAudio: true },
+      { char: '铢', pinyin: 'zhū', jyutping: 'zyu1', set: 4, showMandarinAudio: true },
+      { char: '衢', pinyin: 'qú', jyutping: 'keoi4', set: 4, showMandarinAudio: true },
+      { char: '瑜', pinyin: 'yú', jyutping: 'jyu4', set: 4, showMandarinAudio: true },
+      { char: '臾', pinyin: 'yú', jyutping: 'jyu4', set: 4, showMandarinAudio: true },
+    ],
+    anchorPoem: {
+      author: '静品茶香',
+      title: '欢声九月师生笑',
+      text: '欢声九月师生笑，三尺枝头满玉珠。\n千古情深谁与透，杏坛夜雨最珍腴。',
+      rhymingCharacters: [
+        { char: '珠', jyutping: 'zyu1', pinyin: 'zhū' },
+        { char: '腴', jyutping: 'jyu4', pinyin: 'yú' },
+      ],
+      gloss:
+        'September: teachers and students laugh, branches hang heavy with jade-like ' +
+        'fruit. Through millennia of devotion, an Apricot Forum night-rain stays ' +
+        'the richest of all.',
+    },
+    mnemonic:
+      '九月師生笑語, 杏壇夜雨珍腴 — 七虞一韻, 主 -u 之圓厚, 與六魚同氣連枝。',
+    teachingNote:
+      '七虞與六魚為 -u 系近鄰韻。「鱼」「苴」字兼屬兩韻 (Type A 跨韻), ' +
+      '唐人借韻較多, 但嚴格平水韻不可混押。',
   },
 
   {
@@ -647,9 +799,59 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
     tier: 2,
     family: 'i-family',
     confusables: ['shangping-04-zhi', 'shangping-05-wei'],
-    modernRime: '-i',
-    seedCharacters: ['齐', '西', '啼', '堤', '低', '鸡', '溪', '稽', '畦', '泥', '迷', '梯'],
-    mnemonic: '八齐收口最齐整 — 西、啼、堤、低,都是清脆的 -i。',
+    modernRime: '-i / -ei',
+    seedCharacters: [
+      { char: '萋', pinyin: 'qī', jyutping: 'cai1', set: 1, showMandarinAudio: true },
+      { char: '西', pinyin: 'xī', jyutping: 'sai1', set: 1, showMandarinAudio: true },
+      { char: '啼', pinyin: 'tí', jyutping: 'tai4', set: 1, showMandarinAudio: true },
+      { char: '泥', pinyin: 'ní', jyutping: 'nai4', set: 1, showMandarinAudio: true },
+      { char: '题', pinyin: 'tí', jyutping: 'tai4', set: 1, showMandarinAudio: true },
+      { char: '嘶', pinyin: 'sī', jyutping: 'si1', set: 1, showMandarinAudio: true },
+      { char: '低', pinyin: 'dī', jyutping: 'dai1', set: 1, showMandarinAudio: true },
+      { char: '迷', pinyin: 'mí', jyutping: 'mai4', set: 1, showMandarinAudio: true },
+      { char: '溪', pinyin: 'xī', jyutping: 'kai1', set: 1, showMandarinAudio: true },
+      { char: '齐', pinyin: 'qí', jyutping: 'cai4', set: 1, showMandarinAudio: true },
+      { char: '栖', pinyin: 'qī', jyutping: 'cai1', set: 1, showMandarinAudio: true },
+      { char: '鸡', pinyin: 'jī', jyutping: 'gai1', set: 1, showMandarinAudio: true },
+      { char: '梨', pinyin: 'lí', jyutping: 'lei4', set: 2, showMandarinAudio: true },
+      { char: '兮', pinyin: 'xī', jyutping: 'hai4', set: 2, showMandarinAudio: true },
+      { char: '携', pinyin: 'xié', jyutping: 'kwai4', set: 2, showMandarinAudio: true },
+      { char: '堤', pinyin: 'dī', jyutping: 'tai4', set: 2, showMandarinAudio: true },
+      { char: '蹄', pinyin: 'tí', jyutping: 'tai4', set: 2, showMandarinAudio: true },
+      { char: '梯', pinyin: 'tī', jyutping: 'tai1', set: 2, showMandarinAudio: true },
+      { char: '妻', pinyin: 'qī', jyutping: 'cai1', set: 2, showMandarinAudio: true },
+      { char: '黎', pinyin: 'lí', jyutping: 'lai4', set: 2, showMandarinAudio: true },
+      { char: '凄', pinyin: 'qī', jyutping: 'cai1', set: 3, showMandarinAudio: true },
+      { char: '儿', pinyin: 'ní', jyutping: 'ngai4', set: 3, showMandarinAudio: true },
+      { char: '提', pinyin: 'tí', jyutping: 'tai4', set: 3, showMandarinAudio: true },
+      { char: '鼙', pinyin: 'pí', jyutping: 'pai4', set: 3, showMandarinAudio: true },
+      { char: '圭', pinyin: 'guī', jyutping: 'gwai1', set: 3, showMandarinAudio: true },
+      { char: '跻', pinyin: 'jī', jyutping: 'zai1', set: 3, showMandarinAudio: true },
+      { char: '鞮', pinyin: 'dī', jyutping: 'dai1', set: 4, showMandarinAudio: true },
+      { char: '嵇', pinyin: 'jī', jyutping: 'kai1', set: 4, showMandarinAudio: true },
+      { char: '醯', pinyin: 'xī', jyutping: 'hai1', set: 4, showMandarinAudio: true },
+      { char: '黧', pinyin: 'lí', jyutping: 'lai4', set: 4, showMandarinAudio: true },
+    ],
+    anchorPoem: {
+      author: '李华',
+      title: '春行即兴',
+      text: '宜阳城下草萋萋，涧水东流复向西。\n芳树无人花自落，春山一路鸟空啼。',
+      rhymingCharacters: [
+        { char: '萋', jyutping: 'cai1', pinyin: 'qī' },
+        { char: '西', jyutping: 'sai1', pinyin: 'xī' },
+        { char: '啼', jyutping: 'tai4', pinyin: 'tí' },
+      ],
+      gloss:
+        'Li Hua walks through Yiyang after the An Lushan rebellion. The grass is ' +
+        'thick, the streams flow east and west, but no one is left to see the ' +
+        "flowers fall — a quiet portrait of war's emptiness.",
+    },
+    mnemonic:
+      '宜陽萋萋, 澗水東西 — 八齊一韻, 收於 -i 而帶喉間清氣, ' +
+      '別於四支之鬆、五微之渺, 自有清切之質。',
+    teachingNote:
+      '八齊韻為 -i 系收音最清切者。注意「兒」字: 四支讀 ér (常見), ' +
+      '八齊讀 ní (姓氏); 同字異韻不同讀, 為 Type A 跨韻例。',
   },
 
   {
@@ -661,10 +863,59 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
     half: 'shangping',
     tier: 2,
     family: 'ai-family',
-    confusables: ['shangping-10-hui'],
-    modernRime: '-ai / -a',
-    seedCharacters: ['佳', '街', '鞋', '钗', '牌', '斋', '柴', '排', '涯', '怀', '乖', '埋'],
-    mnemonic: '九佳之字,多有 -ai 之韵。佳人街头,鞋履生花。',
+    confusables: ['shangping-10-hui', 'xiaping-06-ma'],
+    modernRime: '-ai / -ia',
+    seedCharacters: [
+      { char: '街', pinyin: 'jiē', jyutping: 'gaai1', set: 1, showMandarinAudio: true },
+      { char: '偕', pinyin: 'xié', jyutping: 'gaai1', set: 1, showMandarinAudio: true },
+      { char: '怀', pinyin: 'huái', jyutping: 'waai4', set: 1, showMandarinAudio: true },
+      { char: '佳', pinyin: 'jiā', jyutping: 'gaai1', set: 1, showMandarinAudio: true },
+      { char: '斋', pinyin: 'zhāi', jyutping: 'zaai1', set: 1, showMandarinAudio: true },
+      { char: '阶', pinyin: 'jiē', jyutping: 'gaai1', set: 1, showMandarinAudio: true },
+      { char: '谐', pinyin: 'xié', jyutping: 'haai4', set: 1, showMandarinAudio: true },
+      { char: '乖', pinyin: 'guāi', jyutping: 'gwaai1', set: 1, showMandarinAudio: true },
+      { char: '崖', pinyin: 'yá', jyutping: 'ngaai4', set: 1, showMandarinAudio: true },
+      { char: '排', pinyin: 'pái', jyutping: 'paai4', set: 1, showMandarinAudio: true },
+      { char: '埋', pinyin: 'mái', jyutping: 'maai4', set: 1, showMandarinAudio: true },
+      { char: '鞋', pinyin: 'xié', jyutping: 'haai4', set: 1, showMandarinAudio: true },
+      { char: '涯', pinyin: 'yá', jyutping: 'ngaai4', set: 2, showMandarinAudio: true },
+      { char: '钗', pinyin: 'chāi', jyutping: 'caai1', set: 2, showMandarinAudio: true },
+      { char: '牌', pinyin: 'pái', jyutping: 'paai4', set: 2, showMandarinAudio: true },
+      { char: '槐', pinyin: 'huái', jyutping: 'waai4', set: 2, showMandarinAudio: true },
+      { char: '揩', pinyin: 'kāi', jyutping: 'kaai1', set: 2, showMandarinAudio: true },
+      { char: '豺', pinyin: 'chái', jyutping: 'caai4', set: 2, showMandarinAudio: true },
+      { char: '骸', pinyin: 'hái', jyutping: 'haai4', set: 2, showMandarinAudio: true },
+      { char: '淮', pinyin: 'huái', jyutping: 'waai4', set: 2, showMandarinAudio: true },
+      { char: '皆', pinyin: 'jiē', jyutping: 'gaai1', set: 3, showMandarinAudio: true },
+      { char: '喈', pinyin: 'jiē', jyutping: 'gaai1', set: 3, showMandarinAudio: true },
+      { char: '俳', pinyin: 'pái', jyutping: 'paai4', set: 3, showMandarinAudio: true },
+      { char: '楷', pinyin: 'kǎi', jyutping: 'kaai2', set: 3, showMandarinAudio: true },
+      { char: '挨', pinyin: 'āi', jyutping: 'aai1', set: 3, showMandarinAudio: true },
+      { char: '筛', pinyin: 'shāi', jyutping: 'sai1', set: 3, showMandarinAudio: true },
+      { char: '秸', pinyin: 'jiē', jyutping: 'gaai1', set: 4, showMandarinAudio: true },
+      { char: '睚', pinyin: 'yá', jyutping: 'ngaai4', set: 4, showMandarinAudio: true },
+      { char: '霾', pinyin: 'mái', jyutping: 'maai4', set: 4, showMandarinAudio: true },
+      { char: '啀', pinyin: 'ái', jyutping: 'ngaai4', set: 4, showMandarinAudio: true },
+    ],
+    anchorPoem: {
+      author: '云隐秋山',
+      title: '紫藤花',
+      text: '馨花送爽缀香街，万缕情丝绕树偕。\n二月春声飞雨露，紫藤欢笑喜同怀。',
+      rhymingCharacters: [
+        { char: '街', jyutping: 'gaai1', pinyin: 'jiē' },
+        { char: '偕', jyutping: 'gaai1', pinyin: 'xié' },
+        { char: '怀', jyutping: 'waai4', pinyin: 'huái' },
+      ],
+      gloss:
+        'Fragrant blossoms scent the street, threads of feeling wreath the trees. ' +
+        'February rains arrive on the wind, and the wisteria laughs with all who pass.',
+    },
+    mnemonic:
+      '馨花綴街, 紫藤同懷 — 九佳一韻, 主 -ai 之開朗, 春日紫藤之韻。',
+    teachingNote:
+      '九佳與十灰同屬 -ai 系近鄰韻, 唐人偶有借韻。' +
+      '「涯」字三跨韻 (四支、六麻、九佳, Type A); ' +
+      '「楷」字九佳、九蟹平上跨聲, 為 Type B 平仄之例。',
   },
 
   {
@@ -677,25 +928,59 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
     tier: 2,
     family: 'ai-family',
     confusables: ['shangping-09-jia'],
-    modernRime: '-ui / -ei / -ai',
-    seedCharacters: ['灰', '回', '来', '催', '杯', '台', '梅', '哀', '哉', '苔', '培', '摧'],
-    mnemonic:
-      '十灰跨度最广 — 既含 -ui (回、催),又含 -ai (来、台)。' +
-      '"少小离家老大回" 的 "回" 就在这里。',
+    modernRime: '-ai / -ui',
+    seedCharacters: [
+      { char: '开', pinyin: 'kāi', jyutping: 'hoi1', set: 1, showMandarinAudio: true },
+      { char: '来', pinyin: 'lái', jyutping: 'loi4', set: 1, showMandarinAudio: true },
+      { char: '裁', pinyin: 'cái', jyutping: 'coi4', set: 1, showMandarinAudio: true },
+      { char: '回', pinyin: 'huí', jyutping: 'wui4', set: 1, showMandarinAudio: true },
+      { char: '杯', pinyin: 'bēi', jyutping: 'bui1', set: 1, showMandarinAudio: true },
+      { char: '梅', pinyin: 'méi', jyutping: 'mui4', set: 1, showMandarinAudio: true },
+      { char: '雷', pinyin: 'léi', jyutping: 'leoi4', set: 1, showMandarinAudio: true },
+      { char: '灰', pinyin: 'huī', jyutping: 'fui1', set: 1, showMandarinAudio: true },
+      { char: '堆', pinyin: 'duī', jyutping: 'deoi1', set: 1, showMandarinAudio: true },
+      { char: '摧', pinyin: 'cuī', jyutping: 'ceoi1', set: 1, showMandarinAudio: true },
+      { char: '才', pinyin: 'cái', jyutping: 'coi4', set: 1, showMandarinAudio: true },
+      { char: '哀', pinyin: 'āi', jyutping: 'oi1', set: 1, showMandarinAudio: true },
+      { char: '苔', pinyin: 'tái', jyutping: 'toi4', set: 2, showMandarinAudio: true },
+      { char: '哉', pinyin: 'zāi', jyutping: 'zoi1', set: 2, showMandarinAudio: true },
+      { char: '埃', pinyin: 'āi', jyutping: 'oi1', set: 2, showMandarinAudio: true },
+      { char: '莱', pinyin: 'lái', jyutping: 'loi4', set: 2, showMandarinAudio: true },
+      { char: '猜', pinyin: 'cāi', jyutping: 'caai1', set: 2, showMandarinAudio: true },
+      { char: '材', pinyin: 'cái', jyutping: 'coi4', set: 2, showMandarinAudio: true },
+      { char: '栽', pinyin: 'zāi', jyutping: 'zoi1', set: 2, showMandarinAudio: true },
+      { char: '灾', pinyin: 'zāi', jyutping: 'zoi1', set: 2, showMandarinAudio: true },
+      { char: '胎', pinyin: 'tāi', jyutping: 'toi1', set: 3, showMandarinAudio: true },
+      { char: '孩', pinyin: 'hái', jyutping: 'haai4', set: 3, showMandarinAudio: true },
+      { char: '隈', pinyin: 'wēi', jyutping: 'wui1', set: 3, showMandarinAudio: true },
+      { char: '徊', pinyin: 'huái', jyutping: 'wui4', set: 3, showMandarinAudio: true },
+      { char: '裴', pinyin: 'péi', jyutping: 'pui4', set: 3, showMandarinAudio: true },
+      { char: '槐', pinyin: 'huái', jyutping: 'waai4', set: 3, showMandarinAudio: true },
+      { char: '嵬', pinyin: 'wéi', jyutping: 'ngai4', set: 4, showMandarinAudio: true },
+      { char: '颓', pinyin: 'tuí', jyutping: 'teoi4', set: 4, showMandarinAudio: true },
+      { char: '媒', pinyin: 'méi', jyutping: 'mui4', set: 4, showMandarinAudio: true },
+      { char: '罍', pinyin: 'léi', jyutping: 'leoi4', set: 4, showMandarinAudio: true },
+    ],
     anchorPoem: {
-      author: '贺知章',
-      title: '回乡偶书',
-      text: '少小离家老大回,乡音无改鬓毛衰。\n儿童相见不相识,笑问客从何处来。',
+      author: '刚',
+      title: '槐花开',
+      text: '芳菲四月万花开，绿柳轻盈紫燕来。\n串串槐香蜂蝶吻，春风醉美水山裁。',
       rhymingCharacters: [
-        { char: '回', jyutping: 'wui4', pinyin: 'huí' },
-        { char: '衰', jyutping: 'seoi1', pinyin: 'shuāi' },
+        { char: '开', jyutping: 'hoi1', pinyin: 'kāi' },
         { char: '来', jyutping: 'loi4', pinyin: 'lái' },
+        { char: '裁', jyutping: 'coi4', pinyin: 'cái' },
       ],
       gloss:
-        '回·衰·来 all belong to 十灰 in 平水韵, despite sounding different in ' +
-        'modern Mandarin. This is a perfect teaching moment: the category is ' +
-        'defined by historical phonology, not current pronunciation.',
+        'Fourth month: flowers everywhere, willows fresh, swallows back. Acacia ' +
+        'clusters draw bees and butterflies, and the spring wind cuts mountain ' +
+        'and water into beauty.',
     },
+    mnemonic:
+      '槐香四月, 燕來水裁 — 十灰一韻, 主 -ai 之低回, 春深之韻。',
+    teachingNote:
+      '十灰與九佳同屬 -ai 系近鄰韻。「槐」字兼屬九佳、十灰, 為 Type A 跨韻。' +
+      '注意「衰」字常被誤認為十灰平聲: 實則「衰」單屬四支, ' +
+      '賀知章《回鄉偶書》「鬢毛衰」與來/迴押韻為出韵 (非異讀)。',
   },
 
   {
@@ -709,8 +994,58 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
     family: 'en-family',
     confusables: ['shangping-12-wen', 'shangping-13-yuan'],
     modernRime: '-en / -in',
-    seedCharacters: ['真', '人', '春', '尘', '身', '神', '邻', '新', '因', '亲', '陈', '贫'],
-    mnemonic: '十一真 — 春风吹面,尘中见真人。-in/-en 收音。',
+    seedCharacters: [
+      { char: '银', pinyin: 'yín', jyutping: 'ngan4', set: 1, showMandarinAudio: true },
+      { char: '呻', pinyin: 'shēn', jyutping: 'san1', set: 1, showMandarinAudio: true },
+      { char: '沦', pinyin: 'lún', jyutping: 'leon4', set: 1, showMandarinAudio: true },
+      { char: '真', pinyin: 'zhēn', jyutping: 'zan1', set: 1, showMandarinAudio: true },
+      { char: '人', pinyin: 'rén', jyutping: 'jan4', set: 1, showMandarinAudio: true },
+      { char: '春', pinyin: 'chūn', jyutping: 'ceon1', set: 1, showMandarinAudio: true },
+      { char: '新', pinyin: 'xīn', jyutping: 'san1', set: 1, showMandarinAudio: true },
+      { char: '尘', pinyin: 'chén', jyutping: 'can4', set: 1, showMandarinAudio: true },
+      { char: '身', pinyin: 'shēn', jyutping: 'san1', set: 1, showMandarinAudio: true },
+      { char: '神', pinyin: 'shén', jyutping: 'san4', set: 1, showMandarinAudio: true },
+      { char: '亲', pinyin: 'qīn', jyutping: 'can1', set: 1, showMandarinAudio: true },
+      { char: '邻', pinyin: 'lín', jyutping: 'leon4', set: 1, showMandarinAudio: true },
+      { char: '臣', pinyin: 'chén', jyutping: 'san4', set: 2, showMandarinAudio: true },
+      { char: '民', pinyin: 'mín', jyutping: 'man4', set: 2, showMandarinAudio: true },
+      { char: '巾', pinyin: 'jīn', jyutping: 'gan1', set: 2, showMandarinAudio: true },
+      { char: '因', pinyin: 'yīn', jyutping: 'jan1', set: 2, showMandarinAudio: true },
+      { char: '辛', pinyin: 'xīn', jyutping: 'san1', set: 2, showMandarinAudio: true },
+      { char: '仁', pinyin: 'rén', jyutping: 'jan4', set: 2, showMandarinAudio: true },
+      { char: '滨', pinyin: 'bīn', jyutping: 'ban1', set: 2, showMandarinAudio: true },
+      { char: '陈', pinyin: 'chén', jyutping: 'can4', set: 2, showMandarinAudio: true },
+      { char: '论', pinyin: 'lún', jyutping: 'leon4', set: 3, showMandarinAudio: true },
+      { char: '振', pinyin: 'zhēn', jyutping: 'zan3', set: 3, showMandarinAudio: true },
+      { char: '频', pinyin: 'pín', jyutping: 'pan4', set: 3, showMandarinAudio: true },
+      { char: '津', pinyin: 'jīn', jyutping: 'zeon1', set: 3, showMandarinAudio: true },
+      { char: '巡', pinyin: 'xún', jyutping: 'ceon4', set: 3, showMandarinAudio: true },
+      { char: '伸', pinyin: 'shēn', jyutping: 'san1', set: 3, showMandarinAudio: true },
+      { char: '嗔', pinyin: 'chēn', jyutping: 'can1', set: 4, showMandarinAudio: true },
+      { char: '蘋', pinyin: 'pín', jyutping: 'pan4', set: 4, showMandarinAudio: true },
+      { char: '闽', pinyin: 'mǐn', jyutping: 'man5', set: 4, showMandarinAudio: true },
+      { char: '秦', pinyin: 'qín', jyutping: 'ceon4', set: 4, showMandarinAudio: true },
+    ],
+    anchorPoem: {
+      author: '静品茶香',
+      title: '七绝·灵犀不点爱沉沦',
+      text: '枝头月出满身银，魂梦痴萦墨色呻。\n晓岸风情扶碧水，灵犀不点爱沉沦。',
+      rhymingCharacters: [
+        { char: '银', jyutping: 'ngan4', pinyin: 'yín' },
+        { char: '呻', jyutping: 'san1', pinyin: 'shēn' },
+        { char: '沦', jyutping: 'leon4', pinyin: 'lún' },
+      ],
+      gloss:
+        'Moon over the branches, the body silver. Dreams cling, ink-dark and aching. ' +
+        'At dawn the wind unfurls jade water — but the secret heart never quickens, ' +
+        'and love sinks down.',
+    },
+    mnemonic:
+      '枝頭月銀, 沉淪痴魂 — 十一真一韻, 主 -en/-in 之清亮, 銀月之韻。',
+    teachingNote:
+      '十一真為 -en/-un 系出韵大戶之首, 與十二文、十三元極易混淆。' +
+      '注意「信」「菌」「龜」「遴」屬仄聲 (去十二震 / 上十一轸 / 平四支), 不入十一真平聲。' +
+      '「論」字兼屬十一真、十三元 (Type A 跨韻)。',
   },
 
   {
@@ -724,8 +1059,61 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
     family: 'en-family',
     confusables: ['shangping-11-zhen', 'shangping-13-yuan'],
     modernRime: '-en / -un',
-    seedCharacters: ['文', '云', '君', '群', '闻', '纷', '芬', '分', '勤', '斤', '军', '殷'],
-    mnemonic: '十二文多含 -un/-uen — 君、云、群、闻,温文尔雅。',
+    seedCharacters: [
+      { char: '闻', pinyin: 'wén', jyutping: 'man4', set: 1, showMandarinAudio: true },
+      { char: '分', pinyin: 'fēn', jyutping: 'fan1', set: 1, showMandarinAudio: true },
+      { char: '熏', pinyin: 'xūn', jyutping: 'fan1', set: 1, showMandarinAudio: true },
+      { char: '云', pinyin: 'yún', jyutping: 'wan4', set: 1, showMandarinAudio: true },
+      { char: '纹', pinyin: 'wén', jyutping: 'man4', set: 1, showMandarinAudio: true },
+      { char: '文', pinyin: 'wén', jyutping: 'man4', set: 1, showMandarinAudio: true },
+      { char: '君', pinyin: 'jūn', jyutping: 'gwan1', set: 1, showMandarinAudio: true },
+      { char: '群', pinyin: 'qún', jyutping: 'kwan4', set: 1, showMandarinAudio: true },
+      { char: '军', pinyin: 'jūn', jyutping: 'gwan1', set: 1, showMandarinAudio: true },
+      { char: '勤', pinyin: 'qín', jyutping: 'kan4', set: 1, showMandarinAudio: true },
+      { char: '纷', pinyin: 'fēn', jyutping: 'fan1', set: 1, showMandarinAudio: true },
+      { char: '勋', pinyin: 'xūn', jyutping: 'fan1', set: 1, showMandarinAudio: true },
+      { char: '氛', pinyin: 'fēn', jyutping: 'fan1', set: 2, showMandarinAudio: true },
+      { char: '芬', pinyin: 'fēn', jyutping: 'fan1', set: 2, showMandarinAudio: true },
+      { char: '坟', pinyin: 'fén', jyutping: 'fan4', set: 2, showMandarinAudio: true },
+      { char: '裙', pinyin: 'qún', jyutping: 'kwan4', set: 2, showMandarinAudio: true },
+      { char: '醺', pinyin: 'xūn', jyutping: 'fan1', set: 2, showMandarinAudio: true },
+      { char: '焚', pinyin: 'fén', jyutping: 'fan4', set: 2, showMandarinAudio: true },
+      { char: '氲', pinyin: 'yūn', jyutping: 'wan1', set: 2, showMandarinAudio: true },
+      { char: '欣', pinyin: 'xīn', jyutping: 'jan1', set: 2, showMandarinAudio: true },
+      { char: '纭', pinyin: 'yún', jyutping: 'wan4', set: 3, showMandarinAudio: true },
+      { char: '耘', pinyin: 'yún', jyutping: 'wan4', set: 3, showMandarinAudio: true },
+      { char: '斤', pinyin: 'jīn', jyutping: 'gan1', set: 3, showMandarinAudio: true },
+      { char: '芹', pinyin: 'qín', jyutping: 'kan4', set: 3, showMandarinAudio: true },
+      { char: '蚊', pinyin: 'wén', jyutping: 'man4', set: 3, showMandarinAudio: true },
+      { char: '筋', pinyin: 'jīn', jyutping: 'gan1', set: 3, showMandarinAudio: true },
+      { char: '汾', pinyin: 'fén', jyutping: 'fan4', set: 4, showMandarinAudio: true },
+      { char: '殷', pinyin: 'yīn', jyutping: 'jan1', set: 4, showMandarinAudio: true },
+      { char: '雯', pinyin: 'wén', jyutping: 'man4', set: 4, showMandarinAudio: true },
+      { char: '蕲', pinyin: 'qí', jyutping: 'kei4', set: 4, showMandarinAudio: true },
+    ],
+    anchorPoem: {
+      author: '李商隐',
+      title: '促漏',
+      text: '促漏遥钟动静闻，报章重叠杳难分。\n舞鸾镜匣收残黛，睡鸭香炉换夕熏。\n归去定知还向月，梦来何处更为云？\n南塘渐暖蒲堪结，两两鸳鸯护水纹。',
+      rhymingCharacters: [
+        { char: '闻', jyutping: 'man4', pinyin: 'wén' },
+        { char: '分', jyutping: 'fan1', pinyin: 'fēn' },
+        { char: '熏', jyutping: 'fan1', pinyin: 'xūn' },
+        { char: '云', jyutping: 'wan4', pinyin: 'yún' },
+        { char: '纹', jyutping: 'man4', pinyin: 'wén' },
+      ],
+      gloss:
+        "Li Shangyin's late-night reverie: water-clock and bell, layered messages, " +
+        'makeup boxes shut, incense changed at dusk. He goes home to the moon; in ' +
+        'dreams she is a cloud. The south pond warms, and mandarin ducks guard the ' +
+        'ripples in pairs.',
+    },
+    mnemonic:
+      '促漏聞鐘, 分分鴛紋 — 十二文一韻, 主 -en/-un 之清遠, 義山夜思之韻。',
+    teachingNote:
+      '十二文與十一真、十三元為 -en/-un 系三鄰韻, 出韵大戶。' +
+      '三韻在現代普通話幾乎合流, 但平水韻嚴格分立。' +
+      '注意「殷」字兼屬十一真、十二文、十五删 (Type A 三跨韻, 不同義訓)。',
   },
 
   {
@@ -737,12 +1125,60 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
     half: 'shangping',
     tier: 2,
     family: 'en-family',
-    confusables: ['shangping-11-zhen', 'shangping-12-wen'],
-    modernRime: '-en / -uan / -an (mixed)',
-    seedCharacters: ['元', '原', '门', '痕', '魂', '温', '尊', '孙', '园', '言', '繁', '轩'],
+    confusables: ['shangping-11-zhen', 'shangping-12-wen', 'shangping-14-han'],
+    modernRime: '-uan / -yuan / -un / -en',
+    seedCharacters: [
+      { char: '原', pinyin: 'yuán', jyutping: 'jyun4', set: 1, showMandarinAudio: true },
+      { char: '垣', pinyin: 'yuán', jyutping: 'jyun4', set: 1, showMandarinAudio: true },
+      { char: '辕', pinyin: 'yuán', jyutping: 'jyun4', set: 1, showMandarinAudio: true },
+      { char: '言', pinyin: 'yán', jyutping: 'jin4', set: 1, showMandarinAudio: true },
+      { char: '园', pinyin: 'yuán', jyutping: 'jyun4', set: 1, showMandarinAudio: true },
+      { char: '元', pinyin: 'yuán', jyutping: 'jyun4', set: 1, showMandarinAudio: true },
+      { char: '源', pinyin: 'yuán', jyutping: 'jyun4', set: 1, showMandarinAudio: true },
+      { char: '轩', pinyin: 'xuān', jyutping: 'hin1', set: 1, showMandarinAudio: true },
+      { char: '翻', pinyin: 'fān', jyutping: 'faan1', set: 1, showMandarinAudio: true },
+      { char: '繁', pinyin: 'fán', jyutping: 'faan4', set: 1, showMandarinAudio: true },
+      { char: '门', pinyin: 'mén', jyutping: 'mun4', set: 1, showMandarinAudio: true },
+      { char: '村', pinyin: 'cūn', jyutping: 'cyun1', set: 1, showMandarinAudio: true },
+      { char: '喧', pinyin: 'xuān', jyutping: 'hyun1', set: 2, showMandarinAudio: true },
+      { char: '烦', pinyin: 'fán', jyutping: 'faan4', set: 2, showMandarinAudio: true },
+      { char: '昏', pinyin: 'hūn', jyutping: 'fan1', set: 2, showMandarinAudio: true },
+      { char: '魂', pinyin: 'hún', jyutping: 'wan4', set: 2, showMandarinAudio: true },
+      { char: '尊', pinyin: 'zūn', jyutping: 'zyun1', set: 2, showMandarinAudio: true },
+      { char: '恩', pinyin: 'ēn', jyutping: 'jan1', set: 2, showMandarinAudio: true },
+      { char: '痕', pinyin: 'hén', jyutping: 'han4', set: 2, showMandarinAudio: true },
+      { char: '孙', pinyin: 'sūn', jyutping: 'syun1', set: 2, showMandarinAudio: true },
+      { char: '根', pinyin: 'gēn', jyutping: 'gan1', set: 3, showMandarinAudio: true },
+      { char: '温', pinyin: 'wēn', jyutping: 'wan1', set: 3, showMandarinAudio: true },
+      { char: '坤', pinyin: 'kūn', jyutping: 'kwan1', set: 3, showMandarinAudio: true },
+      { char: '奔', pinyin: 'bēn', jyutping: 'ban1', set: 3, showMandarinAudio: true },
+      { char: '萱', pinyin: 'xuān', jyutping: 'hyun1', set: 3, showMandarinAudio: true },
+      { char: '暄', pinyin: 'xuān', jyutping: 'hyun1', set: 3, showMandarinAudio: true },
+      { char: '猿', pinyin: 'yuán', jyutping: 'jyun4', set: 4, showMandarinAudio: true },
+      { char: '援', pinyin: 'yuán', jyutping: 'wun4', set: 4, showMandarinAudio: true },
+      { char: '樽', pinyin: 'zūn', jyutping: 'zyun1', set: 4, showMandarinAudio: true },
+      { char: '蹲', pinyin: 'dūn', jyutping: 'deon1', set: 4, showMandarinAudio: true },
+    ],
+    anchorPoem: {
+      author: '自作',
+      title: '抒志',
+      text: '提缰策马越陵原，举目天清展四垣。\n豁荡铿然生浩气，胸怀远志荐轩辕。',
+      rhymingCharacters: [
+        { char: '原', jyutping: 'jyun4', pinyin: 'yuán' },
+        { char: '垣', jyutping: 'jyun4', pinyin: 'yuán' },
+        { char: '辕', jyutping: 'jyun4', pinyin: 'yuán' },
+      ],
+      gloss:
+        'Reins gripped, riding past mound and plain. Eyes lift to a clear sky ' +
+        'stretched four walls wide. Vast, ringing, the spirit rises — and a ' +
+        'far-aimed will offers itself to the Yellow Emperor.',
+    },
     mnemonic:
-      '十三元臭名昭著 — "出韵大户"。范围跨度极广,-en, -uan, -an 都有。' +
-      '必须死记硬背,没有捷径。',
+      '陵原四垣, 浩氣軒轅 — 十三元一韻, 主 -uan/-yuan 與 -un/-en 兩派同列, 騎馬豪情之韻。',
+    teachingNote:
+      '十三元為 -en/-un 系出韵大戶之尾, 含 -uan/-yuan (元 言 原 軒) 與 -un/-en (魂 門 尊 根) ' +
+      '兩個子韻群。在現代普通話兩群聽來不押, 但平水韻同屬一韻。' +
+      '「論」字兼屬十一真、十三元 (Type A 跨韻)。',
   },
 
   {
@@ -754,10 +1190,60 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
     half: 'shangping',
     tier: 2,
     family: 'an-family',
-    confusables: ['shangping-15-shan', 'xiaping-01-xian'],
+    confusables: ['shangping-13-yuan', 'shangping-15-shan', 'xiaping-01-xian'],
     modernRime: '-an',
-    seedCharacters: ['寒', '看', '安', '残', '欢', '官', '宽', '丹', '弹', '滩', '兰', '难'],
-    mnemonic: '十四寒 — 寒风凛冽,天地苍茫。-an 开口。',
+    seedCharacters: [
+      { char: '残', pinyin: 'cán', jyutping: 'caan4', set: 1, showMandarinAudio: true },
+      { char: '欢', pinyin: 'huān', jyutping: 'fun1', set: 1, showMandarinAudio: true },
+      { char: '酸', pinyin: 'suān', jyutping: 'syun1', set: 1, showMandarinAudio: true },
+      { char: '寒', pinyin: 'hán', jyutping: 'hon4', set: 1, showMandarinAudio: true },
+      { char: '看', pinyin: 'kān', jyutping: 'hon1', set: 1, showMandarinAudio: true },
+      { char: '难', pinyin: 'nán', jyutping: 'naan4', set: 1, showMandarinAudio: true },
+      { char: '安', pinyin: 'ān', jyutping: 'on1', set: 1, showMandarinAudio: true },
+      { char: '宽', pinyin: 'kuān', jyutping: 'fun1', set: 1, showMandarinAudio: true },
+      { char: '端', pinyin: 'duān', jyutping: 'dyun1', set: 1, showMandarinAudio: true },
+      { char: '官', pinyin: 'guān', jyutping: 'gun1', set: 1, showMandarinAudio: true },
+      { char: '阑', pinyin: 'lán', jyutping: 'laan4', set: 1, showMandarinAudio: true },
+      { char: '盘', pinyin: 'pán', jyutping: 'pun4', set: 1, showMandarinAudio: true },
+      { char: '干', pinyin: 'gān', jyutping: 'gon1', set: 2, showMandarinAudio: true },
+      { char: '丹', pinyin: 'dān', jyutping: 'daan1', set: 2, showMandarinAudio: true },
+      { char: '餐', pinyin: 'cān', jyutping: 'caan1', set: 2, showMandarinAudio: true },
+      { char: '兰', pinyin: 'lán', jyutping: 'laan4', set: 2, showMandarinAudio: true },
+      { char: '竿', pinyin: 'gān', jyutping: 'gon1', set: 2, showMandarinAudio: true },
+      { char: '坛', pinyin: 'tán', jyutping: 'taan4', set: 2, showMandarinAudio: true },
+      { char: '滩', pinyin: 'tān', jyutping: 'taan1', set: 2, showMandarinAudio: true },
+      { char: '团', pinyin: 'tuán', jyutping: 'tyun4', set: 2, showMandarinAudio: true },
+      { char: '鞍', pinyin: 'ān', jyutping: 'on1', set: 3, showMandarinAudio: true },
+      { char: '澜', pinyin: 'lán', jyutping: 'laan4', set: 3, showMandarinAudio: true },
+      { char: '鸾', pinyin: 'luán', jyutping: 'lyun4', set: 3, showMandarinAudio: true },
+      { char: '弹', pinyin: 'dán', jyutping: 'daan6', set: 3, showMandarinAudio: true },
+      { char: '肝', pinyin: 'gān', jyutping: 'gon1', set: 3, showMandarinAudio: true },
+      { char: '湍', pinyin: 'tuān', jyutping: 'tyun1', set: 3, showMandarinAudio: true },
+      { char: '完', pinyin: 'wán', jyutping: 'jyun4', set: 4, showMandarinAudio: true },
+      { char: '桓', pinyin: 'huán', jyutping: 'wun4', set: 4, showMandarinAudio: true },
+      { char: '单', pinyin: 'dān', jyutping: 'daan1', set: 4, showMandarinAudio: true },
+      { char: '韩', pinyin: 'hán', jyutping: 'hon4', set: 4, showMandarinAudio: true },
+    ],
+    anchorPoem: {
+      author: '自作',
+      title: '夜叹',
+      text: '凄风夜雨盏灯残，孑影空杯愈寡欢。\n吁叹无常多舛变，自将浊酒对辛酸。',
+      rhymingCharacters: [
+        { char: '残', jyutping: 'caan4', pinyin: 'cán' },
+        { char: '欢', jyutping: 'fun1', pinyin: 'huān' },
+        { char: '酸', jyutping: 'syun1', pinyin: 'suān' },
+      ],
+      gloss:
+        'Cold wind, night rain, a lamp guttering low. A lone shadow, an empty cup, ' +
+        'less and less joy. Sighing at fate\'s reversals, I turn my coarse wine to ' +
+        'face the bitterness.',
+    },
+    mnemonic:
+      '凄風夜雨燈殘, 濁酒對辛酸寒 — 十四寒一韻, 主 -an 之深長, 寒夜獨酌之韻。',
+    teachingNote:
+      '十四寒為 -an 系首, 與十五删、一先為近鄰韻。' +
+      '注意「翰」字屬去聲十五翰 (仄), 不入十四寒平聲, 雖名相近不可通押。' +
+      '「看」「難」「彈」字平仄兩讀 (平於十四寒 / 仄於十五翰), 為 Type B 平仄之例。',
   },
 
   {
@@ -770,20 +1256,59 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
     tier: 2,
     family: 'an-family',
     confusables: ['shangping-14-han', 'xiaping-01-xian'],
-    modernRime: '-an / -uan',
-    seedCharacters: ['删', '山', '间', '关', '还', '颜', '斑', '蛮', '闲', '湾', '环', '攀'],
-    mnemonic: '十五删 — "两岸猿声啼不住" 的 "间、还、山" 都在这里。',
+    modernRime: '-an / -ian',
+    seedCharacters: [
+      { char: '山', pinyin: 'shān', jyutping: 'saan1', set: 1, showMandarinAudio: true },
+      { char: '间', pinyin: 'jiān', jyutping: 'gaan1', set: 1, showMandarinAudio: true },
+      { char: '还', pinyin: 'huán', jyutping: 'waan4', set: 1, showMandarinAudio: true },
+      { char: '关', pinyin: 'guān', jyutping: 'gwaan1', set: 1, showMandarinAudio: true },
+      { char: '颜', pinyin: 'yán', jyutping: 'ngaan4', set: 1, showMandarinAudio: true },
+      { char: '闲', pinyin: 'xián', jyutping: 'haan4', set: 1, showMandarinAudio: true },
+      { char: '攀', pinyin: 'pān', jyutping: 'paan1', set: 1, showMandarinAudio: true },
+      { char: '斑', pinyin: 'bān', jyutping: 'baan1', set: 1, showMandarinAudio: true },
+      { char: '湾', pinyin: 'wān', jyutping: 'waan1', set: 1, showMandarinAudio: true },
+      { char: '班', pinyin: 'bān', jyutping: 'baan1', set: 1, showMandarinAudio: true },
+      { char: '环', pinyin: 'huán', jyutping: 'waan4', set: 1, showMandarinAudio: true },
+      { char: '艰', pinyin: 'jiān', jyutping: 'gaan1', set: 1, showMandarinAudio: true },
+      { char: '寰', pinyin: 'huán', jyutping: 'waan4', set: 2, showMandarinAudio: true },
+      { char: '顽', pinyin: 'wán', jyutping: 'waan4', set: 2, showMandarinAudio: true },
+      { char: '悭', pinyin: 'qiān', jyutping: 'haan1', set: 2, showMandarinAudio: true },
+      { char: '蛮', pinyin: 'mán', jyutping: 'maan4', set: 2, showMandarinAudio: true },
+      { char: '删', pinyin: 'shān', jyutping: 'saan1', set: 2, showMandarinAudio: true },
+      { char: '弯', pinyin: 'wān', jyutping: 'waan1', set: 2, showMandarinAudio: true },
+      { char: '菅', pinyin: 'jiān', jyutping: 'gaan1', set: 2, showMandarinAudio: true },
+      { char: '颁', pinyin: 'bān', jyutping: 'baan1', set: 2, showMandarinAudio: true },
+      { char: '奸', pinyin: 'jiān', jyutping: 'gaan1', set: 3, showMandarinAudio: true },
+      { char: '鹇', pinyin: 'xián', jyutping: 'haan4', set: 3, showMandarinAudio: true },
+      { char: '孱', pinyin: 'chán', jyutping: 'saan4', set: 3, showMandarinAudio: true },
+      { char: '斓', pinyin: 'lán', jyutping: 'laan4', set: 3, showMandarinAudio: true },
+      { char: '鳏', pinyin: 'guān', jyutping: 'gwaan1', set: 3, showMandarinAudio: true },
+      { char: '娴', pinyin: 'xián', jyutping: 'haan4', set: 3, showMandarinAudio: true },
+      { char: '殷', pinyin: 'yān', jyutping: 'jan1', set: 4, showMandarinAudio: true },
+      { char: '般', pinyin: 'bān', jyutping: 'bun1', set: 4, showMandarinAudio: true },
+      { char: '鬟', pinyin: 'huán', jyutping: 'waan4', set: 4, showMandarinAudio: true },
+      { char: '阛', pinyin: 'huán', jyutping: 'waan4', set: 4, showMandarinAudio: true },
+    ],
     anchorPoem: {
       author: '李白',
       title: '早发白帝城',
-      text: '朝辞白帝彩云间,千里江陵一日还。\n两岸猿声啼不住,轻舟已过万重山。',
+      text: '朝辞白帝彩云间，千里江陵一日还。\n两岸猿声啼不住，轻舟已过万重山。',
       rhymingCharacters: [
         { char: '间', jyutping: 'gaan1', pinyin: 'jiān' },
         { char: '还', jyutping: 'waan4', pinyin: 'huán' },
         { char: '山', jyutping: 'saan1', pinyin: 'shān' },
       ],
-      gloss: '间·还·山 all 十五删 — one of the cleanest Tier-2 teaching anchors.',
+      gloss:
+        "Leaving Baidi at dawn through cloud-painted air, a thousand li to Jiangling " +
+        "in one day. The gibbons of both shores can't quit their crying — and the " +
+        'light boat has already cleared ten thousand mountains.',
     },
+    mnemonic:
+      '白帝彩雲, 萬山輕舟 — 十五删一韻, 主 -an 之開廣, 江行豪情之韻。',
+    teachingNote:
+      '十五删與十四寒、一先同屬 -an 系。' +
+      '「殷」字兼屬十一真、十二文、十五删 (Type A 三跨韻, 此韻為「赤黑色」義)。' +
+      '「間」字平仄兩讀 (平十五删為「中間」/ 仄十七霰為「間隔」), 為 Type B 平仄之例。',
   },
 
   {
@@ -796,10 +1321,59 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
     tier: 2,
     family: 'an-family',
     confusables: ['shangping-14-han', 'shangping-15-shan'],
-    modernRime: '-ian / -uan',
-    seedCharacters: ['先', '天', '前', '年', '边', '眠', '烟', '千', '仙', '田', '连', '怜'],
+    modernRime: '-ian / -uan / -ün',
+    seedCharacters: [
+      { char: '天', pinyin: 'tiān', jyutping: 'tin1', set: 1, showMandarinAudio: true },
+      { char: '悬', pinyin: 'xuán', jyutping: 'jyun4', set: 1, showMandarinAudio: true },
+      { char: '烟', pinyin: 'yān', jyutping: 'jin1', set: 1, showMandarinAudio: true },
+      { char: '先', pinyin: 'xiān', jyutping: 'sin1', set: 1, showMandarinAudio: true },
+      { char: '前', pinyin: 'qián', jyutping: 'cin4', set: 1, showMandarinAudio: true },
+      { char: '川', pinyin: 'chuān', jyutping: 'cyun1', set: 1, showMandarinAudio: true },
+      { char: '边', pinyin: 'biān', jyutping: 'bin1', set: 1, showMandarinAudio: true },
+      { char: '年', pinyin: 'nián', jyutping: 'nin4', set: 1, showMandarinAudio: true },
+      { char: '仙', pinyin: 'xiān', jyutping: 'sin1', set: 1, showMandarinAudio: true },
+      { char: '千', pinyin: 'qiān', jyutping: 'cin1', set: 1, showMandarinAudio: true },
+      { char: '然', pinyin: 'rán', jyutping: 'jin4', set: 1, showMandarinAudio: true },
+      { char: '眠', pinyin: 'mián', jyutping: 'min4', set: 1, showMandarinAudio: true },
+      { char: '田', pinyin: 'tián', jyutping: 'tin4', set: 2, showMandarinAudio: true },
+      { char: '莲', pinyin: 'lián', jyutping: 'lin4', set: 2, showMandarinAudio: true },
+      { char: '泉', pinyin: 'quán', jyutping: 'cyun4', set: 2, showMandarinAudio: true },
+      { char: '妍', pinyin: 'yán', jyutping: 'jin4', set: 2, showMandarinAudio: true },
+      { char: '鲜', pinyin: 'xiān', jyutping: 'sin1', set: 2, showMandarinAudio: true },
+      { char: '弦', pinyin: 'xián', jyutping: 'jin4', set: 2, showMandarinAudio: true },
+      { char: '偏', pinyin: 'piān', jyutping: 'pin1', set: 2, showMandarinAudio: true },
+      { char: '联', pinyin: 'lián', jyutping: 'lyun4', set: 2, showMandarinAudio: true },
+      { char: '玄', pinyin: 'xuán', jyutping: 'jyun4', set: 3, showMandarinAudio: true },
+      { char: '渊', pinyin: 'yuān', jyutping: 'jyun1', set: 3, showMandarinAudio: true },
+      { char: '缘', pinyin: 'yuán', jyutping: 'jyun4', set: 3, showMandarinAudio: true },
+      { char: '篇', pinyin: 'piān', jyutping: 'pin1', set: 3, showMandarinAudio: true },
+      { char: '颠', pinyin: 'diān', jyutping: 'din1', set: 3, showMandarinAudio: true },
+      { char: '鞭', pinyin: 'biān', jyutping: 'bin1', set: 3, showMandarinAudio: true },
+      { char: '燕', pinyin: 'yān', jyutping: 'jin1', set: 4, showMandarinAudio: true },
+      { char: '旋', pinyin: 'xuán', jyutping: 'syun4', set: 4, showMandarinAudio: true },
+      { char: '蝉', pinyin: 'chán', jyutping: 'sim4', set: 4, showMandarinAudio: true },
+      { char: '涟', pinyin: 'lián', jyutping: 'lin4', set: 4, showMandarinAudio: true },
+    ],
+    anchorPoem: {
+      author: '自作',
+      title: '水帘洞',
+      text: '朱陵别有天，紫盖碧帘悬。\n雾雨滋山翠，霓虹染夕烟。',
+      rhymingCharacters: [
+        { char: '天', jyutping: 'tin1', pinyin: 'tiān' },
+        { char: '悬', jyutping: 'jyun4', pinyin: 'xuán' },
+        { char: '烟', jyutping: 'jin1', pinyin: 'yān' },
+      ],
+      gloss:
+        'At Zhuling there is a separate sky; under purple canopies a green curtain ' +
+        'hangs. Mist and rain feed the mountain green, and rainbow light dyes the ' +
+        'evening haze.',
+    },
     mnemonic:
-      '一先含 -ian 细音 — 天、前、年、边。与寒、删同为 -an 家族,但音更细。',
+      '朱陵別天, 霧雨夕煙 — 一先一韻, 主 -an 之延長 (-ian, -uan, -ün), 仙境靜謐之韻。',
+    teachingNote:
+      '一先與十四寒、十五删同屬 -an 系。一先收音較靠 -ian / -ian-y, ' +
+      '與十四寒之 -an, 十五删之 -an 開合不同, 三者鄰韻不通押。' +
+      '「燕」字平仄兩讀 (平一先「燕京」 / 仄十七霰「燕子」常見), 為 Type B 例。',
   },
 
   {
@@ -812,9 +1386,58 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
     tier: 2,
     family: 'ao-family',
     confusables: ['xiaping-03-yao', 'xiaping-04-hao'],
-    modernRime: '-iao',
-    seedCharacters: ['萧', '朝', '桥', '消', '遥', '条', '摇', '娇', '骄', '烧', '飘', '潮'],
-    mnemonic: '二萧细音 -iao — 朝来萧瑟,桥上遥望。',
+    modernRime: '-ao / -iao',
+    seedCharacters: [
+      { char: '飘', pinyin: 'piāo', jyutping: 'piu1', set: 1, showMandarinAudio: true },
+      { char: '萧', pinyin: 'xiāo', jyutping: 'siu1', set: 1, showMandarinAudio: true },
+      { char: '寮', pinyin: 'liáo', jyutping: 'liu4', set: 1, showMandarinAudio: true },
+      { char: '朝', pinyin: 'zhāo', jyutping: 'ziu1', set: 1, showMandarinAudio: true },
+      { char: '桥', pinyin: 'qiáo', jyutping: 'kiu4', set: 1, showMandarinAudio: true },
+      { char: '遥', pinyin: 'yáo', jyutping: 'jiu4', set: 1, showMandarinAudio: true },
+      { char: '摇', pinyin: 'yáo', jyutping: 'jiu4', set: 1, showMandarinAudio: true },
+      { char: '销', pinyin: 'xiāo', jyutping: 'siu1', set: 1, showMandarinAudio: true },
+      { char: '招', pinyin: 'zhāo', jyutping: 'ziu1', set: 1, showMandarinAudio: true },
+      { char: '苗', pinyin: 'miáo', jyutping: 'miu4', set: 1, showMandarinAudio: true },
+      { char: '潮', pinyin: 'cháo', jyutping: 'ciu4', set: 1, showMandarinAudio: true },
+      { char: '妖', pinyin: 'yāo', jyutping: 'jiu1', set: 1, showMandarinAudio: true },
+      { char: '娇', pinyin: 'jiāo', jyutping: 'giu1', set: 2, showMandarinAudio: true },
+      { char: '椒', pinyin: 'jiāo', jyutping: 'ziu1', set: 2, showMandarinAudio: true },
+      { char: '樵', pinyin: 'qiáo', jyutping: 'ciu4', set: 2, showMandarinAudio: true },
+      { char: '焦', pinyin: 'jiāo', jyutping: 'ziu1', set: 2, showMandarinAudio: true },
+      { char: '雕', pinyin: 'diāo', jyutping: 'diu1', set: 2, showMandarinAudio: true },
+      { char: '寥', pinyin: 'liáo', jyutping: 'liu4', set: 2, showMandarinAudio: true },
+      { char: '漂', pinyin: 'piāo', jyutping: 'piu1', set: 2, showMandarinAudio: true },
+      { char: '凋', pinyin: 'diāo', jyutping: 'diu1', set: 2, showMandarinAudio: true },
+      { char: '翘', pinyin: 'qiáo', jyutping: 'kiu4', set: 3, showMandarinAudio: true },
+      { char: '标', pinyin: 'biāo', jyutping: 'biu1', set: 3, showMandarinAudio: true },
+      { char: '鹩', pinyin: 'liáo', jyutping: 'liu4', set: 3, showMandarinAudio: true },
+      { char: '邀', pinyin: 'yāo', jyutping: 'jiu1', set: 3, showMandarinAudio: true },
+      { char: '韶', pinyin: 'sháo', jyutping: 'siu4', set: 3, showMandarinAudio: true },
+      { char: '飙', pinyin: 'biāo', jyutping: 'biu1', set: 3, showMandarinAudio: true },
+      { char: '苕', pinyin: 'tiáo', jyutping: 'tiu4', set: 4, showMandarinAudio: true },
+      { char: '僚', pinyin: 'liáo', jyutping: 'liu4', set: 4, showMandarinAudio: true },
+      { char: '辽', pinyin: 'liáo', jyutping: 'liu4', set: 4, showMandarinAudio: true },
+      { char: '饶', pinyin: 'ráo', jyutping: 'jiu4', set: 4, showMandarinAudio: true },
+    ],
+    anchorPoem: {
+      author: '自作',
+      title: '春雪畅怀',
+      text: '西风柔弱雪花飘，柳硬杨疏落壳萧。\n最喜出墙梅几朵，常欷艳丽锁庭寮。',
+      rhymingCharacters: [
+        { char: '飘', jyutping: 'piu1', pinyin: 'piāo' },
+        { char: '萧', jyutping: 'siu1', pinyin: 'xiāo' },
+        { char: '寮', jyutping: 'liu4', pinyin: 'liáo' },
+      ],
+      gloss:
+        "Soft west wind, snow drifting; willows bare, poplars sparse, husks rustling. " +
+        "Best of all, the wall-side plum's few blooms — bright as ever, locking up the " +
+        'courtyard hall in their beauty.',
+    },
+    mnemonic:
+      '西風雪飄, 牆梅鎖寮 — 二萧一韻, 主 -ao 之高揚, 春雪暢懷之韻。',
+    teachingNote:
+      '二萧與三肴、四豪同屬 -ao 系。三韻在現代普通話幾乎合流, 但平水韻嚴格分立。' +
+      '注意「嘲」「蛟」「鈞」「燎」屬三肴或仄聲十八嘯, 不入二萧平聲。',
   },
 
   {
@@ -828,8 +1451,57 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
     family: 'ao-family',
     confusables: ['xiaping-02-xiao', 'xiaping-04-hao'],
     modernRime: '-ao',
-    seedCharacters: ['肴', '交', '茅', '郊', '梢', '敲', '包', '抛', '抄', '巢', '稍', '嘲'],
-    mnemonic: '三肴中洪音 -ao — 交、茅、郊、敲,比二萧更 "粗" 一些。',
+    seedCharacters: [
+      { char: '郊', pinyin: 'jiāo', jyutping: 'gaau1', set: 1, showMandarinAudio: true },
+      { char: '坳', pinyin: 'āo', jyutping: 'aau1', set: 1, showMandarinAudio: true },
+      { char: '抄', pinyin: 'chāo', jyutping: 'caau1', set: 1, showMandarinAudio: true },
+      { char: '交', pinyin: 'jiāo', jyutping: 'gaau1', set: 1, showMandarinAudio: true },
+      { char: '茅', pinyin: 'máo', jyutping: 'maau4', set: 1, showMandarinAudio: true },
+      { char: '包', pinyin: 'bāo', jyutping: 'baau1', set: 1, showMandarinAudio: true },
+      { char: '巢', pinyin: 'cháo', jyutping: 'caau4', set: 1, showMandarinAudio: true },
+      { char: '抛', pinyin: 'pāo', jyutping: 'paau1', set: 1, showMandarinAudio: true },
+      { char: '庖', pinyin: 'páo', jyutping: 'paau4', set: 1, showMandarinAudio: true },
+      { char: '跑', pinyin: 'pǎo', jyutping: 'paau2', set: 1, showMandarinAudio: true },
+      { char: '梢', pinyin: 'shāo', jyutping: 'saau1', set: 1, showMandarinAudio: true },
+      { char: '咆', pinyin: 'páo', jyutping: 'paau4', set: 1, showMandarinAudio: true },
+      { char: '敲', pinyin: 'qiāo', jyutping: 'haau1', set: 2, showMandarinAudio: true },
+      { char: '哮', pinyin: 'xiāo', jyutping: 'haau1', set: 2, showMandarinAudio: true },
+      { char: '蛟', pinyin: 'jiāo', jyutping: 'gaau1', set: 2, showMandarinAudio: true },
+      { char: '教', pinyin: 'jiāo', jyutping: 'gaau1', set: 2, showMandarinAudio: true },
+      { char: '胞', pinyin: 'bāo', jyutping: 'baau1', set: 2, showMandarinAudio: true },
+      { char: '泡', pinyin: 'pào', jyutping: 'paau1', set: 2, showMandarinAudio: true },
+      { char: '凹', pinyin: 'āo', jyutping: 'aau1', set: 2, showMandarinAudio: true },
+      { char: '匏', pinyin: 'páo', jyutping: 'paau4', set: 2, showMandarinAudio: true },
+      { char: '苞', pinyin: 'bāo', jyutping: 'baau1', set: 3, showMandarinAudio: true },
+      { char: '筲', pinyin: 'shāo', jyutping: 'saau1', set: 3, showMandarinAudio: true },
+      { char: '钞', pinyin: 'chāo', jyutping: 'caau1', set: 3, showMandarinAudio: true },
+      { char: '茆', pinyin: 'máo', jyutping: 'maau4', set: 3, showMandarinAudio: true },
+      { char: '爻', pinyin: 'yáo', jyutping: 'ngaau4', set: 3, showMandarinAudio: true },
+      { char: '嘲', pinyin: 'cháo', jyutping: 'zaau1', set: 3, showMandarinAudio: true },
+      { char: '稍', pinyin: 'shāo', jyutping: 'saau1', set: 4, showMandarinAudio: true },
+      { char: '铙', pinyin: 'náo', jyutping: 'naau4', set: 4, showMandarinAudio: true },
+      { char: '崤', pinyin: 'xiáo', jyutping: 'ngaau4', set: 4, showMandarinAudio: true },
+      { char: '聱', pinyin: 'áo', jyutping: 'ngou4', set: 4, showMandarinAudio: true },
+    ],
+    anchorPoem: {
+      author: '自作',
+      title: '逃学',
+      text: '儿时逃学去南郊，布阵排兵战岭坳。\n日落回家忙作业，例题字典乱查抄。',
+      rhymingCharacters: [
+        { char: '郊', jyutping: 'gaau1', pinyin: 'jiāo' },
+        { char: '坳', jyutping: 'aau1', pinyin: 'āo' },
+        { char: '抄', jyutping: 'caau1', pinyin: 'chāo' },
+      ],
+      gloss:
+        'Skipping school as a boy, off to the southern fields — drilling and fighting ' +
+        'in the ridge hollow. Sundown, scrambling home for homework: example problems ' +
+        'and dictionaries copied at random.',
+    },
+    mnemonic:
+      '南郊嶺坳, 字典亂抄 — 三肴一韻, 主 -ao 之中段, 童年逃學之韻。',
+    teachingNote:
+      '三肴介於二萧、四豪之間, -ao 系中段。注意「嘲」「蛟」屬三肴 (非二萧); ' +
+      '「漕」「髦」屬四豪 (非三肴); 「笤」屬二萧 (非三肴)。三韻字界須仔細分辨。',
   },
 
   {
@@ -843,8 +1515,57 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
     family: 'ao-family',
     confusables: ['xiaping-02-xiao', 'xiaping-03-yao'],
     modernRime: '-ao',
-    seedCharacters: ['豪', '高', '劳', '刀', '涛', '毫', '号', '袍', '嚎', '叨', '陶', '逃'],
-    mnemonic: '四豪开口最大 -ao — 高、豪、涛、劳,气势豪迈。',
+    seedCharacters: [
+      { char: '皋', pinyin: 'gāo', jyutping: 'gou1', set: 1, showMandarinAudio: true },
+      { char: '豪', pinyin: 'háo', jyutping: 'hou4', set: 1, showMandarinAudio: true },
+      { char: '刀', pinyin: 'dāo', jyutping: 'dou1', set: 1, showMandarinAudio: true },
+      { char: '高', pinyin: 'gāo', jyutping: 'gou1', set: 1, showMandarinAudio: true },
+      { char: '毛', pinyin: 'máo', jyutping: 'mou4', set: 1, showMandarinAudio: true },
+      { char: '桃', pinyin: 'táo', jyutping: 'tou4', set: 1, showMandarinAudio: true },
+      { char: '涛', pinyin: 'tāo', jyutping: 'tou1', set: 1, showMandarinAudio: true },
+      { char: '操', pinyin: 'cāo', jyutping: 'cou1', set: 1, showMandarinAudio: true },
+      { char: '曹', pinyin: 'cáo', jyutping: 'cou4', set: 1, showMandarinAudio: true },
+      { char: '槽', pinyin: 'cáo', jyutping: 'cou4', set: 1, showMandarinAudio: true },
+      { char: '牢', pinyin: 'láo', jyutping: 'lou4', set: 1, showMandarinAudio: true },
+      { char: '嚎', pinyin: 'háo', jyutping: 'hou4', set: 1, showMandarinAudio: true },
+      { char: '篙', pinyin: 'gāo', jyutping: 'gou1', set: 2, showMandarinAudio: true },
+      { char: '韬', pinyin: 'tāo', jyutping: 'tou1', set: 2, showMandarinAudio: true },
+      { char: '滔', pinyin: 'tāo', jyutping: 'tou1', set: 2, showMandarinAudio: true },
+      { char: '陶', pinyin: 'táo', jyutping: 'tou4', set: 2, showMandarinAudio: true },
+      { char: '逃', pinyin: 'táo', jyutping: 'tou4', set: 2, showMandarinAudio: true },
+      { char: '遭', pinyin: 'zāo', jyutping: 'zou1', set: 2, showMandarinAudio: true },
+      { char: '糟', pinyin: 'zāo', jyutping: 'zou1', set: 2, showMandarinAudio: true },
+      { char: '骚', pinyin: 'sāo', jyutping: 'sou1', set: 2, showMandarinAudio: true },
+      { char: '蒿', pinyin: 'hāo', jyutping: 'hou1', set: 3, showMandarinAudio: true },
+      { char: '嗥', pinyin: 'háo', jyutping: 'hou4', set: 3, showMandarinAudio: true },
+      { char: '翱', pinyin: 'áo', jyutping: 'ngou4', set: 3, showMandarinAudio: true },
+      { char: '醪', pinyin: 'láo', jyutping: 'lou4', set: 3, showMandarinAudio: true },
+      { char: '旄', pinyin: 'máo', jyutping: 'mou4', set: 3, showMandarinAudio: true },
+      { char: '饕', pinyin: 'tāo', jyutping: 'tou1', set: 3, showMandarinAudio: true },
+      { char: '嗷', pinyin: 'áo', jyutping: 'ngou4', set: 4, showMandarinAudio: true },
+      { char: '鳌', pinyin: 'áo', jyutping: 'ngou4', set: 4, showMandarinAudio: true },
+      { char: '醩', pinyin: 'zāo', jyutping: 'zou1', set: 4, showMandarinAudio: true },
+      { char: '袍', pinyin: 'páo', jyutping: 'pou4', set: 4, showMandarinAudio: true },
+    ],
+    anchorPoem: {
+      author: '自作',
+      title: '谒辅文侯',
+      text: '鲁山肃立谒牛皋，旅邸浅斟论俊豪。\n驰骋疆场威黠虏，朝廷昏愦阅屠刀。',
+      rhymingCharacters: [
+        { char: '皋', jyutping: 'gou1', pinyin: 'gāo' },
+        { char: '豪', jyutping: 'hou4', pinyin: 'háo' },
+        { char: '刀', jyutping: 'dou1', pinyin: 'dāo' },
+      ],
+      gloss:
+        "Mount Lu stands solemn — I pay respects at Niu Gao's shrine. At the inn I " +
+        'pour a thin cup and weigh the heroes. They galloped the front lines, struck ' +
+        "terror in the cunning enemy — while the dim court watched a butcher's blade.",
+    },
+    mnemonic:
+      '魯山謁皋, 朝廷屠刀 — 四豪一韻, 主 -ao 之低沉, 弔英雄之韻。',
+    teachingNote:
+      '四豪為 -ao 系收尾, 與二萧、三肴鄰而不通押。注意「漕」「髦」「唠」屬四豪 ' +
+      '(非三肴), 字界與三肴須辨。',
   },
 
   {
@@ -858,21 +1579,57 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
     family: 'eng-ing-family',
     confusables: ['xiaping-09-qing', 'xiaping-10-zheng'],
     modernRime: '-eng / -ing',
-    seedCharacters: ['庚', '行', '声', '情', '兵', '明', '平', '城', '更', '生', '京', '轻'],
-    mnemonic:
-      '八庚最大 — 声、情、兵、明。"国破山河在,城春草木深" — 其实 "深" 是十二侵,' +
-      '但 "城" 是八庚。',
+    seedCharacters: [
+      { char: '声', pinyin: 'shēng', jyutping: 'sing1', set: 1, showMandarinAudio: true },
+      { char: '城', pinyin: 'chéng', jyutping: 'sing4', set: 1, showMandarinAudio: true },
+      { char: '情', pinyin: 'qíng', jyutping: 'cing4', set: 1, showMandarinAudio: true },
+      { char: '生', pinyin: 'shēng', jyutping: 'saang1', set: 1, showMandarinAudio: true },
+      { char: '平', pinyin: 'píng', jyutping: 'ping4', set: 1, showMandarinAudio: true },
+      { char: '明', pinyin: 'míng', jyutping: 'ming4', set: 1, showMandarinAudio: true },
+      { char: '清', pinyin: 'qīng', jyutping: 'cing1', set: 1, showMandarinAudio: true },
+      { char: '京', pinyin: 'jīng', jyutping: 'ging1', set: 1, showMandarinAudio: true },
+      { char: '行', pinyin: 'xíng', jyutping: 'hang4', set: 1, showMandarinAudio: true },
+      { char: '名', pinyin: 'míng', jyutping: 'ming4', set: 1, showMandarinAudio: true },
+      { char: '程', pinyin: 'chéng', jyutping: 'cing4', set: 1, showMandarinAudio: true },
+      { char: '营', pinyin: 'yíng', jyutping: 'jing4', set: 1, showMandarinAudio: true },
+      { char: '横', pinyin: 'héng', jyutping: 'waang4', set: 2, showMandarinAudio: true },
+      { char: '鸣', pinyin: 'míng', jyutping: 'ming4', set: 2, showMandarinAudio: true },
+      { char: '卿', pinyin: 'qīng', jyutping: 'hing1', set: 2, showMandarinAudio: true },
+      { char: '倾', pinyin: 'qīng', jyutping: 'king1', set: 2, showMandarinAudio: true },
+      { char: '兵', pinyin: 'bīng', jyutping: 'bing1', set: 2, showMandarinAudio: true },
+      { char: '蜻', pinyin: 'qīng', jyutping: 'cing1', set: 2, showMandarinAudio: true },
+      { char: '轻', pinyin: 'qīng', jyutping: 'hing1', set: 2, showMandarinAudio: true },
+      { char: '荆', pinyin: 'jīng', jyutping: 'ging1', set: 2, showMandarinAudio: true },
+      { char: '茔', pinyin: 'yíng', jyutping: 'jing4', set: 3, showMandarinAudio: true },
+      { char: '莺', pinyin: 'yīng', jyutping: 'jing1', set: 3, showMandarinAudio: true },
+      { char: '棚', pinyin: 'péng', jyutping: 'paang4', set: 3, showMandarinAudio: true },
+      { char: '衡', pinyin: 'héng', jyutping: 'hang4', set: 3, showMandarinAudio: true },
+      { char: '樱', pinyin: 'yīng', jyutping: 'jing1', set: 3, showMandarinAudio: true },
+      { char: '鲸', pinyin: 'jīng', jyutping: 'king4', set: 3, showMandarinAudio: true },
+      { char: '庚', pinyin: 'gēng', jyutping: 'gang1', set: 4, showMandarinAudio: true },
+      { char: '萌', pinyin: 'méng', jyutping: 'maang4', set: 4, showMandarinAudio: true },
+      { char: '烹', pinyin: 'pēng', jyutping: 'paang1', set: 4, showMandarinAudio: true },
+      { char: '瑛', pinyin: 'yīng', jyutping: 'jing1', set: 4, showMandarinAudio: true },
+    ],
     anchorPoem: {
-      author: '李白',
-      title: '赠汪伦',
-      text: '李白乘舟将欲行,忽闻岸上踏歌声。\n桃花潭水深千尺,不及汪伦送我情。',
+      author: '自作',
+      title: '思归',
+      text: '寒蝉白露放悲声，散入秋风满客城。\n忽觉衫凉身一颤，谁人不起念乡情。',
       rhymingCharacters: [
-        { char: '行', jyutping: 'hang4', pinyin: 'xíng' },
         { char: '声', jyutping: 'sing1', pinyin: 'shēng' },
+        { char: '城', jyutping: 'sing4', pinyin: 'chéng' },
         { char: '情', jyutping: 'cing4', pinyin: 'qíng' },
       ],
-      gloss: '行·声·情 all 八庚. Simple, famous, unambiguous anchor.',
+      gloss:
+        "Cold cicadas, white dew, a mournful sound — it scatters on the autumn wind " +
+        "through the traveler's town. A sudden chill through my robe, a shiver — and " +
+        'who would not, then, stir with thoughts of home?',
     },
+    mnemonic:
+      '寒蟬白露, 衫涼鄉情 — 八庚一韻, 主 -eng/-ing 之清越, 客中思歸之韻。',
+    teachingNote:
+      '八庚與九青、十蒸同屬 -eng/-ing 系, 三韻在現代普通話幾乎合流。注意「經」「萍」' +
+      '字兼屬八庚、九青 (Type A 跨韻); 嚴格平水韻不可混押。',
   },
 
   {
@@ -886,8 +1643,58 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
     family: 'eng-ing-family',
     confusables: ['xiaping-08-geng', 'xiaping-10-zheng'],
     modernRime: '-ing',
-    seedCharacters: ['青', '星', '经', '听', '停', '亭', '庭', '灵', '冥', '瓶', '零', '萤'],
-    mnemonic: '九青纯 -ing — 青山星辰,听经停亭。比八庚更清亮。',
+    seedCharacters: [
+      { char: '溟', pinyin: 'míng', jyutping: 'ming4', set: 1, showMandarinAudio: true },
+      { char: '醒', pinyin: 'xǐng', jyutping: 'sing2', set: 1, showMandarinAudio: true },
+      { char: '星', pinyin: 'xīng', jyutping: 'sing1', set: 1, showMandarinAudio: true },
+      { char: '青', pinyin: 'qīng', jyutping: 'cing1', set: 1, showMandarinAudio: true },
+      { char: '庭', pinyin: 'tíng', jyutping: 'ting4', set: 1, showMandarinAudio: true },
+      { char: '形', pinyin: 'xíng', jyutping: 'jing4', set: 1, showMandarinAudio: true },
+      { char: '听', pinyin: 'tīng', jyutping: 'ting1', set: 1, showMandarinAudio: true },
+      { char: '亭', pinyin: 'tíng', jyutping: 'ting4', set: 1, showMandarinAudio: true },
+      { char: '萤', pinyin: 'yíng', jyutping: 'jing4', set: 1, showMandarinAudio: true },
+      { char: '灵', pinyin: 'líng', jyutping: 'ling4', set: 1, showMandarinAudio: true },
+      { char: '屏', pinyin: 'píng', jyutping: 'ping4', set: 1, showMandarinAudio: true },
+      { char: '厅', pinyin: 'tīng', jyutping: 'ting1', set: 1, showMandarinAudio: true },
+      { char: '瓶', pinyin: 'píng', jyutping: 'ping4', set: 2, showMandarinAudio: true },
+      { char: '龄', pinyin: 'líng', jyutping: 'ling4', set: 2, showMandarinAudio: true },
+      { char: '铭', pinyin: 'míng', jyutping: 'ming4', set: 2, showMandarinAudio: true },
+      { char: '馨', pinyin: 'xīn', jyutping: 'hing1', set: 2, showMandarinAudio: true },
+      { char: '婷', pinyin: 'tíng', jyutping: 'ting4', set: 2, showMandarinAudio: true },
+      { char: '苓', pinyin: 'líng', jyutping: 'ling4', set: 2, showMandarinAudio: true },
+      { char: '经', pinyin: 'jīng', jyutping: 'ging1', set: 2, showMandarinAudio: true },
+      { char: '玲', pinyin: 'líng', jyutping: 'ling4', set: 2, showMandarinAudio: true },
+      { char: '伶', pinyin: 'líng', jyutping: 'ling4', set: 3, showMandarinAudio: true },
+      { char: '萍', pinyin: 'píng', jyutping: 'ping4', set: 3, showMandarinAudio: true },
+      { char: '翎', pinyin: 'líng', jyutping: 'ling4', set: 3, showMandarinAudio: true },
+      { char: '钉', pinyin: 'dīng', jyutping: 'ding1', set: 3, showMandarinAudio: true },
+      { char: '暝', pinyin: 'míng', jyutping: 'ming4', set: 3, showMandarinAudio: true },
+      { char: '螟', pinyin: 'míng', jyutping: 'ming4', set: 3, showMandarinAudio: true },
+      { char: '泠', pinyin: 'líng', jyutping: 'ling4', set: 4, showMandarinAudio: true },
+      { char: '宁', pinyin: 'níng', jyutping: 'ning4', set: 4, showMandarinAudio: true },
+      { char: '茎', pinyin: 'jīng', jyutping: 'ging1', set: 4, showMandarinAudio: true },
+      { char: '棂', pinyin: 'líng', jyutping: 'ling4', set: 4, showMandarinAudio: true },
+    ],
+    anchorPoem: {
+      author: '自作',
+      title: '送别',
+      text: '柳丝郁郁雾溟溟，置酒长亭人未醒。\n泪眼迷离魂已去，参星强笑劝商星。',
+      rhymingCharacters: [
+        { char: '溟', jyutping: 'ming4', pinyin: 'míng' },
+        { char: '醒', jyutping: 'sing2', pinyin: 'xǐng' },
+        { char: '星', jyutping: 'sing1', pinyin: 'xīng' },
+      ],
+      gloss:
+        'Willow strands hang heavy in mist that thickens to gloom. Wine set out at ' +
+        'the long pavilion, but the traveler will not wake. Tears blur the gaze, the ' +
+        'soul is already gone — Shen and Shang in the sky, two parted stars, force a ' +
+        'final smile.',
+    },
+    mnemonic:
+      '柳絲霧溟, 參星商星 — 九青一韻, 主 -eng/-ing 之深邈, 送別孤情之韻。',
+    teachingNote:
+      '九青與八庚、十蒸為 -eng/-ing 系三鄰韻。注意「萍」「經」字兼屬八庚、九青 ' +
+      '(Type A 跨韻); 「聽」字平仄兩讀 (平九青 / 仄二十五徑), 為 Type B 平仄之例。',
   },
 
   {
@@ -900,9 +1707,58 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
     tier: 2,
     family: 'eng-ing-family',
     confusables: ['xiaping-08-geng', 'xiaping-09-qing'],
-    modernRime: '-eng',
-    seedCharacters: ['蒸', '冰', '登', '层', '僧', '腾', '承', '鹰', '膺', '惩', '增', '能'],
-    mnemonic: '十蒸范围较窄 — 冰、登、层、僧。常被误入八庚。',
+    modernRime: '-eng / -ing',
+    seedCharacters: [
+      { char: '澄', pinyin: 'chéng', jyutping: 'cing4', set: 1, showMandarinAudio: true },
+      { char: '升', pinyin: 'shēng', jyutping: 'sing1', set: 1, showMandarinAudio: true },
+      { char: '罾', pinyin: 'zēng', jyutping: 'zang1', set: 1, showMandarinAudio: true },
+      { char: '蒸', pinyin: 'zhēng', jyutping: 'zing1', set: 1, showMandarinAudio: true },
+      { char: '冰', pinyin: 'bīng', jyutping: 'bing1', set: 1, showMandarinAudio: true },
+      { char: '凭', pinyin: 'píng', jyutping: 'pang4', set: 1, showMandarinAudio: true },
+      { char: '称', pinyin: 'chēng', jyutping: 'cing1', set: 1, showMandarinAudio: true },
+      { char: '兴', pinyin: 'xīng', jyutping: 'hing1', set: 1, showMandarinAudio: true },
+      { char: '灯', pinyin: 'dēng', jyutping: 'dang1', set: 1, showMandarinAudio: true },
+      { char: '增', pinyin: 'zēng', jyutping: 'zang1', set: 1, showMandarinAudio: true },
+      { char: '登', pinyin: 'dēng', jyutping: 'dang1', set: 1, showMandarinAudio: true },
+      { char: '僧', pinyin: 'sēng', jyutping: 'zang1', set: 1, showMandarinAudio: true },
+      { char: '鹰', pinyin: 'yīng', jyutping: 'jing1', set: 2, showMandarinAudio: true },
+      { char: '凝', pinyin: 'níng', jyutping: 'jing4', set: 2, showMandarinAudio: true },
+      { char: '矜', pinyin: 'jīn', jyutping: 'gan1', set: 2, showMandarinAudio: true },
+      { char: '仍', pinyin: 'réng', jyutping: 'jing4', set: 2, showMandarinAudio: true },
+      { char: '应', pinyin: 'yīng', jyutping: 'jing1', set: 2, showMandarinAudio: true },
+      { char: '棱', pinyin: 'léng', jyutping: 'ling4', set: 2, showMandarinAudio: true },
+      { char: '腾', pinyin: 'téng', jyutping: 'tang4', set: 2, showMandarinAudio: true },
+      { char: '藤', pinyin: 'téng', jyutping: 'tang4', set: 2, showMandarinAudio: true },
+      { char: '朋', pinyin: 'péng', jyutping: 'pang4', set: 3, showMandarinAudio: true },
+      { char: '弘', pinyin: 'hóng', jyutping: 'wang4', set: 3, showMandarinAudio: true },
+      { char: '恒', pinyin: 'héng', jyutping: 'hang4', set: 3, showMandarinAudio: true },
+      { char: '膺', pinyin: 'yīng', jyutping: 'jing1', set: 3, showMandarinAudio: true },
+      { char: '陵', pinyin: 'líng', jyutping: 'ling4', set: 3, showMandarinAudio: true },
+      { char: '兢', pinyin: 'jīng', jyutping: 'ging1', set: 3, showMandarinAudio: true },
+      { char: '滕', pinyin: 'téng', jyutping: 'tang4', set: 4, showMandarinAudio: true },
+      { char: '缯', pinyin: 'zēng', jyutping: 'zang1', set: 4, showMandarinAudio: true },
+      { char: '绫', pinyin: 'líng', jyutping: 'ling4', set: 4, showMandarinAudio: true },
+      { char: '惩', pinyin: 'chéng', jyutping: 'cing4', set: 4, showMandarinAudio: true },
+    ],
+    anchorPoem: {
+      author: '自作',
+      title: '起罾',
+      text: '垂杨芽露汉江澄，雪化冰消旭日升。\n提篓渔翁依树饮，小心翼翼起沉罾。',
+      rhymingCharacters: [
+        { char: '澄', jyutping: 'cing4', pinyin: 'chéng' },
+        { char: '升', jyutping: 'sing1', pinyin: 'shēng' },
+        { char: '罾', jyutping: 'zang1', pinyin: 'zēng' },
+      ],
+      gloss:
+        'Willow buds show, the Han River clear; snow melts, ice breaks, the rising ' +
+        'sun comes up. The basket-carrying old fisher leans on a tree to drink — and ' +
+        'with great care raises a sunken net.',
+    },
+    mnemonic:
+      '漢江澄綠, 沉罾翼翼 — 十蒸一韻, 主 -eng/-ing 之清健, 漁翁春朝之韻。',
+    teachingNote:
+      '十蒸與八庚、九青同屬 -eng/-ing 系。注意「稱」「興」「應」字平仄兩讀 ' +
+      '(平十蒸 / 仄二十五徑), 為 Type B 平仄之例。三韻在現代普通話合流, 平水韻須嚴格分立。',
   },
 
   // ═══════════════════════════════════════════════════════════════════════
