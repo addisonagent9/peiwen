@@ -1776,9 +1776,49 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
     family: 'ang-family',
     confusables: ['xiaping-07-yang'],
     modernRime: '-iang / -uang',
-    seedCharacters: ['江', '窗', '双', '邦', '降', '缸', '撞', '幢', '扛', '腔', '淙', '庞'],
+    seedCharacters: [
+      { char: '缸', pinyin: 'gāng', jyutping: 'gong1', set: 1 },
+      { char: '江', pinyin: 'jiāng', jyutping: 'gong1', set: 1 },
+      { char: '窗', pinyin: 'chuāng', jyutping: 'coeng1', set: 1 },
+      { char: '双', pinyin: 'shuāng', jyutping: 'soeng1', set: 1 },
+      { char: '邦', pinyin: 'bāng', jyutping: 'bong1', set: 1 },
+      { char: '降', pinyin: 'xiáng', jyutping: 'hong4', set: 1 },
+      { char: '撞', pinyin: 'zhuàng', jyutping: 'zong6', set: 1 },
+      { char: '腔', pinyin: 'qiāng', jyutping: 'hong1', set: 1 },
+      { char: '扛', pinyin: 'gāng', jyutping: 'gong1', set: 1 },
+      { char: '幢', pinyin: 'chuáng', jyutping: 'cong4', set: 1 },
+      { char: '桩', pinyin: 'zhuāng', jyutping: 'zong1', set: 1 },
+      { char: '杠', pinyin: 'gāng', jyutping: 'gong1', set: 1 },
+      { char: '庞', pinyin: 'páng', jyutping: 'pong4', set: 2 },
+      { char: '淙', pinyin: 'cóng', jyutping: 'cung4', set: 2 },
+      { char: '摐', pinyin: 'chuāng', jyutping: 'cung1', set: 2, showMandarinAudio: true },
+      { char: '厖', pinyin: 'páng', jyutping: 'mong4', set: 2 },
+      { char: '哤', pinyin: 'máng', jyutping: 'mong4', set: 3, showMandarinAudio: true },
+      { char: '釭', pinyin: 'gāng', jyutping: 'gong1', set: 3, showMandarinAudio: true },
+      { char: '矼', pinyin: 'jiāng', jyutping: 'gong1', set: 3, showMandarinAudio: true },
+      { char: '跫', pinyin: 'qióng', jyutping: 'kung4', set: 4, showMandarinAudio: true },
+      { char: '茳', pinyin: 'jiāng', jyutping: 'gong1', set: 4, showMandarinAudio: true },
+    ],
     mnemonic:
-      '三江小而罕 — 江、窗、双、邦。常与七阳通押,但严格来说是独立一韵。',
+      '三江與七陽同收 -ang，韻部小但獨立。粵音 江 gong1, 窗 coeng1 與 七陽 -oeng 略異。' +
+      '降字平聲讀 hong4（降落 - 三江），仄聲讀 gong3（投降 - 仄/三絳）— Type B 兩讀。' +
+      '釭、龐 多韻字（亦見 一東），淙 跨入 二冬 — 跨韻字常見。',
+    anchorPoem: {
+      author: '荒野霜枫',
+      title: '无眠',
+      text:
+        '无眠凝望旧鱼缸，心绪逡巡过大江。\n难控相思轻若絮，随风曼妙入罗窗。',
+      rhymingCharacters: [
+        { char: '缸', jyutping: 'gong1', pinyin: 'gāng' },
+        { char: '江', jyutping: 'gong1', pinyin: 'jiāng' },
+        { char: '窗', jyutping: 'coeng1', pinyin: 'chuāng' },
+      ],
+      gloss:
+        'A contemporary 七絕 平起首句入韻 by 荒野霜枫. The three rhyme positions ' +
+        '缸·江·窗 all sit in 上平 三江, the smallest of all 平水韻 平聲 categories. ' +
+        'Modern Mandarin retains the -ang ending, distinguishing 三江 from sister ' +
+        'rhyme 七陽 only by historical convention.',
+    },
   },
 
   {
@@ -1792,25 +1832,53 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
     family: 'm-endings-family',
     confusables: ['xiaping-13-tan', 'xiaping-14-yan', 'xiaping-15-xian'],
     modernRime: '-in / -en (was -im)',
-    seedCharacters: ['侵', '心', '金', '深', '音', '林', '阴', '寻', '沉', '琴', '今', '吟'],
+    seedCharacters: [
+      { char: '侵', pinyin: 'qīn', jyutping: 'cam1', set: 1 },
+      { char: '襟', pinyin: 'jīn', jyutping: 'kam1', set: 1 },
+      { char: '今', pinyin: 'jīn', jyutping: 'gam1', set: 1 },
+      { char: '心', pinyin: 'xīn', jyutping: 'sam1', set: 1 },
+      { char: '金', pinyin: 'jīn', jyutping: 'gam1', set: 1 },
+      { char: '深', pinyin: 'shēn', jyutping: 'sam1', set: 1 },
+      { char: '林', pinyin: 'lín', jyutping: 'lam4', set: 1 },
+      { char: '琴', pinyin: 'qín', jyutping: 'kam4', set: 1 },
+      { char: '音', pinyin: 'yīn', jyutping: 'jam1', set: 1 },
+      { char: '沉', pinyin: 'chén', jyutping: 'cam4', set: 1 },
+      { char: '吟', pinyin: 'yín', jyutping: 'jam4', set: 1 },
+      { char: '寻', pinyin: 'xún', jyutping: 'cam4', set: 1 },
+      { char: '阴', pinyin: 'yīn', jyutping: 'jam1', set: 2 },
+      { char: '簪', pinyin: 'zān', jyutping: 'zaam1', set: 2 },
+      { char: '衾', pinyin: 'qīn', jyutping: 'kam1', set: 2 },
+      { char: '禽', pinyin: 'qín', jyutping: 'kam4', set: 2 },
+      { char: '斟', pinyin: 'zhēn', jyutping: 'zam1', set: 2 },
+      { char: '砧', pinyin: 'zhēn', jyutping: 'zam1', set: 2 },
+      { char: '临', pinyin: 'lín', jyutping: 'lam4', set: 2 },
+      { char: '任', pinyin: 'rén', jyutping: 'jam4', set: 2 },
+      { char: '沈', pinyin: 'chén', jyutping: 'cam4', set: 3, showMandarinAudio: true },
+      { char: '喑', pinyin: 'yīn', jyutping: 'jam1', set: 3, showMandarinAudio: true },
+      { char: '涔', pinyin: 'cén', jyutping: 'cam4', set: 3, showMandarinAudio: true },
+      { char: '谌', pinyin: 'chén', jyutping: 'sam4', set: 3, showMandarinAudio: true },
+      { char: '黔', pinyin: 'qián', jyutping: 'kim4', set: 4, showMandarinAudio: true },
+      { char: '嶔', pinyin: 'qīn', jyutping: 'ham1', set: 4, showMandarinAudio: true },
+    ],
     mnemonic:
-      '十二侵古音收 -m (闭口音)。"国破山河在,城春草木深" 中的 "深·心·金·簪" ' +
-      '现代同押 -n,古属同一韵部。',
+      '十二侵收 -im，現代普通話作 -in，粵音猶存（心 sam1, 金 gam1）。' +
+      '杜甫《春望》深·心·金·簪 為唐人最熟之 -m 例；今以《无题（七）》侵·襟·今 為當代誦例。' +
+      '簪 多韻字（亦見 十三覃）；任 jam4 平聲（責任 - 十二侵）/ jam6 仄聲（任性 - 二十七沁）— Type B 兩讀。',
     anchorPoem: {
-      author: '杜甫',
-      title: '春望',
+      author: '当代',
+      title: '无题（七）',
       text:
-        '国破山河在,城春草木深。\n感时花溅泪,恨别鸟惊心。\n' +
-        '烽火连三月,家书抵万金。\n白头搔更短,浑欲不胜簪。',
+        '孤衾独枕晓寒侵，幽梦缠绵泪湿襟。\n何必久怀畴昔事，人生屈指去来今。',
       rhymingCharacters: [
-        { char: '深', jyutping: 'sam1', pinyin: 'shēn' },
-        { char: '心', jyutping: 'sam1', pinyin: 'xīn' },
-        { char: '金', jyutping: 'gam1', pinyin: 'jīn' },
-        { char: '簪', jyutping: 'zaam1', pinyin: 'zān' },
+        { char: '侵', jyutping: 'cam1', pinyin: 'qīn' },
+        { char: '襟', jyutping: 'kam1', pinyin: 'jīn' },
+        { char: '今', jyutping: 'gam1', pinyin: 'jīn' },
       ],
       gloss:
-        '深·心·金·簪 all 十二侵 — originally all ending in -m. ' +
-        'In modern Mandarin they now end in -n, merged into the -en/-in family.',
+        'A contemporary 七絕 平起首句入韻 in 下平 十二侵. The -m ending of classical ' +
+        '十二侵 has merged into -n in modern Mandarin (qīn / jīn) but is preserved in ' +
+        'Cantonese (cam1 / gam1), making the auditory category boundary teachable through ' +
+        'the Cantonese reading. Compare 杜甫《春望》(深·心·金·簪) for the canonical Tang anchor.',
     },
   },
 
@@ -1825,8 +1893,54 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
     family: 'm-endings-family',
     confusables: ['xiaping-12-qin', 'xiaping-14-yan', 'xiaping-15-xian'],
     modernRime: '-an (was -am)',
-    seedCharacters: ['覃', '南', '男', '谭', '潭', '参', '含', '耽', '贪', '探', '涵', '堪', '岚'],
-    mnemonic: '十三覃古音 -am — 南、男、潭、参。现代汉语并入 -an。',
+    seedCharacters: [
+      { char: '潭', pinyin: 'tán', jyutping: 'taam4', set: 1 },
+      { char: '龛', pinyin: 'kān', jyutping: 'ham1', set: 1 },
+      { char: '蓝', pinyin: 'lán', jyutping: 'laam4', set: 1 },
+      { char: '南', pinyin: 'nán', jyutping: 'naam4', set: 1 },
+      { char: '男', pinyin: 'nán', jyutping: 'naam4', set: 1 },
+      { char: '含', pinyin: 'hán', jyutping: 'ham4', set: 1 },
+      { char: '三', pinyin: 'sān', jyutping: 'saam1', set: 1 },
+      { char: '参', pinyin: 'cān', jyutping: 'caam1', set: 1 },
+      { char: '庵', pinyin: 'ān', jyutping: 'am1', set: 1 },
+      { char: '探', pinyin: 'tān', jyutping: 'taam1', set: 1, showMandarinAudio: true },
+      { char: '惭', pinyin: 'cán', jyutping: 'caam4', set: 1 },
+      { char: '蚕', pinyin: 'cán', jyutping: 'caam4', set: 1 },
+      { char: '谭', pinyin: 'tán', jyutping: 'taam4', set: 2 },
+      { char: '堪', pinyin: 'kān', jyutping: 'ham1', set: 2 },
+      { char: '涵', pinyin: 'hán', jyutping: 'ham4', set: 2 },
+      { char: '谙', pinyin: 'ān', jyutping: 'am1', set: 2 },
+      { char: '耽', pinyin: 'dān', jyutping: 'daam1', set: 2 },
+      { char: '岚', pinyin: 'lán', jyutping: 'laam4', set: 2 },
+      { char: '贪', pinyin: 'tān', jyutping: 'taam1', set: 2 },
+      { char: '酣', pinyin: 'hān', jyutping: 'ham4', set: 3, showMandarinAudio: true },
+      { char: '篮', pinyin: 'lán', jyutping: 'laam4', set: 3, showMandarinAudio: true },
+      { char: '婪', pinyin: 'lán', jyutping: 'laam4', set: 3, showMandarinAudio: true },
+      { char: '媅', pinyin: 'dān', jyutping: 'daam1', set: 4, showMandarinAudio: true },
+      { char: '蚶', pinyin: 'hān', jyutping: 'ham1', set: 4, showMandarinAudio: true },
+    ],
+    mnemonic:
+      '十三覃收 -am，與 十二侵 -im / 十四鹽 -iam / 十五咸 -aam 同屬 -m 韻族。' +
+      '粵音 龕 ham1, 潭 taam4 清楚保留 -m 收。' +
+      '探 taam1 平聲（探手 - 十三覃），taam3 仄聲（探病 - 二十八勘）— Type B 兩讀，' +
+      '現代普通話 tàn 已併入仄義。',
+    anchorPoem: {
+      author: '当代',
+      title: '龙潭谒佛',
+      text:
+        '山僧邀我访龙潭，四壁青山尽佛龛。\n袅袅香烟禅韵润，慈悲入水映天蓝。',
+      rhymingCharacters: [
+        { char: '潭', jyutping: 'taam4', pinyin: 'tán' },
+        { char: '龛', jyutping: 'ham1', pinyin: 'kān' },
+        { char: '蓝', jyutping: 'laam4', pinyin: 'lán' },
+      ],
+      gloss:
+        'A contemporary 七絕 平起首句入韻 in 下平 十三覃. The -am ending preserved in ' +
+        'Cantonese (taam4 / ham1 / laam4) collapses into -an in modern Mandarin. ' +
+        '龕 (ham1 in Cantonese) is the rarer of the three high-frequency Set 1 chars; ' +
+        'its inclusion in the anchor anchors the Buddhist-imagery context typical of ' +
+        '十三覃 compositions.',
+    },
   },
 
   {
@@ -1840,8 +1954,59 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
     family: 'm-endings-family',
     confusables: ['xiaping-12-qin', 'xiaping-13-tan', 'xiaping-15-xian'],
     modernRime: '-an / -ian (was -iam)',
-    seedCharacters: ['盐', '檐', '廉', '帘', '嫌', '淹', '潜', '蟾', '添', '谦', '签', '纤'],
-    mnemonic: '十四盐古音 -iam — 细口闭音。盐、檐、廉、帘。',
+    seedCharacters: [
+      { char: '甜', pinyin: 'tián', jyutping: 'tim4', set: 1 },
+      { char: '帘', pinyin: 'lián', jyutping: 'lim4', set: 1 },
+      { char: '严', pinyin: 'yán', jyutping: 'jim4', set: 1 },
+      { char: '盐', pinyin: 'yán', jyutping: 'jim4', set: 1 },
+      { char: '廉', pinyin: 'lián', jyutping: 'lim4', set: 1 },
+      { char: '兼', pinyin: 'jiān', jyutping: 'gim1', set: 1 },
+      { char: '添', pinyin: 'tiān', jyutping: 'tim1', set: 1 },
+      { char: '占', pinyin: 'zhān', jyutping: 'zim1', set: 1 },
+      { char: '沾', pinyin: 'zhān', jyutping: 'zim1', set: 1 },
+      { char: '谦', pinyin: 'qiān', jyutping: 'him1', set: 1 },
+      { char: '拈', pinyin: 'niān', jyutping: 'nim1', set: 1 },
+      { char: '蟾', pinyin: 'chán', jyutping: 'sim4', set: 1 },
+      { char: '簽', pinyin: 'qiān', jyutping: 'cim1', set: 2 },
+      { char: '詹', pinyin: 'zhān', jyutping: 'zim1', set: 2 },
+      { char: '渐', pinyin: 'jiān', jyutping: 'zim1', set: 2 },
+      { char: '檐', pinyin: 'yán', jyutping: 'jim4', set: 2 },
+      { char: '髯', pinyin: 'rán', jyutping: 'jim4', set: 2 },
+      { char: '厌', pinyin: 'yān', jyutping: 'jim1', set: 2, showMandarinAudio: true },
+      { char: '砭', pinyin: 'biān', jyutping: 'bim1', set: 2 },
+      { char: '黏', pinyin: 'nián', jyutping: 'nim1', set: 3, showMandarinAudio: true },
+      { char: '歼', pinyin: 'jiān', jyutping: 'cim1', set: 3, showMandarinAudio: true },
+      { char: '籤', pinyin: 'qiān', jyutping: 'cim1', set: 3, showMandarinAudio: true },
+      { char: '阎', pinyin: 'yán', jyutping: 'jim4', set: 3, showMandarinAudio: true },
+      { char: '嫌', pinyin: 'xián', jyutping: 'jim4', set: 3, showMandarinAudio: true },
+      { char: '燖', pinyin: 'xún', jyutping: 'cim4', set: 3, showMandarinAudio: true },
+      { char: '鹣', pinyin: 'jiān', jyutping: 'gim1', set: 4, showMandarinAudio: true },
+      { char: '鬑', pinyin: 'lián', jyutping: 'lim4', set: 4, showMandarinAudio: true },
+      { char: '韱', pinyin: 'xiān', jyutping: 'cim1', set: 4, showMandarinAudio: true },
+      { char: '苫', pinyin: 'shān', jyutping: 'sim1', set: 4, showMandarinAudio: true },
+    ],
+    mnemonic:
+      '十四鹽收 -iam，現代併入 -ian。粵音 甜 tim4, 帘 lim4 清楚保留 -m 收。' +
+      '渐 zim1 平聲為流入·浸染 義（廣韻 子廉切），zim6 仄聲為逐漸 義（仄/二十八琰）— ' +
+      '詩律必用平讀 zim1。厌 jim1 平聲為飽足 義（《詩經》「不可饜」），jim3 仄聲為厭惡 義 — 同類 Type B 字。' +
+      '簽/籤 此處保留繁體以避免簡體合流為「签」。',
+    anchorPoem: {
+      author: '当代',
+      title: '山寺午钟',
+      text:
+        '溟蒙细雨惠风甜，黄雀栖身唱画帘。\n捧钵沙尼歌佛号，斋堂肃静亦庄严。',
+      rhymingCharacters: [
+        { char: '甜', jyutping: 'tim4', pinyin: 'tián' },
+        { char: '帘', jyutping: 'lim4', pinyin: 'lián' },
+        { char: '严', jyutping: 'jim4', pinyin: 'yán' },
+      ],
+      gloss:
+        'A contemporary 七絕 平起首句入韻 in 下平 十四鹽. The -iam ending of classical ' +
+        '十四鹽 is preserved cleanly in Cantonese (tim4 / lim4 / jim4) but collapses into ' +
+        '-ian in modern Mandarin. 渐 in this rhyme group is the canonical Type B trap — ' +
+        '平聲 jiān (flow into) vs 仄聲 jiàn (gradually); compositions in 十四鹽 require ' +
+        'the 平 reading.',
+    },
   },
 
   {
@@ -1855,8 +2020,48 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
     family: 'm-endings-family',
     confusables: ['xiaping-12-qin', 'xiaping-13-tan', 'xiaping-14-yan'],
     modernRime: '-an / -ian (was -am/-iam)',
-    seedCharacters: ['咸', '衔', '凡', '岩', '帆', '杉', '监', '缄', '馋', '谗', '嵌'],
-    mnemonic: '十五咸最冷僻 — 咸、衔、岩、帆。古音 -am/-iam,常与十四盐通押。',
+    seedCharacters: [
+      { char: '衫', pinyin: 'shān', jyutping: 'saam1', set: 1 },
+      { char: '岩', pinyin: 'yán', jyutping: 'ngaam4', set: 1 },
+      { char: '芟', pinyin: 'shān', jyutping: 'saam1', set: 1 },
+      { char: '咸', pinyin: 'xián', jyutping: 'haam4', set: 1 },
+      { char: '衔', pinyin: 'xián', jyutping: 'haam4', set: 1 },
+      { char: '帆', pinyin: 'fān', jyutping: 'faan4', set: 1 },
+      { char: '凡', pinyin: 'fán', jyutping: 'faan4', set: 1 },
+      { char: '杉', pinyin: 'shān', jyutping: 'saam1', set: 1 },
+      { char: '监', pinyin: 'jiān', jyutping: 'gaam1', set: 1 },
+      { char: '缄', pinyin: 'jiān', jyutping: 'gaam1', set: 1 },
+      { char: '巉', pinyin: 'chán', jyutping: 'caam4', set: 1 },
+      { char: '谗', pinyin: 'chán', jyutping: 'caam4', set: 1 },
+      { char: '嵌', pinyin: 'qiān', jyutping: 'haam1', set: 2, showMandarinAudio: true },
+      { char: '搀', pinyin: 'chān', jyutping: 'caam1', set: 2 },
+      { char: '喃', pinyin: 'nán', jyutping: 'naam4', set: 2 },
+      { char: '巖', pinyin: 'yán', jyutping: 'ngaam4', set: 2 },
+      { char: '馋', pinyin: 'chán', jyutping: 'caam4', set: 3, showMandarinAudio: true },
+      { char: '詀', pinyin: 'zhān', jyutping: 'zaam1', set: 3, showMandarinAudio: true },
+      { char: '摻', pinyin: 'chān', jyutping: 'caam1', set: 4, showMandarinAudio: true },
+    ],
+    mnemonic:
+      '十五咸收 -aam，-m 韻族中最稀。粵音 衫 saam1, 岩 ngaam4 清楚保留 -m。' +
+      '嵌 haam1 平聲為山深·險峻貌（十五咸），haam3 仄聲為陷入 義（仄/二十八勘）— Type B 兩讀；' +
+      '現代 qiàn 已合流仄義。巖 此處保留繁體：簡體 岩 已在 Set 1 為錨字，巖 為其異體變換教學。',
+    anchorPoem: {
+      author: '当代',
+      title: '回归自然',
+      text:
+        '小隐泉乡衣短衫，芒鞋竹笠宿南岩。\n披星排雾巡田垄，浇水拿虫稗子芟。',
+      rhymingCharacters: [
+        { char: '衫', jyutping: 'saam1', pinyin: 'shān' },
+        { char: '岩', jyutping: 'ngaam4', pinyin: 'yán' },
+        { char: '芟', jyutping: 'saam1', pinyin: 'shān' },
+      ],
+      gloss:
+        'A contemporary 七絕 平起首句入韻 in 下平 十五咸. The -aam ending is preserved ' +
+        'in Cantonese (saam1 / ngaam4) but lost entirely in modern Mandarin. 十五咸 is ' +
+        'the thinnest of the four -m rhyme groups, with most chars surviving into modern ' +
+        'usage as Cantonese-only readings. Note: anchor text uses 岩 throughout per 平水 ' +
+        'strictness; the 巚 originally written by the poet has been normalized.',
+    },
   },
 ];
 
