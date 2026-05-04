@@ -13,47 +13,49 @@ const outPath = path.resolve(__dirname, '../src/data/pingshui/drill4-corpus.json
 
 const data = JSON.parse(fs.readFileSync(pingshuiPath, 'utf8'));
 const cedictRaw = fs.readFileSync(cedictPath, 'utf8').replace(/\r/g, '');
-const seedCharsPath = path.resolve(__dirname, '../server/data/tier1-seed-chars.mjs');
-const seedCharsText = fs.readFileSync(seedCharsPath, 'utf8');
 
-const TIER1_RHYMES = ['一東', '七陽', '十一尤', '六麻', '五歌'];
+// Multi-tier source of truth (#25): pull all 30 rhymes from curriculum and
+// the seed-char pool (with pinyin / jyutping / set) from tier-seed-chars.mjs.
+// Replaces the prior text-regex extraction from the legacy tier1-seed-chars.mjs.
+const { RHYMES_PINGSHENG } = await import('../server/data/trainer-curriculum.mjs');
+const { TIER_SEED_CHARS } = await import('../server/data/tier-seed-chars.mjs');
+
+const ALL_RHYMES = RHYMES_PINGSHENG.map(r => r.label);
+const RHYMEID_TO_LABEL = Object.fromEntries(
+  RHYMES_PINGSHENG.map(r => [r.id, r.label]),
+);
 
 const moedictPath = path.resolve(__dirname, '../src/data/moedict-map.json');
 const moedict = JSON.parse(fs.readFileSync(moedictPath, 'utf8'));
 console.log(`Loaded moedict-map: ${Object.keys(moedict).length} entries`);
 
-const RHYMEID_TO_LABEL = {
-  'shangping-01-dong': '一東',
-  'xiaping-07-yang': '七陽',
-  'xiaping-11-you': '十一尤',
-  'xiaping-06-ma': '六麻',
-  'xiaping-05-ge': '五歌',
-};
-
-// Build jyutping + curriculum set lookup from tier1 seed chars
+// Build jyutping + curriculum-set lookup from all 3 tiers' seed pools.
 const jyutpingMap = new Map();
 const seedCharSet = new Set();
 const curriculumSetLookup = {};
-for (const label of TIER1_RHYMES) curriculumSetLookup[label] = {};
-const seedRe = /char:\s*'([^']+)',\s*rhymeId:\s*'([^']+)',\s*pinyin:\s*'[^']+',\s*jyutping:\s*'([^']+)',\s*set:\s*([1-4])/g;
-let seedMatch;
-while ((seedMatch = seedRe.exec(seedCharsText)) !== null) {
-  const [, char, rhymeId, jyutping, setStr] = seedMatch;
-  jyutpingMap.set(char, jyutping);
-  seedCharSet.add(char);
-  const label = RHYMEID_TO_LABEL[rhymeId];
-  if (label) curriculumSetLookup[label][char] = parseInt(setStr);
-}
-console.log(`Loaded ${seedCharSet.size} seed chars with jyutping`);
+for (const label of ALL_RHYMES) curriculumSetLookup[label] = {};
 
-const tier1Sets = {};
-for (const name of TIER1_RHYMES) {
+const allSeedChars = [
+  ...TIER_SEED_CHARS[1],
+  ...TIER_SEED_CHARS[2],
+  ...TIER_SEED_CHARS[3],
+];
+for (const sc of allSeedChars) {
+  if (sc.jyutping) jyutpingMap.set(sc.char, sc.jyutping);
+  seedCharSet.add(sc.char);
+  const label = RHYMEID_TO_LABEL[sc.rhymeId];
+  if (label) curriculumSetLookup[label][sc.char] = sc.set;
+}
+console.log(`Loaded ${seedCharSet.size} seed chars across ${ALL_RHYMES.length} rhymes`);
+
+const rhymeSets = {};
+for (const name of ALL_RHYMES) {
   const rhyme = data.rhymes[name];
   if (!rhyme) {
     console.error(`Rhyme "${name}" not found in pingshui.json`);
     process.exit(1);
   }
-  tier1Sets[name] = new Set(rhyme.chars);
+  rhymeSets[name] = new Set(rhyme.chars);
 }
 
 // All chars known to pingshui
@@ -62,7 +64,7 @@ const allPingshuiChars = new Set(Object.keys(data.chars));
 // ── 2–3. Parse CC-CEDICT and filter ───────────────────────────────────────────
 
 const lineRe = /^(\S+)\s+(\S+)\s+\[([^\]]+)\]\s+\/(.+)\/$/;
-const junkLatinDigitPunct = /[a-zA-Z0-9\u0021-\u002F\u003A-\u0040\u005B-\u0060\u007B-\u007E]/;
+const junkLatinDigitPunct = /[a-zA-Z0-9!-/:-@[-`{-~]/;
 
 const modernJunkEn = /\b(internet|computer|TV|phone|app|email|website|online|company|corp|Inc|Ltd|Co|software|hardware|database|server|browser|download|upload)\b/i;
 const modernJunkZh = /互联网|网络|软件|手机|电脑|公司|科技|服务器|系统|信息|数据/;
@@ -120,12 +122,12 @@ for (const line of cedictRaw.split('\n')) {
   const gloss = rawGloss.length > 80 ? rawGloss.slice(0, 80) : rawGloss;
   const tier = classify(firstGloss, trad);
 
-  // ── 4. Check which char(s) are in a Tier 1 rhyme ───────────────────────────
+  // ── 4. Check which char(s) are in any curriculum rhyme ─────────────────────
 
-  // For each Tier 1 rhyme, record which positions (0 and/or 1) match
+  // For each rhyme, record which positions (0 and/or 1) match
   const matches = []; // { rhyme, pos }
-  for (const rhymeName of TIER1_RHYMES) {
-    const rSet = tier1Sets[rhymeName];
+  for (const rhymeName of ALL_RHYMES) {
+    const rSet = rhymeSets[rhymeName];
     const pos0 = rSet.has(chars[0]);
     const pos1 = rSet.has(chars[1]);
     if (pos0) matches.push({ rhyme: rhymeName, pos: 0 });
@@ -136,8 +138,8 @@ for (const line of cedictRaw.split('\n')) {
 
   // Check if both chars are in the SAME rhyme → skip (ambiguous)
   const rhymesWithBoth = new Set();
-  for (const rhymeName of TIER1_RHYMES) {
-    const rSet = tier1Sets[rhymeName];
+  for (const rhymeName of ALL_RHYMES) {
+    const rSet = rhymeSets[rhymeName];
     if (rSet.has(chars[0]) && rSet.has(chars[1])) {
       rhymesWithBoth.add(rhymeName);
     }
@@ -178,7 +180,7 @@ for (const line of cedictRaw.split('\n')) {
 // ── 7. Group by rhyme, cap at 500, prefer classical first ─────────────────────
 
 const grouped = {};
-for (const rhymeName of TIER1_RHYMES) {
+for (const rhymeName of ALL_RHYMES) {
   grouped[rhymeName] = [];
 }
 
@@ -187,7 +189,7 @@ for (const entry of entries) {
 }
 
 const output = {};
-for (const rhymeName of TIER1_RHYMES) {
+for (const rhymeName of ALL_RHYMES) {
   const all = grouped[rhymeName];
   // Sort: classical first, then neutral
   all.sort((a, b) => {
@@ -205,9 +207,12 @@ fs.writeFileSync(outPath, JSON.stringify(output, null, 2), 'utf8');
 console.log(`Wrote ${outPath}\n`);
 
 console.log('Per-rhyme summary:');
-for (const rhymeName of TIER1_RHYMES) {
+let total = 0;
+for (const rhymeName of ALL_RHYMES) {
   const items = output[rhymeName];
   const classical = items.filter(e => e.tier === 'classical').length;
   const neutral = items.filter(e => e.tier === 'neutral').length;
   console.log(`  ${rhymeName}: ${items.length} total (${classical} classical, ${neutral} neutral)`);
+  total += items.length;
 }
+console.log(`\nTotal entries across all ${ALL_RHYMES.length} rhymes: ${total}`);

@@ -2258,6 +2258,7 @@ Chronological log of completed parked-queue work. Open items live in
   - Stage 1 architecture: closed `0e178cc`. System B removal + tier_unlocks gating.
   - Stage 2 Tier 2 batch1 (18 rhymes + 二冬 / 四支 anchor poems): closed `72fe852` (二冬), `422c384` (四支), `1a8fa8f` (batch1), merged at `38a38ba`.
   - Stage 3 Tier 3 batch (5 rhymes incl m-endings): closed `da5aeec`. All 30 平聲 韵部 now content-complete.
+- **#25** Drill 4 corpus regeneration for Tier 2/3 — closed (this commit). drill4-corpus.json was Tier 1 only; regenerated for all 30 平聲 韵部 (5 → 30 keys, ~2500 → 12051 entries). Frontend gained empty-state handling for defensive future-proofing. Tier 3 -m rhymes have thin coverage (三江 183, 十三覃 280, 十四鹽 191, 十五咸 93) due to sparse CC-CEDICT compounds for those chars; future content-improvement candidate, not a blocker.
 
 ### Pre-Tier-2 cleanup
 

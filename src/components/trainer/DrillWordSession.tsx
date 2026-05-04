@@ -41,6 +41,7 @@ export const DrillWordSession: React.FC<DrillWordSessionProps> = ({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [results, setResults] = useState<Array<{ correct: boolean; expected: string }>>([]);
   const [loading, setLoading] = useState(false);
+  const [emptyNotice, setEmptyNotice] = useState<string | null>(null);
   const [correctAdvanceMs, setCorrectAdvanceMs] = useState(1500);
 
   useEffect(() => {
@@ -51,6 +52,7 @@ export const DrillWordSession: React.FC<DrillWordSessionProps> = ({
 
   const startDrill = useCallback(async (count: number) => {
     setLoading(true);
+    setEmptyNotice(null);
     try {
       const res = await fetch(`/api/trainer/drill/word-queue?scope=${scope}&limit=${count}`, { credentials: 'include' });
       const body = await res.json();
@@ -59,6 +61,10 @@ export const DrillWordSession: React.FC<DrillWordSessionProps> = ({
         setCurrentIndex(0);
         setResults([]);
         setPhase('active');
+      } else {
+        // Empty corpus for this scope — surface to the user instead of
+        // silently re-enabling the buttons (post-#25 fix).
+        setEmptyNotice('暂无可用题目 / No questions available — please try another tier or report this.');
       }
     } catch {}
     finally { setLoading(false); }
@@ -106,6 +112,11 @@ export const DrillWordSession: React.FC<DrillWordSessionProps> = ({
             </button>
           ))}
         </div>
+        {emptyNotice && (
+          <p className="text-creamDim/60 text-xs text-center" role="status">
+            {emptyNotice}
+          </p>
+        )}
       </div>
     );
   }
