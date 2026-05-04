@@ -55,6 +55,33 @@ export function createAdminAudioRouter({ db, audioService, requireAdmin, cacheDi
     await fsp.rename(tmp, filePath);
   }
 
+  // ─── Action log helpers (#23 Undo) ─────────────────────────────────────
+  // snapshotClip captures a clip's pre-action state so undo can restore it.
+  function snapshotClip(clip, newStatus, newFilePath) {
+    return {
+      clipId: clip.id,
+      prevStatus: clip.status,
+      prevFilePath: clip.file_path,
+      prevReviewedAt: clip.reviewed_at,
+      prevReviewedBy: clip.reviewed_by,
+      prevReviewApprovedAt: clip.review_approved_at ?? null,
+      prevReviewRejectedAt: clip.review_rejected_at ?? null,
+      newStatus,
+      newFilePath,
+    };
+  }
+
+  // appendActionLog inserts one row into review_action_log. Returns rowid or
+  // null if userId is missing (defensive — requireAdmin should guarantee it).
+  function appendActionLog(userId, action, payload) {
+    if (!userId) return null;
+    const result = db.prepare(`
+      INSERT INTO review_action_log (user_id, action, payload, created_at)
+      VALUES (?, ?, ?, ?)
+    `).run(userId, action, JSON.stringify(payload), Date.now());
+    return result.lastInsertRowid;
+  }
+
   // GET /api/admin/audio/items
   router.get('/items', requireAdmin, (req, res, next) => {
     try {
@@ -78,7 +105,15 @@ export function createAdminAudioRouter({ db, audioService, requireAdmin, cacheDi
         params.push(`%${search}%`);
       }
 
-      sql += ' ORDER BY voice_kind ASC, text ASC';
+      // For Approved tab and "All" filter, sort latest-approved-first
+      // (#23). Pending clips have NULL review_approved_at and fall to the
+      // bottom; their alphabetic sub-order is preserved by the secondary
+      // sort. Pending and Rejected tabs keep the original alphabetic sort.
+      if (statusFilter === 'approved' || statusFilter === 'all') {
+        sql += ' ORDER BY review_approved_at IS NULL, review_approved_at DESC, voice_kind ASC, text ASC';
+      } else {
+        sql += ' ORDER BY voice_kind ASC, text ASC';
+      }
 
       const rows = db.prepare(sql).all(...params);
 
@@ -206,28 +241,46 @@ export function createAdminAudioRouter({ db, audioService, requireAdmin, cacheDi
       }
 
       const userId = req.user?.id ?? 'unknown';
+      const userIdForLog = req.user?.id;  // null/undefined → skip log (FK-safe)
 
       const txn = db.transaction(() => {
+        // Capture pre-state of primary clip for action log
+        const primarySnapshot = snapshotClip(clip, 'approved', approvedPath);
+
         // Approve this clip
         db.prepare(`
-          UPDATE audio_clips SET status = 'approved', file_path = ?, reviewed_at = datetime('now'), reviewed_by = ?
+          UPDATE audio_clips SET status = 'approved', file_path = ?,
+            reviewed_at = datetime('now'), reviewed_by = ?,
+            review_approved_at = datetime('now')
           WHERE id = ?
         `).run(approvedPath, userId, clipId);
 
         // Reject siblings (same text + voice_kind, different id)
         const siblings = db.prepare(`
-          SELECT id, file_path FROM audio_clips
+          SELECT * FROM audio_clips
           WHERE text = ? AND voice_kind = ? AND id != ? AND status != 'rejected'
         `).all(clip.text, clip.voice_kind, clipId);
 
+        const siblingSnapshots = siblings.map(sib =>
+          snapshotClip(sib, 'rejected', sib.file_path)
+        );
         const rejectedIds = [];
         for (const sib of siblings) {
           db.prepare(`
-            UPDATE audio_clips SET status = 'rejected', reviewed_at = datetime('now'), reviewed_by = ?
+            UPDATE audio_clips SET status = 'rejected',
+              reviewed_at = datetime('now'), reviewed_by = ?,
+              review_rejected_at = datetime('now')
             WHERE id = ?
           `).run(userId, sib.id);
           rejectedIds.push(sib.id);
         }
+
+        // Append action log (#23): approve = primary + cascade siblings
+        appendActionLog(userIdForLog, 'approve', {
+          items: [{ primary: primarySnapshot, siblings: siblingSnapshots }],
+          displayText: clip.text,
+          displayVoiceKind: clip.voice_kind,
+        });
 
         return { rejectedIds, siblings };
       });
@@ -257,11 +310,29 @@ export function createAdminAudioRouter({ db, audioService, requireAdmin, cacheDi
       if (!clip) return res.status(404).json({ error: 'CLIP_NOT_FOUND' });
 
       const userId = req.user?.id ?? 'unknown';
-      db.prepare(`
-        UPDATE audio_clips SET status = 'rejected', reviewed_at = datetime('now'), reviewed_by = ?
-        WHERE id = ?
-      `).run(userId, clipId);
+      const userIdForLog = req.user?.id;
 
+      db.transaction(() => {
+        // Capture pre-state for action log
+        const snapshot = snapshotClip(clip, 'rejected', clip.file_path);
+
+        db.prepare(`
+          UPDATE audio_clips SET status = 'rejected',
+            reviewed_at = datetime('now'), reviewed_by = ?,
+            review_rejected_at = datetime('now')
+          WHERE id = ?
+        `).run(userId, clipId);
+
+        // Append action log (#23): reject = single clip, no siblings
+        appendActionLog(userIdForLog, 'reject', {
+          items: [{ primary: snapshot, siblings: [] }],
+          displayText: clip.text,
+          displayVoiceKind: clip.voice_kind,
+        });
+      })();
+
+      // .mp3 file is unlinked — undo cannot restore it (DB-only revert per
+      // #23 v1 scope F1). Frontend surfaces hasFile=false on undo response.
       await safeDelete(clip.file_path);
 
       res.json({ ok: true });
@@ -389,12 +460,17 @@ export function createAdminAudioRouter({ db, audioService, requireAdmin, cacheDi
       }
 
       const userId = req.user?.id ?? 'unknown';
+      const userIdForLog = req.user?.id;
       const pending = db.prepare(`
         SELECT * FROM audio_clips
         WHERE provider = ? AND voice_kind = ? AND status = 'pending'
       `).all(provider, voiceKind);
 
       const approvedIds = [];
+      // Collect snapshots for one bulk action log entry (#23 F3)
+      const bulkItems = [];
+      // Sibling files to async-delete after all per-clip txns complete
+      const allSiblingsToDelete = [];
 
       for (const clip of pending) {
         // Move file
@@ -411,37 +487,222 @@ export function createAdminAudioRouter({ db, audioService, requireAdmin, cacheDi
           }
         }
 
-        const txn = db.transaction(() => {
+        const txnResult = db.transaction(() => {
+          const primarySnapshot = snapshotClip(clip, 'approved', approvedPath);
+
           db.prepare(`
-            UPDATE audio_clips SET status = 'approved', file_path = ?, reviewed_at = datetime('now'), reviewed_by = ?
+            UPDATE audio_clips SET status = 'approved', file_path = ?,
+              reviewed_at = datetime('now'), reviewed_by = ?,
+              review_approved_at = datetime('now')
             WHERE id = ?
           `).run(approvedPath, userId, clip.id);
 
           const siblings = db.prepare(`
-            SELECT id, file_path FROM audio_clips
+            SELECT * FROM audio_clips
             WHERE text = ? AND voice_kind = ? AND id != ? AND status != 'rejected'
           `).all(clip.text, clip.voice_kind, clip.id);
 
+          const siblingSnapshots = siblings.map(s =>
+            snapshotClip(s, 'rejected', s.file_path)
+          );
+
           for (const sib of siblings) {
             db.prepare(`
-              UPDATE audio_clips SET status = 'rejected', reviewed_at = datetime('now'), reviewed_by = ?
+              UPDATE audio_clips SET status = 'rejected',
+                reviewed_at = datetime('now'), reviewed_by = ?,
+                review_rejected_at = datetime('now')
               WHERE id = ?
             `).run(userId, sib.id);
-            // Async delete outside txn
           }
 
-          return siblings;
+          return { primarySnapshot, siblingSnapshots, siblings };
+        })();
+
+        bulkItems.push({
+          primary: txnResult.primarySnapshot,
+          siblings: txnResult.siblingSnapshots,
         });
-
-        const siblings = txn();
-        for (const sib of siblings) {
-          safeDelete(sib.file_path);
+        for (const sib of txnResult.siblings) {
+          allSiblingsToDelete.push(sib);
         }
-
         approvedIds.push(clip.id);
       }
 
+      // Single action log entry covering the entire bulk operation (#23 F3)
+      if (bulkItems.length > 0) {
+        appendActionLog(userIdForLog, 'bulk-approve', {
+          items: bulkItems,
+          count: bulkItems.length,
+          provider,
+          voiceKind,
+        });
+      }
+
+      // Async file deletes for rejected siblings (best-effort)
+      for (const sib of allSiblingsToDelete) {
+        safeDelete(sib.file_path);
+      }
+
       res.json({ ok: true, count: approvedIds.length, approvedClipIds: approvedIds });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // ─── #23 Undo endpoints ───────────────────────────────────────────────
+  // Helper: build human-readable label from a log row payload
+  function buildActionLabel(row) {
+    const payload = JSON.parse(row.payload);
+    if (row.action === 'approve') {
+      const sibCount = payload.items[0]?.siblings.length ?? 0;
+      const base = `Revert approve of ${payload.displayText} (${payload.displayVoiceKind})?`;
+      if (sibCount > 0) {
+        return `${base} This also reverts auto-rejection of ${sibCount} sibling clip${sibCount > 1 ? 's' : ''}.`;
+      }
+      return base;
+    }
+    if (row.action === 'reject') {
+      return `Revert reject of ${payload.displayText} (${payload.displayVoiceKind})? Status returns to pending. Audio file was deleted; click Regenerate to recreate.`;
+    }
+    if (row.action === 'bulk-approve') {
+      return `Revert bulk approval of ${payload.count} clips? This affects ${payload.count} clips approved together with their auto-rejected siblings.`;
+    }
+    return 'Revert most recent action?';
+  }
+
+  // GET /api/admin/audio/undo-status — does this user have an undoable action?
+  router.get('/undo-status', requireAdmin, (req, res, next) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) return res.status(401).json({ error: 'NO_USER' });
+
+      // Per-user 20-action cap (#23 F4): query the user's last 20 entries
+      // overall; the most-recent NOT-undone among them is the candidate.
+      // Older actions (beyond the cap window) are not undoable.
+      const recent20 = db.prepare(`
+        SELECT id, action, payload, created_at, undone_at
+        FROM review_action_log
+        WHERE user_id = ?
+        ORDER BY created_at DESC LIMIT 20
+      `).all(userId);
+
+      const candidate = recent20.find(r => r.undone_at === null);
+      if (!candidate) {
+        return res.json({ canUndo: false });
+      }
+
+      const payload = JSON.parse(candidate.payload);
+      const sibCount = candidate.action === 'approve'
+        ? (payload.items[0]?.siblings.length ?? 0)
+        : 0;
+
+      res.json({
+        canUndo: true,
+        actionLabel: buildActionLabel(candidate),
+        action: candidate.action,
+        isCascade: candidate.action === 'approve' && sibCount > 0,
+        isBulk: candidate.action === 'bulk-approve',
+      });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // POST /api/admin/audio/undo — revert most recent undoable action for user
+  router.post('/undo', requireAdmin, async (req, res, next) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) return res.status(401).json({ error: 'NO_USER' });
+
+      const recent20 = db.prepare(`
+        SELECT id, action, payload, created_at, undone_at
+        FROM review_action_log
+        WHERE user_id = ?
+        ORDER BY created_at DESC LIMIT 20
+      `).all(userId);
+
+      const candidate = recent20.find(r => r.undone_at === null);
+      if (!candidate) {
+        return res.status(404).json({ error: 'NOTHING_TO_UNDO' });
+      }
+
+      const payload = JSON.parse(candidate.payload);
+
+      // Track file moves to perform outside the DB transaction
+      const fileMoves = [];
+
+      const restoreSnapshot = (snap) => {
+        db.prepare(`
+          UPDATE audio_clips SET
+            status = ?,
+            file_path = ?,
+            reviewed_at = ?,
+            reviewed_by = ?,
+            review_approved_at = ?,
+            review_rejected_at = ?
+          WHERE id = ?
+        `).run(
+          snap.prevStatus,
+          snap.prevFilePath,
+          snap.prevReviewedAt,
+          snap.prevReviewedBy,
+          snap.prevReviewApprovedAt,
+          snap.prevReviewRejectedAt,
+          snap.clipId,
+        );
+        // Record file restore intent (best-effort, outside txn)
+        if (snap.newFilePath && snap.prevFilePath && snap.newFilePath !== snap.prevFilePath) {
+          fileMoves.push({ from: snap.newFilePath, to: snap.prevFilePath, clipId: snap.clipId });
+        }
+      };
+
+      db.transaction(() => {
+        for (const item of payload.items) {
+          restoreSnapshot(item.primary);
+          for (const sib of item.siblings) {
+            restoreSnapshot(sib);
+          }
+        }
+        db.prepare(`
+          UPDATE review_action_log SET undone_at = ? WHERE id = ?
+        `).run(Date.now(), candidate.id);
+      })();
+
+      // File moves: rename approved→pending for primary clips. Rejected
+      // siblings' files are gone (unlinked at approve time); no restore.
+      for (const mv of fileMoves) {
+        try {
+          await fsp.mkdir(path.dirname(mv.to), { recursive: true });
+          await fsp.rename(mv.from, mv.to);
+        } catch {
+          /* best-effort — may already be moved or missing */
+        }
+      }
+
+      // Build response: revertedClips with hasFile flag for UI warning
+      const revertedClips = [];
+      for (const item of payload.items) {
+        const probe = async (snap) => {
+          let hasFile = false;
+          if (snap.prevFilePath) {
+            try {
+              await fsp.access(snap.prevFilePath);
+              hasFile = true;
+            } catch { /* file gone */ }
+          }
+          revertedClips.push({
+            clipId: snap.clipId,
+            newStatus: snap.prevStatus,
+            hasFile,
+          });
+        };
+        await probe(item.primary);
+        for (const sib of item.siblings) {
+          await probe(sib);
+        }
+      }
+
+      res.json({ ok: true, revertedClips });
     } catch (err) {
       next(err);
     }

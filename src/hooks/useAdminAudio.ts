@@ -26,6 +26,23 @@ interface Filters {
   search: string;
 }
 
+export interface UndoStatus {
+  canUndo: boolean;
+  actionLabel?: string;
+  action?: 'approve' | 'reject' | 'bulk-approve';
+  isCascade?: boolean;
+  isBulk?: boolean;
+}
+
+export interface UndoResult {
+  ok: true;
+  revertedClips: Array<{
+    clipId: number;
+    newStatus: 'pending' | 'approved' | 'rejected';
+    hasFile: boolean;
+  }>;
+}
+
 interface UseAdminAudioReturn {
   items: AudioItem[];
   isLoading: boolean;
@@ -38,6 +55,9 @@ interface UseAdminAudioReturn {
   generate: (text: string, voiceKind: string, provider: string, voiceId: string) => Promise<void>;
   prewarm: () => Promise<{ generated: number; skipped: number }>;
   refresh: () => void;
+  undoStatus: UndoStatus;
+  fetchUndoStatus: () => Promise<void>;
+  undo: () => Promise<UndoResult>;
 }
 
 export function useAdminAudio(): UseAdminAudioReturn {
@@ -122,9 +142,41 @@ export function useAdminAudio(): UseAdminAudioReturn {
     return data;
   }, [postAction, fetchItems]);
 
+  // ─── #23 Undo state ──────────────────────────────────────────────────
+  const [undoStatus, setUndoStatus] = useState<UndoStatus>({ canUndo: false });
+
+  const fetchUndoStatus = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/audio/undo-status', { credentials: 'include' });
+      if (!res.ok) {
+        setUndoStatus({ canUndo: false });
+        return;
+      }
+      const data: UndoStatus = await res.json();
+      setUndoStatus(data);
+    } catch {
+      setUndoStatus({ canUndo: false });
+    }
+  }, []);
+
+  const undo = useCallback(async (): Promise<UndoResult> => {
+    const result = await postAction('undo', {});
+    await fetchItems();
+    await fetchUndoStatus();
+    return result as UndoResult;
+  }, [postAction, fetchItems, fetchUndoStatus]);
+
+  // Re-fetch undo-status whenever the items list refreshes (i.e., after
+  // any approve/reject/bulk-approve action). Keeps the Undo button label
+  // and enabled state in sync with server-side history.
+  useEffect(() => {
+    fetchUndoStatus();
+  }, [items, fetchUndoStatus]);
+
   return {
     items, isLoading, error, filters, setFilters,
     approve, reject, regenerate, generate, prewarm,
     refresh: fetchItems,
+    undoStatus, fetchUndoStatus, undo,
   };
 }

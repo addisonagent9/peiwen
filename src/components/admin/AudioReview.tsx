@@ -40,12 +40,37 @@ export default function AudioReview() {
   const {
     items, isLoading, error, filters, setFilters,
     approve, reject, regenerate, prewarm, refresh,
+    undoStatus, undo,
   } = useAdminAudio();
 
   const [prewarmLoading, setPrewarmLoading] = useState(false);
   const [addVoiceLoading, setAddVoiceLoading] = useState<string | null>(null);
   const [prewarmResult, setPrewarmResult] = useState<{ generated: number; skipped: number } | null>(null);
   const [actionLoading, setActionLoading] = useState<number | null>(null);
+  const [undoLoading, setUndoLoading] = useState(false);
+
+  // --- Undo (#23) ---
+  const handleUndo = async () => {
+    if (!undoStatus.canUndo || undoLoading) return;
+    const ok = window.confirm(undoStatus.actionLabel ?? 'Revert most recent action?');
+    if (!ok) return;
+    setUndoLoading(true);
+    try {
+      const result = await undo();
+      // Surface file-missing warnings (rejected clips have unlinked .mp3s)
+      const missingFile = result.revertedClips.filter(c => !c.hasFile);
+      if (missingFile.length > 0) {
+        const ids = missingFile.map(c => c.clipId).join(', ');
+        window.alert(
+          `Undo complete. ${missingFile.length} clip(s) reverted without audio (file was deleted): clip ids ${ids}. Use Regenerate to recreate audio.`
+        );
+      }
+    } catch (err) {
+      window.alert(`Undo failed: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setUndoLoading(false);
+    }
+  };
 
   // --- Prewarm ---
   const handlePrewarm = async () => {
@@ -138,6 +163,20 @@ export default function AudioReview() {
               </button>
             ))}
           </div>
+
+          {/* Undo (#23) — between the two "All" filter rows */}
+          <button
+            onClick={handleUndo}
+            disabled={!undoStatus.canUndo || undoLoading}
+            title={undoStatus.canUndo ? undoStatus.actionLabel : 'Nothing to undo'}
+            className={`px-3 py-1.5 rounded-md text-xs font-medium transition border ${
+              undoStatus.canUndo && !undoLoading
+                ? 'border-[#F5F0E8]/20 text-[#F5F0E8]/70 hover:text-[#F5F0E8] hover:border-[#F5F0E8]/40'
+                : 'border-[#F5F0E8]/10 text-[#F5F0E8]/25 cursor-not-allowed'
+            }`}
+          >
+            {undoLoading ? 'Undoing…' : '↶ Undo'}
+          </button>
 
           {/* Voice kind toggle */}
           <div className="flex gap-1 bg-[#F5F0E8]/5 rounded-lg p-1">
