@@ -1858,7 +1858,7 @@ export const RHYMES_PINGSHENG: Rhyme[] = [
       { char: '涔', pinyin: 'cén', jyutping: 'cam4', set: 3, showMandarinAudio: true },
       { char: '谌', pinyin: 'chén', jyutping: 'sam4', set: 3, showMandarinAudio: true },
       { char: '黔', pinyin: 'qián', jyutping: 'kim4', set: 4, showMandarinAudio: true },
-      { char: '嶔', pinyin: 'qīn', jyutping: 'ham1', set: 4, showMandarinAudio: true },
+      { char: '嶔', pinyin: 'qīn', jyutping: 'jam1', set: 4, showMandarinAudio: true },
     ],
     mnemonic:
       '十二侵收 -im，現代普通話作 -in，粵音猶存（心 sam1, 金 gam1）。' +
