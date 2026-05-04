@@ -76,7 +76,7 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
   const [subView, setSubView] = useState<SubView>('home');
   const [selectedTier, setSelectedTier] = useState<RhymeTier>(1);
   const [selectedRhymeId, setSelectedRhymeId] = useState<string | null>(null);
-  const [drillScope, setDrillScope] = useState<'tier1' | 'all'>('all');
+  const [drillScope, setDrillScope] = useState<'tier1' | 'tier2' | 'tier3' | 'all'>('all');
   const [unlocks, setUnlocks] = useState<{ tiers: number[]; drills: Array<{ tier: number; drillNumber: number }>; sessionCounts: Record<string, number> } | null>(null);
 
   const refreshUnlocks = () => {
@@ -226,7 +226,7 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
               setSubView('detail');
             }}
             onStartDrill={(drillNum) => {
-              setDrillScope('tier1');
+              setDrillScope(`tier${selectedTier}` as 'tier1' | 'tier2' | 'tier3');
               if (drillNum === 2) {
                 setSubView('drill-recall');
               } else if (drillNum === 3) {
@@ -254,6 +254,7 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
           <DrillSession
             strings={strings}
             scope={drillScope}
+            tier={selectedTier}
             onExit={() => setSubView('tier')}
             onSessionComplete={refreshUnlocks}
           />
@@ -263,6 +264,7 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
           <DrillRecallSession
             strings={strings}
             scope={drillScope}
+            tier={selectedTier}
             onExit={() => setSubView('tier')}
             onSessionComplete={refreshUnlocks}
           />
@@ -272,6 +274,7 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
           <DrillPairSession
             strings={strings}
             scope={drillScope}
+            tier={selectedTier}
             onExit={() => setSubView('tier')}
             onSessionComplete={refreshUnlocks}
           />
@@ -281,6 +284,7 @@ export const PingshuiTrainer: React.FC<PingshuiTrainerProps> = ({
           <DrillWordSession
             strings={strings}
             scope={drillScope}
+            tier={selectedTier}
             onExit={() => setSubView('tier')}
             onSessionComplete={refreshUnlocks}
           />

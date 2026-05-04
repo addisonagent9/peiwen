@@ -22,7 +22,8 @@ type Phase = 'start' | 'active' | 'summary';
 
 interface DrillWordSessionProps {
   strings: TrainerStrings;
-  scope?: 'tier1' | 'all';
+  scope?: 'tier1' | 'tier2' | 'tier3' | 'all';
+  tier?: number;
   onExit: () => void;
   onSessionComplete?: () => void;
 }
@@ -30,6 +31,7 @@ interface DrillWordSessionProps {
 export const DrillWordSession: React.FC<DrillWordSessionProps> = ({
   strings,
   scope = 'tier1',
+  tier = 1,
   onExit,
   onSessionComplete,
 }) => {
@@ -71,7 +73,7 @@ export const DrillWordSession: React.FC<DrillWordSessionProps> = ({
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ tier: 1, drillNumber: 4, size: allResults.length, correctCount: cCount, wrongCount: allResults.length - cCount }),
+        body: JSON.stringify({ tier, drillNumber: 4, size: allResults.length, correctCount: cCount, wrongCount: allResults.length - cCount }),
       }).then(() => onSessionComplete?.()).catch(() => {});
       setPhase('summary');
     } else {

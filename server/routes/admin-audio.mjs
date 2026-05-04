@@ -12,7 +12,7 @@ import fs from 'fs';
 import fsp from 'fs/promises';
 import crypto from 'crypto';
 import { getPrimaryVoice, getNextVoice, VOICE_POOLS } from '../audio/voice-pools.mjs';
-import { TIER1_SEED_CHARS } from '../data/tier1-seed-chars.mjs';
+import { TIER1_SEED_CHARS } from '../data/tier-seed-chars.mjs';
 
 /**
  * @param {object} opts

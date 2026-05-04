@@ -33,7 +33,8 @@ type Phase = 'start' | 'active' | 'summary';
 
 interface DrillPairSessionProps {
   strings: TrainerStrings;
-  scope?: 'tier1' | 'all';
+  scope?: 'tier1' | 'tier2' | 'tier3' | 'all';
+  tier?: number;
   onExit: () => void;
   onSessionComplete?: () => void;
 }
@@ -41,6 +42,7 @@ interface DrillPairSessionProps {
 export const DrillPairSession: React.FC<DrillPairSessionProps> = ({
   strings,
   scope = 'tier1',
+  tier = 1,
   onExit,
   onSessionComplete,
 }) => {
@@ -85,7 +87,7 @@ export const DrillPairSession: React.FC<DrillPairSessionProps> = ({
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ tier: 1, drillNumber: 3, size: allResults.length, correctCount: cCount, wrongCount: allResults.length - cCount }),
+        body: JSON.stringify({ tier, drillNumber: 3, size: allResults.length, correctCount: cCount, wrongCount: allResults.length - cCount }),
       }).then(() => onSessionComplete?.()).catch(() => {});
       setPhase('summary');
     } else {

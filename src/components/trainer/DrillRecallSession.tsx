@@ -24,7 +24,8 @@ type CardPhase = 'picking' | 'revealed';
 
 interface DrillRecallSessionProps {
   strings: TrainerStrings;
-  scope?: 'tier1' | 'all';
+  scope?: 'tier1' | 'tier2' | 'tier3' | 'all';
+  tier?: number;
   onExit: () => void;
   onSessionComplete?: () => void;
 }
@@ -32,6 +33,7 @@ interface DrillRecallSessionProps {
 export const DrillRecallSession: React.FC<DrillRecallSessionProps> = ({
   strings,
   scope = 'all',
+  tier = 1,
   onExit,
   onSessionComplete,
 }) => {
@@ -69,7 +71,7 @@ export const DrillRecallSession: React.FC<DrillRecallSessionProps> = ({
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ tier: 1, drillNumber: 2, size: allResults.length, correctCount: totalCorrect, wrongCount: totalWrong }),
+        body: JSON.stringify({ tier, drillNumber: 2, size: allResults.length, correctCount: totalCorrect, wrongCount: totalWrong }),
       }).then(() => onSessionComplete?.()).catch(() => {});
       setPhase('summary');
     } else {

@@ -10,7 +10,16 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { TIER1_SEED_CHARS, TIER1_RHYME_IDS } from '../data/tier1-seed-chars.mjs';
+import {
+  TIER_SEED_CHARS,
+  TIER_RHYME_IDS,
+  TIER1_SEED_CHARS,
+  TIER1_RHYME_IDS,
+  isValidScope,
+  tierFromScope,
+  getSeedPool,
+  getRhymeIds,
+} from '../data/tier-seed-chars.mjs';
 import { RHYMES_PINGSHENG, FAMILIES } from '../data/trainer-curriculum.mjs';
 import { getUnlockStatus, recordDrillCompletion, getDrillSessionCount, isDrillUnlocked } from '../trainer/unlocks.mjs';
 import { getVariants } from '../lib/variants.mjs';
@@ -38,8 +47,8 @@ function shuffle(arr) {
   return a;
 }
 
-function pickDistractors(correctRhymeId, count = 3) {
-  const others = TIER1_RHYME_IDS.filter(id => id !== correctRhymeId);
+function pickDistractors(correctRhymeId, rhymeIds, count = 3) {
+  const others = rhymeIds.filter(id => id !== correctRhymeId);
   return shuffle(others).slice(0, count);
 }
 
@@ -141,11 +150,23 @@ export function createDrillRouter(db, composedGate) {
     }
   });
 
-  // GET /queue?type=char-to-rhyme&limit=10&scope=all|tier1
+  // GET /queue?type=char-to-rhyme&limit=10&scope=tier1|tier2|tier3|all
   router.get('/queue', composedGate, (req, res, next) => {
     try {
-      // scope param accepted for future tier expansion; currently only Tier 1 exists
-      const seedPool = TIER1_SEED_CHARS;
+      const userId = req.user.id;
+      const scope = req.query.scope ?? 'tier1';
+      if (!isValidScope(scope)) {
+        return res.status(400).json({ error: 'INVALID_SCOPE' });
+      }
+      const tier = tierFromScope(scope);
+      // Tier-scoped requests require Drill 1 unlocked at that tier; 'all'
+      // skips the per-tier check (UI gates it via "Tier 2 Drill 1 unlocked"
+      // rule before showing the home-screen 综合练习 entry).
+      if (tier && !isDrillUnlocked(db, userId, tier, 1)) {
+        return res.status(403).json({ error: 'DRILL_LOCKED' });
+      }
+      const seedPool = getSeedPool(scope);
+      const rhymeIds = getRhymeIds(scope);
       const limit = Math.min(seedPool.length, Math.max(1, parseInt(req.query.limit) || 10));
 
       const selected = buildInterleavedQueue(seedPool, limit);
@@ -156,7 +177,7 @@ export function createDrillRouter(db, composedGate) {
         rhymeId: seed.rhymeId,
         pinyin: seed.pinyin,
         jyutping: seed.jyutping,
-        options: shuffle([seed.rhymeId, ...pickDistractors(seed.rhymeId)]),
+        options: shuffle([seed.rhymeId, ...pickDistractors(seed.rhymeId, rhymeIds)]),
       }));
 
       res.json({ items, totalAvailable: seedPool.length });
@@ -165,12 +186,22 @@ export function createDrillRouter(db, composedGate) {
     }
   });
 
-  // GET /recall-queue?limit=10
+  // GET /recall-queue?limit=10&scope=tier1|tier2|tier3|all
   router.get('/recall-queue', composedGate, (req, res, next) => {
     try {
+      const userId = req.user.id;
+      const scope = req.query.scope ?? 'tier1';
+      if (!isValidScope(scope)) {
+        return res.status(400).json({ error: 'INVALID_SCOPE' });
+      }
+      const tier = tierFromScope(scope);
+      if (tier && !isDrillUnlocked(db, userId, tier, 2)) {
+        return res.status(403).json({ error: 'DRILL_LOCKED' });
+      }
+      const seedPool = getSeedPool(scope);
       const limit = Math.min(20, Math.max(1, parseInt(req.query.limit) || 10));
       const byRhyme = {};
-      for (const s of TIER1_SEED_CHARS) {
+      for (const s of seedPool) {
         if (!byRhyme[s.rhymeId]) byRhyme[s.rhymeId] = [];
         byRhyme[s.rhymeId].push(s);
       }
@@ -227,37 +258,38 @@ export function createDrillRouter(db, composedGate) {
         });
       }
 
-      res.json({ items, totalAvailable: TIER1_SEED_CHARS.length });
+      res.json({ items, totalAvailable: seedPool.length });
     } catch (err) {
       next(err);
     }
   });
 
-  // GET /pair-queue?scope=tier1&limit=10
-  const VALID_SCOPES = new Set(['tier1']);
+  // GET /pair-queue?scope=tier1|tier2|tier3|all&limit=10
   const VALID_LIMITS = new Set([5, 10, 20]);
 
   router.get('/pair-queue', composedGate, (req, res, next) => {
     try {
       const userId = req.user.id;
       const scope = req.query.scope;
-      if (!scope || !VALID_SCOPES.has(scope)) {
+      if (!isValidScope(scope)) {
         return res.status(400).json({ error: 'INVALID_SCOPE' });
       }
       const limit = parseInt(req.query.limit) || 10;
       if (!VALID_LIMITS.has(limit)) {
         return res.status(400).json({ error: 'INVALID_LIMIT' });
       }
-      if (!isDrillUnlocked(db, userId, 1, 3)) {
+      const tier = tierFromScope(scope);
+      if (tier && !isDrillUnlocked(db, userId, tier, 3)) {
         return res.status(403).json({ error: 'DRILL_LOCKED' });
       }
 
+      const seedPool = getSeedPool(scope);
       const byRhyme = {};
-      for (const s of TIER1_SEED_CHARS) {
+      for (const s of seedPool) {
         if (!byRhyme[s.rhymeId]) byRhyme[s.rhymeId] = { 1: [], 2: [], 3: [], 4: [] };
         byRhyme[s.rhymeId][s.set].push(s);
       }
-      const rhymeIds = TIER1_RHYME_IDS;
+      const rhymeIds = getRhymeIds(scope);
       const template = buildInterleaveTemplate(limit);
       const items = [];
 
@@ -333,7 +365,12 @@ export function createDrillRouter(db, composedGate) {
         return res.status(400).json({ error: 'INVALID_BODY' });
       }
 
-      const seed = TIER1_SEED_CHARS.find(s => s.char === text);
+      // Search across all tier seed pools (a Drill 1 response from any
+      // tier may arrive here; can't assume Tier 1).
+      const seed =
+        TIER_SEED_CHARS[1].find(s => s.char === text) ??
+        TIER_SEED_CHARS[2].find(s => s.char === text) ??
+        TIER_SEED_CHARS[3].find(s => s.char === text);
       if (!seed) {
         return res.status(400).json({ error: 'UNKNOWN_CHAR' });
       }
@@ -375,6 +412,22 @@ export function createDrillRouter(db, composedGate) {
       if (!tier || !drillNumber || !size) {
         return res.status(400).json({ error: 'INVALID_BODY' });
       }
+      if (![1, 2, 3].includes(tier) || ![1, 2, 3, 4].includes(drillNumber)) {
+        return res.status(400).json({ error: 'INVALID_TIER_OR_DRILL' });
+      }
+
+      // Defense-in-depth: validate the user actually has (tier, drillNumber)
+      // unlocked before recording. Prevents future client regressions from
+      // silently corrupting unlock state — see Drill 2 Tier 2 post-mortem
+      // (the bug this commit fixes was caused by hardcoded `tier: 1` in the
+      // client; the server had no validation, so wrong-tier sessions were
+      // recorded for months without surfacing).
+      if (!isDrillUnlocked(db, userId, tier, drillNumber)) {
+        return res.status(400).json({
+          error: 'NOT_UNLOCKED',
+          message: `User does not have Tier ${tier} Drill ${drillNumber} unlocked`,
+        });
+      }
 
       recordDrillCompletion(db, userId, tier, drillNumber, {
         size,
@@ -408,19 +461,26 @@ export function createDrillRouter(db, composedGate) {
     return null;
   }
 
-  // GET /word-queue?scope=tier1&limit=10
+  // GET /word-queue?scope=tier1|tier2|tier3|all&limit=10
   router.get('/word-queue', composedGate, (req, res, next) => {
     try {
       const userId = req.user.id;
-      if (!isDrillUnlocked(db, userId, 1, 4)) {
+      const scope = req.query.scope ?? 'tier1';
+      if (!isValidScope(scope)) {
+        return res.status(400).json({ error: 'INVALID_SCOPE' });
+      }
+      const tier = tierFromScope(scope);
+      if (tier && !isDrillUnlocked(db, userId, tier, 4)) {
         return res.status(403).json({ error: 'DRILL_LOCKED' });
       }
       const limit = Math.min(20, Math.max(5, parseInt(req.query.limit) || 10));
       const size = [5, 10, 20].includes(limit) ? limit : 10;
-      const tier1Labels = TIER1_RHYME_IDS
+      // drill4Corpus is keyed by rhyme label (繁); use scope-aware labels.
+      const scopeRhymeIds = getRhymeIds(scope);
+      const scopeLabels = scopeRhymeIds
         .map(id => RHYMES_PINGSHENG.find(r => r.id === id)?.label)
         .filter(Boolean);
-      const shuffledRhymes = shuffle(tier1Labels);
+      const shuffledRhymes = shuffle(scopeLabels);
       const perRhyme = Math.floor(size / shuffledRhymes.length);
       const remainder = size % shuffledRhymes.length;
       const rhymeSequence = [];
