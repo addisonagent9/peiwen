@@ -544,7 +544,7 @@ Detection: ad-hoc per batch via user pattern-matching of common chars in
 the audit's "missing" list. The ±5 codepoint-proximity heuristic
 produces ~99% false positives for this class. A systematic source
 (Unihan `kCompatibilityVariant` / `kTraditionalVariant`) would replace
-pattern-matching but isn't currently sourced. (Parked as #15.)
+pattern-matching but isn't currently sourced. (Parked as #15, see task.md.)
 
 Total Group D pairs shipped through May 2026 sweep: ~50 across 7
 batches.
@@ -1124,7 +1124,7 @@ console.
 - **Drill 4 (词语补齐)**: Word completion. 2-char compound with one
   char blanked. Round-robin distribution + Bjork tier filtering
   (post-`8e19693`, `3157d90`). Chinese glosses from MOE (72% coverage);
-  English fallback for 28% (parked ticket #14).
+  English fallback for 28% (parked ticket #14, see task.md).
 
 **Post-curriculum 韵部库:**
 - Read-only dashboard showing collected chars per rhyme (auto-filled by
@@ -1147,163 +1147,11 @@ findings remain (烽, 蘢, 谾, 漎, 逄, 攏, 總, 蓊, 菶, 翪). ~519
 findings remain across other rhymes (530 total HIGH-tier per
 dictionary-audit-v2.md).
 
-### Parked queue (as of 2026-11-01)
+### Parked queue
 
-**Active backlog (real work to do):**
-
-- **#6**: Audit pipeline batch. 一東 cluster paused at 4 of 14 findings
-  (10 remain: 烽, 蘢, 谾, 漎, 逄, 攏, 總, 蓊, 菶, 翪). ~519 findings
-  across other rhymes (530 total HIGH-tier per dictionary-audit-v2.md).
-- **#7**: 簡↔繁 rhyme-merger annotations. Some 簡 chars merge multiple
-  繁 forms with classically-distinct rhymes (丰/豐 pattern: 丰 → 二冬,
-  豐 → 一東). Pedagogical content addition; surfaces during audit work.
-- **#8**: Build-time guardrail. Automated check that fails if
-  curriculum-vs-pingshui drift. Closes the bug class behind `31de576`
-  (Tier 1 audit, 8 chars) and `fb6c378` (一東 audit batch, 茸 misseed).
-- **#10**: CLAUDE.md docs sweep. Phases 1+2 shipped; this commit closes
-  #10.
-- **#14**: Fill MOE coverage gap. Source additional classical Chinese
-  dictionaries (漢語大詞典, 中華語文知識庫, Wiktionary Chinese, manual
-  curation) for the 28% of Drill 4 corpus 词语 not covered by MOE.
-  Until shipped, those 词语 display English CC-CEDICT glosses as
-  temporary fallback.
-- **#16**: Multi-tone must have multi-card (need strengthen Library).
-  Today the popup card on the rhyme reference page (§11.C, shipped
-  in `7a37b8a` + `0dbe9b2`) shows a single card per char with shared
-  字義 / 词语 across all readings. For multi-音字 chars where each
-  reading is historically a distinct word (种 chóng/zhǒng/zhòng,
-  殷 yīn/yān/yǐn, 中 zhōng/zhòng), the meaning shown contradicts
-  whichever reading pill is currently ring-highlighted. Pedagogically
-  wrong: each reading SHOULD be its own card with its own 字義,
-  pinyin/jyutping, and 词语 (compound list filtered by the reading's
-  pinyin).
-
-  Blocking work: per-reading 字義 source. MOE returns one entry
-  per char-key, not per (char, rhyme, pinyin). Three approaches
-  considered:
-    1. AI-generated `reading-glosses.json` with user verdict pipeline,
-       similar shape to the dictionary-audit-v2 triangulation flow.
-       Multi-session.
-    2. Source from 漢語大詞典 / 康熙字典 / Wiktionary multi-reading
-       sections. Highest quality, slowest. Overlaps with #17.
-    3. Hybrid: AI seed + user verdict, classical-source triangulation
-       only when AI is uncertain.
-
-  UI work after data lands: swap RhymeCharCard from "share content
-  across pills" to "swap content per pill" — re-derive 字義, py, jyut,
-  compounds based on currentRhyme's reading. Pill click already wires
-  through `onRhymeChange`; just need the data plumbing.
-
-  Library work needed: probably a new `src/data/reading-glosses.json`
-  (or `.ts` if curated by hand) keyed by `{char}__{rhyme}__{pinyin}`
-  with `{gloss_zh, gloss_en, notes}` shape. Builds alongside the
-  existing `ambiguous-readings.ts` per-reading-notes infra (currently
-  14 chars).
-
-  Multi-session arc. Likely sequence: data-source decision → seed
-  generation → verdict pipeline → UI swap → deploy.
-
-- **#17**: Fill unique word with meaning and 词语. The popup card on
-  the rhyme reference page (§11.C, shipped in `7a37b8a`) shows empty
-  字義 row and empty 词语 section for chars where MOE has no entry
-  AND CC-CEDICT has no 2-char compounds containing the char. Most
-  visible on rare/archaic chars surfaced via the 显示僻字 toggle
-  (e.g. 簽 in 一東 area shows char + pinyin only — no meaning, no
-  compounds). Affected surface is the popup card; affected chars are
-  the long tail of pingshui's ~19,600-char corpus that modern
-  dictionaries don't cover.
-
-  Distinct from #14 — #14 scopes to Drill 4's `drill4-corpus.json`
-  (compound glosses for the trainer corpus). #17 scopes to per-char
-  meaning + compound coverage on the reference page. Same family of
-  "fill the dictionary gap" work; different surfaces, different
-  remediation deliverables.
-
-  Distinct from #16 — #16 is per-reading content for multi-音字 chars
-  with multiple meanings. #17 is single-meaning chars that simply
-  lack any meaning entry today.
-
-  Sources to evaluate (overlap with #14 + #16): 康熙字典 OCR/digital
-  corpus, 漢語大詞典, Wiktionary Chinese, 教育部異體字字典, 中華語文
-  知識庫. Pipeline: per-char triangulation across sources, user
-  verdict on disagreements, auto-merge on consensus, ship as a
-  patch file consumed by the reference card's lookup chain
-  (probably extends moedict.ts to fall back to a supplement table
-  when MOE returns empty).
-
-  CC tooling angle: have CC search candidate sources online per char,
-  surface findings in audit-batch-N.md format (current readings vs
-  candidate gloss vs source per source), user verdicts, batch-patch.
-  Same shape as the dictionary-audit-v2 sweep that closed in May 2026.
-
-  Multi-session arc. Likely sequence: source-candidate evaluation →
-  pilot batch (~20 chars) → verdict-pipeline shape settles → corpus-
-  wide sweep.
-
-- **#18**: Tier 2 (易混辨析) char pool + audio batch + drill
-  activation. Tier 1 is fully shipped (5 distinctive rhymes:
-  一東, 七陽, 十一尤, 六麻, 五歌). Tier 2 covers the 20 confusable-
-  family rhymes per CLAUDE.md §15 — the pedagogical core of the
-  trainer because Drill 3 (辨韵) at this tier becomes within-family
-  pair discrimination (一東/二冬, 庚青蒸, 真文元, 寒删先, 萧肴豪,
-  鱼虞, 支微齐, 佳灰).
-
-  Scope: ~30 chars × 20 rhymes = ~600 chars to select, grade Sets
-  1-4 by classical-corpus frequency, source jyutping, queue TTS
-  batch (Cantonese primary + Mandarin flagged), run audio review,
-  activate drills (drill code is trivial reuse of Tier 1 paths
-  with `scope=tier2`).
-
-  Recommended pre-work: ship #8 (build-time guardrail) BEFORE Tier 2
-  char selection. The bug class behind `31de576` (8 chars) and the
-  茸 finding multiplies at 600-char scale; without the guardrail
-  Tier 2 will accumulate curriculum-vs-pingshui drift silently.
-
-  Recommended pre-work: address the parked Audio Review Library
-  perf item (older parked items section) BEFORE TTS batch lands.
-  Page is currently sluggish at ~200+ approved clips per its sketch;
-  Tier 2's ~600 clips overshoots by 3×. Pagination/collapse design
-  exists in earlier briefings; needs to ship before or during the
-  TTS batch.
-
-  Multi-session arc. Sub-stages:
-    1. Rhyme breakdown confirmation (which 20 rhymes, which families)
-    2. Char selection per rhyme (~30 chars × 20 rhymes)
-    3. Set 1-4 grading
-    4. Jyutping sourcing (parked ticket may overlap; Tier 1 jyutping
-       is curriculum-inline)
-    5. TTS batch generation (Azure primary + Alibaba secondary)
-    6. Audio review
-    7. Drill 1 activation (`scope=tier2`)
-    8. Drills 2/3/4 activation (same code paths)
-
-  Tier 3 (5 archaic 闭口韻 rhymes: 三江, 十二侵, 十三覃, 十四鹽,
-  十五咸) follows the same pattern post-Tier-2.
-
-**Older parked items (pre-November 2026):**
-
-- Audio Review Library perf: at ~200+ approved clips the Library tab
-  becomes sluggish (renders all clips at once). Pagination or
-  collapse-by-default solution sketched in earlier briefings; not yet
-  built. Trigger: when audio review page first feels sluggish, or
-  before the Tier 2 TTS batch lands.
-- Revert manual `.env` TRAINER_BETA_USER_IDS edit on VPS: a manual
-  VPS-side `.env` modification was made during early Tier 1 testing;
-  should be reverted to whatever the canonical state is now that
-  production has stable beta gating.
-
-**Recently shipped (closed this session):**
-
-- ~~#3 Bjork tier filtering inside Drill 4 round-robin~~ → `8e19693` +
-  `3157d90` (corpus re-grading activated the queue logic)
-- ~~#4 Multi-tone (多音字) user selection~~ → 4-phase ship (`e61ccfc` →
-  `9c19932`; see §21)
-- ~~#5 Issue B: line-2-canonical analyzer change~~ → `e52cdb0` (resolved
-  as part of multi-tone work)
-- ~~#9 Per-card char count restore~~ → `fb6c378`
-- ~~#11 Drill 4 corpus rare_set re-grading~~ → `3157d90`
-- ~~Drop 疴 from curriculum~~ → done (commit `6ba3b9b`)
-- ~~Delete `src/config/trainer-beta.ts`~~ → done (same commit)
+All open parked items now tracked in [task.md](./task.md). Closed parked
+items log lives in the `## Closed parked items` section near the end of
+this file.
 
 ### Lessons learned during Drill 2 implementation
 
@@ -1490,7 +1338,7 @@ Output: `src/data/pingshui/drill4-corpus.json` (committed, ~2500 entries).
 (`src/data/moedict-map.json`, 162K entries). Coverage: 72% of corpus 词语
 (1808 of 2500). Remaining 28% (mostly modern compounds + rare literary
 terms) keep English CC-CEDICT gloss as TEMPORARY fallback until parked
-ticket #14 sources additional classical Chinese dictionaries.
+ticket #14 (see task.md) sources additional classical Chinese dictionaries.
 
 **rare_set algorithm (post-`3157d90`)**: `computeRareSet` inherits each
 answer char's curriculum `SeedCharacter.set` (1-4) from
@@ -2367,7 +2215,7 @@ not runtime — corpus is committed.
   sourced. The frontend hides empty jyutping rows gracefully.
 - **English gloss fallback**: 28% of entries (692) display English
   glosses where MOE doesn't cover the 词语. Tracked as parked ticket
-  #14 (source additional classical Chinese dictionaries).
+  #14 (see task.md; source additional classical Chinese dictionaries).
 
 ### Rebuild
 
@@ -2383,3 +2231,36 @@ node scripts/build-drill4-corpus.mjs
 
 Output is overwritten in place. Commit the regenerated JSON alongside
 the script change.
+
+---
+
+## Closed parked items
+
+Chronological log of completed parked-queue work. Open items live in
+[task.md](./task.md).
+
+**Workflow when closing a task:**
+1. Ship the work (CC ticket → commit → deploy if applicable)
+2. In closing commit message, append: "Closes #N. Updates task.md → CLAUDE.md."
+3. Remove entry from task.md
+4. Add entry here with task #, commit SHA(s), one-line outcome
+
+### Numbered tickets
+
+- **#3** Bjork tier filtering inside Drill 4 round-robin — closed `8e19693` + `3157d90`. Corpus re-grading activated the queue logic.
+- **#4** Multi-tone (多音字) user selection — closed `e61ccfc` → `9c19932` (4-phase ship; see §21).
+- **#5** Issue B: line-2-canonical analyzer change — closed `e52cdb0`. Resolved as part of multi-tone work.
+- **#8** Build-time guardrail (curriculum-vs-pingshui drift check) — closed `03b32d4`. Drift check now runs in CI/local before commit; catches Tier-N curriculum entries missing from pingshui.json.
+- **#9** Per-card char count restore — closed `fb6c378`.
+- **#10** CLAUDE.md docs sweep — closed `f5bf1e3`. Multi-phase docs consolidation; CLAUDE.md grew from ~600 to ~2000 lines covering all current behavior.
+- **#11** Drill 4 corpus rare_set re-grading — closed `3157d90`.
+- **#18** Tier 2 expansion (3 stages) — fully shipped:
+  - Stage 1 architecture: closed `0e178cc`. System B removal + tier_unlocks gating.
+  - Stage 2 Tier 2 batch1 (18 rhymes + 二冬 / 四支 anchor poems): closed `72fe852` (二冬), `422c384` (四支), `1a8fa8f` (batch1), merged at `38a38ba`.
+  - Stage 3 Tier 3 batch (5 rhymes incl m-endings): closed `da5aeec`. All 30 平聲 韵部 now content-complete.
+
+### Pre-Tier-2 cleanup
+
+- Tier 1 audit + 韵部库 practice polish — closed `31de576`.
+- Drop 疴 from curriculum — closed `6ba3b9b`.
+- Delete `src/config/trainer-beta.ts` — closed `6ba3b9b` (same commit).
