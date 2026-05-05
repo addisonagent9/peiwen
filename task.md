@@ -213,48 +213,6 @@ dictionary-audit-v2 sweep that closed in May 2026.
 Multi-session arc. Likely sequence: source-candidate evaluation → pilot
 batch (~20 chars) → verdict-pipeline shape settles → corpus-wide sweep.
 
-### #23 — Audio Review Library: sort latest-approved-first + Undo button
-
-Two related UI improvements to the Audio Review Library at /admin:
-
-**A. Sort latest-approved-first**
-Approved clips currently render in unspecified order (likely DB row insertion
-order, which doesn't match human review chronology). Change sort to:
-- Approved tab: latest-approved at top (ORDER BY review_approved_at DESC)
-- "All" filter: approved subset sorted latest-first within its group;
-  pending order unchanged
-- Any other approved-clip list views: same sort
-
-**B. Undo button**
-Place between the two existing "All" filter buttons (see screenshot in
-session record).
-
-Behavior:
-- Reverts the single most recent review action (approve / reject / delete)
-- Confirmation dialog before each revert: "Revert approval of [char]
-  [voiceKind]?" or similar context-appropriate text
-- After confirm, action reverts and Undo points to next-most-recent action
-- Multi-press supported: walk back through history one action at a time
-- Disabled (grayed out) when no history to revert
-- Cap: last 20 actions per user. Older actions cannot be undone.
-
-Implementation notes:
-- Need a review_action_log table or column to track action history with
-  timestamp + actor + before/after state
-- For "undo delete": investigation needed during ticket open to determine
-  whether delete is soft (DB flag), hard (row removed), or hard-with-backup
-  (.mp3 in trash dir). Each requires different undo path:
-  * Soft: just unmark
-  * Hard: requires re-TTS (Azure cost) — flag as out-of-scope for v1?
-  * Hard-with-backup: restore from trash dir
-  Decide v1 scope based on current delete behavior
-
-Effort estimate: 1 session for UI + DB column changes; possibly 2 if
-undo-delete requires audio_clips schema migration.
-
-Surfaced: post-Tier 3 audio review session (May 2026), based on UX friction
-during ~1192-clip pending queue review.
-
 ## Deferred (no scheduled work)
 
 ### Audio Review Library perf
