@@ -15,6 +15,7 @@ import { toTraditional, toSimplified } from "./analysis/s2t";
 import { T, localizeIssue, type Locale, type Translations } from "./i18n";
 import { patternsForForm } from "./patterns/patterns";
 import type { FormId, PoemPattern } from "./patterns/types";
+import { normalizePoemInput } from "./lib/normalize-poem-input";
 
 const SAMPLES: Record<FormId, string> = {
   "七絕": "朝辭白帝彩雲間\n千里江陵一日還\n兩岸猿聲啼不住\n輕舟已過萬重山",
@@ -160,12 +161,14 @@ export default function App() {
   };
 
   // --- Analysis ---
+  // #20: normalize raw poem input \u2014 split on comma/period/newline, strip
+  // other punctuation. Textarea value (`raw`) stays untouched at typing-
+  // time; only this derived `lines` state is post-strip.
   const lines = useMemo(() => {
-    const arr = raw.split(/\r?\n/).map(s =>
-      Array.from(s.replace(/\s+/g, "")).map(ch => ch === "\uE001" ? "" : ch)
+    const cleanedLines = normalizePoemInput(raw);
+    return cleanedLines.map(line =>
+      Array.from(line).map(ch => ch === "\uE001" ? "" : ch)
     );
-    while (arr.length && arr[arr.length - 1].length === 0) arr.pop();
-    return arr;
   }, [raw]);
 
   const validForms = useMemo((): FormId[] => {

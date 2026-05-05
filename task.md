@@ -84,12 +84,6 @@ Set 1 carry the strongest pedagogical value as audio teaching points:
 
 ## Deferred / Parked items
 
-### #20 — Omit punctuation in analyzer
-When user pastes a poem into analyzer (main screen), punctuation marks
-(，。、；：「」『』《》！？etc.) are captured into character slots, causing
-analytical confusion. Strip all punctuation before slot assignment.
-Affects analyzer surface only.
-
 ### #21 — Matching Rocky volume to WanLung
 zh-HK-HiuGaaiNeural / Rocky TTS clips are noticeably quieter than
 zh-HK-WanLungNeural clips. Apply +20% volume gain (or calibrated value

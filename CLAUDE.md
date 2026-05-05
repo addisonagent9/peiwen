@@ -2259,6 +2259,7 @@ Chronological log of completed parked-queue work. Open items live in
   - Stage 2 Tier 2 batch1 (18 rhymes + 二冬 / 四支 anchor poems): closed `72fe852` (二冬), `422c384` (四支), `1a8fa8f` (batch1), merged at `38a38ba`.
   - Stage 3 Tier 3 batch (5 rhymes incl m-endings): closed `da5aeec`. All 30 平聲 韵部 now content-complete.
 - **#25** Drill 4 corpus regeneration for Tier 2/3 — closed (this commit). drill4-corpus.json was Tier 1 only; regenerated for all 30 平聲 韵部 (5 → 30 keys, ~2500 → 12051 entries). Frontend gained empty-state handling for defensive future-proofing. Tier 3 -m rhymes have thin coverage (三江 183, 十三覃 280, 十四鹽 191, 十五咸 93) due to sparse CC-CEDICT compounds for those chars; future content-improvement candidate, not a blocker.
+- **#20** Strip punctuation in analyzer at 折判 click — closed (this commit). New `src/lib/normalize-poem-input.ts` utility splits on Chinese/western comma + period + newline (each starts a new line); other punctuation (、；：「」『』（）【】〔〕｛｝〈〉《》！？·…— + ASCII () [] {} ; : ! ? " ' - – — … + curly quotes + full-width space) silently stripped. Wired into the `lines` useMemo so derived state is post-strip while textarea `raw` stays untouched at typing-time. Form auto-detection now correctly identifies 5/7-char quatrains pasted with punctuation. PUA placeholder (used by updateChar for empty mid-line slots) preserved.
 
 ### Pre-Tier-2 cleanup
 
