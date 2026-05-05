@@ -38,6 +38,37 @@ Expected to grow as Addison provides more entries.
 - 白讀 bin1 (modern colloquial, lost -m): 現代粵語日常讀音.
 - Pedagogical: example of Cantonese -m erosion in colloquial vs classical.
 
+### 攏 (lung4 / lung5 Cantonese; lóng 平 / lǒng 仄 Mandarin)
+- 平聲 lóng (上平 一東): rare classical attestation.
+- 仄聲 lǒng (上聲 一董): modern common usage — 聚集·靠近·梳理 (拉攏, 攏聚).
+- Pingshui dual-attested with 一董 primary; 平/一東 is rare/literary.
+  Surfaced during #6 一東 cluster audit cleanup.
+
+### 總 (zung1 / zung2 Cantonese; zōng 平 / zǒng 仄 Mandarin)
+- 平聲 zōng (上平 一東): rare classical attestation (聚束 義).
+- 仄聲 zǒng (上聲 一董): modern common usage — 總計·概括·終究 (總是, 總部).
+- Pingshui dual-attested with 一董 primary; 平/一東 is rare/literary.
+  Surfaced during #6 audit cleanup.
+
+### 蓊 (jung1 / jung2 Cantonese; wēng 平 / wěng 仄 Mandarin)
+- 平聲 wēng (上平 一東): rare classical attestation.
+- 仄聲 wěng (上聲 一董): literary usage — 草木茂盛貌 (蓊鬱蒼翠).
+- Pingshui dual-attested with 一董 primary; 平/一東 is rare/literary.
+  Surfaced during #6 audit cleanup.
+
+### 菶 (bung1 / bung2 Cantonese; bēng 平 / běng 仄 Mandarin)
+- 平聲 bēng (上平 一東): rare classical attestation.
+- 仄聲 běng (上聲 一董): literary usage — 草盛貌 (菶菶).
+- Pingshui dual-attested with 一董 primary; 平/一東 is rare/literary.
+  Surfaced during #6 audit cleanup.
+
+### 翪 (zung1 / zung2 / zung3 Cantonese; zōng 平 / zǒng 仄 / zòng 去 Mandarin)
+- 平聲 zōng (上平 一東): rare classical attestation — 鳥飛貌.
+- 仄聲 zǒng (上聲 一董): primary pingshui placement.
+- 去聲 zòng (一送): additional 仄聲 attestation per 廣韻.
+- Pingshui triple-attested with 一董 primary; 平/一東 + 仄/一送 are rare.
+  Surfaced during #6 audit cleanup.
+
 ## Cross-rhyme chars (same tone, different rhyme group)
 
 ### 簪 (zaam1 only)
@@ -99,11 +130,6 @@ convention); UI converts on render via opencc when user prefers traditional.
 Effort: 1-2 sessions of focused work. Scope: trainer drill cards, anchor
 poem display, mnemonic prose, drill 4 corpus, edit modal, analyzer input/
 output, /admin views. Storage stays canonical simplified.
-
-### #6 — Audit pipeline batch
-一東 cluster paused at 4 of 14 findings (10 remain: 烽, 蘢, 谾, 漎, 逄, 攏,
-總, 蓊, 菶, 翪). ~519 findings across other rhymes (530 total HIGH-tier per
-dictionary-audit-v2.md).
 
 ### #7 — 簡↔繁 rhyme-merger annotations
 Some 簡 chars merge multiple 繁 forms with classically-distinct rhymes
