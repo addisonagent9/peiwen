@@ -11,6 +11,7 @@ import db from "./db.mjs";
 import { runMigrations } from "./db/migrate.mjs";
 import { mountTrainer } from "./trainer/index.mjs";
 import { requireTrainerBeta, describeTrainerGate } from "./middleware/trainer-beta.mjs";
+import { mountWenyan } from "./wenyan/index.mjs";
 import { createAudioServiceFromEnv } from "./audio/service.mjs";
 import { createAudioRouter } from "./routes/audio.mjs";
 import { createAdminAudioRouter } from "./routes/admin-audio.mjs";
@@ -332,6 +333,9 @@ app.post("/api/admin/users/:id/unlock-all-trainer", requireAdmin, async (req, re
 // --- Trainer routes (beta-gated) ---
 mountTrainer(app, db, requireAuth, { betaGate: requireTrainerBeta });
 console.log(`[trainer] beta gate: ${describeTrainerGate()}`);
+
+// --- 文言教材 routes (admin-only, v1) ---
+mountWenyan(app, db, requireAuth);
 
 // --- Audio routes ---
 const audioService = createAudioServiceFromEnv({

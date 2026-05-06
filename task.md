@@ -242,6 +242,20 @@ A manual VPS-side `.env` modification was made during early Tier 1 testing;
 should be reverted to whatever the canonical state is now that production
 has stable beta gating.
 
+## Closed parked items
+
+### Numbered tickets
+
+- **#26 stage A — 文言教材 module foundation** (this commit)
+  - Migration 015_wenyan.sql: 5 tables (dict_entries, dict_entry_poems,
+    user_progress, user_vocab, pairing_sessions)
+  - Server: requireWenyanAdmin middleware + mountWenyan with /health
+  - Frontend: hasWenyanAccess helper + view routing slot + nav button
+  - Empty WenyanModule placeholder
+  - Stages B/C/D follow with content, pairing, audio respectively
+  - Stage E (public dict surface) is Phase 2, deferred until ~30
+    poems annotated
+
 ## Future entries
 (Addison to add more multi-tone classical attestations as they arise during
 ongoing curriculum work.)

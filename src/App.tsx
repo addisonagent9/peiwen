@@ -5,6 +5,7 @@ import { EditModal } from "./ui/EditModal";
 import { RhymeReference } from "./ui/RhymeReference";
 import AdminConsole from "./ui/AdminConsole";
 import { PingshuiTrainer } from "./components/trainer/PingshuiTrainer";
+import { WenyanModule } from "./components/wenyan/WenyanModule";
 import { SlideToConfirm } from "./ui/SlideToConfirm";
 import { ConfirmDialog } from "./ui/ConfirmDialog";
 
@@ -42,6 +43,10 @@ export function hasPremiumAccess(user: User | null): boolean {
   return user?.is_admin === 1 || user?.is_premium === 1;
 }
 
+export function hasWenyanAccess(user: User | null): boolean {
+  return user?.is_admin === 1;
+}
+
 interface SavedPoem {
   id: number;
   text: string;
@@ -65,7 +70,7 @@ export default function App() {
   const [drawerRhyme, setDrawerRhyme] = useState<string | null>(null);
   const [editCell, setEditCell] = useState<{ li: number; pos: number } | null>(null);
   const [lockedPattern, setLockedPattern] = useState<string | null>(null);
-  const [view, setView] = useState<"main" | "rhyme-reference" | "admin" | "pingshui-trainer">("main");
+  const [view, setView] = useState<"main" | "rhyme-reference" | "admin" | "pingshui-trainer" | "wenyan">("main");
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     if (typeof window === "undefined") return true;
     const stored = window.localStorage.getItem("theme");
@@ -424,6 +429,9 @@ export default function App() {
         {hasPremiumAccess(user) && (
           <button onClick={() => setView("pingshui-trainer")} className={`${px} text-gold hover:opacity-80`}>{t.trainerLaunch}</button>
         )}
+        {hasWenyanAccess(user) && (
+          <button onClick={() => setView("wenyan")} className={`${px} text-gold hover:opacity-80`}>文言教材</button>
+        )}
       </div>
     );
   };
@@ -549,6 +557,14 @@ export default function App() {
       return null;
     }
     return <PingshuiTrainer onExit={() => setView("main")} userName={user?.name} />;
+  }
+
+  if (view === "wenyan") {
+    if (!hasWenyanAccess(user)) {
+      setView("main");
+      return null;
+    }
+    return <WenyanModule onExit={() => setView("main")} userName={user?.name} />;
   }
 
   return (
