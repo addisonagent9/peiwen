@@ -294,6 +294,19 @@ has stable beta gating.
   - Per-card styling unchanged from Stage B
   - UI-only — no schema, endpoint, or behavior changes
 
+- **#26 stage C-4 — 文言教材 button color + reader redesign + 下一首** (this commit)
+  - Practice button: gold → emerald-600 (trainer drill-CTA convention)
+  - PoemReader header: trainer-aligned (chevron + centered title +
+    brush-stroke); author/dynasty moved to body meta line
+  - Bottom button always action-oriented; cyclical next-unfinished
+    advance (key={poem.id} drives clean remount + scroll reset)
+  - findNextUnfinishedPoemId helper for cyclical scan
+  - Reader container width aligned with PoemListView
+    (max-w-screen-sm)
+  - Strings: drop markCompleted + completedAlready; add nextPoem +
+    returnToList
+  - isCompleted prop dropped from PoemReader
+
 ## Future entries
 (Addison to add more multi-tone classical attestations as they arise during
 ongoing curriculum work.)

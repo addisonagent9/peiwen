@@ -120,7 +120,7 @@ export function PoemListView({
             <button
               onClick={onStartPairing}
               title={s.practicePairingHint}
-              className="shrink-0 px-4 py-2 border border-gold/50 rounded text-gold hover:bg-gold hover:text-ink-bg transition-colors text-sm font-serif whitespace-nowrap"
+              className="shrink-0 px-4 py-2 border border-emerald-600/50 rounded text-emerald-600 hover:bg-emerald-600 hover:text-ink-bg transition-colors text-sm font-serif whitespace-nowrap"
             >
               {s.practicePairingButton}
             </button>

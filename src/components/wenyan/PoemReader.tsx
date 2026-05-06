@@ -1,13 +1,18 @@
 /**
- * 文言教材 — single-poem reader.
+ * 文言教材 — single-poem reader (Stage C-4 redesign).
  *
- * Sections (top → bottom):
- *   1. Header with back button + poem title/author
- *   2. Background paragraphs
- *   3. Original poem text
- *   4. Translation
- *   5. Vocabulary list (single scrollable column, ink-line/30 separators)
- *   6. Mark-completed button (or "已完成" badge if already done)
+ * Layout (top → bottom):
+ *   1. Sticky trainer-aligned header — chevron back + centered title +
+ *      animated gold brush-stroke divider (verbatim from PoemListView).
+ *   2. Dynasty · author meta line (centered, muted).
+ *   3. Background paragraphs.
+ *   4. Original poem text.
+ *   5. Translation.
+ *   6. Vocabulary list (single scrollable column, ink-line/30 separators).
+ *   7. Action button — text dynamic via `nextUnfinishedPoemId` prop:
+ *        '下一首' if more unfinished poems remain in the cycle, else '返回列表'.
+ *      Always present (no static "已完成 ✓" fallback). Click fires onComplete;
+ *      parent (WenyanModule) decides routing (next poem / pairing / list).
  */
 
 import React, { useState } from 'react';
@@ -16,46 +21,111 @@ import type { WenyanPoem, WenyanCompleteResponse } from '../../data/wenyan/types
 
 interface PoemReaderProps {
   poem: WenyanPoem;
-  isCompleted: boolean;
+  nextUnfinishedPoemId: string | null;
   onBack: () => void;
   onComplete: (poemId: string) => Promise<WenyanCompleteResponse>;
 }
 
-export function PoemReader({ poem, isCompleted, onBack, onComplete }: PoemReaderProps) {
+export function PoemReader({
+  poem,
+  nextUnfinishedPoemId,
+  onBack,
+  onComplete,
+}: PoemReaderProps) {
   const s = wenyanStrings.cn;
-  const [marking, setMarking] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleMarkCompleted = async () => {
-    setMarking(true);
+  const buttonText = submitting
+    ? s.loadingProgress
+    : nextUnfinishedPoemId
+      ? s.nextPoem
+      : s.returnToList;
+
+  const handleClick = async () => {
+    if (submitting) return;
+    setSubmitting(true);
     setError(null);
     try {
       await onComplete(poem.id);
-      // Parent (WenyanModule) refreshes progress + switches view.
+      // Parent handles routing. With key={poem.id} on this component, an advance
+      // triggers full remount, so this state is naturally discarded.
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
-      setMarking(false);
+      setSubmitting(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-ink-bg text-cream font-sans antialiased">
-      <header className="flex items-center justify-between px-6 py-4 border-b border-ink-line">
-        <div className="min-w-0 flex-1 mr-4">
-          <h1 className="font-serif text-2xl tracking-wide truncate">{poem.title}</h1>
-          <p className="text-creamDim text-xs mt-1">
-            {poem.dynasty} · {poem.author}
-          </p>
+      {/* Header — chevron back + centered title + brush-stroke divider */}
+      <header className="sticky top-0 z-20 bg-ink-bg/95 backdrop-blur-sm">
+        <div className="max-w-screen-sm mx-auto px-5 py-4 flex items-center">
+          <div className="w-10">
+            <button
+              onClick={onBack}
+              aria-label={s.backToList}
+              className="w-10 h-10 -ml-2 flex items-center justify-center text-creamDim hover:text-cream transition-colors"
+            >
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <path
+                  d="M11.5 3.5 L5.5 9 L11.5 14.5"
+                  stroke="currentColor"
+                  strokeWidth="1.25"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <div className="flex-1 text-center">
+            <h1 className="font-serif text-cream text-lg tracking-wide truncate">
+              {poem.title}
+            </h1>
+          </div>
+
+          <div className="w-10" />
         </div>
-        <button
-          onClick={onBack}
-          className="shrink-0 px-4 py-2 border border-ink-line rounded text-creamDim hover:text-cream hover:border-cream/40 transition-colors text-sm"
-        >
-          {s.backToList}
-        </button>
+
+        {/* Brush-stroke gold divider — animated once on mount */}
+        <div className="max-w-screen-sm mx-auto px-5">
+          <svg
+            viewBox="0 0 320 4"
+            preserveAspectRatio="none"
+            className="w-full h-[3px] text-gold"
+            aria-hidden
+          >
+            <path
+              d="M 4 2 Q 160 0.5 316 2"
+              stroke="currentColor"
+              strokeWidth="1"
+              strokeLinecap="round"
+              fill="none"
+              opacity="0.5"
+              style={{
+                strokeDasharray: 320,
+                strokeDashoffset: 320,
+                animation: 'pw-brushstroke 1.2s ease-out forwards',
+              }}
+            />
+          </svg>
+        </div>
+
+        {/* Scoped keyframes — identical to PoemListView; harmless collision. */}
+        <style>{`
+          @keyframes pw-brushstroke {
+            to { stroke-dashoffset: 0; }
+          }
+        `}</style>
       </header>
 
-      <main className="max-w-3xl mx-auto px-6 py-10 space-y-10 pb-24">
+      <main className="max-w-screen-sm mx-auto px-5 pb-20 pt-6 space-y-10">
+        {/* Dynasty · author meta */}
+        <p className="text-center text-creamDim text-xs mt-4">
+          {poem.dynasty} · {poem.author}
+        </p>
+
         {/* Background */}
         {poem.background.length > 0 && (
           <section>
@@ -122,26 +192,22 @@ export function PoemReader({ poem, isCompleted, onBack, onComplete }: PoemReader
           </div>
         </section>
 
-        {/* Mark completed */}
+        {/* Action button — always present, dynamic text */}
         <section className="pt-6 border-t border-ink-line/40">
-          {isCompleted ? (
-            <p className="text-center text-gold font-serif text-base">{s.completedAlready}</p>
-          ) : (
-            <div className="flex flex-col items-center gap-3">
-              <button
-                onClick={handleMarkCompleted}
-                disabled={marking}
-                className="px-8 py-3 border border-gold/50 rounded text-gold hover:bg-gold hover:text-ink-bg disabled:opacity-50 transition-colors font-serif text-base"
-              >
-                {marking ? s.loadingProgress : s.markCompleted}
-              </button>
-              {error && (
-                <p className="text-rose text-sm font-serif" role="status">
-                  {s.errorMarkingCompleted}: {error}
-                </p>
-              )}
-            </div>
-          )}
+          <div className="flex flex-col items-center gap-3">
+            <button
+              onClick={handleClick}
+              disabled={submitting}
+              className="px-8 py-3 border border-gold/50 rounded text-gold hover:bg-gold hover:text-ink-bg disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-serif text-base"
+            >
+              {buttonText}
+            </button>
+            {error && (
+              <p className="text-rose text-sm font-serif" role="status">
+                {s.errorMarkingCompleted}: {error}
+              </p>
+            )}
+          </div>
         </section>
       </main>
     </div>

@@ -22,6 +22,30 @@ import { WenyanPairingSession } from './WenyanPairingSession';
 
 const content = poemsData as WenyanContent;
 
+/**
+ * Cyclical next-unfinished search. Walks `displayOrder` forward from
+ * `currentPoemId+1` to the end, then wraps to 0..currentPoemId-1. Treats
+ * `currentPoemId` itself as just-completed (so we never loop back to it).
+ * Returns null if every poem is completed.
+ */
+function findNextUnfinishedPoemId(
+  displayOrder: string[],
+  completedSet: Set<string>,
+  currentPoemId: string,
+): string | null {
+  const completed = new Set(completedSet);
+  completed.add(currentPoemId);
+  const idx = displayOrder.indexOf(currentPoemId);
+  if (idx === -1) return null;
+  for (let i = idx + 1; i < displayOrder.length; i++) {
+    if (!completed.has(displayOrder[i])) return displayOrder[i];
+  }
+  for (let i = 0; i < idx; i++) {
+    if (!completed.has(displayOrder[i])) return displayOrder[i];
+  }
+  return null;
+}
+
 interface WenyanModuleProps {
   onExit: () => void;
   userName?: string | null;
@@ -115,11 +139,18 @@ export function WenyanModule({ onExit, userName }: WenyanModuleProps) {
       setViewMode('list');
       return null;
     }
-    const isCompleted = progress.some((p) => p.poem_id === poem.id);
+    const completedSet = new Set(progress.map((p) => p.poem_id));
+    const nextUnfinishedId = findNextUnfinishedPoemId(
+      content.displayOrder,
+      completedSet,
+      selectedPoemId,
+    );
     return (
       <PoemReader
+        // key forces unmount + remount on poem change → scroll resets to top.
+        key={poem.id}
         poem={poem}
-        isCompleted={isCompleted}
+        nextUnfinishedPoemId={nextUnfinishedId}
         onBack={() => setViewMode('list')}
         onComplete={async (poemId) => {
           const result = await completePoem(poemId);
@@ -128,8 +159,24 @@ export function WenyanModule({ onExit, userName }: WenyanModuleProps) {
             setSelectedPoemId(null);
             setViewMode('pairing');
           } else {
-            setSelectedPoemId(null);
-            setViewMode('list');
+            // Re-compute after /complete — `progress` may not yet reflect the
+            // mutation, so explicitly add poemId to the completed set.
+            const updatedCompleted = new Set([
+              ...progress.map((p) => p.poem_id),
+              poemId,
+            ]);
+            const next = findNextUnfinishedPoemId(
+              content.displayOrder,
+              updatedCompleted,
+              poemId,
+            );
+            if (next) {
+              setSelectedPoemId(next);
+              // viewMode stays 'reader'; key={poem.id} swap drives remount.
+            } else {
+              setSelectedPoemId(null);
+              setViewMode('list');
+            }
           }
           return result;
         }}
