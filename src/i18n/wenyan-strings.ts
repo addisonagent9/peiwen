@@ -1,10 +1,10 @@
 export const wenyanStrings = {
   cn: {
     moduleTitle: '文言教材',
-    moduleSubtitle: '管理员预览',
     backToHome: '← 返回',
     backToList: '← 返回诗目',
-    poemListHeading: '诗目',
+    greeting: (name: string) => `你好, ${name}`,
+    poemListSectionTitle: '诗目',
     completedBadge: '已完成 ✓',
     backgroundHeading: '背景',
     poemTextHeading: '原文',
@@ -40,10 +40,10 @@ export const wenyanStrings = {
   },
   en: {
     moduleTitle: 'Classical Chinese Reader',
-    moduleSubtitle: 'Admin preview',
     backToHome: '← Back',
     backToList: '← Back to list',
-    poemListHeading: 'Poems',
+    greeting: (name: string) => `Hello, ${name}`,
+    poemListSectionTitle: 'Poems',
     completedBadge: 'Completed ✓',
     backgroundHeading: 'Background',
     poemTextHeading: 'Original',

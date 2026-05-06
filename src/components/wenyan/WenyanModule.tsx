@@ -29,7 +29,7 @@ interface WenyanModuleProps {
 
 type ViewMode = 'list' | 'reader' | 'pairing';
 
-export function WenyanModule({ onExit }: WenyanModuleProps) {
+export function WenyanModule({ onExit, userName }: WenyanModuleProps) {
   const s = wenyanStrings.cn;
   const { progress, isLoadingProgress, progressError, completePoem, fetchLibrary } =
     useWenyanApi();
@@ -144,6 +144,7 @@ export function WenyanModule({ onExit }: WenyanModuleProps) {
       progress={progress}
       vocabCount={vocabCount}
       isLoadingVocab={isLoadingVocab}
+      userName={userName ?? null}
       onSelect={(poemId) => {
         setSelectedPoemId(poemId);
         setViewMode('reader');

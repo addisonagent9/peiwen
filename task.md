@@ -284,6 +284,16 @@ has stable beta gating.
     v1 corpus, auto-trigger (count % 3 === 0) fires once max;
     manual button enables ongoing self-service practice
 
+- **#26 stage C-3 — 文言教材 list view redesign (trainer-aligned)** (this commit)
+  - Header: chevron back + centered title (text-lg) + animated gold
+    brush-stroke divider — verbatim mirror of trainer's TrainerHeader
+  - Greeting "你好, {userName}" + "练习配对" button on same row
+    below header
+  - Section divider with flanking lines around "诗目" label
+  - Container width: max-w-3xl → max-w-screen-sm
+  - Per-card styling unchanged from Stage B
+  - UI-only — no schema, endpoint, or behavior changes
+
 ## Future entries
 (Addison to add more multi-tone classical attestations as they arise during
 ongoing curriculum work.)
