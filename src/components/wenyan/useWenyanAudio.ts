@@ -1,5 +1,6 @@
 /**
- * useWenyanAudio — per-instance audio playback hook (#26 stage D-2).
+ * useWenyanAudio — per-instance audio playback hook (#26 stage D-2,
+ * mutex wired in D-2.5).
  *
  * One HTMLAudioElement per hook instance — each <PlayButton> owns its
  * own playback state. Click toggles play/pause. A 404 from the server
@@ -7,10 +8,15 @@
  * `error` to a non-throwing message; the button surfaces a muted
  * visual rather than crashing.
  *
- * Cleanup on unmount: pause + clear src + null the ref.
+ * Mutex (#26 D-2.5): claims playbackRegistry on 'play' event; clears
+ * on stop / ended / error / unmount. Vocab clicks stop any active
+ * background/poem-body/translation sequence and vice versa.
+ *
+ * Cleanup on unmount: pause + clear src + null the ref + clear registry.
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { registerActivePlayback, clearActivePlayback } from './playbackRegistry';
 
 export interface WenyanAudioControls {
   isPlaying: boolean;
@@ -26,6 +32,17 @@ export function useWenyanAudio(tag: string | null): WenyanAudioControls {
   const [error, setError] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  // Stable identity (empty deps) — same fn instance is registered with
+  // playbackRegistry across renders, so the registry's identity check works.
+  const stop = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    setIsPlaying(false);
+    clearActivePlayback(stop);
+  }, []);
+
   // Cleanup on unmount.
   useEffect(() => {
     return () => {
@@ -34,8 +51,9 @@ export function useWenyanAudio(tag: string | null): WenyanAudioControls {
         audioRef.current.src = '';
         audioRef.current = null;
       }
+      clearActivePlayback(stop);
     };
-  }, []);
+  }, [stop]);
 
   // Reset on tag change. PoemReader uses key={poem.id}, so this is
   // mostly defensive — but covers any future caller that swaps tags
@@ -49,7 +67,8 @@ export function useWenyanAudio(tag: string | null): WenyanAudioControls {
     setIsPlaying(false);
     setIsLoading(false);
     setError(null);
-  }, [tag]);
+    clearActivePlayback(stop);
+  }, [tag, stop]);
 
   const play = useCallback(() => {
     if (!tag) return;
@@ -58,6 +77,7 @@ export function useWenyanAudio(tag: string | null): WenyanAudioControls {
     if (audioRef.current && !audioRef.current.paused) {
       audioRef.current.pause();
       setIsPlaying(false);
+      clearActivePlayback(stop);
       return;
     }
 
@@ -73,15 +93,18 @@ export function useWenyanAudio(tag: string | null): WenyanAudioControls {
     audio.addEventListener('play', () => {
       setIsPlaying(true);
       setIsLoading(false);
+      registerActivePlayback(stop);
     });
     audio.addEventListener('ended', () => {
       setIsPlaying(false);
+      clearActivePlayback(stop);
     });
     audio.addEventListener('error', () => {
       // 404 / network error / bad mime. Don't crash; show muted state.
       setError('audio unavailable');
       setIsPlaying(false);
       setIsLoading(false);
+      clearActivePlayback(stop);
     });
 
     audioRef.current = audio;
@@ -92,16 +115,9 @@ export function useWenyanAudio(tag: string | null): WenyanAudioControls {
       setError('audio unavailable');
       setIsPlaying(false);
       setIsLoading(false);
+      clearActivePlayback(stop);
     });
-  }, [tag]);
-
-  const stop = useCallback(() => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-    }
-    setIsPlaying(false);
-  }, []);
+  }, [tag, stop]);
 
   return { isPlaying, isLoading, error, play, stop };
 }

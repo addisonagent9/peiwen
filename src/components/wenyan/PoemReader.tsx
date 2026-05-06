@@ -15,9 +15,10 @@
  *      parent (WenyanModule) decides routing (next poem / pairing / list).
  */
 
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { wenyanStrings } from '../../i18n/wenyan-strings';
 import { PlayButton } from './PlayButton';
+import { SequencePlayButton } from './SequencePlayButton';
 import type { WenyanPoem, WenyanCompleteResponse } from '../../data/wenyan/types';
 
 interface PoemReaderProps {
@@ -42,6 +43,26 @@ export function PoemReader({
     : nextUnfinishedPoemId
       ? s.nextPoem
       : s.returnToList;
+
+  // Audio tag arrays for section-header SequencePlayButtons. Memoized so
+  // hook deps (tags reference identity) only churn when the underlying
+  // poem changes — though PoemReader's key={poem.id} also forces remount.
+  const backgroundTags = useMemo(
+    () => poem.background.map((_, i) => `wenyan:background:${poem.id}:chunk-${i + 1}`),
+    [poem.id, poem.background],
+  );
+  const couplets = useMemo(
+    () => poem.fullText.split('\n').map((l) => l.trim()).filter(Boolean),
+    [poem.fullText],
+  );
+  const coupletTags = useMemo(
+    () => couplets.map((_, i) => `wenyan:poem-body:${poem.id}:couplet-${i + 1}`),
+    [poem.id, couplets],
+  );
+  const translationTags = useMemo(
+    () => [`wenyan:translation:${poem.id}`],
+    [poem.id],
+  );
 
   const handleClick = async () => {
     if (submitting) return;
@@ -127,63 +148,54 @@ export function PoemReader({
           {poem.dynasty} · {poem.author}
         </p>
 
-        {/* Background — each chunk paired with a small play button at its end */}
+        {/* Background — section-header SequencePlayButton (autoPlay on mount).
+            Per-chunk buttons removed in #26 stage D-2.5 in favor of one
+            section-level control. */}
         {poem.background.length > 0 && (
           <section>
-            <h2 className="font-serif text-creamDim text-sm tracking-wider uppercase mb-4">
-              {s.backgroundHeading}
-            </h2>
-            <div className="space-y-5 text-cream font-serif leading-relaxed">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-serif text-creamDim text-sm tracking-wider uppercase">
+                {s.backgroundHeading}
+              </h2>
+              <SequencePlayButton tags={backgroundTags} size="md" autoPlay />
+            </div>
+            <div className="space-y-3 text-cream font-serif leading-relaxed">
               {poem.background.map((para, i) => (
-                <div key={i}>
-                  <p>{para}</p>
-                  <div className="mt-2 flex justify-end">
-                    <PlayButton
-                      tag={`wenyan:background:${poem.id}:chunk-${i + 1}`}
-                      size="sm"
-                    />
-                  </div>
-                </div>
+                <p key={i}>{para}</p>
               ))}
             </div>
           </section>
         )}
 
-        {/* Poem text — restructured from <pre> to per-couplet rows so each
-            line gets its own play button. Visual: line text on the left,
-            small button on the right. */}
+        {/* Poem text — section-header SequencePlayButton plays couplets in
+            order. Lines render as plain text now (no per-couplet button). */}
         <section>
-          <h2 className="font-serif text-creamDim text-sm tracking-wider uppercase mb-4">
-            {s.poemTextHeading}
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-serif text-creamDim text-sm tracking-wider uppercase">
+              {s.poemTextHeading}
+            </h2>
+            <SequencePlayButton tags={coupletTags} size="md" />
+          </div>
           <div className="space-y-3 font-serif text-cream text-xl leading-loose tracking-wide">
-            {poem.fullText.split('\n').map((line, i) => {
-              const trimmed = line.trim();
-              if (!trimmed) return null;
-              return (
-                <div key={i} className="flex items-center gap-3">
-                  <span className="flex-1 break-words">{trimmed}</span>
-                  <PlayButton
-                    tag={`wenyan:poem-body:${poem.id}:couplet-${i + 1}`}
-                    size="sm"
-                  />
-                </div>
-              );
-            })}
+            {couplets.map((line, i) => (
+              <div key={i} className="break-words">
+                {line}
+              </div>
+            ))}
           </div>
         </section>
 
-        {/* Translation — single play button at the end of the paragraph */}
+        {/* Translation — section-header SequencePlayButton (single-clip array). */}
         <section>
-          <h2 className="font-serif text-creamDim text-sm tracking-wider uppercase mb-4">
-            {s.translationHeading}
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-serif text-creamDim text-sm tracking-wider uppercase">
+              {s.translationHeading}
+            </h2>
+            <SequencePlayButton tags={translationTags} size="md" />
+          </div>
           <p className="font-serif text-creamDim text-base leading-relaxed whitespace-pre-wrap">
             {poem.translation}
           </p>
-          <div className="mt-2 flex justify-end">
-            <PlayButton tag={`wenyan:translation:${poem.id}`} size="sm" />
-          </div>
         </section>
 
         {/* Vocabulary — each entry's word headline gets a play button on the right */}

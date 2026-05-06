@@ -343,6 +343,19 @@ has stable beta gating.
     state on click, no crashes; works automatically once prewarm
     batch runs on VPS
 
+- **#26 stage D-2.5 — wenyan audio UX overhaul** (this commit)
+  - Background auto-plays on PoemReader mount; 3 per-chunk
+    buttons consolidated to 1 section-header button
+  - Poem body: per-couplet buttons consolidated to 1
+    section-header button (sequential playback)
+  - Translation: button moved to section header for consistency
+  - Vocab unchanged (9 per-entry buttons)
+  - Mutex: cross-section playbackRegistry — only one active
+    playback at a time; preserved-index pause/resume
+  - Latent bug fix from D-2: per-couplet tag indices now match
+    manifest builder (post-filter)
+  - Frontend-only; no backend, no schema, no regen
+
 ## Future entries
 (Addison to add more multi-tone classical attestations as they arise during
 ongoing curriculum work.)
