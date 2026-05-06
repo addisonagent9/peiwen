@@ -307,6 +307,17 @@ has stable beta gating.
     returnToList
   - isCompleted prop dropped from PoemReader
 
+- **#26 stage D-1 — 文言教材 audio pilot scripts (Yunyang voice)** (this commit)
+  - scripts/wenyan-build-audio-manifest.mjs: dynamic manifest
+    builder (reads poems.json + applies chunking spec)
+  - scripts/wenyan-prewarm-audio.mjs: TTS generation script
+    isolated from trainer pipeline
+  - 17-clip pilot for 感遇·其一 validated locally; cost ~$0.008
+  - Voice: zh-CN-YunyangNeural via voice-pools (inherits trainer's
+    mandarin primary)
+  - No schema changes; reuses audio_clips table + cache
+  - Frontend wiring deferred to Stage D-2 (post-ratification)
+
 ## Future entries
 (Addison to add more multi-tone classical attestations as they arise during
 ongoing curriculum work.)
