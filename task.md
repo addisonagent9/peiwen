@@ -318,6 +318,17 @@ has stable beta gating.
   - No schema changes; reuses audio_clips table + cache
   - Frontend wiring deferred to Stage D-2 (post-ratification)
 
+- **#26 stage D-1.5 — wenyan voice swap to Yunxi + tag backfill** (this commit)
+  - Voice swap: wenyan-prewarm-audio.mjs hardcodes
+    zh-CN-YunxiNeural for mandarin path; trainer pipeline
+    untouched (Option B)
+  - NEW: scripts/wenyan-backfill-usage-context.mjs — one-time
+    idempotent backfill of usage_context tags on the 17 approved
+    wenyan Yunxi rows (regenerated via Audio Review UI which
+    doesn't preserve tags)
+  - Resolves Stage D-2 dependency: PoemReader play-button lookup
+    requires usage_context tags
+
 ## Future entries
 (Addison to add more multi-tone classical attestations as they arise during
 ongoing curriculum work.)

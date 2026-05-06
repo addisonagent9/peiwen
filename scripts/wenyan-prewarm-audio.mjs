@@ -106,7 +106,18 @@ async function main() {
 
   for (let i = 0; i < total; i++) {
     const item = manifest[i];
-    const { provider: providerName, voiceId } = getPrimaryVoice(item.voiceKind);
+
+    // Wenyan-specific voice override (#26 stage D-1.5). User ratified
+    // Yunxi for wenyan content; trainer continues to use voice-pools'
+    // mandarin primary (Yunyang). If trainer ever switches to Yunxi too,
+    // remove this branch and let getPrimaryVoice handle it.
+    let providerName, voiceId;
+    if (item.voiceKind === 'mandarin') {
+      providerName = 'azure';
+      voiceId = 'zh-CN-YunxiNeural';
+    } else {
+      ({ provider: providerName, voiceId } = getPrimaryVoice(item.voiceKind));
+    }
 
     const existing = sCheck.get(item.text, item.voiceKind, providerName, voiceId);
     if (existing) {
