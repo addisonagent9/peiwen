@@ -37,6 +37,10 @@ export const wenyanStrings = {
     pairingPairsAllSet: '5 对已配齐 — 可提交',
     practicePairingButton: '练习配对',
     practicePairingHint: '需先完成至少 5 个生词',
+    // Audio playback (#26 Stage D-2)
+    audioPlay: '播放音频',
+    audioPause: '暂停播放',
+    audioUnavailable: '音频不可用',
   },
   en: {
     moduleTitle: 'Classical Chinese Reader',
@@ -76,6 +80,10 @@ export const wenyanStrings = {
     pairingPairsAllSet: 'All 5 paired — ready to submit',
     practicePairingButton: 'Practice Pairing',
     practicePairingHint: 'Requires at least 5 vocabulary entries',
+    // Audio playback (#26 Stage D-2)
+    audioPlay: 'Play audio',
+    audioPause: 'Pause',
+    audioUnavailable: 'Audio unavailable',
   },
 } as const;
 

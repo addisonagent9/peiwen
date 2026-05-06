@@ -17,6 +17,7 @@
 
 import React, { useState } from 'react';
 import { wenyanStrings } from '../../i18n/wenyan-strings';
+import { PlayButton } from './PlayButton';
 import type { WenyanPoem, WenyanCompleteResponse } from '../../data/wenyan/types';
 
 interface PoemReaderProps {
@@ -126,31 +127,53 @@ export function PoemReader({
           {poem.dynasty} · {poem.author}
         </p>
 
-        {/* Background */}
+        {/* Background — each chunk paired with a small play button at its end */}
         {poem.background.length > 0 && (
           <section>
             <h2 className="font-serif text-creamDim text-sm tracking-wider uppercase mb-4">
               {s.backgroundHeading}
             </h2>
-            <div className="space-y-3 text-cream font-serif leading-relaxed">
+            <div className="space-y-5 text-cream font-serif leading-relaxed">
               {poem.background.map((para, i) => (
-                <p key={i}>{para}</p>
+                <div key={i}>
+                  <p>{para}</p>
+                  <div className="mt-2 flex justify-end">
+                    <PlayButton
+                      tag={`wenyan:background:${poem.id}:chunk-${i + 1}`}
+                      size="sm"
+                    />
+                  </div>
+                </div>
               ))}
             </div>
           </section>
         )}
 
-        {/* Poem text */}
+        {/* Poem text — restructured from <pre> to per-couplet rows so each
+            line gets its own play button. Visual: line text on the left,
+            small button on the right. */}
         <section>
           <h2 className="font-serif text-creamDim text-sm tracking-wider uppercase mb-4">
             {s.poemTextHeading}
           </h2>
-          <pre className="font-serif text-cream text-xl leading-loose whitespace-pre-wrap break-words tracking-wide">
-            {poem.fullText}
-          </pre>
+          <div className="space-y-3 font-serif text-cream text-xl leading-loose tracking-wide">
+            {poem.fullText.split('\n').map((line, i) => {
+              const trimmed = line.trim();
+              if (!trimmed) return null;
+              return (
+                <div key={i} className="flex items-center gap-3">
+                  <span className="flex-1 break-words">{trimmed}</span>
+                  <PlayButton
+                    tag={`wenyan:poem-body:${poem.id}:couplet-${i + 1}`}
+                    size="sm"
+                  />
+                </div>
+              );
+            })}
+          </div>
         </section>
 
-        {/* Translation */}
+        {/* Translation — single play button at the end of the paragraph */}
         <section>
           <h2 className="font-serif text-creamDim text-sm tracking-wider uppercase mb-4">
             {s.translationHeading}
@@ -158,9 +181,12 @@ export function PoemReader({
           <p className="font-serif text-creamDim text-base leading-relaxed whitespace-pre-wrap">
             {poem.translation}
           </p>
+          <div className="mt-2 flex justify-end">
+            <PlayButton tag={`wenyan:translation:${poem.id}`} size="sm" />
+          </div>
         </section>
 
-        {/* Vocabulary */}
+        {/* Vocabulary — each entry's word headline gets a play button on the right */}
         <section>
           <h2 className="font-serif text-creamDim text-sm tracking-wider uppercase mb-4">
             {s.vocabHeading}
@@ -168,9 +194,15 @@ export function PoemReader({
           <div className="divide-y divide-ink-line/30">
             {poem.vocabulary.map((v, i) => (
               <div key={`${v.word}-${v.senseSlug}-${i}`} className="py-5 first:pt-0 last:pb-0 space-y-1.5">
-                <div className="flex items-baseline gap-3 flex-wrap">
-                  <span className="font-serif text-gold text-2xl">{v.word}</span>
-                  <span className="text-creamDim text-sm">{v.pinyin}</span>
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-baseline gap-3 flex-wrap min-w-0">
+                    <span className="font-serif text-gold text-2xl">{v.word}</span>
+                    <span className="text-creamDim text-sm">{v.pinyin}</span>
+                  </div>
+                  <PlayButton
+                    tag={`wenyan:vocab:${poem.id}:${v.senseSlug}`}
+                    size="sm"
+                  />
                 </div>
                 <p className="text-cream text-base leading-relaxed">
                   <span className="text-creamDim text-xs mr-2 align-middle">{s.vocabAncient}</span>

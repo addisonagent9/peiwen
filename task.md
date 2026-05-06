@@ -329,6 +329,20 @@ has stable beta gating.
   - Resolves Stage D-2 dependency: PoemReader play-button lookup
     requires usage_context tags
 
+- **#26 stage D-2 — wenyan audio playback (endpoint + UI)** (this commit)
+  - NEW server/wenyan/audio.mjs: GET /api/wenyan/audio?tag=<...>
+    resolves usage_context tag → file_path → streams mp3
+  - NEW src/components/wenyan/useWenyanAudio.ts: per-instance
+    playback hook
+  - NEW src/components/wenyan/PlayButton.tsx: inline-SVG circular
+    button (no lucide-react; project convention)
+  - PoemReader wired with PlayButtons in all 4 sections
+    (background chunks, couplet lines, translation, vocab entries)
+  - /health stage bumped 'C' → 'D'
+  - Mixed-state UX: poems without batched audio yet show error
+    state on click, no crashes; works automatically once prewarm
+    batch runs on VPS
+
 ## Future entries
 (Addison to add more multi-tone classical attestations as they arise during
 ongoing curriculum work.)

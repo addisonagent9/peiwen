@@ -1,8 +1,8 @@
 /**
  * 文言教材 module mount.
  *
- * Stage C: pairing exercise endpoints (queue + submit) + pairingDue
- * trigger on /complete. Stage D adds audio.
+ * Stage D-2: audio playback endpoint added (Yunxi voice). All routes
+ * remain admin-gated via requireWenyanAdmin.
  *
  * Endpoints (all admin-gated via requireWenyanAdmin):
  *   GET  /api/wenyan/health
@@ -11,10 +11,12 @@
  *   GET  /api/wenyan/library
  *   GET  /api/wenyan/pairing/queue
  *   POST /api/wenyan/pairing/submit
+ *   GET  /api/wenyan/audio?tag=<wenyan:...>
  */
 
 import express from 'express';
 import { requireWenyanAdmin } from '../middleware/wenyan-admin.mjs';
+import { mountWenyanAudio } from './audio.mjs';
 
 // Fisher-Yates in-place shuffle.
 function shuffle(arr) {
@@ -44,9 +46,9 @@ export function mountWenyan(app, db, requireAuth) {
   router.use(requireAuth);
   router.use(requireWenyanAdmin);
 
-  // --- Health (kept; bumped to stage 'C') ---
+  // --- Health (bumped to stage 'D' — audio playback shipped) ---
   router.get('/health', (req, res) => {
-    res.json({ status: 'ok', stage: 'C', module: 'wenyan' });
+    res.json({ status: 'ok', stage: 'D', module: 'wenyan' });
   });
 
   // --- Progress: completed-poems list for current user ---
@@ -273,6 +275,10 @@ export function mountWenyan(app, db, requireAuth) {
     const result = submitTxn(userId, pairs);
     res.json(result);
   });
+
+  // --- Audio (Stage D-2): GET /audio?tag=<wenyan:...> ---
+  // Inherits requireAuth + requireWenyanAdmin from this router.
+  mountWenyanAudio(router, db);
 
   app.use('/api/wenyan', router);
 }
