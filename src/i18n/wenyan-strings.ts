@@ -35,6 +35,8 @@ export const wenyanStrings = {
     pairingPaired: '已配对',
     pairingPairsRemaining: (n: number) => `剩 ${n} 对`,
     pairingPairsAllSet: '5 对已配齐 — 可提交',
+    practicePairingButton: '练习配对',
+    practicePairingHint: '需先完成至少 5 个生词',
   },
   en: {
     moduleTitle: 'Classical Chinese Reader',
@@ -72,6 +74,8 @@ export const wenyanStrings = {
     pairingPaired: 'Paired',
     pairingPairsRemaining: (n: number) => `${n} pair${n === 1 ? '' : 's'} left`,
     pairingPairsAllSet: 'All 5 paired — ready to submit',
+    practicePairingButton: 'Practice Pairing',
+    practicePairingHint: 'Requires at least 5 vocabulary entries',
   },
 } as const;
 

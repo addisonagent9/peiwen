@@ -10,30 +10,55 @@ import type { WenyanContent, WenyanPoem, WenyanProgressEntry } from '../../data/
 interface PoemListViewProps {
   content: WenyanContent;
   progress: WenyanProgressEntry[];
+  vocabCount: number;
+  isLoadingVocab: boolean;
   onSelect: (poemId: string) => void;
+  onStartPairing: () => void;
   onExit: () => void;
 }
 
-export function PoemListView({ content, progress, onSelect, onExit }: PoemListViewProps) {
+export function PoemListView({
+  content,
+  progress,
+  vocabCount,
+  isLoadingVocab,
+  onSelect,
+  onStartPairing,
+  onExit,
+}: PoemListViewProps) {
   const s = wenyanStrings.cn;
   const completedSet = new Set(progress.map((p) => p.poem_id));
   const orderedPoems: WenyanPoem[] = content.displayOrder
     .map((id) => content.poems.find((p) => p.id === id))
     .filter((p): p is WenyanPoem => p !== undefined);
+  const showPairingButton = !isLoadingVocab && vocabCount >= 5;
 
   return (
     <div className="min-h-screen bg-ink-bg text-cream font-sans antialiased">
       <header className="flex items-center justify-between px-6 py-4 border-b border-ink-line">
-        <div>
-          <h1 className="font-serif text-2xl tracking-wide">{s.moduleTitle}</h1>
-          <p className="text-creamDim text-xs mt-1">{s.moduleSubtitle}</p>
-        </div>
         <button
           onClick={onExit}
           className="px-4 py-2 border border-ink-line rounded text-creamDim hover:text-cream hover:border-cream/40 transition-colors text-sm"
         >
           {s.backToHome}
         </button>
+        <div className="flex flex-col items-end gap-0.5">
+          <h1 className="font-serif text-2xl tracking-wide text-cream">
+            {s.moduleTitle}
+          </h1>
+          <p className="text-creamDim text-xs">{s.moduleSubtitle}</p>
+        </div>
+        {showPairingButton ? (
+          <button
+            onClick={onStartPairing}
+            title={s.practicePairingHint}
+            className="px-4 py-2 border border-gold/50 rounded text-gold hover:bg-gold hover:text-ink-bg transition-colors text-sm font-serif"
+          >
+            {s.practicePairingButton}
+          </button>
+        ) : (
+          <div className="w-[88px]" aria-hidden="true" />
+        )}
       </header>
 
       <main className="max-w-3xl mx-auto px-6 py-10 space-y-6">

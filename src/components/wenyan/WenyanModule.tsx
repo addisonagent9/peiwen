@@ -11,7 +11,7 @@
  * back to 'list'. After pairing exit ('返回模块'), fall back to 'list'.
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import poemsData from '../../data/wenyan/poems.json';
 import type { WenyanContent, WenyanPoem } from '../../data/wenyan/types';
 import { wenyanStrings } from '../../i18n/wenyan-strings';
@@ -31,9 +31,33 @@ type ViewMode = 'list' | 'reader' | 'pairing';
 
 export function WenyanModule({ onExit }: WenyanModuleProps) {
   const s = wenyanStrings.cn;
-  const { progress, isLoadingProgress, progressError, completePoem } = useWenyanApi();
+  const { progress, isLoadingProgress, progressError, completePoem, fetchLibrary } =
+    useWenyanApi();
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [selectedPoemId, setSelectedPoemId] = useState<string | null>(null);
+  const [vocabCount, setVocabCount] = useState<number>(0);
+  const [isLoadingVocab, setIsLoadingVocab] = useState(true);
+
+  // Fetch library on mount to gate the manual pairing button (#26 stage C-2:
+  // button visible iff user has ≥5 vocab entries — the floor for /pairing/queue).
+  useEffect(() => {
+    let cancelled = false;
+    fetchLibrary()
+      .then((library) => {
+        if (cancelled) return;
+        setVocabCount(library.length);
+        setIsLoadingVocab(false);
+      })
+      .catch(() => {
+        // Swallow — vocab count defaults to 0, hides button. Graceful degradation.
+        if (cancelled) return;
+        setVocabCount(0);
+        setIsLoadingVocab(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [fetchLibrary]);
 
   if (isLoadingProgress) {
     return (
@@ -65,7 +89,15 @@ export function WenyanModule({ onExit }: WenyanModuleProps) {
   if (viewMode === 'pairing') {
     return (
       <WenyanPairingSession
-        onExit={() => {
+        onExit={async () => {
+          // Refresh vocab count — mastery may have changed; covers edge cases
+          // where the user's vocab state shifted during the session.
+          try {
+            const library = await fetchLibrary();
+            setVocabCount(library.length);
+          } catch {
+            // Ignore — keep prior count.
+          }
           setSelectedPoemId(null);
           setViewMode('list');
         }}
@@ -110,9 +142,14 @@ export function WenyanModule({ onExit }: WenyanModuleProps) {
     <PoemListView
       content={content}
       progress={progress}
+      vocabCount={vocabCount}
+      isLoadingVocab={isLoadingVocab}
       onSelect={(poemId) => {
         setSelectedPoemId(poemId);
         setViewMode('reader');
+      }}
+      onStartPairing={() => {
+        setViewMode('pairing');
       }}
       onExit={onExit}
     />

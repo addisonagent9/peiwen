@@ -275,6 +275,15 @@ has stable beta gating.
   - Mastery: correct → +1 (cap 3), wrong → flat (no decrement)
   - Stage D (audio) follows; Stage E (public dict surface) deferred
 
+- **#26 stage C-2 — 文言教材 permanent pairing trigger button** (this commit)
+  - Permanent "练习配对" button in WenyanModule list view header
+  - Visible iff user has ≥5 vocab entries in user_vocab
+  - Reuses existing /pairing/queue + WenyanPairingSession; no schema
+    or endpoint changes
+  - Solves the "trigger window passed" issue in Stage C: with 5-poem
+    v1 corpus, auto-trigger (count % 3 === 0) fires once max;
+    manual button enables ongoing self-service practice
+
 ## Future entries
 (Addison to add more multi-tone classical attestations as they arise during
 ongoing curriculum work.)
