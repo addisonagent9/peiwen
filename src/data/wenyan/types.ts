@@ -53,4 +53,47 @@ export interface WenyanCompleteResponse {
   ok: true;
   completed_at: string;
   vocab_added: number;
+  pairingDue: boolean;
+}
+
+// ─── Pairing exercise types (#26 Stage C) ─────────────────────────────────
+
+export interface PairingWord {
+  entry_id: number;
+  word: string;
+  pinyin: string | null;
+}
+
+export interface PairingMeaning {
+  entry_id: number;
+  text: string;
+}
+
+export interface PairingQueue {
+  pairingId: string;
+  words: PairingWord[];
+  meanings: PairingMeaning[]; // shuffled relative to words[]
+}
+
+export interface PairingSubmitPair {
+  word_entry_id: number;
+  meaning_entry_id: number;
+}
+
+export interface PairingSubmitRequest {
+  pairingId: string;
+  pairs: PairingSubmitPair[];
+}
+
+export interface PairingResultRow {
+  word_entry_id: number;
+  user_meaning_entry_id: number;
+  correct: boolean;
+  actual_meaning_entry_id: number;
+}
+
+export interface PairingSubmitResponse {
+  correct_count: number;
+  total_count: number;
+  results: PairingResultRow[];
 }

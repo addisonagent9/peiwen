@@ -265,6 +265,16 @@ has stable beta gating.
     router
   - Stage C (pairing exercise) and Stage D (audio) follow
 
+- **#26 stage C — 文言教材 pairing exercise + trigger + mastery** (this commit)
+  - Trigger: pairingDue field on /complete response (count % 3 === 0)
+  - Endpoints: GET /pairing/queue (Fisher-Yates shuffle, last-3-poems
+    vocab + full-library fallback), POST /pairing/submit (stateless
+    validation, mastery + 1 capped at 3, session log)
+  - UI: WenyanPairingSession (~360 lines) — two-column layout, click-A
+    then click-B pairing, SVG line overlay, results panel
+  - Mastery: correct → +1 (cap 3), wrong → flat (no decrement)
+  - Stage D (audio) follows; Stage E (public dict surface) deferred
+
 ## Future entries
 (Addison to add more multi-tone classical attestations as they arise during
 ongoing curriculum work.)

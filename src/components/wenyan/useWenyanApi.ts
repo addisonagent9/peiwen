@@ -1,7 +1,7 @@
 /**
  * 文言教材 API hooks. Stage B endpoints: progress, complete, library.
- * Mirrors the shape of useAdminAudio (credentials: include, throw on
- * non-2xx, JSON in/out).
+ * Stage C adds pairing queue + submit. Mirrors the shape of useAdminAudio
+ * (credentials: include, throw on non-2xx, JSON in/out).
  */
 
 import { useCallback, useEffect, useState } from 'react';
@@ -9,6 +9,9 @@ import type {
   WenyanProgressEntry,
   WenyanLibraryEntry,
   WenyanCompleteResponse,
+  PairingQueue,
+  PairingSubmitRequest,
+  PairingSubmitResponse,
 } from '../../data/wenyan/types';
 
 async function jsonFetch<T>(input: string, init?: RequestInit): Promise<T> {
@@ -27,6 +30,8 @@ interface UseWenyanApiReturn {
   refreshProgress: () => Promise<void>;
   completePoem: (poemId: string) => Promise<WenyanCompleteResponse>;
   fetchLibrary: () => Promise<WenyanLibraryEntry[]>;
+  fetchPairingQueue: () => Promise<PairingQueue>;
+  submitPairing: (payload: PairingSubmitRequest) => Promise<PairingSubmitResponse>;
 }
 
 export function useWenyanApi(): UseWenyanApiReturn {
@@ -76,6 +81,21 @@ export function useWenyanApi(): UseWenyanApiReturn {
     return data.library ?? [];
   }, []);
 
+  const fetchPairingQueue = useCallback(async (): Promise<PairingQueue> => {
+    return jsonFetch<PairingQueue>('/api/wenyan/pairing/queue');
+  }, []);
+
+  const submitPairing = useCallback(
+    async (payload: PairingSubmitRequest): Promise<PairingSubmitResponse> => {
+      return jsonFetch<PairingSubmitResponse>('/api/wenyan/pairing/submit', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+    },
+    [],
+  );
+
   return {
     progress,
     isLoadingProgress,
@@ -83,5 +103,7 @@ export function useWenyanApi(): UseWenyanApiReturn {
     refreshProgress,
     completePoem,
     fetchLibrary,
+    fetchPairingQueue,
+    submitPairing,
   };
 }

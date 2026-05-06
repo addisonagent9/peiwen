@@ -1,12 +1,14 @@
 /**
  * 文言教材 — top-level module router.
  *
- * State machine: 'list' ↔ 'reader'. Loads completion progress on mount
- * (admin-gated /api/wenyan/progress) and pipes it into the list view's
- * checkmarks + the reader view's "已完成 ✓" badge. Bundled poem content
- * comes from src/data/wenyan/poems.json — no API call for content.
+ * State machine: 'list' ↔ 'reader' ↔ 'pairing'. Loads completion progress
+ * on mount (admin-gated /api/wenyan/progress) and pipes it into the list
+ * view's checkmarks + the reader view's "已完成 ✓" badge. Bundled poem
+ * content comes from src/data/wenyan/poems.json — no API call for content.
  *
- * Pairing exercise (Stage C) and audio (Stage D) not yet wired.
+ * Pairing trigger (Stage C): /poems/:id/complete returns pairingDue: true
+ * every 3 completions; on that signal, transition to 'pairing' instead of
+ * back to 'list'. After pairing exit ('返回模块'), fall back to 'list'.
  */
 
 import React, { useState } from 'react';
@@ -16,6 +18,7 @@ import { wenyanStrings } from '../../i18n/wenyan-strings';
 import { useWenyanApi } from './useWenyanApi';
 import { PoemListView } from './PoemListView';
 import { PoemReader } from './PoemReader';
+import { WenyanPairingSession } from './WenyanPairingSession';
 
 const content = poemsData as WenyanContent;
 
@@ -24,7 +27,7 @@ interface WenyanModuleProps {
   userName?: string | null;
 }
 
-type ViewMode = 'list' | 'reader';
+type ViewMode = 'list' | 'reader' | 'pairing';
 
 export function WenyanModule({ onExit }: WenyanModuleProps) {
   const s = wenyanStrings.cn;
@@ -59,6 +62,17 @@ export function WenyanModule({ onExit }: WenyanModuleProps) {
     );
   }
 
+  if (viewMode === 'pairing') {
+    return (
+      <WenyanPairingSession
+        onExit={() => {
+          setSelectedPoemId(null);
+          setViewMode('list');
+        }}
+      />
+    );
+  }
+
   if (viewMode === 'reader' && selectedPoemId) {
     const poem: WenyanPoem | undefined = content.poems.find(
       (p) => p.id === selectedPoemId,
@@ -77,9 +91,14 @@ export function WenyanModule({ onExit }: WenyanModuleProps) {
         onBack={() => setViewMode('list')}
         onComplete={async (poemId) => {
           const result = await completePoem(poemId);
-          // Return to list after successful completion.
-          setSelectedPoemId(null);
-          setViewMode('list');
+          // Stage C: trigger pairing exercise every 3 completions.
+          if (result.pairingDue) {
+            setSelectedPoemId(null);
+            setViewMode('pairing');
+          } else {
+            setSelectedPoemId(null);
+            setViewMode('list');
+          }
           return result;
         }}
       />
