@@ -1,33 +1,101 @@
-import React from 'react';
+/**
+ * 文言教材 — top-level module router.
+ *
+ * State machine: 'list' ↔ 'reader'. Loads completion progress on mount
+ * (admin-gated /api/wenyan/progress) and pipes it into the list view's
+ * checkmarks + the reader view's "已完成 ✓" badge. Bundled poem content
+ * comes from src/data/wenyan/poems.json — no API call for content.
+ *
+ * Pairing exercise (Stage C) and audio (Stage D) not yet wired.
+ */
+
+import React, { useState } from 'react';
+import poemsData from '../../data/wenyan/poems.json';
+import type { WenyanContent, WenyanPoem } from '../../data/wenyan/types';
 import { wenyanStrings } from '../../i18n/wenyan-strings';
+import { useWenyanApi } from './useWenyanApi';
+import { PoemListView } from './PoemListView';
+import { PoemReader } from './PoemReader';
+
+const content = poemsData as WenyanContent;
 
 interface WenyanModuleProps {
   onExit: () => void;
   userName?: string | null;
 }
 
-export function WenyanModule({ onExit, userName }: WenyanModuleProps) {
+type ViewMode = 'list' | 'reader';
+
+export function WenyanModule({ onExit }: WenyanModuleProps) {
   const s = wenyanStrings.cn;
-  return (
-    <div className="min-h-screen bg-ink-bg text-cream font-sans antialiased">
-      <header className="flex items-center justify-between px-6 py-4 border-b border-ink-line">
-        <div>
-          <h1 className="font-serif text-2xl tracking-wide">{s.moduleTitle}</h1>
-          <p className="text-creamDim text-xs mt-1">{s.moduleSubtitle}</p>
+  const { progress, isLoadingProgress, progressError, completePoem } = useWenyanApi();
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [selectedPoemId, setSelectedPoemId] = useState<string | null>(null);
+
+  if (isLoadingProgress) {
+    return (
+      <div className="min-h-screen bg-ink-bg text-cream flex items-center justify-center">
+        <span className="font-serif text-lg text-creamDim animate-pulse">
+          {s.loadingProgress}
+        </span>
+      </div>
+    );
+  }
+
+  if (progressError) {
+    return (
+      <div className="min-h-screen bg-ink-bg text-cream flex items-center justify-center p-8">
+        <div className="max-w-xs text-center space-y-4">
+          <p className="text-rose font-serif">{s.errorLoadingProgress}</p>
+          <p className="text-creamDim text-xs">{progressError}</p>
+          <button
+            onClick={onExit}
+            className="px-4 py-2 border border-ink-line rounded text-cream hover:bg-cream hover:text-ink-bg transition-colors"
+          >
+            {s.backToHome}
+          </button>
         </div>
-        <button
-          onClick={onExit}
-          className="px-4 py-2 border border-ink-line rounded text-creamDim hover:text-cream hover:border-cream/40 transition-colors text-sm"
-        >
-          {s.backToHome}
-        </button>
-      </header>
-      <main className="px-6 py-12 text-center">
-        <p className="font-serif text-creamDim text-base">{s.stagePlaceholder}</p>
-        {userName && (
-          <p className="mt-3 text-creamDim/60 text-xs">Signed in as {userName}</p>
-        )}
-      </main>
-    </div>
+      </div>
+    );
+  }
+
+  if (viewMode === 'reader' && selectedPoemId) {
+    const poem: WenyanPoem | undefined = content.poems.find(
+      (p) => p.id === selectedPoemId,
+    );
+    if (!poem) {
+      // Shouldn't happen — list only surfaces poems from content.poems.
+      setSelectedPoemId(null);
+      setViewMode('list');
+      return null;
+    }
+    const isCompleted = progress.some((p) => p.poem_id === poem.id);
+    return (
+      <PoemReader
+        poem={poem}
+        isCompleted={isCompleted}
+        onBack={() => setViewMode('list')}
+        onComplete={async (poemId) => {
+          const result = await completePoem(poemId);
+          // Return to list after successful completion.
+          setSelectedPoemId(null);
+          setViewMode('list');
+          return result;
+        }}
+      />
+    );
+  }
+
+  // Default: list view
+  return (
+    <PoemListView
+      content={content}
+      progress={progress}
+      onSelect={(poemId) => {
+        setSelectedPoemId(poemId);
+        setViewMode('reader');
+      }}
+      onExit={onExit}
+    />
   );
 }

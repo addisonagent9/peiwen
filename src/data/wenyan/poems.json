@@ -1,0 +1,439 @@
+{
+  "$schema_version": 1,
+  "displayOrder": [
+    "zhang-jiuling-ganyu-1",
+    "zhang-jiuling-ganyu-2",
+    "zhang-jiuling-ganyu-3",
+    "zhang-jiuling-ganyu-4",
+    "libai-xia-zhongnan"
+  ],
+  "poems": [
+    {
+      "id": "zhang-jiuling-ganyu-1",
+      "title": "感遇·其一",
+      "author": "张九龄",
+      "dynasty": "唐",
+      "fullText": "兰叶春葳蕤，桂华秋皎洁。\n欣欣此生意，自尔为佳节。\n谁知林栖者，闻风坐相悦。\n草木有本心，何求美人折？",
+      "translation": "兰草在春天枝叶繁茂，桂花在秋天皎洁开绽。\n各自生机盎然，自然成其美好的时节。\n哪想到山林隐逸者，闻到了馨香便由衷欣赏。\n草木自有它的本心，何必要求美人来攀折？",
+      "background": [
+        "开元二十五年（737年），张九龄由尚书右丞相贬为荆州长史。起因是唐玄宗晚年沉溺声色，奸臣李林甫、牛仙客联手排挤，张九龄直言进谏反遭谗毁。",
+        "此诗写于贬谪之后，托借兰草和桂花表达自己「不与世俗同流合污、不求他人赏识」的孤高心境。如果不了解这个背景，会误会诗人在教人「隐居摆烂」，而实际上他是被逼无奈、主动选择坚守清白。",
+        "历史小知识：张九龄任职期间曾力劝玄宗诛杀安禄山，未被采纳。多年后安史之乱爆发，玄宗躲在蜀地追悔莫及，专门派人到张九龄墓前祭奠。"
+      ],
+      "vocabulary": [
+        {
+          "word": "葳蕤",
+          "pinyin": "wēi ruí",
+          "senseSlug": "weirui-luxuriant",
+          "modernMeaning": "现代汉语完全不使用此词",
+          "ancientMeaning": "枝叶繁盛、披拂下垂的样子；引申为华美富丽",
+          "notes": "现代不使用此拟态词。若不解释，会完全丢失「兰叶茂盛之美」的画面"
+        },
+        {
+          "word": "华",
+          "pinyin": "huā",
+          "senseSlug": "hua-flower",
+          "modernMeaning": "华丽；中华；年华",
+          "ancientMeaning": "同「花」，植物的花朵",
+          "notes": "「桂华」即「桂花」。不解释则会读成「桂花夜晚」而困惑"
+        },
+        {
+          "word": "生意",
+          "pinyin": "shēng yì",
+          "senseSlug": "shengyi-vitality",
+          "modernMeaning": "商业买卖",
+          "ancientMeaning": "生机、生命力",
+          "notes": "若读成现代义会误会成「草木做生意」或「兰花很兴奋」"
+        },
+        {
+          "word": "自尔",
+          "pinyin": "zì ěr",
+          "senseSlug": "zier-naturally-so",
+          "modernMeaning": "现代汉语无此用法",
+          "ancientMeaning": "自然地；自身如此",
+          "notes": "文言固定搭配，不解释则完全不懂"
+        },
+        {
+          "word": "林栖者",
+          "pinyin": "lín qī zhě",
+          "senseSlug": "linqizhe-mountain-recluse",
+          "modernMeaning": "现代「栖」只剩栖息（鸟类）",
+          "ancientMeaning": "山林隐士",
+          "notes": "此处特指「隐居的人」，是文言的借代用法"
+        },
+        {
+          "word": "闻风",
+          "pinyin": "wén fēng",
+          "senseSlug": "wenfeng-sense-virtue",
+          "modernMeaning": "闻风丧胆、闻风而动（动词+宾语结构）",
+          "ancientMeaning": "听到兰桂的芳香，比喻接受美好品德的感召",
+          "notes": "此处「风」指「兰桂之风」（芳香），不解释则逻辑断裂"
+        },
+        {
+          "word": "坐",
+          "pinyin": "zuò",
+          "senseSlug": "zuo-because",
+          "modernMeaning": "坐下的动作",
+          "ancientMeaning": "副词，表示原因，相当于「由于、因而」",
+          "notes": "「闻风坐相悦」意思是「因为闻到气味而欣赏」，不解释就会以为张九龄在教「坐着」"
+        },
+        {
+          "word": "本心",
+          "pinyin": "běn xīn",
+          "senseSlug": "benxin-original-nature",
+          "modernMeaning": "仅在「本心不坏」中保留淡化含义",
+          "ancientMeaning": "自身固有的本性、天性与志向",
+          "notes": "文言中超重要——这里是全诗主旨"
+        },
+        {
+          "word": "美人",
+          "pinyin": "měi rén",
+          "senseSlug": "meiren-person-of-power",
+          "modernMeaning": "漂亮的女子",
+          "ancientMeaning": "德高位重的人；广义指欣赏者或执政者",
+          "notes": "此处指长安权贵或来采摘花的统治者。「何求美人折」意思是「不需要权贵来摘我」，并无女色之意"
+        }
+      ]
+    },
+    {
+      "id": "zhang-jiuling-ganyu-2",
+      "title": "感遇·其二",
+      "author": "张九龄",
+      "dynasty": "唐",
+      "fullText": "江南有丹橘，经冬犹绿林。\n岂伊地气暖，自有岁寒心。\n可以荐嘉客，奈何阻重深。\n运命惟所遇，循环不可寻。\n徒言树桃李，此木岂无阴？",
+      "translation": "江南有红红的橘子，经历冬天仍然绿荫葱葱。\n难道只是地气和暖？它自有松柏一样耐寒的心性。\n本可以献给贵客享用，奈何阻隔着重重深层。\n命运只看各自遭遇，天道循环不能追究。\n白白推荐栽植桃李，难道丹橘就没有阴凉吗？",
+      "background": [
+        "张九龄被贬荆州。写此诗时，他身处江陵——屈原故国楚国的郢都所在地。楚国自古盛产橘子，屈原曾作《橘颂》歌颂橘树「受命不迁」的高贵品格。",
+        "张九龄借丹橘比为自己，层层递进讽刺朝堂：桃李（比喻阿谀奉承的权臣）能够被栽种和修剪媚俗，而丹橘（比喻忠于初心的人）因为不媚世就被抛弃扔掉。",
+        "诗的最后一句「此木岂无阴？」意思是：「桃李能遮阴，丹橘也能遮阴，凭什么只有桃李受待见？」如果不了解屈原《橘颂》和「桃李 vs. 丹橘」的比喻，会以为这只是一篇植物学小作文。"
+      ],
+      "vocabulary": [
+        {
+          "word": "犹",
+          "pinyin": "yóu",
+          "senseSlug": "you-still",
+          "modernMeaning": "犹如（比喻用法为主）",
+          "ancientMeaning": "仍然、尚且",
+          "notes": "现代「犹」常用于「犹如」，此处是「仍然」义。不解释则会断错整句"
+        },
+        {
+          "word": "岂伊",
+          "pinyin": "qǐ yī",
+          "senseSlug": "qiyi-could-it-be-only",
+          "modernMeaning": "现代汉语完全不使用",
+          "ancientMeaning": "难道只是；岂——难道，伊——句中语气词",
+          "notes": "若不拆解，无法正常阅读"
+        },
+        {
+          "word": "岁寒心",
+          "pinyin": "suì hán xīn",
+          "senseSlug": "suihanxin-pine-resilience",
+          "modernMeaning": "现代仅剩「岁寒三友」成语",
+          "ancientMeaning": "松柏般耐寒的品性、坚贞的节操",
+          "notes": "典出《论语》「岁寒然后知松柏之后凋也」。文言中「岁寒心」是重要的品德修辞核心，不懂就丢失「人格赞美」信息"
+        },
+        {
+          "word": "荐",
+          "pinyin": "jiàn",
+          "senseSlug": "jian-offer-upward",
+          "modernMeaning": "推荐（仅人才类）",
+          "ancientMeaning": "进献（物品）、推荐（人才）",
+          "notes": "现代丢失「进献物品」的具体义。此处指想进献丹橘，不解释则少了一层「臣子想侍奉君王」的关系"
+        },
+        {
+          "word": "嘉客",
+          "pinyin": "jiā kè",
+          "senseSlug": "jiake-honored-guest",
+          "modernMeaning": "现代汉语完全不使用",
+          "ancientMeaning": "尊贵的客人；常喻指君王",
+          "notes": "不解释则完全失义"
+        },
+        {
+          "word": "阻重深",
+          "pinyin": "zǔ zhòng shēn",
+          "senseSlug": "zuzhongshen-many-barriers",
+          "modernMeaning": "现代「重」已丢失「深重」之意",
+          "ancientMeaning": "阻隔着重重深远的障碍",
+          "notes": "不解释则读成「阻重 + 深」"
+        },
+        {
+          "word": "循环",
+          "pinyin": "xún huán",
+          "senseSlug": "xunhuan-cosmic-flux",
+          "modernMeaning": "物理循环或过程循环",
+          "ancientMeaning": "天道循环流转、佛道因果",
+          "notes": "此处不能理解为「圈圈循环」，而是「天道不可追问」"
+        },
+        {
+          "word": "树",
+          "pinyin": "shù",
+          "senseSlug": "shu-to-plant",
+          "modernMeaning": "树木（名词）",
+          "ancientMeaning": "栽植、栽培（动词）",
+          "notes": "「树桃李」= 种桃子和李子树。不懂则会读成「白白说那些桃树与李树」"
+        },
+        {
+          "word": "阴",
+          "pinyin": "yīn",
+          "senseSlug": "yin-shade-not-dark",
+          "modernMeaning": "阴暗、阴险",
+          "ancientMeaning": "林荫、浓荫（名词）",
+          "notes": "「此木岂无阴」= 丹橘难道不能遮阴吗？若误解为「阴暗」则失掉结尾的质问力量"
+        }
+      ]
+    },
+    {
+      "id": "zhang-jiuling-ganyu-3",
+      "title": "感遇·其三",
+      "author": "张九龄",
+      "dynasty": "唐",
+      "fullText": "孤鸿海上来，池潢不敢顾。\n侧见双翠鸟，巢在三珠树。\n矫矫珍木巅，得无金丸惧？\n美服患人指，高明逼神恶。\n今我游冥冥，弋者何所慕！",
+      "translation": "孤傲的鸿雁从海上飞来，连护城河都不敢回头张望。\n侧眼瞥见两只翠鸟，把巢建在三珠树上。\n高高地站在珍木顶端，难道不怕被金弹丸射杀？\n华丽的衣服易遭人指点，居于高位会招致神明厌恶。\n如今我要飞向高高的云天，那些射鸟的人还能指望什么呢！",
+      "background": [
+        "依然是张九龄被贬荆州时所作。此诗采用寓言体：一只孤傲的鸿雁从大海上飞来，却不敢靠近皇宫前的护城河（池潢）。它侧眼看到两只翠鸟在高高的「三珠树」（传说中珍木）上筑巢。",
+        "诗人质问双翠鸟：「你们觉得自己安全吗？不怕被猎人的金弹丸打下来吗？」末四句现身说法：华丽的外表和居高骄纵，必定招来神灵的厌恶。最后孤鸿说「我要飞到高远的冥冥天际，看你们谁能来射我」。",
+        "如果不了解政治背景，这只是一则「动物世界」寓言；但实际是在骂朝中高官李林甫、牛仙客作威作福必然遭殃。"
+      ],
+      "vocabulary": [
+        {
+          "word": "孤鸿",
+          "pinyin": "gū hóng",
+          "senseSlug": "guhong-lone-swan",
+          "modernMeaning": "「鸿」仅用于「鸿图、鸿雁」",
+          "ancientMeaning": "鸿雁，比喻孤独而不合群的正直者",
+          "notes": "如果不解释，会错误理解为「孤独的大雁」，丢失政治自喻"
+        },
+        {
+          "word": "池潢",
+          "pinyin": "chí huáng",
+          "senseSlug": "chihuang-palace-moat",
+          "modernMeaning": "现代汉语完全不使用",
+          "ancientMeaning": "护城河（潢：积水池），代指皇宫、朝廷",
+          "notes": "「护城河→皇宫→朝廷」的借代是文言精髓，不解释，读者不会知道此处说的是官场"
+        },
+        {
+          "word": "双翠鸟",
+          "pinyin": "shuāng cuì niǎo",
+          "senseSlug": "shuangcuiniao-corrupt-courtiers",
+          "modernMeaning": "字面：两只翠鸟",
+          "ancientMeaning": "比喻朝中得势的小人（李林甫、牛仙客）",
+          "notes": "表面字义简单，但不懂寓言义会丢失全诗本质是指桑骂槐"
+        },
+        {
+          "word": "三珠树",
+          "pinyin": "sān zhū shù",
+          "senseSlug": "sanzhushu-mythical-tree",
+          "modernMeaning": "现代汉语完全不使用",
+          "ancientMeaning": "神话传说中的珍木，象征极高的官位和贪婪的权位",
+          "notes": "必须解释「传说中罕见的贵木→比喻朝廷要职」，否则不知为何「骄横的翠鸟在此筑巢」"
+        },
+        {
+          "word": "矫矫",
+          "pinyin": "jiǎo jiǎo",
+          "senseSlug": "jiaojiao-haughty-bearing",
+          "modernMeaning": "现代已消失",
+          "ancientMeaning": "高傲的样子（叠词）",
+          "notes": "此处表达双翠鸟得意忘形的神态"
+        },
+        {
+          "word": "得无",
+          "pinyin": "dé wú",
+          "senseSlug": "dewu-could-it-not-be",
+          "modernMeaning": "现代仅残留在「得无⋯乎？」疑问句式",
+          "ancientMeaning": "莫非、难道（表示反诘或推测）",
+          "notes": "此处是反问句的关键语气词"
+        },
+        {
+          "word": "指",
+          "pinyin": "zhǐ",
+          "senseSlug": "zhi-criticize-not-point",
+          "modernMeaning": "用手指；指向",
+          "ancientMeaning": "指摘、指责",
+          "notes": "「美服患人指」中的「指」即谗言、指责。不懂就无法理解「人指→谗言」的转换"
+        },
+        {
+          "word": "高明",
+          "pinyin": "gāo míng",
+          "senseSlug": "gaoming-eminent-position",
+          "modernMeaning": "高明的智慧",
+          "ancientMeaning": "位高而显赫的处境",
+          "notes": "「高明逼神恶」中的「高明」指居高显赫。不解释无法理解为何神灵会厌恶"
+        },
+        {
+          "word": "冥冥",
+          "pinyin": "míng míng",
+          "senseSlug": "mingming-high-heavens",
+          "modernMeaning": "形容词「不知不觉」",
+          "ancientMeaning": "名词，幽深高远的天空",
+          "notes": "「今我游冥冥」= 飞向高远幽深的天空，比喻远离尘世"
+        },
+        {
+          "word": "弋者",
+          "pinyin": "yì zhě",
+          "senseSlug": "yizhe-bird-hunter",
+          "modernMeaning": "现代汉语完全不使用",
+          "ancientMeaning": "射鸟的人/猎人；比喻奸佞",
+          "notes": "「弋」为射猎，「者」即人。不解释不能理解仇人是谁"
+        }
+      ]
+    },
+    {
+      "id": "zhang-jiuling-ganyu-4",
+      "title": "感遇·其四",
+      "author": "张九龄",
+      "dynasty": "唐",
+      "fullText": "幽人归独卧，滞虑洗孤清。\n持此谢高鸟，因之传远情。\n日夕怀空意，人谁感至精？\n飞沉理自隔，何所慰吾诚？",
+      "translation": "隐居高士回到屋中独自平卧，凝滞的思虑被洗去，留下孤独中的清高。\n持守着这份心境去辞谢高空的飞鸟，托它传达深远的心意。\n从早到晚怀念着一片虚怀赤诚，谁又能被这份至诚的真心感动呢？\n高飞和深潜的处境天然相隔，哪里能找到理解我赤诚的人呢？",
+      "background": [
+        "依然作于张九龄贬谪荆州期间。全诗共八句，以「幽人」（隐居的高士）独卧为引子，以天空高飞的鸟与深潜的游鱼为类比，抒发自己「清高的志向无人能理解」的痛苦。",
+        "其中「飞沉理自隔，何所慰吾诚」是全诗最关键的句子：「飞」指代高飞在天空的鸟（比喻位高权重的得志者），「沉」指代沉潜水底的鱼（比喻沦落底层的贬谪者），它们的处境和道理天然是隔绝的，谁又来理解我的一片赤诚呢？",
+        "这首比前几首更短，但它直白地展示了张九龄对自己「降职后与前朝同僚远隔」的无助处境。不了解「飞」和「沉」做比喻义的背景，会误解为在讲动物的飞行和潜水能力。"
+      ],
+      "vocabulary": [
+        {
+          "word": "幽人",
+          "pinyin": "yōu rén",
+          "senseSlug": "youren-true-recluse",
+          "modernMeaning": "现代汉语不使用",
+          "ancientMeaning": "真正的隐士（深居高卧，不与世俗交往的人）",
+          "notes": "若不解释，无法知道身份"
+        },
+        {
+          "word": "滞虑",
+          "pinyin": "zhì lǜ",
+          "senseSlug": "zhilv-stagnant-thoughts",
+          "modernMeaning": "现代汉语不使用",
+          "ancientMeaning": "停滞于心中的思虑；滞——停止不泻，虑——思虑",
+          "notes": "必须拆解释义，否则完全不懂"
+        },
+        {
+          "word": "孤清",
+          "pinyin": "gū qīng",
+          "senseSlug": "guqing-solitary-purity",
+          "modernMeaning": "「孤」「清」二字单独义未变，但合用为抽象名词在现代不存",
+          "ancientMeaning": "孤独时的清高之气",
+          "notes": "「洗孤清」= 清洗孤独时多余的孤傲"
+        },
+        {
+          "word": "持此",
+          "pinyin": "chí cǐ",
+          "senseSlug": "chici-hold-to-this-state",
+          "modernMeaning": "字面：拿着这个",
+          "ancientMeaning": "持守着这种心境",
+          "notes": "「此」指上文所描述的清高超脱的心境，并非具体物件"
+        },
+        {
+          "word": "谢",
+          "pinyin": "xiè",
+          "senseSlug": "xie-bid-farewell-not-thank",
+          "modernMeaning": "感谢；推辞",
+          "ancientMeaning": "辞别、敬辞性告辞",
+          "notes": "「谢高鸟」= 辞别高飞的鸟，并非「感谢」"
+        },
+        {
+          "word": "因之",
+          "pinyin": "yīn zhī",
+          "senseSlug": "yinzhi-by-means-of",
+          "modernMeaning": "「因」表原因、于是",
+          "ancientMeaning": "凭借它（指代上文之物）",
+          "notes": "「因之传远情」= 借着它（高鸟）传递深远的情感"
+        },
+        {
+          "word": "空意",
+          "pinyin": "kōng yì",
+          "senseSlug": "kongyi-empty-pure-heart",
+          "modernMeaning": "现代汉语完全不使用",
+          "ancientMeaning": "空寂纯净的意念；庄子般的虚净之心",
+          "notes": "属于道家/儒道核心专名"
+        },
+        {
+          "word": "至精",
+          "pinyin": "zhì jīng",
+          "senseSlug": "zhijing-supreme-sincerity",
+          "modernMeaning": "现代汉语不使用",
+          "ancientMeaning": "至极的精诚",
+          "notes": "「人谁感至精」= 谁能被这至极的精诚感动呢"
+        },
+        {
+          "word": "飞沉",
+          "pinyin": "fēi chén",
+          "senseSlug": "feichen-elite-vs-sunken",
+          "modernMeaning": "字面：飞行与下沉",
+          "ancientMeaning": "高飞的鸟与深潜的鱼，比喻得志者与失意者",
+          "notes": "全诗核心比喻：高位权贵与贬谪者的处境天然相隔，无法互通心意"
+        }
+      ]
+    },
+    {
+      "id": "libai-xia-zhongnan",
+      "title": "下终南山过斛斯山人宿置酒",
+      "author": "李白",
+      "dynasty": "唐",
+      "fullText": "暮从碧山下，山月随人归。\n却顾所来径，苍苍横翠微。\n相携及田家，童稚开荆扉。\n绿竹入幽径，青萝拂行衣。\n欢言得所憩，美酒聊共挥。\n长歌吟松风，曲尽河星稀。\n我醉君复乐，陶然共忘机。",
+      "translation": "傍晚从碧色的终南山下来，山间的月亮好像随我而回。\n回头看走过的山中小径，青苍幽深的山色横在那里。\n相遇后携手走到农舍家，小孩子急忙出来拽开荆门。\n进入竹林深处的幽静小径，青萝枝条拂过行人的衣裳。\n高兴地谈天得到歇息，美好的酒恰可一起畅饮。\n高声长歌在山风中回荡，一曲唱罢星星已稀疏。\n喝醉了，你也快乐，我也快乐，陶然一起忘却世俗之心。",
+      "background": [
+        "李白自述：他登终南山（今秦岭），傍晚从山上下来，遇到一位隐姓埋名、姓斛斯的隐士。斛斯山人热情地留李白过夜，并摆下酒席对饮欢歌。",
+        "诗中有三个关键信息：第一，「过」不是「经过」，而是「访问、拜访」（文言特殊用法）。第二，「斛斯」姓属于南北朝时期鲜卑胡人的姓氏，盛唐仍保留。第三，李白入长安后一直想走「终南捷径」——通过结交隐士、造访山人获得朝廷关注，抵达幽谷访友正是这种仕途策略的反映。",
+        "如果不解释「过 = 拜访」和「斛斯姓 = 胡人隐士」，读者会错误理解为「李白走路顺便路过一个人家吃了个饭」。"
+      ],
+      "vocabulary": [
+        {
+          "word": "过",
+          "pinyin": "guò",
+          "senseSlug": "guo-to-visit",
+          "modernMeaning": "经过；过去",
+          "ancientMeaning": "访问、造访、拜访",
+          "notes": "此处是「拜访」的文言特殊义。不解释，全诗前四个字的理解就错了"
+        },
+        {
+          "word": "山人",
+          "pinyin": "shān rén",
+          "senseSlug": "shanren-recluse-not-villager",
+          "modernMeaning": "现代极少使用",
+          "ancientMeaning": "隐士（非山里的普通农民）",
+          "notes": "此处为专用称谓，不解释会误会为山野村民"
+        },
+        {
+          "word": "却顾",
+          "pinyin": "què gù",
+          "senseSlug": "quegu-turn-and-look",
+          "modernMeaning": "「却」现代只有转折义（但是）",
+          "ancientMeaning": "回头看；「却」为副词，表回转的动作",
+          "notes": "不解释会以为「但是看看」，错失「转身回头」的主体意念"
+        },
+        {
+          "word": "翠微",
+          "pinyin": "cuì wēi",
+          "senseSlug": "cuiwei-mountain-azure",
+          "modernMeaning": "现代汉语几乎不用",
+          "ancientMeaning": "青翠的山色；多指终南山峰峦",
+          "notes": "若靠「蔚蓝」等词推意为「翠绿」，仍无法直接读懂"
+        },
+        {
+          "word": "荆扉",
+          "pinyin": "jīng fēi",
+          "senseSlug": "jingfei-thorn-gate",
+          "modernMeaning": "现代汉语完全不使用",
+          "ancientMeaning": "用荆条编成的大门，比喻简朴的农家",
+          "notes": "不解释则「童稚开了个门」缺乏古代穷苦隐士的简朴形象"
+        },
+        {
+          "word": "挥",
+          "pinyin": "huī",
+          "senseSlug": "hui-drink-freely-not-wave",
+          "modernMeaning": "挥手、挥舞等物理动作",
+          "ancientMeaning": "豪爽举杯畅饮",
+          "notes": "「聊共挥」中的「挥」有豪爽畅饮的意味，不解释就缺了「不刻意、豪放」的风格"
+        },
+        {
+          "word": "忘机",
+          "pinyin": "wàng jī",
+          "senseSlug": "wangji-shed-worldly-cunning",
+          "modernMeaning": "现代汉语完全不使用",
+          "ancientMeaning": "忘却机心，即忘却世俗的机诈和算计",
+          "notes": "全诗的哲学关键。「忘机」是道家常用语（《庄子》），意为解除算计、回归纯朴自然的心境"
+        }
+      ]
+    }
+  ]
+}

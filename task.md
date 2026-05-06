@@ -256,6 +256,15 @@ has stable beta gating.
   - Stage E (public dict surface) is Phase 2, deferred until ~30
     poems annotated
 
+- **#26 stage B — 文言教材 content + reading flow + endpoints** (this commit)
+  - Content: src/data/wenyan/poems.json (5 poems, 44 vocab entries)
+  - Seed script: scripts/seed-wenyan.mjs (npm run seed:wenyan,
+    idempotent ON CONFLICT...DO UPDATE)
+  - Endpoints: /progress, /poems/:id/complete, /library (admin-gated)
+  - Frontend: PoemListView, PoemReader, useWenyanApi, WenyanModule
+    router
+  - Stage C (pairing exercise) and Stage D (audio) follow
+
 ## Future entries
 (Addison to add more multi-tone classical attestations as they arise during
 ongoing curriculum work.)
