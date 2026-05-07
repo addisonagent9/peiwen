@@ -356,6 +356,17 @@ has stable beta gating.
     manifest builder (post-filter)
   - Frontend-only; no backend, no schema, no regen
 
+- **#26 stage D-2.6 — wenyan audio button restyle + active-item indicator** (this commit)
+  - Pill-style button matching trainer's DrillCard convention
+    (border-ink-line, 11×11 SVG icon, Chinese label)
+  - Button position moved from section header to above content
+  - Active-item indicator: gold/60 left border on currently-
+    reading chunk/couplet/translation, layout-stable
+  - Hook lifted from SequencePlayButton to PoemReader to enable
+    parent-driven highlighting
+  - SequencePlayButton becomes presentational
+  - Frontend-only; no backend, schema, hook, or registry changes
+
 ## Future entries
 (Addison to add more multi-tone classical attestations as they arise during
 ongoing curriculum work.)

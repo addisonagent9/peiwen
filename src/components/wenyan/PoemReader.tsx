@@ -19,6 +19,7 @@ import React, { useMemo, useState } from 'react';
 import { wenyanStrings } from '../../i18n/wenyan-strings';
 import { PlayButton } from './PlayButton';
 import { SequencePlayButton } from './SequencePlayButton';
+import { useWenyanAudioSequence } from './useWenyanAudioSequence';
 import type { WenyanPoem, WenyanCompleteResponse } from '../../data/wenyan/types';
 
 interface PoemReaderProps {
@@ -63,6 +64,14 @@ export function PoemReader({
     () => [`wenyan:translation:${poem.id}`],
     [poem.id],
   );
+
+  // D-2.6: hooks lifted out of SequencePlayButton so the parent can
+  // subscribe to `currentIndex` for the active-item border indicator.
+  // Mutex still works because each hook participates in playbackRegistry
+  // internally — three sibling hooks just register/clear in turn.
+  const bgSeq = useWenyanAudioSequence(backgroundTags, { autoPlay: true });
+  const cpSeq = useWenyanAudioSequence(coupletTags);
+  const trSeq = useWenyanAudioSequence(translationTags);
 
   const handleClick = async () => {
     if (submitting) return;
@@ -148,52 +157,96 @@ export function PoemReader({
           {poem.dynasty} · {poem.author}
         </p>
 
-        {/* Background — section-header SequencePlayButton (autoPlay on mount).
-            Per-chunk buttons removed in #26 stage D-2.5 in favor of one
-            section-level control. */}
+        {/* Background — D-2.6: button moved ABOVE content (left-aligned pill).
+            Each chunk gets a left-border indicator while it's the active
+            currentIndex (transition-all duration-300; transparent border
+            reserved when inactive to prevent layout jumping). */}
         {poem.background.length > 0 && (
           <section>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-serif text-creamDim text-sm tracking-wider uppercase">
-                {s.backgroundHeading}
-              </h2>
-              <SequencePlayButton tags={backgroundTags} size="md" autoPlay />
-            </div>
-            <div className="space-y-3 text-cream font-serif leading-relaxed">
-              {poem.background.map((para, i) => (
-                <p key={i}>{para}</p>
-              ))}
+            <h2 className="font-serif text-creamDim text-sm tracking-wider uppercase mb-3">
+              {s.backgroundHeading}
+            </h2>
+            <SequencePlayButton
+              label={s.backgroundHeading}
+              isPlaying={bgSeq.isPlaying}
+              isLoading={bgSeq.isLoading}
+              error={bgSeq.error}
+              onClick={bgSeq.play}
+              size="sm"
+            />
+            <div className="mt-4 space-y-3 text-cream font-serif leading-relaxed">
+              {poem.background.map((para, i) => {
+                const isActive = bgSeq.isPlaying && bgSeq.currentIndex === i;
+                return (
+                  <p
+                    key={i}
+                    className={`pl-3 transition-all duration-300 ${
+                      isActive
+                        ? 'border-l-2 border-gold/60'
+                        : 'border-l-2 border-transparent'
+                    }`}
+                  >
+                    {para}
+                  </p>
+                );
+              })}
             </div>
           </section>
         )}
 
-        {/* Poem text — section-header SequencePlayButton plays couplets in
-            order. Lines render as plain text now (no per-couplet button). */}
+        {/* Poem text — section-header pill above couplets; per-couplet
+            border-l indicator while playing. */}
         <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-serif text-creamDim text-sm tracking-wider uppercase">
-              {s.poemTextHeading}
-            </h2>
-            <SequencePlayButton tags={coupletTags} size="md" />
-          </div>
-          <div className="space-y-3 font-serif text-cream text-xl leading-loose tracking-wide">
-            {couplets.map((line, i) => (
-              <div key={i} className="break-words">
-                {line}
-              </div>
-            ))}
+          <h2 className="font-serif text-creamDim text-sm tracking-wider uppercase mb-3">
+            {s.poemTextHeading}
+          </h2>
+          <SequencePlayButton
+            label={s.poemTextHeading}
+            isPlaying={cpSeq.isPlaying}
+            isLoading={cpSeq.isLoading}
+            error={cpSeq.error}
+            onClick={cpSeq.play}
+            size="sm"
+          />
+          <div className="mt-4 space-y-3 font-serif text-cream text-xl leading-loose tracking-wide">
+            {couplets.map((line, i) => {
+              const isActive = cpSeq.isPlaying && cpSeq.currentIndex === i;
+              return (
+                <div
+                  key={i}
+                  className={`pl-3 break-words transition-all duration-300 ${
+                    isActive
+                      ? 'border-l-2 border-gold/60'
+                      : 'border-l-2 border-transparent'
+                  }`}
+                >
+                  {line}
+                </div>
+              );
+            })}
           </div>
         </section>
 
-        {/* Translation — section-header SequencePlayButton (single-clip array). */}
+        {/* Translation — single clip; whole paragraph highlights while playing. */}
         <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-serif text-creamDim text-sm tracking-wider uppercase">
-              {s.translationHeading}
-            </h2>
-            <SequencePlayButton tags={translationTags} size="md" />
-          </div>
-          <p className="font-serif text-creamDim text-base leading-relaxed whitespace-pre-wrap">
+          <h2 className="font-serif text-creamDim text-sm tracking-wider uppercase mb-3">
+            {s.translationHeading}
+          </h2>
+          <SequencePlayButton
+            label={s.translationHeading}
+            isPlaying={trSeq.isPlaying}
+            isLoading={trSeq.isLoading}
+            error={trSeq.error}
+            onClick={trSeq.play}
+            size="sm"
+          />
+          <p
+            className={`mt-4 pl-3 font-serif text-creamDim text-base leading-relaxed whitespace-pre-wrap transition-all duration-300 ${
+              trSeq.isPlaying
+                ? 'border-l-2 border-gold/60'
+                : 'border-l-2 border-transparent'
+            }`}
+          >
             {poem.translation}
           </p>
         </section>
