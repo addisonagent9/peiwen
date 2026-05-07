@@ -40,7 +40,7 @@ export function createAudioRouter(service, db) {
   const checkRate = createRateLimiter();
 
   const sGetApproved = db.prepare(`
-    SELECT file_path FROM audio_clips
+    SELECT file_path, voice_id FROM audio_clips
     WHERE text = ? AND voice_kind = ? AND status = 'approved'
     LIMIT 1
   `);
@@ -96,6 +96,11 @@ export function createAudioRouter(service, db) {
         res.setHeader('Content-Type', 'audio/mpeg');
         res.setHeader('Content-Length', String(audio.length));
         res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+        // #21 Path C — surface voice_id so the client can apply per-voice
+        // gain calibration. Access-Control-Expose-Headers ensures fetch()
+        // can read the custom header even if a CORS context applies.
+        res.setHeader('X-Voice-Id', row.voice_id);
+        res.setHeader('Access-Control-Expose-Headers', 'X-Voice-Id');
         res.send(audio);
       } catch {
         res.status(404).json({ error: 'AUDIO_NOT_APPROVED' });

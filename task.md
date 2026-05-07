@@ -115,13 +115,6 @@ Set 1 carry the strongest pedagogical value as audio teaching points:
 
 ## Deferred / Parked items
 
-### #21 — Matching Rocky volume to WanLung
-zh-HK-HiuGaaiNeural / Rocky TTS clips are noticeably quieter than
-zh-HK-WanLungNeural clips. Apply +20% volume gain (or calibrated value
-after A/B test) to all existing Rocky .mp3 files on VPS, plus modify
-prewarm-audio.mjs to apply gain on future generation. Test on 3-5 sample
-clips first.
-
 ### #22 — Simplified ↔ Traditional UI toggle
 User-facing setting that switches all displayed Chinese text between
 simplified and traditional forms across trainer + analyzer + admin.
@@ -379,6 +372,20 @@ has stable beta gating.
   - poemListSectionTitle marked deprecated
   - No backend / schema changes; audio batch is a separate
     VPS step
+
+- **#21 — Rocky volume calibration via Web Audio gain (Path C)** (this commit)
+  - Per-voice gain map { Rocky: 1.2 } applied client-side via
+    Web Audio API (MediaElementAudioSourceNode → GainNode →
+    destination)
+  - Server adds X-Voice-Id response header + CORS expose-headers
+  - Client refactored from el.src=url to fetch + Blob URL +
+    read header + apply gain BEFORE source emits
+  - AbortController for in-flight cancel; webkitAudioContext
+    Safari fallback
+  - Lossless, no audio regen, fully reversible
+  - Placeholder gain +20% — calibrate via listen-test; one-line
+    change to retune
+  - Trainer audio path only; wenyan hooks untouched
 
 ## Future entries
 (Addison to add more multi-tone classical attestations as they arise during
