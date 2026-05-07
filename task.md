@@ -239,7 +239,7 @@ has stable beta gating.
 
 ### Numbered tickets
 
-- **#26 stage A — 文言教材 module foundation** (this commit)
+- **#26 stage A — 文言教材 module foundation** `78f5028`
   - Migration 015_wenyan.sql: 5 tables (dict_entries, dict_entry_poems,
     user_progress, user_vocab, pairing_sessions)
   - Server: requireWenyanAdmin middleware + mountWenyan with /health
@@ -249,7 +249,7 @@ has stable beta gating.
   - Stage E (public dict surface) is Phase 2, deferred until ~30
     poems annotated
 
-- **#26 stage B — 文言教材 content + reading flow + endpoints** (this commit)
+- **#26 stage B — 文言教材 content + reading flow + endpoints** `08a29f8`
   - Content: src/data/wenyan/poems.json (5 poems, 44 vocab entries)
   - Seed script: scripts/seed-wenyan.mjs (npm run seed:wenyan,
     idempotent ON CONFLICT...DO UPDATE)
@@ -258,7 +258,7 @@ has stable beta gating.
     router
   - Stage C (pairing exercise) and Stage D (audio) follow
 
-- **#26 stage C — 文言教材 pairing exercise + trigger + mastery** (this commit)
+- **#26 stage C — 文言教材 pairing exercise + trigger + mastery** `9c31d1e`
   - Trigger: pairingDue field on /complete response (count % 3 === 0)
   - Endpoints: GET /pairing/queue (Fisher-Yates shuffle, last-3-poems
     vocab + full-library fallback), POST /pairing/submit (stateless
@@ -268,7 +268,7 @@ has stable beta gating.
   - Mastery: correct → +1 (cap 3), wrong → flat (no decrement)
   - Stage D (audio) follows; Stage E (public dict surface) deferred
 
-- **#26 stage C-2 — 文言教材 permanent pairing trigger button** (this commit)
+- **#26 stage C-2 — 文言教材 permanent pairing trigger button** `f594480`
   - Permanent "练习配对" button in WenyanModule list view header
   - Visible iff user has ≥5 vocab entries in user_vocab
   - Reuses existing /pairing/queue + WenyanPairingSession; no schema
@@ -277,7 +277,7 @@ has stable beta gating.
     v1 corpus, auto-trigger (count % 3 === 0) fires once max;
     manual button enables ongoing self-service practice
 
-- **#26 stage C-3 — 文言教材 list view redesign (trainer-aligned)** (this commit)
+- **#26 stage C-3 — 文言教材 list view redesign (trainer-aligned)** `ed1103a`
   - Header: chevron back + centered title (text-lg) + animated gold
     brush-stroke divider — verbatim mirror of trainer's TrainerHeader
   - Greeting "你好, {userName}" + "练习配对" button on same row
@@ -287,7 +287,7 @@ has stable beta gating.
   - Per-card styling unchanged from Stage B
   - UI-only — no schema, endpoint, or behavior changes
 
-- **#26 stage C-4 — 文言教材 button color + reader redesign + 下一首** (this commit)
+- **#26 stage C-4 — 文言教材 button color + reader redesign + 下一首** `fa72e22`
   - Practice button: gold → emerald-600 (trainer drill-CTA convention)
   - PoemReader header: trainer-aligned (chevron + centered title +
     brush-stroke); author/dynasty moved to body meta line
@@ -300,7 +300,7 @@ has stable beta gating.
     returnToList
   - isCompleted prop dropped from PoemReader
 
-- **#26 stage D-1 — 文言教材 audio pilot scripts (Yunyang voice)** (this commit)
+- **#26 stage D-1 — 文言教材 audio pilot scripts (Yunyang voice)** `13206e5`
   - scripts/wenyan-build-audio-manifest.mjs: dynamic manifest
     builder (reads poems.json + applies chunking spec)
   - scripts/wenyan-prewarm-audio.mjs: TTS generation script
@@ -311,7 +311,7 @@ has stable beta gating.
   - No schema changes; reuses audio_clips table + cache
   - Frontend wiring deferred to Stage D-2 (post-ratification)
 
-- **#26 stage D-1.5 — wenyan voice swap to Yunxi + tag backfill** (this commit)
+- **#26 stage D-1.5 — wenyan voice swap to Yunxi + tag backfill** `5c1a3e1`
   - Voice swap: wenyan-prewarm-audio.mjs hardcodes
     zh-CN-YunxiNeural for mandarin path; trainer pipeline
     untouched (Option B)
@@ -322,7 +322,7 @@ has stable beta gating.
   - Resolves Stage D-2 dependency: PoemReader play-button lookup
     requires usage_context tags
 
-- **#26 stage D-2 — wenyan audio playback (endpoint + UI)** (this commit)
+- **#26 stage D-2 — wenyan audio playback (endpoint + UI)** `91d9b59`
   - NEW server/wenyan/audio.mjs: GET /api/wenyan/audio?tag=<...>
     resolves usage_context tag → file_path → streams mp3
   - NEW src/components/wenyan/useWenyanAudio.ts: per-instance
@@ -336,7 +336,7 @@ has stable beta gating.
     state on click, no crashes; works automatically once prewarm
     batch runs on VPS
 
-- **#26 stage D-2.5 — wenyan audio UX overhaul** (this commit)
+- **#26 stage D-2.5 — wenyan audio UX overhaul** `571b009`
   - Background auto-plays on PoemReader mount; 3 per-chunk
     buttons consolidated to 1 section-header button
   - Poem body: per-couplet buttons consolidated to 1
@@ -349,7 +349,7 @@ has stable beta gating.
     manifest builder (post-filter)
   - Frontend-only; no backend, no schema, no regen
 
-- **#26 stage D-2.6 — wenyan audio button restyle + active-item indicator** (this commit)
+- **#26 stage D-2.6 — wenyan audio button restyle + active-item indicator** `bb726bc`
   - Pill-style button matching trainer's DrillCard convention
     (border-ink-line, 11×11 SVG icon, Chinese label)
   - Button position moved from section header to above content
@@ -360,7 +360,7 @@ has stable beta gating.
   - SequencePlayButton becomes presentational
   - Frontend-only; no backend, schema, hook, or registry changes
 
-- **#26 stage C-5 — wenyan 10-poem content drop + sectioning UI** (this commit)
+- **#26 stage C-5 — wenyan 10-poem content drop + sectioning UI** `059299b`
   - 10 new poems (poems 6-15): 春晓, 登鹳雀楼, 出塞, 望庐山瀑布,
     九月九日忆山东兄弟, 黄鹤楼送孟浩然之广陵, 春夜喜雨,
     次北固山下, 山居秋暝, 登乐游原
@@ -373,7 +373,7 @@ has stable beta gating.
   - No backend / schema changes; audio batch is a separate
     VPS step
 
-- **#21 — Rocky volume calibration via Web Audio gain (Path C)** (this commit)
+- **#21 — Rocky volume calibration via Web Audio gain (Path C)** `d82d871`
   - Per-voice gain map { Rocky: 1.2 } applied client-side via
     Web Audio API (MediaElementAudioSourceNode → GainNode →
     destination)

@@ -17,7 +17,7 @@ Tickets covered:
 ---
 ---
 
-# PROMPT 1 — Bootstrap + #21 Rocky volume calibration
+# PROMPT 1 — Bootstrap + ticket picker
 
 Hi Claude. I'm Addison, working on **peiwen 佩文 / 詩律析辨**, a classical
 Chinese 平水韻 prosody trainer and poem analyzer. Production at
@@ -80,118 +80,63 @@ Tier 1 = 5 most foundational rhymes (一東 七陽 十一尤 六麻 五歌). Tie
 
 ## Last session shipped
 
-7 commits, 6 tickets closed plus session-end bookkeeping:
+Wenyan v1 shipped (15 poems, 219 audio approved + 17 watchlist
+pending review):
+- A: foundation (`78f5028`)
+- B: content + reading flow, 5 poems (`08a29f8`)
+- C: pairing exercise (`9c31d1e`)
+- C-2 through C-5: UX polish + 10-poem expansion + sectioned list view
+  (`f594480`, `ed1103a`, `fa72e22`, `059299b`)
+- D-1 through D-2.6: audio infrastructure (pilot → endpoint → UI →
+  mutex → button restyle) (`13206e5`, `5c1a3e1`, `91d9b59`,
+  `571b009`, `bb726bc`)
 
-| SHA | Ticket | Scope |
-|-----|--------|-------|
-| bb6db2a | #23 | Audio Review Library: Undo + sort |
-| 7f7a1ac | #24 | Drill tier-blindness fix (unlock cascade) |
-| 2fd1e5e | 嶔 fix | Cantonese jyutping correction |
-| 9e1a72f | #25 | Drill 4 corpus regen (5 → 30 rhymes; 12,051 entries) |
-| 53f1006 | #20 | Analyzer punctuation strip at 折判 |
-| c4a9305 | #6 | 一東 audit cleanup + 5 multi-tone notes |
-| 64ebd4b | bookkeeping | SHA backfills + #23/#24/嶔 entries + new skill |
+Plus the docs(skill) commit adding `.claude/skills/next-session.md` +
+example template (`343e68a`).
 
-Main HEAD as of session start should be `64ebd4b` or later. Bundle hash
-on production: `1d20c915`.
+#21 Rocky volume calibration shipped (`d82d871`) — per-voice gain
+factor `{ Rocky: 1.2 }` applied client-side via Web Audio API
+(MediaElementAudioSourceNode → GainNode → destination). Server
+adds `X-Voice-Id` response header so the client can look up gain
+per clip. Lossless; no audio regen.
 
-## Open in task.md (7 tickets)
+Bundle hash on VPS at session start: `2dec1e97.js` (will have advanced
+in subsequent sessions — verify with git log on first VPS interaction).
+
+## Open in task.md (6 tickets)
 
 Per latest task.md "## Deferred / Parked items":
-- #21 Rocky volume calibration (this prompt's focus)
-- #22 Simplified ↔ Traditional UI toggle
-- #7 簡↔繁 rhyme-merger annotations
-- #14 MOE coverage gap fill
-- #15 Unihan-based variant detection
-- #16 Multi-tone multi-card library strengthening
-- #17 Unique word with meaning + 词语
+1. **#22 Simplified ↔ Traditional UI toggle** — most user-visible,
+   broad surface impact, suggested next ticket
+2. **#7 簡↔繁 rhyme-merger annotations** — better after #22 ships
+3. **#14 MOE coverage gap fill** — content quality
+4. **#15 Unihan-based variant detection** — analyzer fallback
+5. **#16 Multi-tone multi-card library** — chars with 2+ 平 readings
+6. **#17 Fill unique word with 字義 + 詞語** — capstone, depends on
+   #14 + #15
 
 Plus deferred subsection (no scheduled work):
 - Audio Review Library perf collapse
 - Tier 1 anchor poem unique-constraint bug (~10 min fix)
 - Manual VPS .env TRAINER_BETA_USER_IDS revert
 
-## What I want to work on this session: #21 — Rocky volume calibration
+## Now: pick a ticket to work on
 
-### The bug
+#21 Rocky volume calibration shipped last session. The remaining
+work inventory is above. The full ticket framing for each open
+ticket is in subsequent prompts (PROMPT 2 = #22, PROMPT 3 = #7, etc.).
 
-Audio clips for Cantonese (粵語) are generated via Azure Speech with two
-voices:
-- `zh-HK-WanLungNeural` — primary voice for most Tier 1/2 chars
-- `zh-HK-HiuGaaiNeural` (Rocky) — secondary, used for some chars
+Tell me which ticket you want to start with, and I'll route to the
+appropriate prompt.
 
-Issue: Rocky's clips are noticeably **quieter** than WanLung's clips at
-playback time. When the trainer cycles between chars, users hear an
-inconsistent volume level — annoying UX and potentially a loudness-perception
-issue when comparing chars side by side.
+## Standing by
 
-### Hypothesis
+What I need from you to start:
 
-Rocky needs a volume gain. Roughly +20% (or whatever calibrated value
-matches WanLung's perceived loudness). Two ways to apply:
+1. Which ticket to work on (#22 is the suggested next)
+2. Or "session-end bookkeeping" if SHAs need backfill
 
-1. **Pre-generation gain**: pass an SSML `<prosody volume="+20%">` wrapper
-   when calling Azure for Rocky clips
-2. **Post-generation gain**: ffmpeg pass on existing clips to normalize
-
-Pre-generation is cleaner for new clips. Post-generation is needed if
-existing clips need to be retroactively boosted (and we don't want to
-regenerate ~hundreds of clips just for volume).
-
-### What to investigate (Part 1 for CC)
-
-Before drafting a CC ticket, we need to know:
-
-1. **How many Rocky clips exist?** Query `audio_clips` table for clips
-   where `voice_kind = 'rocky'` (or however it's labeled). Get a count
-   and a few sample paths.
-
-2. **How is the volume difference measurable?** Pick 2-3 Rocky clips and
-   2-3 WanLung clips of similar chars. Run ffmpeg `volumedetect` filter
-   to get peak/mean amplitude. Compare numerically — is the gap actually
-   ~20%? Or is it more/less?
-
-3. **Where is voice selection in the codebase?** Find the place where
-   we decide WanLung vs Rocky for a given char/clip. Likely
-   `server/audio/service.mjs` or similar. Check whether an SSML wrapper
-   could be added per-voice.
-
-4. **What's the prewarm pipeline?** When new clips get generated (e.g.,
-   for new Tier 4 if we ever add one, or when re-running), where does
-   the SSML construction happen? That's where prevention goes.
-
-5. **Are there clips already approved that need re-gain?** If Rocky's
-   ~hundreds of clips are already in the audio_clips table marked
-   approved, batch ffmpeg pass might be needed. Or accept the inconsistency
-   for shipped clips and only fix new ones.
-
-### Decisions I'll need to make after Part 1
-
-- **Calibration target**: confirm the actual dB gap (not just "feels
-  ~20%"); pick a precise gain
-- **Scope**: fix only future generation, or also re-gain existing clips?
-- **Implementation path**: SSML prosody wrapper vs ffmpeg post-process
-
-### Standing by
-
-Help me think through #21. Start by drafting a Part 1 investigation
-ticket for CC that covers the 5 questions above. CC will run on
-~/poetry-checker, return findings, and we'll decide Part 2 from there.
-
-When you draft the CC ticket, include:
-- Repo state check (git status, current main HEAD)
-- DB query for Rocky clip count
-- ffmpeg volumedetect on 3 sample clips per voice
-- Code search for voice selection logic
-- Code search for SSML construction in prewarm pipeline
-- Explicit STOP at end of Part 1; no edits
-
-Don't write Part 2 yet. I want to see Part 1 results before locking the
-fix shape.
-
-Reply with the CC ticket prompt formatted under a `## Send to Claude
-Code` heading, ready to copy-paste. Let me know if you need me to clarify
-anything about the project before you draft.
+Standing by.
 
 ---
 ---
