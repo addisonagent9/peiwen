@@ -4,7 +4,9 @@ export const wenyanStrings = {
     backToHome: '← 返回',
     backToList: '← 返回诗目',
     greeting: (name: string) => `你好, ${name}`,
-    poemListSectionTitle: '诗目',
+    poemListSectionTitle: '诗目', // deprecated by Stage C-5
+    inProgressSectionTitle: '进行中',
+    completedSectionTitle: '已完成',
     completedBadge: '已完成 ✓',
     backgroundHeading: '背景',
     poemTextHeading: '原文',
@@ -47,7 +49,9 @@ export const wenyanStrings = {
     backToHome: '← Back',
     backToList: '← Back to list',
     greeting: (name: string) => `Hello, ${name}`,
-    poemListSectionTitle: 'Poems',
+    poemListSectionTitle: 'Poems', // deprecated by Stage C-5
+    inProgressSectionTitle: 'In Progress',
+    completedSectionTitle: 'Completed',
     completedBadge: 'Completed ✓',
     backgroundHeading: 'Background',
     poemTextHeading: 'Original',

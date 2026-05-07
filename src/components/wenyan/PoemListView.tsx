@@ -44,6 +44,9 @@ export function PoemListView({
   const orderedPoems: WenyanPoem[] = content.displayOrder
     .map((id) => content.poems.find((p) => p.id === id))
     .filter((p): p is WenyanPoem => p !== undefined);
+  // Stage C-5: split by completion state into two sections.
+  const inProgressPoems = orderedPoems.filter((p) => !completedSet.has(p.id));
+  const completedPoems = orderedPoems.filter((p) => completedSet.has(p.id));
   const showPairingButton = !isLoadingVocab && vocabCount >= 5;
 
   return (
@@ -127,20 +130,19 @@ export function PoemListView({
           )}
         </div>
 
-        {/* Section divider — flanking horizontal lines around centered "诗目" */}
+        {/* In Progress section — full card layout (Stage B's design carries
+            forward). Stage C-5 split: only un-completed poems render here. */}
         <div>
           <div className="flex items-center gap-3 mb-3">
             <span className="h-px flex-1 bg-ink-line" />
             <span className="text-creamDim text-xs tracking-[0.2em] uppercase">
-              {s.poemListSectionTitle}
+              {s.inProgressSectionTitle}
             </span>
             <span className="h-px flex-1 bg-ink-line" />
           </div>
 
-          {/* Poem cards — unchanged per-card visuals from Stage B */}
           <div className="space-y-3">
-            {orderedPoems.map((poem) => {
-              const completed = completedSet.has(poem.id);
+            {inProgressPoems.map((poem) => {
               const firstLine = poem.fullText.split('\n')[0] ?? '';
               return (
                 <button
@@ -158,20 +160,41 @@ export function PoemListView({
                       </div>
                       <p className="font-serif text-cream text-sm truncate">{firstLine}</p>
                     </div>
-                    {completed && (
-                      <span
-                        className="shrink-0 text-gold text-xs px-2 py-0.5 rounded-full border border-gold/40 bg-gold/10"
-                        aria-label={s.completedBadge}
-                      >
-                        {s.completedBadge}
-                      </span>
-                    )}
                   </div>
                 </button>
               );
             })}
           </div>
         </div>
+
+        {/* Completed section — simple title list (no card framing). Rendered
+            only when at least one poem is completed; default state hides it. */}
+        {completedPoems.length > 0 && (
+          <div>
+            <div className="flex items-center gap-3 mb-3">
+              <span className="h-px flex-1 bg-ink-line" />
+              <span className="text-creamDim text-xs tracking-[0.2em] uppercase">
+                {s.completedSectionTitle}
+              </span>
+              <span className="h-px flex-1 bg-ink-line" />
+            </div>
+
+            <div className="divide-y divide-ink-line/30">
+              {completedPoems.map((poem) => (
+                <button
+                  key={poem.id}
+                  onClick={() => onSelect(poem.id)}
+                  className="w-full flex items-center justify-between gap-4 py-3 text-left text-creamDim hover:text-cream transition-colors"
+                >
+                  <span className="font-serif text-base">{poem.title}</span>
+                  <span className="text-xs whitespace-nowrap">
+                    {poem.author} · {poem.dynasty}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

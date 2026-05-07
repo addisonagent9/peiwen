@@ -367,6 +367,19 @@ has stable beta gating.
   - SequencePlayButton becomes presentational
   - Frontend-only; no backend, schema, hook, or registry changes
 
+- **#26 stage C-5 — wenyan 10-poem content drop + sectioning UI** (this commit)
+  - 10 new poems (poems 6-15): 春晓, 登鹳雀楼, 出塞, 望庐山瀑布,
+    九月九日忆山东兄弟, 黄鹤楼送孟浩然之广陵, 春夜喜雨,
+    次北固山下, 山居秋暝, 登乐游原
+  - Corpus 5→15 poems, 44→125 vocab entries
+  - PoemListView split into 进行中 (full cards) + 已完成
+    (simple title list, conditional render when non-empty)
+  - 5 editorial cuts applied per review (entries moved from
+    vocabulary to background prose)
+  - poemListSectionTitle marked deprecated
+  - No backend / schema changes; audio batch is a separate
+    VPS step
+
 ## Future entries
 (Addison to add more multi-tone classical attestations as they arise during
 ongoing curriculum work.)

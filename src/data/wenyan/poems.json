@@ -5,7 +5,17 @@
     "zhang-jiuling-ganyu-2",
     "zhang-jiuling-ganyu-3",
     "zhang-jiuling-ganyu-4",
-    "libai-xia-zhongnan"
+    "libai-xia-zhongnan",
+    "meng-haoran-chunxiao",
+    "wang-zhihuan-deng-guanquelou",
+    "wang-changling-chusai",
+    "libai-wanglushanpubu",
+    "wangwei-jiuyue-jiuri",
+    "libai-huanghelou-songmeng",
+    "dufu-chunye-xiyu",
+    "wangwan-cibeigushan-xia",
+    "wangwei-shanju-qiumin",
+    "lishangyin-deng-leyouyuan"
   ],
   "poems": [
     {
@@ -432,6 +442,804 @@
           "modernMeaning": "现代汉语完全不使用",
           "ancientMeaning": "忘却机心，即忘却世俗的机诈和算计",
           "notes": "全诗的哲学关键。「忘机」是道家常用语（《庄子》），意为解除算计、回归纯朴自然的心境"
+        }
+      ]
+    },
+    {
+      "id": "meng-haoran-chunxiao",
+      "title": "春晓",
+      "author": "孟浩然",
+      "dynasty": "唐",
+      "fullText": "春眠不觉晓，处处闻啼鸟。\n夜来风雨声，花落知多少。",
+      "translation": "春夜酣睡，天亮了都不知道；醒来只听见到处是鸟儿啼叫。\n想起昨夜里风声雨声不断，不知有多少花儿被吹落了呢？",
+      "background": [
+        "孟浩然早年隐居鹿门山（今湖北襄阳东南），后入长安谋求官职，考进士不中，还归故乡，过起了以山水田园为伴的半归隐生活。《春晓》即写于隐居期间。",
+        "此诗抓住清晨醒来那一瞬间的感官体验展开联想，是典型的「一瞬成诗」——这不是全程记录，而是诗人刚从春睡中被鸟啼吵醒、躺在被窝里回想昨夜风雨的心理活动。诗题「春晓」不是写清晨景色，而是「春天的清晨醒来那一刹那的心理活动」。",
+        "后两句「夜来风雨声，花落知多少」不是实写当场听见的风雨，而是醒来之后对夜间的追忆与推测——诗人一直在酣睡。全诗语言虽平白如话，却藏着「由喜春翻为惜春」的微妙心理转折。"
+      ],
+      "vocabulary": [
+        {
+          "word": "觉",
+          "pinyin": "jué",
+          "senseSlug": "jue-wake-up",
+          "modernMeaning": "现代多指「睡觉」（名词）或「感觉」（动词）",
+          "ancientMeaning": "睡醒；感知、觉悟",
+          "notes": "「不觉晓」的「觉」是「睡醒」义。若不解释，会误解为「睡都睡不醒」。"
+        },
+        {
+          "word": "晓",
+          "pinyin": "xiǎo",
+          "senseSlug": "xiao-dawn",
+          "modernMeaning": "现代多指「知晓、晓得」（动词）",
+          "ancientMeaning": "早晨；天刚亮的时候",
+          "notes": "「春晓」不是「春天知道」，而是「春日的清晨」。诗题的关键词。"
+        },
+        {
+          "word": "闻",
+          "pinyin": "wén",
+          "senseSlug": "wen-hear",
+          "modernMeaning": "现代多指「用鼻子嗅」",
+          "ancientMeaning": "听见（听觉接收）",
+          "notes": "文言中「闻啼鸟」是「听见鸟叫」，不是「嗅到鸟叫的味道」。古今差异是关键考点。"
+        },
+        {
+          "word": "啼鸟",
+          "pinyin": "tí niǎo",
+          "senseSlug": "tiniao-bird-cry-inverted",
+          "modernMeaning": "现代「啼鸟」作为固定短语几乎不用",
+          "ancientMeaning": "鸟啼，鸟的啼叫声（倒装结构，本应作「鸟啼」）",
+          "notes": "「啼」为动词（鸣叫）。现代「啼」多用于「啼哭」，听感完全不同。"
+        },
+        {
+          "word": "知多少",
+          "pinyin": "zhī duō shǎo",
+          "senseSlug": "zhiduoshao-how-many",
+          "modernMeaning": "现代「知」即「知道」",
+          "ancientMeaning": "不知有多少；「知」为「不知」的省文，表示推测",
+          "notes": "「花落知多少」是反问式推测，不是「我知道有多少」。"
+        }
+      ]
+    },
+    {
+      "id": "wang-zhihuan-deng-guanquelou",
+      "title": "登鹳雀楼",
+      "author": "王之涣",
+      "dynasty": "唐",
+      "fullText": "白日依山尽，黄河入海流。\n欲穷千里目，更上一层楼。",
+      "translation": "夕阳傍着连绵的山峦缓缓沉落，黄河滚滚东流汇向大海。\n想要穷尽那千里之远的壮丽景色，就要再登上更高的一层楼。",
+      "background": [
+        "王之涣是盛唐著名边塞诗人，豪放不羁，常击剑悲歌。这首诗是他登临鹳雀楼时所作。鹳雀楼在唐代蒲州（今山西永济），共三层，位于黄河岸边高阜处，因常有鹳雀栖息而得名。",
+        "诗人登楼远望：「白日依山尽」的「依山」写的是中条山，太阳落到山背后去；「黄河入海流」是虚写远景——黄河在鹳雀楼眼前并未入海，但诗人用想象把目光顺着黄河一直推到了尽头。",
+        "「欲穷千里目，更上一层楼」是哲理句。需注意鹳雀楼共三层，诗人作此句时已在最高层——所以「更上一层楼」不是字面的再走一层，而是从想象中「再向上一步」来隐喻人生进取与境界提升。全诗二十个字，将天地万里之势压缩于咫尺之间。"
+      ],
+      "vocabulary": [
+        {
+          "word": "白日",
+          "pinyin": "bái rì",
+          "senseSlug": "bairi-bright-sun",
+          "modernMeaning": "现代「白日」指白天（白昼），与夜晚相对",
+          "ancientMeaning": "太阳，尤指明亮的太阳；此处指落日",
+          "notes": "文言中「白日」常为「太阳」的书面语。不解释则可能误解为「白色的太阳」。"
+        },
+        {
+          "word": "依",
+          "pinyin": "yī",
+          "senseSlug": "yi-along",
+          "modernMeaning": "现代多表依靠、依赖（依偎）",
+          "ancientMeaning": "傍着、挨着；沿着（山势缓缓沉落）",
+          "notes": "「依山尽」是「沿着山的轮廓消失」的动态描述。"
+        },
+        {
+          "word": "尽",
+          "pinyin": "jìn",
+          "senseSlug": "jin-vanish",
+          "modernMeaning": "现代「尽」表用尽、结束",
+          "ancientMeaning": "沉没；消失",
+          "notes": "此处表太阳的消失，即「日没」。"
+        },
+        {
+          "word": "欲",
+          "pinyin": "yù",
+          "senseSlug": "yu-wish-to",
+          "modernMeaning": "现代「欲」依然有此义，但语感更偏「欲望」",
+          "ancientMeaning": "想要、希望（副词，表意愿）",
+          "notes": "「欲穷」的「欲」不是「快穷了」。是表意愿的副词。"
+        },
+        {
+          "word": "穷",
+          "pinyin": "qióng",
+          "senseSlug": "qiong-exhaust",
+          "modernMeaning": "现代「穷」主指贫困",
+          "ancientMeaning": "穷尽，到达极端——「目力所能及的极限」",
+          "notes": "「欲穷千里目」是「想要用眼睛看尽千里」。古今语义差异巨大。"
+        },
+        {
+          "word": "千里目",
+          "pinyin": "qiān lǐ mù",
+          "senseSlug": "qianlimu-thousand-li-vision",
+          "modernMeaning": "现代没有这种说法",
+          "ancientMeaning": "目力可达千里的眼界；比喻极远的视野",
+          "notes": "「千里」是夸张，「目」为眼力。"
+        },
+        {
+          "word": "更",
+          "pinyin": "gèng",
+          "senseSlug": "geng-further",
+          "modernMeaning": "现代「更」表比较级",
+          "ancientMeaning": "再（递进一层）",
+          "notes": "此处是「再往上走一层」的递进义。"
+        }
+      ]
+    },
+    {
+      "id": "wang-changling-chusai",
+      "title": "出塞",
+      "author": "王昌龄",
+      "dynasty": "唐",
+      "fullText": "秦时明月汉时关，万里长征人未还。\n但使龙城飞将在，不教胡马度阴山。",
+      "translation": "依旧是那秦汉以来的明月和边关，万里远征的将士至今还未归还。\n只要有英勇善战的龙城飞将李广那样的将军在，绝不会让敌人骑兵跨越阴山半步。",
+      "background": [
+        "王昌龄是盛唐著名的边塞诗人，素有「七绝圣手」之称。此诗作于唐玄宗后期，当时政治腐败、将帅无能，唐朝在与周边民族的战争中屡屡失利，将士远征万里不得回还。",
+        "首句「秦时明月汉时关」用了「互文见义」的修辞手法——秦汉时的明月、秦汉时的关塞。「秦」与「汉」交错覆盖两个词，意思等于「自秦汉以来，这里的明月和关塞就从未变过」。若硬译为「秦朝的月亮照着汉朝的要塞」就会错过「战火延续千年未断」的深邃意境。",
+        "「龙城飞将」指汉代名将李广，被匈奴称为「飞将军」。诗人没有直说「李广」，而是用了指代手法。明代李攀龙将此诗推为「唐人七绝压卷之作」。"
+      ],
+      "vocabulary": [
+        {
+          "word": "关",
+          "pinyin": "guān",
+          "senseSlug": "guan-frontier-pass",
+          "modernMeaning": "现代「关」指关闭、关卡",
+          "ancientMeaning": "关塞，边境要塞（防守据点）",
+          "notes": "此处特指玉门关、阳关等边境要塞。"
+        },
+        {
+          "word": "万里长征",
+          "pinyin": "wàn lǐ cháng zhēng",
+          "senseSlug": "wanlichangzheng-distant-expedition",
+          "modernMeaning": "现代「长征」专用指中国工农红军长征",
+          "ancientMeaning": "离家万里远征边塞（极言距离之远）",
+          "notes": "此处为泛义词「长距离的远征」，容易混淆。"
+        },
+        {
+          "word": "但使",
+          "pinyin": "dàn shǐ",
+          "senseSlug": "danshi-only-if",
+          "modernMeaning": "现代无此用法",
+          "ancientMeaning": "只要……就让（文言假设词）",
+          "notes": "初学者见「但」只会认作「但是」。此处「但」= 只要。"
+        },
+        {
+          "word": "龙城",
+          "pinyin": "lóng chéng",
+          "senseSlug": "longcheng-xiongnu-shrine",
+          "modernMeaning": "现代完全不用此地名",
+          "ancientMeaning": "匈奴祭祀龙神的城池（龙城一战，卫青在此大胜）",
+          "notes": "「龙城」与「飞将」并列，借代卫青和李广的战绩。"
+        },
+        {
+          "word": "飞将",
+          "pinyin": "fēi jiàng",
+          "senseSlug": "feijiang-li-guang",
+          "modernMeaning": "现代「飞将」若不补充背景，会误解为「会飞的将军」",
+          "ancientMeaning": "汉代名将李广，因勇猛被匈奴称「飞将军」",
+          "notes": "「飞将军李广」是绰号；不知典故就不清楚此人代表什么。"
+        },
+        {
+          "word": "教",
+          "pinyin": "jiào",
+          "senseSlug": "jiao-cause-let",
+          "modernMeaning": "现代「教」多指教育、教课",
+          "ancientMeaning": "使、令、让（使役动词）",
+          "notes": "「不教胡马」= 不让敌骑。「教」字读法不同。"
+        },
+        {
+          "word": "胡马",
+          "pinyin": "hú mǎ",
+          "senseSlug": "huma-barbarian-cavalry",
+          "modernMeaning": "现代「胡马」极少用",
+          "ancientMeaning": "胡人的战马，代指敌军骑兵",
+          "notes": "「胡」为古代对北方民族的泛称。"
+        },
+        {
+          "word": "度",
+          "pinyin": "dù",
+          "senseSlug": "du-cross-over",
+          "modernMeaning": "现代「度」主指程度、角度，或「度过时间」",
+          "ancientMeaning": "越过（动词，带宾语）",
+          "notes": "「度阴山」是空间跨越，不是时间度过。"
+        },
+        {
+          "word": "阴山",
+          "pinyin": "yīn shān",
+          "senseSlug": "yinshan-mountain-range",
+          "modernMeaning": "现代人不熟悉此地理名",
+          "ancientMeaning": "阴山山脉，是中原北方的重要天然防线",
+          "notes": "阴山是长安北部最后一道屏障。"
+        }
+      ]
+    },
+    {
+      "id": "libai-wanglushanpubu",
+      "title": "望庐山瀑布",
+      "author": "李白",
+      "dynasty": "唐",
+      "fullText": "日照香炉生紫烟，遥看瀑布挂前川。\n飞流直下三千尺，疑是银河落九天。",
+      "translation": "阳光照在香炉峰上，升腾起紫色的云雾；远远望去，瀑布像一条白练悬挂在山前的河川上。\n水流如飞，从三千尺高处直泻而下，仿佛是银河从九重天上倾落人间。",
+      "background": [
+        "李白一生好入名山游，足迹遍布大江南北。此诗写他游览庐山（在今江西九江）时远眺香炉峰瀑布的景象。",
+        "「香炉」不是烧香的香炉，而是「香炉峰」——庐山的一座山峰，因峰形尖圆、烟云缭绕，远望如同香炉而得名。李白用「日照香炉生紫烟」把真实的云雾和香炉的意象合二为一，构成了双重比喻。",
+        "「疑」在这里不是「怀疑」的疑，而是「好像、仿佛」的意思。「九天」不是数字9，而是「九重天」——古代传说天有九层，最高处叫九天。「三千尺」是李白惯用的虚数夸张，「疑是银河落九天」才是全诗最惊人的想象力。明代学者评此诗「入乎其内，出乎其外」，把万丈瀑布写在纸上只用了二十八个字。"
+      ],
+      "vocabulary": [
+        {
+          "word": "香炉",
+          "pinyin": "xiāng lú",
+          "senseSlug": "xianglu-incense-burner-peak",
+          "modernMeaning": "现代「香炉」即烧香的器皿",
+          "ancientMeaning": "香炉峰，庐山山峰名（因形似香炉得名）",
+          "notes": "若只解释字面，会以为「日照香炉」是一个铜香炉在出烟。"
+        },
+        {
+          "word": "生",
+          "pinyin": "shēng",
+          "senseSlug": "sheng-emit",
+          "modernMeaning": "现代「生」表生存、生育",
+          "ancientMeaning": "产生、升腾（此处为「生出」紫烟）",
+          "notes": "「生紫烟」→生出紫色烟雾，有动态过程感。"
+        },
+        {
+          "word": "紫烟",
+          "pinyin": "zǐ yān",
+          "senseSlug": "ziyan-purple-mist",
+          "modernMeaning": "现代「紫」只是颜色",
+          "ancientMeaning": "日光照射下水汽折射成的紫色光晕",
+          "notes": "「紫」暗示神仙世界（道教崇尚紫气），不解释，丢失超现实氛围。"
+        },
+        {
+          "word": "遥看",
+          "pinyin": "yáo kàn",
+          "senseSlug": "yaokan-look-from-afar",
+          "modernMeaning": "现代「遥」即遥远；「遥看」字面不费劲",
+          "ancientMeaning": "从远处看",
+          "notes": "文言与白话通用。"
+        },
+        {
+          "word": "挂",
+          "pinyin": "guà",
+          "senseSlug": "gua-hang",
+          "modernMeaning": "现代「挂」通用",
+          "ancientMeaning": "悬挂，将瀑布比作一条悬在崖壁上的白练",
+          "notes": "「瀑布挂前川」用「挂」字，把流动的水写成静止的「布匹」，意境特别。"
+        },
+        {
+          "word": "前川",
+          "pinyin": "qián chuān",
+          "senseSlug": "qianchuan-river-ahead",
+          "modernMeaning": "现代「川」不常见（四川、山川）",
+          "ancientMeaning": "前方的河流；川为河流",
+          "notes": "「前川」指山前的河面。"
+        },
+        {
+          "word": "飞流直下",
+          "pinyin": "fēi liú zhí xià",
+          "senseSlug": "feiliuzhixia-falls-plunge",
+          "modernMeaning": "现代基本能用",
+          "ancientMeaning": "瀑布似飞落的水流垂直而下（夸张水势之疾）",
+          "notes": "「飞流」是名词，此处非主谓结构。"
+        },
+        {
+          "word": "三千尺",
+          "pinyin": "sān qiān chǐ",
+          "senseSlug": "sanqianchi-three-thousand-feet",
+          "modernMeaning": "现代也保留这种夸张（千丈、万仞）",
+          "ancientMeaning": "虚数，极言其高，并非精确三千尺",
+          "notes": "3千尺若是精确算，则与真实地理不符，必须指出这是文人夸张。"
+        },
+        {
+          "word": "疑",
+          "pinyin": "yí",
+          "senseSlug": "yi-seems-like",
+          "modernMeaning": "现代「疑」已完全窄化为「怀疑、疑问」义",
+          "ancientMeaning": "好像、仿佛（古义常用作「好似」，而非白话的怀疑）",
+          "notes": "「疑是银河」不是「我怀疑那是不是银河」，而是「简直就好像银河」。文言最重要的古今异义之一。"
+        },
+        {
+          "word": "九天",
+          "pinyin": "jiǔ tiān",
+          "senseSlug": "jiutian-ninth-heaven",
+          "modernMeaning": "现代「九天」只剩「九天之上」的成语",
+          "ancientMeaning": "九重天，天有九层，为天之最高处",
+          "notes": "「九天」若不解释为层数，可能会误解为「九重」不是十进制。"
+        }
+      ]
+    },
+    {
+      "id": "wangwei-jiuyue-jiuri",
+      "title": "九月九日忆山东兄弟",
+      "author": "王维",
+      "dynasty": "唐",
+      "fullText": "独在异乡为异客，每逢佳节倍思亲。\n遥知兄弟登高处，遍插茱萸少一人。",
+      "translation": "我独自一人在异乡做客，每到美好的节日就加倍思念亲人。\n我在远方就能想到，兄弟们在重阳登高之际，人人头插茱萸，唯独我一人缺席。",
+      "background": [
+        "王维十七岁时独自漂泊于京都长安和洛阳之间，此诗作于他离开家乡蒲州（今山西永济）后。诗题中的「山东」不是今天的山东省，而是指华山以东——王维的家乡蒲州一带位于华山以东，故称「山东」。",
+        "重阳节的习俗在古代极其重要：登高、插茱萸、饮菊花酒是当时全民参与的节日活动。「茱萸」是一种芳香植物，古人认为插在头上可以避邪消灾，重阳日人人头插茱萸登高。节日环境越热闹，独在异乡就越孤独——这就是「每逢佳节倍思亲」的「倍」字从何而来。",
+        "全诗最精妙的地方在于最后一句不写自己思念兄弟，反倒写兄弟登高回头发觉少了一个人。这是一处情感视角的转换——从「我想你们」倒置为「你们想我」，使情感加倍深刻。王维作此诗时年仅十七，已经能把这种手法运用得炉火纯青。"
+      ],
+      "vocabulary": [
+        {
+          "word": "异乡",
+          "pinyin": "yì xiāng",
+          "senseSlug": "yixiang-foreign-land",
+          "modernMeaning": "现代「异乡」仍然使用（异国他乡）",
+          "ancientMeaning": "他乡，故乡之外的陌生地方",
+          "notes": "基本可通。"
+        },
+        {
+          "word": "异客",
+          "pinyin": "yì kè",
+          "senseSlug": "yike-stranger-guest",
+          "modernMeaning": "现代「客」已窄化",
+          "ancientMeaning": "人在异乡—做客的人（强调陌生、孤独、无归属感）",
+          "notes": "「异客」叠加在「异乡」上，是双重强调。"
+        },
+        {
+          "word": "倍",
+          "pinyin": "bèi",
+          "senseSlug": "bei-redoubled",
+          "modernMeaning": "现代「倍」表成倍增加（加倍）",
+          "ancientMeaning": "加倍，程度加深（比平时更）",
+          "notes": "意义相同，但现代口语少用「倍加」。"
+        },
+        {
+          "word": "登高",
+          "pinyin": "dēng gāo",
+          "senseSlug": "denggao-ascend-heights",
+          "modernMeaning": "现代「登高」仅指登上高处",
+          "ancientMeaning": "重阳节登高望远（习俗活动）",
+          "notes": "不补充文化背景，就不知为何「登高处」是全诗后半段的核心动作。"
+        },
+        {
+          "word": "茱萸",
+          "pinyin": "zhū yú",
+          "senseSlug": "zhuyu-cornel-plant",
+          "modernMeaning": "现代极少见",
+          "ancientMeaning": "一种芳香植物，古人重阳节插头上以避邪消灾",
+          "notes": "「茱萸」就像当代人不了解的远古习俗物件。"
+        },
+        {
+          "word": "少一人",
+          "pinyin": "shǎo yī rén",
+          "senseSlug": "shaoyiren-one-missing",
+          "modernMeaning": "现代「少一人」字面可解读为「数量少了一个人」",
+          "ancientMeaning": "缺少一个人（指身在异乡的自己缺席了家族团聚）",
+          "notes": "丢失了从自己视角看到兄弟身影中没了自己的悲伤。"
+        }
+      ]
+    },
+    {
+      "id": "libai-huanghelou-songmeng",
+      "title": "黄鹤楼送孟浩然之广陵",
+      "author": "李白",
+      "dynasty": "唐",
+      "fullText": "故人西辞黄鹤楼，烟花三月下扬州。\n孤帆远影碧空尽，唯见长江天际流。",
+      "translation": "老朋友辞别了西边的黄鹤楼，在这柳絮如烟、繁花似锦的三月顺流向东而去扬州。\n孤舟帆影渐渐消失在碧空的尽头，只看见滔滔长江浩浩荡荡地向天边奔流。",
+      "background": [
+        "开元十六年（728年）暮春，28岁的李白在黄鹤楼上为40岁的诗坛前辈孟浩然送行。孟浩然当时要去广陵（今江苏扬州）游历，李白亲自送到江边。",
+        "「之」字在文言中是一个常用动词，意思是「去、往」。「之广陵」不是「的广陵」，而是「去广陵」。「西辞」——李白在黄鹤楼送别，黄鹤楼位于武昌（广陵之西），故孟浩然向东方辞行。「烟花三月」的「烟花」不是鞭炮烟火，而是柳絮如烟、繁花似锦的江南春日盛景。",
+        "通篇无一字直写「不舍」，却用「孤帆远影碧空尽」——船帆走远了、消失在碧空尽头了，李白还站在江边看着空荡荡的江水。末句「唯见长江天际流」，把情意藏进了江水的尽头。"
+      ],
+      "vocabulary": [
+        {
+          "word": "故人",
+          "pinyin": "gù rén",
+          "senseSlug": "guren-old-friend",
+          "modernMeaning": "现代「故人」窄化为「旧相识」",
+          "ancientMeaning": "老朋友（此处指孟浩然，年长于李白）",
+          "notes": "「故人」有不分辈分的厚度。"
+        },
+        {
+          "word": "西辞",
+          "pinyin": "xī cí",
+          "senseSlug": "xici-bid-westward",
+          "modernMeaning": "现代「辞」表辞职、辞退，无「辞行」义",
+          "ancientMeaning": "向西辞行／在西方辞别。因黄鹤楼在广陵之西，故孟向东行",
+          "notes": "「西辞」若不解释方向，词语就丢失了全诗的三维地理场景。"
+        },
+        {
+          "word": "之",
+          "pinyin": "zhī",
+          "senseSlug": "zhi-go-to",
+          "modernMeaning": "现代「之」最常见为「的」（助词）或代词",
+          "ancientMeaning": "去、往、到（动词）",
+          "notes": "「之广陵」若按现代用法读作「的广陵」，句意完全不通。文言中最重要的实词虚化掌握点之一。"
+        },
+        {
+          "word": "烟花",
+          "pinyin": "yān huā",
+          "senseSlug": "yanhua-spring-mist-flowers",
+          "modernMeaning": "现代「烟花」几乎只指烟火、炮仗（春节用）",
+          "ancientMeaning": "指柳絮如烟、繁花似锦的春日景象，「烟+花」并举",
+          "notes": "必须差异化解释，否则会多出「放烟花」的滑稽画面。"
+        },
+        {
+          "word": "下",
+          "pinyin": "xià",
+          "senseSlug": "xia-flow-downstream",
+          "modernMeaning": "现代「下」多指从上至下的空间位移",
+          "ancientMeaning": "顺流而下（由西向东航行，长江流向）",
+          "notes": "「下扬州」不是「下降」，而是「向下游去」。属于水运专用的特殊义。"
+        },
+        {
+          "word": "孤帆",
+          "pinyin": "gū fān",
+          "senseSlug": "gufan-lone-sail",
+          "modernMeaning": "现代「孤帆」可理解",
+          "ancientMeaning": "一条孤独的帆船（指孟浩然的船只有一个帆标）",
+          "notes": "丢失了「只剩他一个人的小船远去」的离别情绪。"
+        },
+        {
+          "word": "碧空尽",
+          "pinyin": "bì kōng jìn",
+          "senseSlug": "bikongjin-vanish-blue-sky",
+          "modernMeaning": "现代「尽」是尽头",
+          "ancientMeaning": "消失在碧蓝色的天空尽头。尽：消失",
+          "notes": "「碧空尽」是「尽了、完了、消失了」，不拆会误解为「碧空尽了」即「天没了」。"
+        },
+        {
+          "word": "唯见",
+          "pinyin": "wéi jiàn",
+          "senseSlug": "weijian-only-see",
+          "modernMeaning": "现代「唯」即「唯一」",
+          "ancientMeaning": "只看见（最终只剩视觉留下）",
+          "notes": "「唯」有「只」的意思。"
+        },
+        {
+          "word": "天际流",
+          "pinyin": "tiān jì liú",
+          "senseSlug": "tianjiliu-flow-to-horizon",
+          "modernMeaning": "现代「天际」意为地平线／天边",
+          "ancientMeaning": "水流向天边（江天相接的远景）",
+          "notes": "「水向天际流」现代可理解。"
+        }
+      ]
+    },
+    {
+      "id": "dufu-chunye-xiyu",
+      "title": "春夜喜雨",
+      "author": "杜甫",
+      "dynasty": "唐",
+      "fullText": "好雨知时节，当春乃发生。\n随风潜入夜，润物细无声。\n野径云俱黑，江船火独明。\n晓看红湿处，花重锦官城。",
+      "translation": "好雨似乎懂得时令节气，正当春天万物生长时降临。\n伴着夜风悄悄潜入夜色，细细滋润万物却了无声响。\n野外小路上空乌云一片漆黑，江中渔船上的灯火独自明亮。\n天亮看那被雨水浸湿的红花处，锦官城里的花朵吸饱雨水、沉甸甸地绽放。",
+      "background": [
+        "此诗写于唐肃宗上元二年（761年）春，杜甫定居成都草堂期间——成都古称「锦官城」（因三国蜀汉在此设锦官管理织锦业而得名）。此前杜甫经历了安史之乱期间的流离转徙，最终因陕西旱灾辗转来到四川成都，在这里过上了一段相对安定的生活。杜甫在成都郊外种菜养花，与农民频繁交往，对春雨有着农民式的深切情感。",
+        "这首诗通篇没有一个「喜」字，但句句都在写「喜」——是中国诗歌史中「不说喜而见喜」的极高明写法。首联「好雨知时节，当春乃发生」——杜甫把雨当成人格化的角色，「知时节」说明这场雨在作物最需要的时候来了。这是中国农业文明的「及时雨」崇拜，「春雨贵如油」的农谚里藏着「好雨」好在哪里。",
+        "「润物细无声」的「细」不是小雨，而是雨水无声渗透滋养万物的动作——这是杜甫对雨水最本质的观察。末句「花重锦官城」的「重」字是诗眼，雨后花叶吸饱了水，显得「沉甸甸的」，不能用现代绿化带的花去想象。全诗用拟人、无声、细致的手法，把一场夜雨写成了天地无言润万物的哲学画面。"
+      ],
+      "vocabulary": [
+        {
+          "word": "乃",
+          "pinyin": "nǎi",
+          "senseSlug": "nai-thereupon",
+          "modernMeaning": "现代「乃」用于「乃是」「就是」，或罕见书面语",
+          "ancientMeaning": "于是、就（承接）",
+          "notes": "此处无重要歧义，但初学者可能不习惯。"
+        },
+        {
+          "word": "发生",
+          "pinyin": "fā shēng",
+          "senseSlug": "fasheng-cause-growth",
+          "modernMeaning": "现代「发生」表「事情出现、产生事件」，是中性动词",
+          "ancientMeaning": "促使万物生长（生发、萌发）",
+          "notes": "此处却是农业式中性「万物因雨水而萌发」。可能误为「春天发生事件」。"
+        },
+        {
+          "word": "潜",
+          "pinyin": "qián",
+          "senseSlug": "qian-stealthily",
+          "modernMeaning": "现代「潜」常用于「潜水、潜伏、潜力」",
+          "ancientMeaning": "悄悄地、暗暗地（动词）",
+          "notes": "「潜入夜」→「雨在夜里悄然来临」。基本可以推断。"
+        },
+        {
+          "word": "润物",
+          "pinyin": "rùn wù",
+          "senseSlug": "runwu-moisten-things",
+          "modernMeaning": "现代「润」即「湿润」",
+          "ancientMeaning": "滋润万物（主指草木农作物）",
+          "notes": "「润物细无声」→雨水滋润事物细细无声。现代可通。"
+        },
+        {
+          "word": "野径",
+          "pinyin": "yě jìng",
+          "senseSlug": "yejing-wild-path",
+          "modernMeaning": "现代「径」是「径自、路径」",
+          "ancientMeaning": "野外的小路",
+          "notes": "字面可推测为「野外的小径」。"
+        },
+        {
+          "word": "俱",
+          "pinyin": "jù",
+          "senseSlug": "ju-all",
+          "modernMeaning": "「俱乐部」（伴的义），已不在日常使用",
+          "ancientMeaning": "全、都",
+          "notes": "必须专门解释「俱」为「全都」。"
+        },
+        {
+          "word": "红湿处",
+          "pinyin": "hóng shī chù",
+          "senseSlug": "hongshichu-red-wet-spot",
+          "modernMeaning": "现代「湿」字是湿润",
+          "ancientMeaning": "花被雨水沾湿后呈现的红色痕迹",
+          "notes": "「红湿」不成为常见短语，但拆解可懂。"
+        },
+        {
+          "word": "花重",
+          "pinyin": "huā zhòng",
+          "senseSlug": "huazhong-flowers-heavy",
+          "modernMeaning": "现代「重」zhòng（重量）",
+          "ancientMeaning": "雨后花朵因水珠而显得沉甸甸的样子",
+          "notes": "此处「重」不是「又、再」，而是重量之「重」。全诗的诗眼在此，若不解释，学生以为「种花再次」。"
+        }
+      ]
+    },
+    {
+      "id": "wangwan-cibeigushan-xia",
+      "title": "次北固山下",
+      "author": "王湾",
+      "dynasty": "唐",
+      "fullText": "客路青山外，行舟绿水前。\n潮平两岸阔，风正一帆悬。\n海日生残夜，江春入旧年。\n乡书何处达？归雁洛阳边。",
+      "translation": "旅人之路在青山之外延伸，行船在绿水前方破浪而行。\n潮水涨平江岸，两岸显得格外开阔；顺风吹得正好，一片风帆高高悬挂。\n海上的朝阳从残夜中升起，江上的春意在旧岁未尽时已然到来。\n家书要送到何处才能抵达呢？还是托北归的大雁带到洛阳那边吧。",
+      "background": [
+        "王湾是洛阳人，「尝往来吴楚间」，长期在江南漫游。此诗写他乘船沿长江东行，经过北固山时所作。北固山在今江苏镇江市以北，三面临江。残冬腊月至北固山时天已破晓，茫茫江水、悠悠青山和低平的江岸一一映入眼帘。",
+        "全诗有两个千古名句备受推崇——「潮平两岸阔，风正一帆悬」写出了船只在江上最佳航行状态的画面，而「海日生残夜，江春入旧年」则是初唐五律中哲理与时令交融的杰作。海日从残留的夜色中「生」出来——「生」字是「诞生」的拟人用法；江上春意在旧年未尽时就已经「入」——「入」字不是「进入」而是「抢先、提前到来」，把时间人格化了。",
+        "末句「乡书何处达？归雁洛阳边」中的「归雁」不是偶然看到的鸟，而是古代「鸿雁传书」的文化符号。雁群飞回北方（途经洛阳，王湾的家乡），诗人托它们带去家书。看不懂「鸿雁传书」的典故，就不能理解为什么诗人看着大雁就想到寄信。此诗气象高华、意境雄阔，是盛唐五律的代表作之一。"
+      ],
+      "vocabulary": [
+        {
+          "word": "次",
+          "pinyin": "cì",
+          "senseSlug": "ci-moor-stop",
+          "modernMeaning": "现代「次」是量词或顺序（一次、次日）",
+          "ancientMeaning": "停泊、途中停留（动词）",
+          "notes": "若不解释，诗题完全读不通。文言特定义，必须单独记忆。"
+        },
+        {
+          "word": "客路",
+          "pinyin": "kè lù",
+          "senseSlug": "kelu-traveler-road",
+          "modernMeaning": "现代「客」为客人",
+          "ancientMeaning": "旅途，旅客行走的路",
+          "notes": "「客路」不常见，但可推为「旅行的路途」。"
+        },
+        {
+          "word": "潮平",
+          "pinyin": "cháo píng",
+          "senseSlug": "chaoping-tide-level",
+          "modernMeaning": "现代还能理解",
+          "ancientMeaning": "潮水涨得与江岸平齐",
+          "notes": "「潮平」不是潮水平静，而是潮水充盈。"
+        },
+        {
+          "word": "阔",
+          "pinyin": "kuò",
+          "senseSlug": "kuo-wide-open",
+          "modernMeaning": "现代义相同",
+          "ancientMeaning": "开阔",
+          "notes": "古今义一致。"
+        },
+        {
+          "word": "风正",
+          "pinyin": "fēng zhèng",
+          "senseSlug": "fengzheng-wind-favorable",
+          "modernMeaning": "现代「正」义为正巧、正好",
+          "ancientMeaning": "风向正好（顺着船向、风力适中）",
+          "notes": "此处可通。"
+        },
+        {
+          "word": "悬",
+          "pinyin": "xuán",
+          "senseSlug": "xuan-suspend",
+          "modernMeaning": "现代义可通",
+          "ancientMeaning": "高高悬挂",
+          "notes": "船帆「挂」着的状态。"
+        },
+        {
+          "word": "乡书",
+          "pinyin": "xiāng shū",
+          "senseSlug": "xiangshu-letter-home",
+          "modernMeaning": "现代「书」为书籍",
+          "ancientMeaning": "家信（寄往家乡的书信）",
+          "notes": "此处「书」即书信，古义必须解释。"
+        },
+        {
+          "word": "达",
+          "pinyin": "dá",
+          "senseSlug": "da-reach-deliver",
+          "modernMeaning": "现代「达」表达到、通晓",
+          "ancientMeaning": "送到、到达",
+          "notes": "「乡书何处达」，意思为「家书送到哪里去呢」。"
+        },
+        {
+          "word": "归雁",
+          "pinyin": "guī yàn",
+          "senseSlug": "guiyan-returning-geese",
+          "modernMeaning": "现代「归雁」需要文化典故才理解",
+          "ancientMeaning": "北归的大雁（鸿雁传书）",
+          "notes": "不解释「鸿雁传书」的文化典，会误解为「诗人真的信大雁能送信」。"
+        }
+      ]
+    },
+    {
+      "id": "wangwei-shanju-qiumin",
+      "title": "山居秋暝",
+      "author": "王维",
+      "dynasty": "唐",
+      "fullText": "空山新雨后，天气晚来秋。\n明月松间照，清泉石上流。\n竹喧归浣女，莲动下渔舟。\n随意春芳歇，王孙自可留。",
+      "translation": "空旷的山中一场新雨过后，傍晚的天气透出秋的凉意。\n皎洁的月光在松林间洒落，清冽的泉水流淌在山石之上。\n竹林里传来欢声笑语，是洗衣女归来了；水面的莲叶轻轻摇动，是渔舟顺流而下。\n任它春天的芳草自然凋谢吧，我这位山中的王孙自可长留于此。",
+      "background": [
+        "王维晚年隐居辋川别业（在今陕西蓝田），过着半官半隐的生活。此诗描绘秋雨初晴后的傍晚，辋川山居的幽静景色，是王维「诗中有画」理念的完美典范。「暝」是「日暮、黄昏」的意思——「山居秋暝」就是「山中居所秋天的傍晚」。",
+        "颈联「竹喧归浣女，莲动下渔舟」用了倒装句式——实际顺序是「浣女归而竹喧，渔舟下而莲动」。不能按字面解为「竹枝喧闹回去洗衣女」这样的无意义堆砌。",
+        "尾联「随意春芳歇，王孙自可留」引用了《楚辞·招隐士》的典故。原句是「王孙游兮不归，春草生兮萋萋」「王孙兮归来，山中兮不可久留」——本意是劝王孙从山里回到朝堂。王维反其意而用之：我不用回去了，花香草美我自可留下。「王孙」是王维自比。王维把佛禅空明的哲学、山水画的美和唐人开放的精神全部写进了这四十个字里。"
+      ],
+      "vocabulary": [
+        {
+          "word": "暝",
+          "pinyin": "míng",
+          "senseSlug": "ming-dusk",
+          "modernMeaning": "现代「暝」几乎不用，偶见于「薄暮冥冥」",
+          "ancientMeaning": "日暮、黄昏",
+          "notes": "「秋暝」是「秋天的黄昏」。诗题的关键词，必须单独释义。"
+        },
+        {
+          "word": "空山",
+          "pinyin": "kōng shān",
+          "senseSlug": "kongshan-empty-mountain",
+          "modernMeaning": "现代「空山」可以理解为「空旷的山」",
+          "ancientMeaning": "幽静空寂的山（非真的空，安静得像无人之地）",
+          "notes": "王维的「空」已加了佛教的「空寂」境界。"
+        },
+        {
+          "word": "新雨",
+          "pinyin": "xīn yǔ",
+          "senseSlug": "xinyu-fresh-rain",
+          "modernMeaning": "现代可用",
+          "ancientMeaning": "刚下的雨",
+          "notes": "「新雨后」即刚下过雨。"
+        },
+        {
+          "word": "天气晚来秋",
+          "pinyin": "tiān qì wǎn lái qiū",
+          "senseSlug": "tianqiwanlaiqiu-evening-autumn",
+          "modernMeaning": "现代「晚来」指夜晚到来",
+          "ancientMeaning": "傍晚的天气透着秋意",
+          "notes": "「晚来秋」= 傍晚时分秋意渐浓。"
+        },
+        {
+          "word": "竹喧",
+          "pinyin": "zhú xuān",
+          "senseSlug": "zhuxuan-bamboo-laughter",
+          "modernMeaning": "现代「喧」是喧闹",
+          "ancientMeaning": "竹林里传出喧笑人声",
+          "notes": "「竹喧」不是竹子喧哗，而是从竹林中听到人声。"
+        },
+        {
+          "word": "归浣女",
+          "pinyin": "guī huàn nǚ",
+          "senseSlug": "guihuannnu-returning-laundress",
+          "modernMeaning": "现代「浣」只在「浣纱、浣衣」等古典词中保留",
+          "ancientMeaning": "归来的洗衣女（「浣」即洗濯）",
+          "notes": "「浣女」需要专门解释。"
+        },
+        {
+          "word": "莲动",
+          "pinyin": "lián dòng",
+          "senseSlug": "liandong-lotus-stir",
+          "modernMeaning": "现代「莲动」不常见",
+          "ancientMeaning": "莲叶摇动（暗示有船经过）",
+          "notes": "可推「莲叶摇动」。"
+        },
+        {
+          "word": "随意",
+          "pinyin": "suí yì",
+          "senseSlug": "suiyi-let-it-be",
+          "modernMeaning": "现代「随意」变成了「随便」的口语词",
+          "ancientMeaning": "任凭、不管（不必在意）",
+          "notes": "「随意春芳歇」= 「放任春天的花草凋零不管」，不是「随便春草凋谢」。"
+        },
+        {
+          "word": "春芳",
+          "pinyin": "chūn fāng",
+          "senseSlug": "chunfang-spring-blossoms",
+          "modernMeaning": "现代「芳」多表芳香",
+          "ancientMeaning": "春天的花草（喻指世俗的繁华）",
+          "notes": "「春芳」为春天的芬芳花草。"
+        },
+        {
+          "word": "歇",
+          "pinyin": "xiē",
+          "senseSlug": "xie-fade-away",
+          "modernMeaning": "现代「歇」用于「休息、歇息、停歇」",
+          "ancientMeaning": "凋谢、消歇（由盛转衰）",
+          "notes": "「春芳歇」→花草凋谢，与「歇息」完全不同。"
+        },
+        {
+          "word": "王孙",
+          "pinyin": "wáng sūn",
+          "senseSlug": "wangsun-noble-self",
+          "modernMeaning": "现代「王孙」专指古典称谓",
+          "ancientMeaning": "贵族后代，此处王维自指多借用《楚辞》典故",
+          "notes": "「王孙」典出《楚辞·招隐士》，王维是反用——「我自可留下，不必回朝」。不解释典故就会丢失深意。"
+        }
+      ]
+    },
+    {
+      "id": "lishangyin-deng-leyouyuan",
+      "title": "登乐游原",
+      "author": "李商隐",
+      "dynasty": "唐",
+      "fullText": "向晚意不适，驱车登古原。\n夕阳无限好，只是近黄昏。",
+      "translation": "将近傍晚时分心情烦闷不适，驾着马车登上了古老的乐游原。\n夕阳晚景无限美好，只可惜已临近黄昏，再过片刻便要消逝了。",
+      "background": [
+        "李商隐生活在晚唐政治斗争激烈的时代，一生在牛李党争的夹缝中求存，仕途潦倒。此诗作于他晚年登长安乐游原时。乐游原位于长安城南，地势高敞开阔，是汉代以来的游览胜地，每逢正月晦日、三月三、九月九，士女云集于此。",
+        "「向晚意不适」的「向」是文言中常用的时间副词，表示「接近、将近」。「向晚」就是「将近傍晚」。若不解「向」的这一义项，只能猜成「傍晚我心情不好」，丢失了「向」字带来的微妙文学层次。",
+        "末二句「夕阳无限好，只是近黄昏」是全诗千古流传的灵魂。字面意是「夕阳的景色实在太美了，可惜太短暂，马上就要进入黄昏了」。但联系李商隐的人生背景（晚唐国运日衰，他个人一生潦倒），这里的「黄昏」是双关——既是自然的黄昏，也是大唐王朝的黄昏和他的生命黄昏。许多注家认为这两句不仅仅是写夕阳的感伤，更是借落日隐喻晚唐衰败的时局。仅仅把这两句当作写景诗来背，就无法承受它跨越千年的悲剧力量。"
+      ],
+      "vocabulary": [
+        {
+          "word": "向晚",
+          "pinyin": "xiàng wǎn",
+          "senseSlug": "xiangwan-toward-evening",
+          "modernMeaning": "现代「向」作方向、朝向，或「向来」",
+          "ancientMeaning": "将近傍晚（向：接近，将近）",
+          "notes": "「向」的「将近」义在现代汉语中已消失。不解释则词不达意。"
+        },
+        {
+          "word": "意不适",
+          "pinyin": "yì bù shì",
+          "senseSlug": "yibushi-mood-uneasy",
+          "modernMeaning": "现代「不适」仍可用于「身体不适」",
+          "ancientMeaning": "心情不舒畅（意：心情，不适：不悦）",
+          "notes": "「不适」不专指生病，指心情。"
+        },
+        {
+          "word": "驱车",
+          "pinyin": "qū chē",
+          "senseSlug": "quche-drive-cart",
+          "modernMeaning": "现代「驱车」成语（驱车前往），但语境改用汽车",
+          "ancientMeaning": "驾马车",
+          "notes": "古今不冲突。"
+        },
+        {
+          "word": "古原",
+          "pinyin": "gǔ yuán",
+          "senseSlug": "guyuan-ancient-plateau",
+          "modernMeaning": "现代「古原」即古老的原野",
+          "ancientMeaning": "乐游原（已存在几百年，故称「古」）",
+          "notes": "「古原」最好能解释「为何称古原」。"
+        },
+        {
+          "word": "无限好",
+          "pinyin": "wú xiàn hǎo",
+          "senseSlug": "wuxianhao-infinitely-beautiful",
+          "modernMeaning": "现代「无限」表无穷无尽",
+          "ancientMeaning": "极其美好，「限」即界限，「无限」即无穷",
+          "notes": "「无限好」即「无限的美好」，古今一致。"
+        },
+        {
+          "word": "只是",
+          "pinyin": "zhǐ shì",
+          "senseSlug": "zhishi-only-alas",
+          "modernMeaning": "现代「只是」最常用为「仅仅是」",
+          "ancientMeaning": "只可惜、只不过是",
+          "notes": "「只是近黄昏」的「只」有「仅此而已」的遗憾叹息的转折语气，不可缺。"
+        },
+        {
+          "word": "近黄昏",
+          "pinyin": "jìn huáng hūn",
+          "senseSlug": "jinhuanghun-near-twilight",
+          "modernMeaning": "现代义可通",
+          "ancientMeaning": "临近黄昏",
+          "notes": "「近」即接近，古今差异不大。"
         }
       ]
     }
