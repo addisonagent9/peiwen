@@ -5,6 +5,7 @@ import { cedictCompounds, loadCedict, isCedictLoaded } from "../analysis/cedict"
 import { moedictLookup, loadMoedict, isMoedictLoaded } from "../analysis/moedict";
 import { pinyin, convert } from "pinyin-pro";
 import { AMBIGUOUS_READINGS } from "../data/ambiguous-readings";
+import { MERGER_ANNOTATIONS } from "../data/merger-annotations";
 import { RHYMES_PINGSHENG } from "../data/pingshui/trainer-curriculum";
 import type { Locale, Translations } from "../i18n";
 
@@ -146,6 +147,23 @@ export function RhymeCharCard({ char, currentRhyme, locale, t, onClose, onRhymeC
                   );
                 })}
               </div>
+            </div>
+          )}
+
+          {/* #7: 簡↔繁 rhyme-merger annotation. Compact inline note;
+              renders only when char is a documented rhyme-distinct merger. */}
+          {MERGER_ANNOTATIONS[char] && (
+            <div className="pl-3 border-l-2 border-gold/40 text-[11px] space-y-0.5">
+              <p className="text-creamDim font-sans">
+                {locale === "繁" ? "形近合併: " : "形近合并: "}
+                {MERGER_ANNOTATIONS[char].forms.map((f, i) => (
+                  <span key={i}>
+                    {i > 0 && <span className="text-creamDim/50"> / </span>}
+                    <span className="text-gold">{f.trad}</span>
+                    <span className="text-creamDim/70"> {f.rhymes.join('·')}</span>
+                  </span>
+                ))}
+              </p>
             </div>
           )}
 

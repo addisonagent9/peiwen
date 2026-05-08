@@ -115,10 +115,12 @@ Set 1 carry the strongest pedagogical value as audio teaching points:
 
 ## Deferred / Parked items
 
-### #7 — 簡↔繁 rhyme-merger annotations
-Some 簡 chars merge multiple 繁 forms with classically-distinct rhymes
-(丰/豐 pattern: 丰 → 二冬, 豐 → 一東). Pedagogical content addition;
-surfaces during audit work.
+### Pingshui data gap — 曆 missing
+Surfaced during #7 implementation: `曆` (simplified `历`) is missing
+from `src/data/pingshui.json`. `歷` and `历` are present, both reading
+入聲 十二錫. `曆` likely reads identically. Adds nothing to rhyme
+analysis but closes a completeness gap. Defer to a future pingshui
+sweep. Not blocking.
 
 ### #14 — Fill MOE coverage gap
 Source additional classical Chinese dictionaries (漢語大詞典, 中華語文知識庫,

@@ -7,6 +7,7 @@ import { pinyin } from "pinyin-pro";
 import { rhymesOf, charsInRhyme } from "../analysis/rhyme";
 import type { Locale, Translations } from "../i18n";
 import { AMBIGUOUS_READINGS } from "../data/ambiguous-readings";
+import { MERGER_ANNOTATIONS } from "../data/merger-annotations";
 
 type Tone = "平" | "仄";
 
@@ -331,6 +332,38 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
                     <div className="mt-1 font-serif text-lg text-gold">{py}</div>
                   </div>
                 </div>
+
+                {/* #7: 簡↔繁 rhyme-merger annotation. Renders only when this
+                    char is a documented rhyme-distinct merger. Informational
+                    only — no picker (deferred to a future ticket). */}
+                {MERGER_ANNOTATIONS[val] && (
+                  <aside className="pl-3 border-l-2 border-gold/40 text-xs space-y-1">
+                    <p className="text-creamDim font-sans">
+                      {locale === "繁" ? "形近合併" : "形近合并"} —{" "}
+                      {val} 在平水韻中對應多形:
+                    </p>
+                    <ul className="text-cream font-serif space-y-0.5">
+                      {MERGER_ANNOTATIONS[val].forms.map((f, i) => (
+                        <li key={i}>
+                          <span className="text-gold">{f.trad}</span>
+                          <span className="text-creamDim ml-2">
+                            ({f.rhymes.join(' / ')})
+                          </span>
+                          {f.isOpenccDefault && (
+                            <span className="text-creamDim/60 italic ml-2">
+                              ({locale === "繁" ? "目前默認" : "目前默认"})
+                            </span>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                    {MERGER_ANNOTATIONS[val].pedagogicalNote && (
+                      <p className="text-creamDim italic">
+                        {MERGER_ANNOTATIONS[val].pedagogicalNote}
+                      </p>
+                    )}
+                  </aside>
+                )}
 
                 {info && !info.unknown && (
                   <div>
