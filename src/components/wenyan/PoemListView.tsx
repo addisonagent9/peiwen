@@ -16,6 +16,9 @@
 
 import React from 'react';
 import { wenyanStrings } from '../../i18n/wenyan-strings';
+import { SimpTradToggle } from '../../ui/SimpTradToggle';
+import { usePreferences } from '../../contexts/PreferencesContext';
+import { convertString } from '../../analysis/s2t';
 import type { WenyanContent, WenyanPoem, WenyanProgressEntry } from '../../data/wenyan/types';
 
 interface PoemListViewProps {
@@ -39,7 +42,11 @@ export function PoemListView({
   onStartPairing,
   onExit,
 }: PoemListViewProps) {
-  const s = wenyanStrings.cn;
+  // #22: pick UI strings + content conversion based on prefersSimplified.
+  // wenyanStrings.cn = simp baseline; .tw = curated trad alternative.
+  const { prefs } = usePreferences();
+  const s = prefs.prefersSimplified ? wenyanStrings.cn : wenyanStrings.tw;
+  const cv = (text: string) => convertString(text, prefs.prefersSimplified);
   const completedSet = new Set(progress.map((p) => p.poem_id));
   const orderedPoems: WenyanPoem[] = content.displayOrder
     .map((id) => content.poems.find((p) => p.id === id))
@@ -78,7 +85,10 @@ export function PoemListView({
             </h1>
           </div>
 
-          <div className="w-10" />
+          {/* #22: Simp/Trad toggle, right slot */}
+          <div className="flex items-center justify-end" style={{ minWidth: '2.5rem' }}>
+            <SimpTradToggle />
+          </div>
         </div>
 
         {/* Brush-stroke gold divider — animated once on mount */}
@@ -153,12 +163,12 @@ export function PoemListView({
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0 space-y-1">
                       <div className="flex items-baseline gap-3">
-                        <span className="font-serif text-gold text-lg">{poem.title}</span>
+                        <span className="font-serif text-gold text-lg">{cv(poem.title)}</span>
                         <span className="text-creamDim text-xs">
-                          {poem.dynasty} · {poem.author}
+                          {cv(poem.dynasty)} · {cv(poem.author)}
                         </span>
                       </div>
-                      <p className="font-serif text-cream text-sm truncate">{firstLine}</p>
+                      <p className="font-serif text-cream text-sm truncate">{cv(firstLine)}</p>
                     </div>
                   </div>
                 </button>
@@ -186,9 +196,9 @@ export function PoemListView({
                   onClick={() => onSelect(poem.id)}
                   className="w-full flex items-center justify-between gap-4 py-3 text-left text-creamDim hover:text-cream transition-colors"
                 >
-                  <span className="font-serif text-base">{poem.title}</span>
+                  <span className="font-serif text-base">{cv(poem.title)}</span>
                   <span className="text-xs whitespace-nowrap">
-                    {poem.author} · {poem.dynasty}
+                    {cv(poem.author)} · {cv(poem.dynasty)}
                   </span>
                 </button>
               ))}

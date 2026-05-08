@@ -252,6 +252,11 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
     fetchBatch(seenChars);
   };
 
+  // canon — do not convert (per #22 lock Q7)
+  // EditModal cell display shows what's stored. Both 繁/簡 forms are
+  // computed here for display purposes (showing the user the alternate
+  // form alongside the canonical one) — that's separate from the
+  // Simp/Trad TOGGLE, which controls user-facing content elsewhere.
   const trad = val ? toTraditional(val) : "";
   const simp = val ? toSimplified(val) : "";
   const sameForm = trad === simp;

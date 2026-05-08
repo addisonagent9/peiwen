@@ -15,6 +15,7 @@ import React, { useEffect, useState } from 'react';
 import poemsData from '../../data/wenyan/poems.json';
 import type { WenyanContent, WenyanPoem } from '../../data/wenyan/types';
 import { wenyanStrings } from '../../i18n/wenyan-strings';
+import { usePreferences } from '../../contexts/PreferencesContext';
 import { useWenyanApi } from './useWenyanApi';
 import { PoemListView } from './PoemListView';
 import { PoemReader } from './PoemReader';
@@ -54,7 +55,9 @@ interface WenyanModuleProps {
 type ViewMode = 'list' | 'reader' | 'pairing';
 
 export function WenyanModule({ onExit, userName }: WenyanModuleProps) {
-  const s = wenyanStrings.cn;
+  // #22: prefersSimplified-aware UI strings
+  const { prefs } = usePreferences();
+  const s = prefs.prefersSimplified ? wenyanStrings.cn : wenyanStrings.tw;
   const { progress, isLoadingProgress, progressError, completePoem, fetchLibrary } =
     useWenyanApi();
   const [viewMode, setViewMode] = useState<ViewMode>('list');

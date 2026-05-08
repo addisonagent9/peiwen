@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useAdminAudio } from '../../hooks/useAdminAudio';
 import { formatVoiceLabel } from '../../utils/voice-labels';
+import { usePreferences } from '../../contexts/PreferencesContext';
+import { convertString } from '../../analysis/s2t';
 
 const VOICE_POOLS_CLIENT = {
   mandarin: [
@@ -42,6 +44,10 @@ export default function AudioReview() {
     approve, reject, regenerate, prewarm, refresh,
     undoStatus, undo,
   } = useAdminAudio();
+  // #22: convert clip-text labels per user's prefersSimplified.
+  // EDIT FIELDS (textarea defaultValue, placeholder) stay canon — see below.
+  const { prefs } = usePreferences();
+  const cv = (text: string) => convertString(text, prefs.prefersSimplified);
 
   const [prewarmLoading, setPrewarmLoading] = useState(false);
   const [addVoiceLoading, setAddVoiceLoading] = useState<string | null>(null);
@@ -236,7 +242,7 @@ export default function AudioReview() {
               {/* Item header */}
               <div className="px-4 py-3 border-b border-[#F5F0E8]/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <div className="flex items-center gap-3">
-                  <span className="text-xl font-bold">{item.text}</span>
+                  <span className="text-xl font-bold">{cv(item.text)}</span>
                   {((item.voiceKind === 'cantonese' && item.jyutping) || (item.voiceKind === 'mandarin' && item.pinyin)) && (
                     <span className="text-sm text-[#F5F0E8]/50 font-sans">
                       {item.voiceKind === 'cantonese' ? item.jyutping : item.pinyin}
@@ -313,9 +319,11 @@ export default function AudioReview() {
                         <input
                           id={`gen-text-${clip.id}`}
                           type="text"
+                          // canon — do not convert (per #22 lock Q7)
                           defaultValue={clip.generationText || item.text}
                           disabled={actionLoading === clip.id}
                           className="flex-1 px-2 py-1 text-sm bg-[#F5F0E8]/5 border border-[#F5F0E8]/10 rounded text-[#F5F0E8]/80 focus:border-[#B8A04A]/50 focus:outline-none disabled:opacity-50"
+                          // canon — do not convert (per #22 lock Q7)
                           placeholder={item.text}
                         />
                       </div>

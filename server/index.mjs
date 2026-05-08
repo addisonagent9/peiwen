@@ -63,7 +63,7 @@ app.use(passport.session());
 
 passport.serializeUser((user, done) => done(null, user.id));
 passport.deserializeUser((id, done) => {
-  const row = db.prepare("SELECT id, email, name, avatar, is_premium, is_admin, last_login FROM users WHERE id = ?").get(id);
+  const row = db.prepare("SELECT id, email, name, avatar, is_premium, is_admin, last_login, prefers_simplified FROM users WHERE id = ?").get(id);
   done(null, row || null);
 });
 
@@ -85,11 +85,12 @@ if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
     if (existing) {
       db.prepare("UPDATE users SET email = ?, name = ?, avatar = ?, last_login = ? WHERE id = ?")
         .run(email, name, avatar, now, id);
-      done(null, { id, email, name, avatar, is_premium: existing.is_premium, is_admin: existing.is_admin, last_login: now });
+      const prefersSimp = db.prepare("SELECT prefers_simplified FROM users WHERE id = ?").get(id)?.prefers_simplified ?? 0;
+      done(null, { id, email, name, avatar, is_premium: existing.is_premium, is_admin: existing.is_admin, last_login: now, prefers_simplified: prefersSimp });
     } else {
       db.prepare("INSERT INTO users (id, email, name, avatar, is_premium, is_admin, last_login) VALUES (?, ?, ?, ?, ?, ?, ?)")
         .run(id, email, name, avatar, isPremium, isAdmin, now);
-      done(null, { id, email, name, avatar, is_premium: isPremium, is_admin: isAdmin, last_login: now });
+      done(null, { id, email, name, avatar, is_premium: isPremium, is_admin: isAdmin, last_login: now, prefers_simplified: 0 });
     }
   }));
 }
@@ -123,6 +124,45 @@ app.get("/api/auth/logout", (req, res) => {
 
 app.get("/api/auth/me", (req, res) => {
   res.json({ user: req.user ?? null });
+});
+
+// --- User preferences ---
+// #22: PUT /api/user/preferences { prefers_simplified: 0|1 }
+// Updates users.prefers_simplified and syncs user_trainer_state.ui_language
+// in the same transaction. 'en-bilingual' values in ui_language are
+// respected and not overwritten (those users have an explicit en preference).
+const sUpdatePrefersSimplified = db.prepare(
+  "UPDATE users SET prefers_simplified = ? WHERE id = ?"
+);
+const sGetUiLanguage = db.prepare(
+  "SELECT ui_language FROM user_trainer_state WHERE user_id = ?"
+);
+const sUpdateUiLanguage = db.prepare(
+  "UPDATE user_trainer_state SET ui_language = ?, updated_at = datetime('now') WHERE user_id = ?"
+);
+const sInsertTrainerState = db.prepare(`
+  INSERT INTO user_trainer_state
+    (user_id, foundation_completed, current_tier, streak_days, last_activity_date, ui_language)
+  VALUES
+    (?, 0, 1, 0, NULL, ?)
+`);
+const updatePrefersTxn = db.transaction((userId, prefersSimplified) => {
+  sUpdatePrefersSimplified.run(prefersSimplified, userId);
+  const desiredLang = prefersSimplified === 1 ? "zh-Hans" : "zh-Hant";
+  const existing = sGetUiLanguage.get(userId);
+  if (!existing) {
+    sInsertTrainerState.run(userId, desiredLang);
+  } else if (existing.ui_language !== "en-bilingual") {
+    sUpdateUiLanguage.run(desiredLang, userId);
+  }
+});
+app.put("/api/user/preferences", requireAuth, express.json(), (req, res) => {
+  const { prefers_simplified } = req.body ?? {};
+  if (prefers_simplified !== 0 && prefers_simplified !== 1) {
+    return res.status(400).json({ error: "INVALID_BODY", expected: "{ prefers_simplified: 0 | 1 }" });
+  }
+  updatePrefersTxn(req.user.id, prefers_simplified);
+  res.json({ ok: true, prefers_simplified });
 });
 
 // --- Poems routes ---

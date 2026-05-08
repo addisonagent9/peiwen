@@ -1,5 +1,6 @@
 import React, { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { T, type Locale } from "../i18n";
+import { SimpTradToggle } from "./SimpTradToggle";
 
 const AudioReview = lazy(() => import("../components/admin/AudioReview"));
 
@@ -248,12 +249,16 @@ export default function AdminConsole({ locale, onBack }: AdminConsoleProps) {
     return (
       <div className="min-h-screen bg-ink-bg text-cream font-serif flex flex-col">
         <div className="max-w-4xl w-full mx-auto px-4 py-6">
-          <button
-            onClick={() => setSelectedUser(null)}
-            className="text-creamDim hover:text-gold text-sm font-sans mb-4"
-          >
-            {t.adminBackToUsers}
-          </button>
+          <div className="flex items-center justify-between mb-4">
+            <button
+              onClick={() => setSelectedUser(null)}
+              className="text-creamDim hover:text-gold text-sm font-sans"
+            >
+              {t.adminBackToUsers}
+            </button>
+            {/* #22 */}
+            <SimpTradToggle />
+          </div>
           <h2 className="text-xl text-gold mb-4">{header}</h2>
 
           {poemsLoading && <div className="text-creamDim">...</div>}
@@ -293,12 +298,16 @@ export default function AdminConsole({ locale, onBack }: AdminConsoleProps) {
   return (
     <div className="min-h-screen bg-ink-bg text-cream font-serif flex flex-col">
       <div className="max-w-5xl w-full mx-auto px-4 py-6">
-        <button
-          onClick={onBack}
-          className="text-creamDim hover:text-gold text-sm font-sans mb-4"
-        >
-          ← {t.adminBack}
-        </button>
+        <div className="flex items-center justify-between mb-4">
+          <button
+            onClick={onBack}
+            className="text-creamDim hover:text-gold text-sm font-sans"
+          >
+            ← {t.adminBack}
+          </button>
+          {/* #22 */}
+          <SimpTradToggle />
+        </div>
         <h1 className="text-2xl text-gold mb-4">{t.adminTitle}</h1>
 
         <div className="flex gap-4 mb-6 border-b border-ink-line">

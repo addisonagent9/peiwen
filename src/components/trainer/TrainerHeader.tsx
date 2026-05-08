@@ -9,6 +9,7 @@
 import React from 'react';
 import type { TrainerStrings } from '../../i18n/trainer-strings';
 import type { SubView } from './PingshuiTrainer';
+import { SimpTradToggle } from '../../ui/SimpTradToggle';
 
 export interface TrainerHeaderProps {
   strings: TrainerStrings;
@@ -66,7 +67,10 @@ export const TrainerHeader: React.FC<TrainerHeaderProps> = ({
           )}
         </div>
 
-        <div className="w-10" />
+        {/* #22: Simp/Trad toggle, right-aligned in the header */}
+        <div className="flex items-center justify-end" style={{ minWidth: '2.5rem' }}>
+          <SimpTradToggle />
+        </div>
       </div>
 
       {/* Brush-stroke divider — animated once on mount */}

@@ -12,6 +12,8 @@ import {
   FAMILIES,
   rhymesByTier,
 } from '../../data/pingshui/trainer-curriculum';
+import { usePreferences } from '../../contexts/PreferencesContext';
+import { convertString } from '../../analysis/s2t';
 
 export interface DrillUnlockInfo {
   tier: number;
@@ -37,6 +39,9 @@ export const TrainerTierView: React.FC<TrainerTierViewProps> = ({
   unlockedDrills = [],
   sessionCounts = {},
 }) => {
+  // #22: convert rhyme labels per user's prefersSimplified
+  const { prefs } = usePreferences();
+  const cv = (text: string) => convertString(text, prefs.prefersSimplified);
   const grouped = useMemo(() => {
     const rhymes = rhymesByTier(tier);
     const byFamily = new Map<string, Rhyme[]>();
@@ -105,10 +110,10 @@ export const TrainerTierView: React.FC<TrainerTierViewProps> = ({
                 {showFamilyHeader && family && (
                   <div className="mb-3">
                     <h3 className="font-serif text-cream text-sm tracking-wider">
-                      {family.label}
+                      {cv(family.label)}
                     </h3>
                     <p className="text-creamDim/70 text-xs mt-1 leading-relaxed">
-                      {family.teachingNote}
+                      {cv(family.teachingNote)}
                     </p>
                   </div>
                 )}
@@ -180,24 +185,28 @@ export const TrainerTierView: React.FC<TrainerTierViewProps> = ({
 const RhymeRow: React.FC<{ rhyme: Rhyme; onClick: () => void }> = ({
   rhyme,
   onClick,
-}) => (
+}) => {
+  // #22: convert rhyme label + char + seed chars per user's prefersSimplified
+  const { prefs } = usePreferences();
+  const cv = (text: string) => convertString(text, prefs.prefersSimplified);
+  return (
   <button
     onClick={onClick}
     className="w-full text-left py-3 px-4 border border-ink-line rounded-md hover:bg-cream/5 transition-colors group"
   >
     <div className="flex items-center gap-4">
       <div className="shrink-0 w-12 h-12 flex items-center justify-center border border-ink-line rounded bg-ink-bg font-serif text-2xl text-cream group-hover:border-gold/50 transition-colors">
-        {rhyme.rhymeCharacter}
+        {cv(rhyme.rhymeCharacter)}
       </div>
       <div className="flex-1 min-w-0">
         <div className="font-serif text-cream text-base">
-          {rhyme.label}
+          {cv(rhyme.label)}
           <span className="text-creamDim/70 ml-2 text-xs font-sans tracking-wide">
             {rhyme.modernRime}
           </span>
         </div>
         <p className="text-creamDim text-xs mt-1 truncate">
-          {rhyme.seedCharacters.slice(0, 6).map(sc => typeof sc === 'string' ? sc : sc.char).join('·')}
+          {cv(rhyme.seedCharacters.slice(0, 6).map(sc => typeof sc === 'string' ? sc : sc.char).join('·'))}
         </p>
       </div>
       <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="shrink-0 text-creamDim group-hover:text-cream transition-colors" aria-hidden>
@@ -205,7 +214,8 @@ const RhymeRow: React.FC<{ rhyme: Rhyme; onClick: () => void }> = ({
       </svg>
     </div>
   </button>
-);
+  );
+};
 
 const LockIcon: React.FC = () => (
   <svg width="12" height="14" viewBox="0 0 12 14" fill="none" aria-hidden className="text-creamDim/40">

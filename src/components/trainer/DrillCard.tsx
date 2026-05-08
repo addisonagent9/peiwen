@@ -4,6 +4,8 @@ import { RHYMES_PINGSHENG } from '../../data/pingshui/trainer-curriculum';
 import { useAudio } from '../../hooks/useAudio';
 import { formatJyutping } from './FoundationModule';
 import { HintTogglePill } from './HintTogglePill';
+import { usePreferences } from '../../contexts/PreferencesContext';
+import { convertString } from '../../analysis/s2t';
 
 export interface DrillItem {
   type: string;
@@ -41,6 +43,10 @@ export const DrillCard: React.FC<DrillCardProps> = ({
   const [cardHint, setCardHint] = useState(hintEnabled);
   const audio = useAudio();
   const cantoneseAvailable = audio.available && audio.probed && audio.approvedCounts.cantonese > 0;
+  // #22: convert displayed chars per user's prefersSimplified.
+  // Audio + answer-checking continue to use stored canonical form (item.text).
+  const { prefs } = usePreferences();
+  const cv = (text: string) => convertString(text, prefs.prefersSimplified);
 
   useEffect(() => {
     setCardHint(hintEnabled);
@@ -77,7 +83,7 @@ export const DrillCard: React.FC<DrillCardProps> = ({
       {/* Character */}
       <div className="text-center space-y-2">
         <span className="font-serif text-cream block" style={{ fontSize: '64px', lineHeight: 1 }}>
-          {item.text}
+          {cv(item.text)}
         </span>
         {cardHint && (
           <span className="text-creamDim/60 text-xs font-mono">
@@ -139,7 +145,7 @@ export const DrillCard: React.FC<DrillCardProps> = ({
             {isCorrect ? strings.drillCorrect : strings.drillIncorrect}
           </p>
           <p className="text-center text-creamDim text-xs">
-            {strings.drillExplanation(item.text, rhymeLabel(item.rhymeId))}
+            {cv(strings.drillExplanation(item.text, rhymeLabel(item.rhymeId)))}
           </p>
         </div>
       )}

@@ -115,15 +115,6 @@ Set 1 carry the strongest pedagogical value as audio teaching points:
 
 ## Deferred / Parked items
 
-### #22 — Simplified ↔ Traditional UI toggle
-User-facing setting that switches all displayed Chinese text between
-simplified and traditional forms across trainer + analyzer + admin.
-Curriculum data continues to be stored simplified-by-default (per Tier 1/2
-convention); UI converts on render via opencc when user prefers traditional.
-Effort: 1-2 sessions of focused work. Scope: trainer drill cards, anchor
-poem display, mnemonic prose, drill 4 corpus, edit modal, analyzer input/
-output, /admin views. Storage stays canonical simplified.
-
 ### #7 — 簡↔繁 rhyme-merger annotations
 Some 簡 chars merge multiple 繁 forms with classically-distinct rhymes
 (丰/豐 pattern: 丰 → 二冬, 豐 → 一東). Pedagogical content addition;

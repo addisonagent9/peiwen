@@ -4,6 +4,8 @@ import { useAudio } from '../../hooks/useAudio';
 import { formatJyutping } from './FoundationModule';
 import { useHintToggle } from './useHintToggle';
 import { HintTogglePill } from './HintTogglePill';
+import { usePreferences } from '../../contexts/PreferencesContext';
+import { convertString } from '../../analysis/s2t';
 
 interface RecallTile {
   char: string;
@@ -158,6 +160,10 @@ const RecallCard: React.FC<{
   const [cardPhase, setCardPhase] = useState<CardPhase>('picking');
   const audio = useAudio();
   const cantoneseAvailable = audio.available && audio.probed && audio.approvedCounts.cantonese > 0;
+  // #22: display-only conversion. Set membership + audio.play use raw tile.char
+  // (canonical form). Display wraps with cv().
+  const { prefs } = usePreferences();
+  const cv = (text: string) => convertString(text, prefs.prefersSimplified);
 
   const toggleTile = (char: string) => {
     if (cardPhase !== 'picking') return;
@@ -188,7 +194,7 @@ const RecallCard: React.FC<{
       </div>
 
       {/* Prompt */}
-      <p className="text-cream/80 text-sm font-serif text-center">{strings.drill2Prompt(item.targetLabel)}</p>
+      <p className="text-cream/80 text-sm font-serif text-center">{cv(strings.drill2Prompt(item.targetLabel))}</p>
 
       {/* 4×2 grid */}
       <div className="grid grid-cols-4 gap-2">
@@ -227,7 +233,7 @@ const RecallCard: React.FC<{
               } ${tileStyle}`}
             >
               {icon && <span className="absolute top-1 left-1">{icon}</span>}
-              <span className="font-serif text-cream text-2xl">{tile.char}</span>
+              <span className="font-serif text-cream text-2xl">{cv(tile.char)}</span>
               {hintOn && (
                 <span className="text-creamDim/60 text-[10px] font-mono leading-tight">
                   {tile.pinyin} · {formatJyutping(tile.jyutping)}

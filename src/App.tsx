@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Grid } from "./ui/Grid";
 import { RhymeDrawer } from "./ui/RhymeDrawer";
 import { EditModal } from "./ui/EditModal";
@@ -17,6 +17,8 @@ import { T, localizeIssue, type Locale, type Translations } from "./i18n";
 import { patternsForForm } from "./patterns/patterns";
 import type { FormId, PoemPattern } from "./patterns/types";
 import { normalizePoemInput } from "./lib/normalize-poem-input";
+import { usePreferences } from "./contexts/PreferencesContext";
+import { SimpTradToggle } from "./ui/SimpTradToggle";
 
 const SAMPLES: Record<FormId, string> = {
   "七絕": "朝辭白帝彩雲間\n千里江陵一日還\n兩岸猿聲啼不住\n輕舟已過萬重山",
@@ -37,6 +39,7 @@ interface User {
   is_premium: number;
   is_admin: number;
   last_login: string | null;
+  prefers_simplified: number;
 }
 
 export function hasPremiumAccess(user: User | null): boolean {
@@ -78,10 +81,11 @@ export default function App() {
     if (stored === "light") return false;
     return false;
   });
-  const [locale, setLocale] = useState<Locale>(() => {
-    if (typeof window === "undefined") return "繁";
-    return window.localStorage.getItem("locale") === "簡" ? "簡" : "繁";
-  });
+  // #22: locale derived from PreferencesContext. The legacy localStorage
+  // key 'locale' is no longer read; PreferencesContext owns the source of
+  // truth (with its own localStorage key 'peiwen.prefers_simplified').
+  const { prefs, setPrefersSimplified, hydrateFromAuth } = usePreferences();
+  const locale: Locale = prefs.prefersSimplified ? "簡" : "繁";
   const t: Translations = T[locale];
 
   // --- Auth state ---
@@ -97,7 +101,13 @@ export default function App() {
   useEffect(() => {
     fetch("/api/auth/me", { credentials: "same-origin" })
       .then(r => r.json())
-      .then(d => { if (d.user) setUser(d.user); })
+      .then(d => {
+        if (d.user) {
+          setUser(d.user);
+          // #22: hydrate prefs from server-authoritative value
+          hydrateFromAuth(d.user.prefers_simplified === 1);
+        }
+      })
       .catch(() => {});
   }, []);
 
@@ -158,12 +168,16 @@ export default function App() {
     window.localStorage.setItem("theme", darkMode ? "dark" : "light");
   }, [darkMode]);
 
-  const toggleLocale = () => {
-    const next: Locale = locale === "繁" ? "簡" : "繁";
-    setLocale(next);
-    window.localStorage.setItem("locale", next);
-    setRaw(prev => convertText(prev, next));
-  };
+  // #22: when user toggles 繁/簡 via the SimpTradToggle, also flip the
+  // analyzer input field text in-place to match. Watches prefs.prefersSimplified
+  // for changes; SimpTradToggle handles the persistence side.
+  const prevLocaleRef = useRef<Locale>(locale);
+  useEffect(() => {
+    if (prevLocaleRef.current !== locale) {
+      setRaw(prev => convertText(prev, locale));
+      prevLocaleRef.current = locale;
+    }
+  }, [locale]);
 
   // --- Analysis ---
   // #20: normalize raw poem input \u2014 split on comma/period/newline, strip
@@ -376,18 +390,9 @@ export default function App() {
   }, [selectedPattern]);
 
   // --- Header components ---
-  const LocaleToggle = (
-    <div className="flex items-center rounded border border-ink-line overflow-hidden text-xs font-sans">
-      <button
-        onClick={locale === "繁" ? undefined : toggleLocale}
-        className={`px-2 py-1 ${locale === "繁" ? "bg-gold text-ink-bg font-medium" : "text-creamDim"}`}
-      >繁</button>
-      <button
-        onClick={locale === "簡" ? undefined : toggleLocale}
-        className={`px-2 py-1 ${locale === "簡" ? "bg-gold text-ink-bg font-medium" : "text-creamDim"}`}
-      >簡</button>
-    </div>
-  );
+  // #22: LocaleToggle inlined here used to render two 繁/簡 buttons; lifted
+  // to <SimpTradToggle/> in src/ui/. Backed by PreferencesContext.
+  const LocaleToggle = <SimpTradToggle />;
 
   const avatarContent = user && (
     <>

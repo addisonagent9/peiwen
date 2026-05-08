@@ -20,6 +20,9 @@ import { wenyanStrings } from '../../i18n/wenyan-strings';
 import { PlayButton } from './PlayButton';
 import { SequencePlayButton } from './SequencePlayButton';
 import { useWenyanAudioSequence } from './useWenyanAudioSequence';
+import { SimpTradToggle } from '../../ui/SimpTradToggle';
+import { usePreferences } from '../../contexts/PreferencesContext';
+import { convertString } from '../../analysis/s2t';
 import type { WenyanPoem, WenyanCompleteResponse } from '../../data/wenyan/types';
 
 interface PoemReaderProps {
@@ -35,7 +38,10 @@ export function PoemReader({
   onBack,
   onComplete,
 }: PoemReaderProps) {
-  const s = wenyanStrings.cn;
+  // #22: prefersSimplified-aware UI strings + content conversion.
+  const { prefs } = usePreferences();
+  const s = prefs.prefersSimplified ? wenyanStrings.cn : wenyanStrings.tw;
+  const cv = (text: string) => convertString(text, prefs.prefersSimplified);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -112,11 +118,14 @@ export function PoemReader({
 
           <div className="flex-1 text-center">
             <h1 className="font-serif text-cream text-lg tracking-wide truncate">
-              {poem.title}
+              {cv(poem.title)}
             </h1>
           </div>
 
-          <div className="w-10" />
+          {/* #22: Simp/Trad toggle, right slot */}
+          <div className="flex items-center justify-end" style={{ minWidth: '2.5rem' }}>
+            <SimpTradToggle />
+          </div>
         </div>
 
         {/* Brush-stroke gold divider — animated once on mount */}
@@ -154,7 +163,7 @@ export function PoemReader({
       <main className="max-w-screen-sm mx-auto px-5 pb-20 pt-6 space-y-10">
         {/* Dynasty · author meta */}
         <p className="text-center text-creamDim text-xs mt-4">
-          {poem.dynasty} · {poem.author}
+          {cv(poem.dynasty)} · {cv(poem.author)}
         </p>
 
         {/* Background — D-2.6: button moved ABOVE content (left-aligned pill).
@@ -186,7 +195,7 @@ export function PoemReader({
                         : 'border-l-2 border-transparent'
                     }`}
                   >
-                    {para}
+                    {cv(para)}
                   </p>
                 );
               })}
@@ -220,7 +229,7 @@ export function PoemReader({
                       : 'border-l-2 border-transparent'
                   }`}
                 >
-                  {line}
+                  {cv(line)}
                 </div>
               );
             })}
@@ -247,7 +256,7 @@ export function PoemReader({
                 : 'border-l-2 border-transparent'
             }`}
           >
-            {poem.translation}
+            {cv(poem.translation)}
           </p>
         </section>
 
@@ -261,7 +270,7 @@ export function PoemReader({
               <div key={`${v.word}-${v.senseSlug}-${i}`} className="py-5 first:pt-0 last:pb-0 space-y-1.5">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-baseline gap-3 flex-wrap min-w-0">
-                    <span className="font-serif text-gold text-2xl">{v.word}</span>
+                    <span className="font-serif text-gold text-2xl">{cv(v.word)}</span>
                     <span className="text-creamDim text-sm">{v.pinyin}</span>
                   </div>
                   <PlayButton
@@ -271,17 +280,17 @@ export function PoemReader({
                 </div>
                 <p className="text-cream text-base leading-relaxed">
                   <span className="text-creamDim text-xs mr-2 align-middle">{s.vocabAncient}</span>
-                  {v.ancientMeaning}
+                  {cv(v.ancientMeaning)}
                 </p>
                 <p className="text-creamDim text-sm leading-relaxed">
                   <span className="mr-2 align-middle">↔</span>
                   <span className="text-creamDim/80 text-xs mr-2 align-middle">{s.vocabModern}</span>
-                  {v.modernMeaning}
+                  {cv(v.modernMeaning)}
                 </p>
                 {v.notes && (
                   <p className="text-creamDim/70 text-sm italic leading-relaxed">
                     <span className="not-italic text-creamDim/60 text-xs mr-2 align-middle">{s.vocabNotes}</span>
-                    {v.notes}
+                    {cv(v.notes)}
                   </p>
                 )}
               </div>

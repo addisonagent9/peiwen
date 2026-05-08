@@ -15,6 +15,7 @@
 import React from 'react';
 import { useWenyanAudio } from './useWenyanAudio';
 import { wenyanStrings } from '../../i18n/wenyan-strings';
+import { usePreferences } from '../../contexts/PreferencesContext';
 
 interface PlayButtonProps {
   tag: string | null;
@@ -58,7 +59,9 @@ function SpinnerIcon({ size }: { size: number }) {
 }
 
 export function PlayButton({ tag, ariaLabel, size = 'md' }: PlayButtonProps) {
-  const s = wenyanStrings.cn;
+  // #22: prefersSimplified-aware tooltip strings
+  const { prefs } = usePreferences();
+  const s = prefs.prefersSimplified ? wenyanStrings.cn : wenyanStrings.tw;
   const { isPlaying, isLoading, error, play } = useWenyanAudio(tag);
 
   const iconSize = size === 'sm' ? 12 : 16;

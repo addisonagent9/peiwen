@@ -38,6 +38,8 @@ import { RHYMES_PINGSHENG } from '../../data/pingshui/trainer-curriculum';
 import type { AnchorPoem } from '../../types/pingshui-trainer';
 import { useAudio } from '../../hooks/useAudio';
 import { useAudioQueue } from '../../hooks/useAudioQueue';
+import { usePreferences } from '../../contexts/PreferencesContext';
+import { convertString } from '../../analysis/s2t';
 
 type AudioIntent = 'auto-on' | 'auto-off';
 
@@ -247,7 +249,11 @@ const ScreenBody: React.FC<ScreenBodyProps> = ({
   queueActive,
   queueIndex,
   queueTexts,
-}) => (
+}) => {
+  // #22: display-only. queueTexts comparison uses raw canonical strings.
+  const { prefs } = usePreferences();
+  const cv = (text: string) => convertString(text, prefs.prefersSimplified);
+  return (
   <article className="space-y-6">
     {/* Big headline character */}
     <header className="text-center pt-4">
@@ -255,7 +261,7 @@ const ScreenBody: React.FC<ScreenBodyProps> = ({
         className="font-serif text-cream mx-auto block"
         style={{ fontSize: '64px', lineHeight: 1 }}
       >
-        {screen.title}
+        {cv(screen.title)}
       </span>
     </header>
 
@@ -272,7 +278,7 @@ const ScreenBody: React.FC<ScreenBodyProps> = ({
                 : ''
             }`}
           >
-            {p}
+            {cv(p)}
           </p>
         );
       })}
@@ -308,7 +314,7 @@ const ScreenBody: React.FC<ScreenBodyProps> = ({
     {/* Caveat (rose-tinted warning) */}
     {screen.caveat && (
       <aside className="mt-2 p-3 border border-rose/30 bg-rose/5 rounded">
-        <p className="text-rose text-xs leading-relaxed">{screen.caveat}</p>
+        <p className="text-rose text-xs leading-relaxed">{cv(screen.caveat)}</p>
       </aside>
     )}
 
@@ -321,13 +327,14 @@ const ScreenBody: React.FC<ScreenBodyProps> = ({
           isActive ? 'border-gold' : 'border-gold/60'
         }`}>
           <p className="font-serif text-cream text-[15px] leading-relaxed">
-            {screen.insight}
+            {cv(screen.insight)}
           </p>
         </aside>
       );
     })()}
   </article>
-);
+  );
+};
 
 // ---------------------------------------------------------------------------
 // Labeled play button (▶ 普 or ▶ 粤)
@@ -375,25 +382,30 @@ const DemoCard: React.FC<DemoCardProps> = ({
   cantoneseAudioAvailable,
   onPlay,
   playingText,
-}) => (
+}) => {
+  // #22: display-only conversion. onPlay(demo.text) and playingText comparison
+  // continue to use raw canonical demo.text.
+  const { prefs } = usePreferences();
+  const cv = (text: string) => convertString(text, prefs.prefersSimplified);
+  return (
   <div className="border border-ink-line rounded-md overflow-hidden">
     {/* Mandarin section */}
     <div className="py-3 px-4 flex items-start gap-4">
       {/* Character */}
       <div className="shrink-0 min-w-[56px] flex items-center justify-center pt-0.5">
-        <span className="font-serif text-cream text-2xl">{demo.text}</span>
+        <span className="font-serif text-cream text-2xl">{cv(demo.text)}</span>
       </div>
 
       {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline gap-3">
-          <span className="text-cream text-sm">{demo.caption}</span>
+          <span className="text-cream text-sm">{cv(demo.caption)}</span>
         </div>
         {(demo.pinyin || demo.note) && (
           <p className="text-creamDim/80 text-xs mt-1 leading-relaxed">
             {demo.pinyin && <span className="font-mono">{demo.pinyin}</span>}
             {demo.pinyin && demo.note && <span> · </span>}
-            {demo.note}
+            {demo.note && cv(demo.note)}
           </p>
         )}
       </div>
@@ -404,7 +416,7 @@ const DemoCard: React.FC<DemoCardProps> = ({
           <LabeledPlayButton
             onClick={() => onPlay(demo.text, 'mandarin')}
             isPlaying={playingText === demo.text}
-            label="普"
+            label={cv('普')}
             ariaLabel={`Play ${demo.text} in Mandarin`}
           />
         </div>
@@ -419,9 +431,9 @@ const DemoCard: React.FC<DemoCardProps> = ({
           <div className="shrink-0 min-w-[56px]" />
           <div className="flex-1 min-w-0">
             <span className="text-creamDim text-xs">
-              粤 · <span className="font-mono">{demo.cantoneseEvidence.jyutping}</span>
+              {cv('粤')} · <span className="font-mono">{demo.cantoneseEvidence.jyutping}</span>
               {demo.cantoneseEvidence.descriptor && (
-                <span> · {demo.cantoneseEvidence.descriptor}</span>
+                <span> · {cv(demo.cantoneseEvidence.descriptor)}</span>
               )}
             </span>
           </div>
@@ -430,7 +442,7 @@ const DemoCard: React.FC<DemoCardProps> = ({
               <LabeledPlayButton
                 onClick={() => onPlay(demo.text, 'cantonese')}
                 isPlaying={false}
-                label="粤"
+                label={cv('粤')}
                 ariaLabel={`Play ${demo.text} in Cantonese`}
               />
             </div>
@@ -439,7 +451,8 @@ const DemoCard: React.FC<DemoCardProps> = ({
       </>
     )}
   </div>
-);
+  );
+};
 
 // ---------------------------------------------------------------------------
 // Anchor poem demo section
@@ -465,6 +478,10 @@ export const AnchorDemoSection: React.FC<AnchorDemoSectionProps> = ({
   audioAvailable,
   cantoneseAudioAvailable,
 }) => {
+  // #22: display-only conversion. RHYMES_PINGSHENG lookup uses raw rhymeId;
+  // rhymingChars set + check uses raw canonical poem chars.
+  const { prefs } = usePreferences();
+  const cv = (text: string) => convertString(text, prefs.prefersSimplified);
   const rhyme = RHYMES_PINGSHENG.find((r) => r.id === config.rhymeId);
   if (!rhyme?.anchorPoem) return null;
   const poem = rhyme.anchorPoem;
@@ -475,9 +492,9 @@ export const AnchorDemoSection: React.FC<AnchorDemoSectionProps> = ({
       {/* Title + author */}
       <div className="px-4 pb-2">
         <span className="font-serif text-cream text-sm">
-          《{poem.title}》
+          《{cv(poem.title)}》
         </span>
-        <span className="text-creamDim text-xs ml-2">{poem.author}</span>
+        <span className="text-creamDim text-xs ml-2">{cv(poem.author)}</span>
       </div>
 
       {/* Poem text with highlighted rhyming characters */}
@@ -489,7 +506,7 @@ export const AnchorDemoSection: React.FC<AnchorDemoSectionProps> = ({
                 key={ci}
                 className={rhymingChars.has(ch) ? 'text-gold font-bold' : ''}
               >
-                {ch}
+                {cv(ch)}
               </span>
             ))}
           </p>
@@ -512,15 +529,15 @@ export const AnchorDemoSection: React.FC<AnchorDemoSectionProps> = ({
             <table className="w-full text-xs">
               <thead>
                 <tr className="text-creamDim">
-                  <th className="text-left font-normal pb-1 w-12">字</th>
-                  <th className="text-left font-normal pb-1">粤语</th>
-                  <th className="text-left font-normal pb-1">普通话</th>
+                  <th className="text-left font-normal pb-1 w-12">{cv('字')}</th>
+                  <th className="text-left font-normal pb-1">{cv('粤语')}</th>
+                  <th className="text-left font-normal pb-1">{cv('普通话')}</th>
                 </tr>
               </thead>
               <tbody>
                 {poem.rhymingCharacters.map((rc) => (
                   <tr key={rc.char}>
-                    <td className="font-serif text-cream text-sm py-0.5">{rc.char}</td>
+                    <td className="font-serif text-cream text-sm py-0.5">{cv(rc.char)}</td>
                     <td className="font-mono text-cream/80 py-0.5">{formatJyutping(rc.jyutping)}</td>
                     <td className="font-mono text-creamDim py-0.5">{rc.pinyin}</td>
                   </tr>
@@ -529,7 +546,7 @@ export const AnchorDemoSection: React.FC<AnchorDemoSectionProps> = ({
             </table>
             {config.calloutMessage && (
               <p className="text-creamDim text-xs mt-2 leading-relaxed">
-                {config.calloutMessage}
+                {cv(config.calloutMessage)}
               </p>
             )}
           </div>

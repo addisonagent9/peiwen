@@ -4,6 +4,8 @@ import type { Rhyme, SeedCharacter } from '../../types/pingshui-trainer';
 import { RHYMES_PINGSHENG } from '../../data/pingshui/trainer-curriculum';
 import { useAudio } from '../../hooks/useAudio';
 import { AnchorDemoSection, formatJyutping } from './FoundationModule';
+import { usePreferences } from '../../contexts/PreferencesContext';
+import { convertString } from '../../analysis/s2t';
 
 export interface RhymeDetailProps {
   rhymeId: string;
@@ -40,6 +42,10 @@ export const RhymeDetail: React.FC<RhymeDetailProps> = ({
     () => RHYMES_PINGSHENG.find((r) => r.id === rhymeId),
     [rhymeId],
   );
+  // #22: display-only conversion. audio.play uses raw canonical sc.char;
+  // RHYMES_PINGSHENG lookup uses raw rhymeId.
+  const { prefs } = usePreferences();
+  const cv = (text: string) => convertString(text, prefs.prefersSimplified);
 
   const mandarinAvailable = audio.available && audio.probed && audio.approvedCounts.mandarin > 0;
   const cantoneseAvailable = audio.available && audio.probed && audio.approvedCounts.cantonese > 0;
@@ -74,7 +80,7 @@ export const RhymeDetail: React.FC<RhymeDetailProps> = ({
           {strings.tier1Title}
         </button>
         <h2 className="font-serif text-cream tracking-wide" style={{ fontSize: '48px', lineHeight: 1.1 }}>
-          {rhyme.label}
+          {cv(rhyme.label)}
         </h2>
         <p className="text-creamDim text-sm mt-2 font-mono tracking-wide">
           {rhyme.modernRime}
@@ -85,14 +91,14 @@ export const RhymeDetail: React.FC<RhymeDetailProps> = ({
       {rhyme.mnemonic && (
         <aside className="pl-4 border-l-2 border-gold/60">
           <p className="text-creamDim text-xs mb-1">{strings.rhymeDetailMnemonic}</p>
-          <p className="text-cream/90 text-[15px] leading-[1.8]">{rhyme.mnemonic}</p>
+          <p className="text-cream/90 text-[15px] leading-[1.8]">{cv(rhyme.mnemonic)}</p>
         </aside>
       )}
 
       {/* Teaching note */}
       {rhyme.teachingNote && (
         <aside className="pl-4 border-l-2 border-amber/40">
-          <p className="text-cream/80 text-[13px] leading-[1.7]">{rhyme.teachingNote}</p>
+          <p className="text-cream/80 text-[13px] leading-[1.7]">{cv(rhyme.teachingNote)}</p>
         </aside>
       )}
 
@@ -104,7 +110,7 @@ export const RhymeDetail: React.FC<RhymeDetailProps> = ({
             if (typeof sc === 'string') {
               return (
                 <div key={sc} className="border border-ink-line rounded-md p-2 flex flex-col items-center">
-                  <span className="font-serif text-cream text-3xl leading-none pt-1">{sc}</span>
+                  <span className="font-serif text-cream text-3xl leading-none pt-1">{cv(sc)}</span>
                 </div>
               );
             }
@@ -158,12 +164,15 @@ const SeedCharCard: React.FC<{
   mandarinAvailable: boolean;
   cantoneseAvailable: boolean;
 }> = ({ sc, audio, mandarinAvailable, cantoneseAvailable }) => {
+  // #22: display-only. audio.play(sc.char) and isPlaying check both use raw canonical sc.char.
+  const { prefs } = usePreferences();
+  const cv = (text: string) => convertString(text, prefs.prefersSimplified);
   const isPlaying = audio.currentText === sc.char;
   return (
     <div className={`border border-ink-line rounded-md p-2 flex flex-col items-center gap-1 transition-colors ${
       isPlaying ? 'border-gold/60' : ''
     }`}>
-      <span className="font-serif text-cream text-3xl leading-none pt-1">{sc.char}</span>
+      <span className="font-serif text-cream text-3xl leading-none pt-1">{cv(sc.char)}</span>
       <span className={`font-mono text-[10px] leading-tight ${isPlaying ? 'text-cream/80' : 'text-creamDim/60'}`}>
         {sc.pinyin}
       </span>

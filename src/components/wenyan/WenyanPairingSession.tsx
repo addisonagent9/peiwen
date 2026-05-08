@@ -19,6 +19,8 @@
 
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { wenyanStrings } from '../../i18n/wenyan-strings';
+import { usePreferences } from '../../contexts/PreferencesContext';
+import { convertString } from '../../analysis/s2t';
 import { useWenyanApi } from './useWenyanApi';
 import type {
   PairingQueue,
@@ -46,7 +48,10 @@ const LINE_COLORS = {
 } as const;
 
 export function WenyanPairingSession({ onExit }: WenyanPairingSessionProps) {
-  const s = wenyanStrings.cn;
+  // #22: prefersSimplified-aware UI strings + content conversion for words/meanings
+  const { prefs } = usePreferences();
+  const s = prefs.prefersSimplified ? wenyanStrings.cn : wenyanStrings.tw;
+  const cv = (text: string) => convertString(text, prefs.prefersSimplified);
   const { fetchPairingQueue, submitPairing } = useWenyanApi();
 
   const [queue, setQueue] = useState<PairingQueue | null>(null);
@@ -318,7 +323,7 @@ export function WenyanPairingSession({ onExit }: WenyanPairingSessionProps) {
                   className={`w-full px-3 sm:px-4 py-3 sm:py-4 border rounded-md text-left transition-colors disabled:cursor-default ${stateClass}`}
                 >
                   <div className="font-serif text-gold text-xl sm:text-2xl leading-tight">
-                    {w.word}
+                    {cv(w.word)}
                   </div>
                   {w.pinyin && (
                     <div className="text-creamDim text-xs mt-0.5">{w.pinyin}</div>
@@ -357,7 +362,7 @@ export function WenyanPairingSession({ onExit }: WenyanPairingSessionProps) {
                   disabled={!!results || submitting}
                   className={`w-full px-3 sm:px-4 py-3 sm:py-4 border rounded-md text-left transition-colors disabled:cursor-default ${stateClass}`}
                 >
-                  <p className="text-cream text-sm sm:text-base leading-snug">{m.text}</p>
+                  <p className="text-cream text-sm sm:text-base leading-snug">{cv(m.text)}</p>
                 </button>
               );
             })}
@@ -417,16 +422,16 @@ export function WenyanPairingSession({ onExit }: WenyanPairingSessionProps) {
                       className={`px-4 py-3 rounded border ${r.correct ? 'border-emerald-600/40 bg-emerald-600/5' : 'border-rose-400/40 bg-rose-400/5'}`}
                     >
                       <div className="flex items-baseline gap-2 flex-wrap">
-                        <span className="font-serif text-gold text-lg">{word?.word}</span>
+                        <span className="font-serif text-gold text-lg">{word ? cv(word.word) : ''}</span>
                         <span className="text-creamDim text-xs">{word?.pinyin}</span>
                         <span className="text-creamDim text-sm mx-1">→</span>
                         <span className={`text-sm ${r.correct ? 'text-emerald-400' : 'text-rose-400'}`}>
-                          {userMeaning}
+                          {cv(userMeaning)}
                         </span>
                       </div>
                       {!r.correct && (
                         <p className="text-creamDim text-xs mt-1.5">
-                          {s.pairingCorrectAnswer}{correctMeaning}
+                          {s.pairingCorrectAnswer}{cv(correctMeaning)}
                         </p>
                       )}
                     </div>

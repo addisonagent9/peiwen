@@ -18,6 +18,7 @@
 
 import React from 'react';
 import { wenyanStrings } from '../../i18n/wenyan-strings';
+import { usePreferences } from '../../contexts/PreferencesContext';
 
 interface SequencePlayButtonProps {
   isPlaying: boolean;
@@ -74,7 +75,9 @@ export function SequencePlayButton({
   size = 'sm',
   ariaLabel,
 }: SequencePlayButtonProps) {
-  const s = wenyanStrings.cn;
+  // #22: prefersSimplified-aware audio strings
+  const { prefs } = usePreferences();
+  const s = prefs.prefersSimplified ? wenyanStrings.cn : wenyanStrings.tw;
 
   const iconSize = size === 'sm' ? 9 : 11;
   const padding = size === 'sm' ? 'px-3 py-1.5 text-xs gap-1.5' : 'px-4 py-2 text-sm gap-2';

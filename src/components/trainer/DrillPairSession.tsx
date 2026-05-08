@@ -7,6 +7,8 @@ import { useHintToggle } from './useHintToggle';
 import { HintTogglePill } from './HintTogglePill';
 import { CountdownBar } from './CountdownBar';
 import { fetchAppSettings, getSettingNumber } from '../../hooks/useAppSettings';
+import { usePreferences } from '../../contexts/PreferencesContext';
+import { convertString } from '../../analysis/s2t';
 
 interface PairChar {
   char: string;
@@ -171,6 +173,10 @@ const PairCard: React.FC<{
   const [countdownStart, setCountdownStart] = useState<number | null>(null);
   const audio = useAudio();
   const cantoneseAvailable = audio.available && audio.probed && audio.approvedCounts.cantonese > 0;
+  // #22: display-only conversion. Audio.play + answer-check (item.rhymes
+  // boolean) use raw canonical form.
+  const { prefs } = usePreferences();
+  const cv = (text: string) => convertString(text, prefs.prefersSimplified);
 
   const isCorrect = answered !== null && answered === item.rhymes;
   const isWrong = answered !== null && !isCorrect;
@@ -193,10 +199,10 @@ const PairCard: React.FC<{
       tabIndex={0}
       className="relative border border-ink-line rounded-lg p-4 flex flex-col items-center gap-2 flex-1 min-w-0"
     >
-      <span className="font-serif text-cream text-4xl sm:text-5xl">{c.char}</span>
+      <span className="font-serif text-cream text-4xl sm:text-5xl">{cv(c.char)}</span>
       {hintOn && <span className="text-creamDim/60 text-xs font-mono">{c.pinyin} · {formatJyutping(c.jyutping)}</span>}
       {answered !== null && (
-        <span className="text-xs text-gold font-serif">{label}</span>
+        <span className="text-xs text-gold font-serif">{cv(label)}</span>
       )}
       {cantoneseAvailable && (
         <button
@@ -268,15 +274,19 @@ const WrongAnswerPanel: React.FC<{
   item: PairItem;
   strings: TrainerStrings;
   onContinue: () => void;
-}> = ({ item, strings, onContinue }) => (
+}> = ({ item, strings, onContinue }) => {
+  // #22: display-only conversion for content fields (family/notes/mnemonic).
+  const { prefs } = usePreferences();
+  const cv = (text: string) => convertString(text, prefs.prefersSimplified);
+  return (
   <div className="space-y-4 border border-rose-400/30 rounded-lg p-4 bg-rose-400/5">
     {/* Answer reveal */}
     <div>
       <p className="text-xs text-gold opacity-70 font-sans mb-1">{strings.drill3CorrectAnswer}</p>
       <p className="text-cream text-sm font-serif">
-        {item.left.char} → <span className="text-gold">{item.leftLabel}</span>
+        {cv(item.left.char)} → <span className="text-gold">{cv(item.leftLabel)}</span>
         {' · '}
-        {item.right.char} → <span className="text-gold">{item.rightLabel}</span>
+        {cv(item.right.char)} → <span className="text-gold">{cv(item.rightLabel)}</span>
         {' — '}
         <span className={item.rhymes ? 'text-emerald-400' : 'text-rose-400'}>
           {item.rhymes ? strings.drill3AnswerYes : strings.drill3AnswerNo}
@@ -287,8 +297,8 @@ const WrongAnswerPanel: React.FC<{
     {/* Family */}
     {item.family && (
       <div>
-        <p className="text-xs text-gold opacity-70 font-sans mb-1">家族</p>
-        <p className="text-cream text-sm">{item.family}</p>
+        <p className="text-xs text-gold opacity-70 font-sans mb-1">{cv('家族')}</p>
+        <p className="text-cream text-sm">{cv(item.family)}</p>
       </div>
     )}
 
@@ -297,11 +307,11 @@ const WrongAnswerPanel: React.FC<{
       <div>
         <p className="text-xs text-gold opacity-70 font-sans mb-1">{strings.drill3TeachingNote}</p>
         {item.teachingNote.left === item.teachingNote.right || !item.teachingNote.right ? (
-          <p className="text-cream/80 text-sm">{item.teachingNote.left}</p>
+          <p className="text-cream/80 text-sm">{cv(item.teachingNote.left ?? '')}</p>
         ) : (
           <div className="space-y-1">
-            <p className="text-cream/80 text-sm">{item.leftLabel}: {item.teachingNote.left}</p>
-            <p className="text-cream/80 text-sm">{item.rightLabel}: {item.teachingNote.right}</p>
+            <p className="text-cream/80 text-sm">{cv(item.leftLabel)}: {cv(item.teachingNote.left ?? '')}</p>
+            <p className="text-cream/80 text-sm">{cv(item.rightLabel)}: {cv(item.teachingNote.right ?? '')}</p>
           </div>
         )}
       </div>
@@ -312,11 +322,11 @@ const WrongAnswerPanel: React.FC<{
       <div>
         <p className="text-xs text-gold opacity-70 font-sans mb-1">{strings.drill3Mnemonic}</p>
         {item.mnemonic.left === item.mnemonic.right || !item.mnemonic.right ? (
-          <p className="text-creamDim/80 text-sm italic">{item.mnemonic.left}</p>
+          <p className="text-creamDim/80 text-sm italic">{cv(item.mnemonic.left ?? '')}</p>
         ) : (
           <div className="space-y-1">
-            <p className="text-creamDim/80 text-sm italic">{item.leftLabel}: {item.mnemonic.left}</p>
-            <p className="text-creamDim/80 text-sm italic">{item.rightLabel}: {item.mnemonic.right}</p>
+            <p className="text-creamDim/80 text-sm italic">{cv(item.leftLabel)}: {cv(item.mnemonic.left ?? '')}</p>
+            <p className="text-creamDim/80 text-sm italic">{cv(item.rightLabel)}: {cv(item.mnemonic.right ?? '')}</p>
           </div>
         )}
       </div>
@@ -340,24 +350,29 @@ const WrongAnswerPanel: React.FC<{
       {strings.drill3Continue}
     </button>
   </div>
-);
+  );
+};
 
 // ---------------------------------------------------------------------------
 // Inline anchor poem with highlighted rhyming chars
 // ---------------------------------------------------------------------------
 
 const AnchorPoemInline: React.FC<{ poem: AnchorPoem }> = ({ poem }) => {
+  // #22: display-only. rhymingChars set keyed on raw canonical char; check
+  // rhymingChars.has(ch) uses raw ch — both canonical, comparison aligned.
+  const { prefs } = usePreferences();
+  const cv = (text: string) => convertString(text, prefs.prefersSimplified);
   const rhymingChars = new Set(poem.rhymingCharacters.map(rc => rc.char));
   return (
     <div className="border border-ink-line/30 rounded p-3">
       <p className="text-xs text-creamDim mb-1">
-        《{poem.title}》<span className="ml-1">{poem.author}</span>
+        《{cv(poem.title)}》<span className="ml-1">{cv(poem.author)}</span>
       </p>
       {poem.text.split('\n').map((line, li) => (
         <p key={li} className="font-serif text-cream/80 text-sm leading-[1.8] tracking-widest">
           {[...line].map((ch, ci) => (
             <span key={ci} className={rhymingChars.has(ch) ? 'text-gold font-bold' : ''}>
-              {ch}
+              {cv(ch)}
             </span>
           ))}
         </p>
