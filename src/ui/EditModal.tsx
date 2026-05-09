@@ -335,35 +335,43 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
 
                 {/* #7: 簡↔繁 rhyme-merger annotation. Renders only when this
                     char is a documented rhyme-distinct merger. Informational
-                    only — no picker (deferred to a future ticket). */}
-                {MERGER_ANNOTATIONS[val] && (
-                  <aside className="pl-3 border-l-2 border-gold/40 text-xs space-y-1">
-                    <p className="text-creamDim font-sans">
-                      {locale === "繁" ? "形近合併" : "形近合并"} —{" "}
-                      {val} 在平水韻中對應多形:
-                    </p>
-                    <ul className="text-cream font-serif space-y-0.5">
-                      {MERGER_ANNOTATIONS[val].forms.map((f, i) => (
-                        <li key={i}>
-                          <span className="text-gold">{f.trad}</span>
-                          <span className="text-creamDim ml-2">
-                            ({f.rhymes.join(' / ')})
-                          </span>
-                          {f.isOpenccDefault && (
-                            <span className="text-creamDim/60 italic ml-2">
-                              ({locale === "繁" ? "目前默認" : "目前默认"})
-                            </span>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                    {MERGER_ANNOTATIONS[val].pedagogicalNote && (
-                      <p className="text-creamDim italic">
-                        {MERGER_ANNOTATIONS[val].pedagogicalNote}
+                    only — no picker (deferred to a future ticket).
+                    Look up by simp key (the annotations file is keyed on
+                    simp form). `val` holds the stored canonical char which
+                    is typically trad; toSimplified(val) normalizes to the
+                    map key. opencc t2s on an already-simp char is a no-op. */}
+                {(() => {
+                  const merger = MERGER_ANNOTATIONS[toSimplified(val)];
+                  if (!merger) return null;
+                  return (
+                    <aside className="pl-3 border-l-2 border-gold/40 text-xs space-y-1">
+                      <p className="text-creamDim font-sans">
+                        {locale === "繁" ? "形近合併" : "形近合并"} —{" "}
+                        {val} 在平水韻中對應多形:
                       </p>
-                    )}
-                  </aside>
-                )}
+                      <ul className="text-cream font-serif space-y-0.5">
+                        {merger.forms.map((f, i) => (
+                          <li key={i}>
+                            <span className="text-gold">{f.trad}</span>
+                            <span className="text-creamDim ml-2">
+                              ({f.rhymes.join(' / ')})
+                            </span>
+                            {f.isOpenccDefault && (
+                              <span className="text-creamDim/60 italic ml-2">
+                                ({locale === "繁" ? "目前默認" : "目前默认"})
+                              </span>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                      {merger.pedagogicalNote && (
+                        <p className="text-creamDim italic">
+                          {merger.pedagogicalNote}
+                        </p>
+                      )}
+                    </aside>
+                  );
+                })()}
 
                 {info && !info.unknown && (
                   <div>

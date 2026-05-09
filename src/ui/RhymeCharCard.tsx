@@ -151,21 +151,27 @@ export function RhymeCharCard({ char, currentRhyme, locale, t, onClose, onRhymeC
           )}
 
           {/* #7: 簡↔繁 rhyme-merger annotation. Compact inline note;
-              renders only when char is a documented rhyme-distinct merger. */}
-          {MERGER_ANNOTATIONS[char] && (
-            <div className="pl-3 border-l-2 border-gold/40 text-[11px] space-y-0.5">
-              <p className="text-creamDim font-sans">
-                {locale === "繁" ? "形近合併: " : "形近合并: "}
-                {MERGER_ANNOTATIONS[char].forms.map((f, i) => (
-                  <span key={i}>
-                    {i > 0 && <span className="text-creamDim/50"> / </span>}
-                    <span className="text-gold">{f.trad}</span>
-                    <span className="text-creamDim/70"> {f.rhymes.join('·')}</span>
-                  </span>
-                ))}
-              </p>
-            </div>
-          )}
+              renders only when char is a documented rhyme-distinct merger.
+              Look up by simp key — annotations file is keyed on simp form;
+              `char` is stored canonical (typically trad). */}
+          {(() => {
+            const merger = MERGER_ANNOTATIONS[toSimplified(char)];
+            if (!merger) return null;
+            return (
+              <div className="pl-3 border-l-2 border-gold/40 text-[11px] space-y-0.5">
+                <p className="text-creamDim font-sans">
+                  {locale === "繁" ? "形近合併: " : "形近合并: "}
+                  {merger.forms.map((f, i) => (
+                    <span key={i}>
+                      {i > 0 && <span className="text-creamDim/50"> / </span>}
+                      <span className="text-gold">{f.trad}</span>
+                      <span className="text-creamDim/70"> {f.rhymes.join('·')}</span>
+                    </span>
+                  ))}
+                </p>
+              </div>
+            );
+          })()}
 
           {compounds.length > 0 && (
             <div>
