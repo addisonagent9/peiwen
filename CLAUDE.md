@@ -1123,8 +1123,8 @@ console.
   poem.
 - **Drill 4 (词语补齐)**: Word completion. 2-char compound with one
   char blanked. Round-robin distribution + Bjork tier filtering
-  (post-`8e19693`, `3157d90`). Chinese glosses from MOE (72% coverage);
-  English fallback for 28% (parked ticket #14, see task.md).
+  (post-`8e19693`, `3157d90`). Chinese glosses from MOE (~71% coverage);
+  remaining ~29% sourced via #14 LLM-generated glosses (`source: 'llm-v1'`).
 
 **Post-curriculum 韵部库:**
 - Read-only dashboard showing collected chars per rhyme (auto-filled by
@@ -1334,11 +1334,11 @@ that no one has done. The v2 design uses algorithmically-derived 2-char
 
 Output: `src/data/pingshui/drill4-corpus.json` (committed, ~2500 entries).
 
-**Glosses (post-`3157d90`)**: Chinese definitions from MOE 重編國語辭典
-(`src/data/moedict-map.json`, 162K entries). Coverage: 72% of corpus 词语
-(1808 of 2500). Remaining 28% (mostly modern compounds + rare literary
-terms) keep English CC-CEDICT gloss as TEMPORARY fallback until parked
-ticket #14 (see task.md) sources additional classical Chinese dictionaries.
+**Glosses (post-`3157d90`, supplemented by #14)**: Chinese definitions
+primarily from MOE 重編國語辭典 (`src/data/moedict-map.json`, 162K entries).
+Coverage: ~71% MOE-sourced (8,510 of 12,051), ~29% LLM-generated via #14
+(3,519 entries marked `source: 'llm-v1'`); 22 sub-1% transient fetch
+failures still display English CC-CEDICT fallback.
 
 **rare_set algorithm (post-`3157d90`)**: `computeRareSet` inherits each
 answer char's curriculum `SeedCharacter.set` (1-4) from
@@ -2213,9 +2213,13 @@ not runtime — corpus is committed.
   lookup table only covers Tier 1 seed chars (~156); hint chars are
   typically not seed chars. No broader jyutping dictionary is currently
   sourced. The frontend hides empty jyutping rows gracefully.
-- **English gloss fallback**: 28% of entries (692) display English
-  glosses where MOE doesn't cover the 词语. Tracked as parked ticket
-  #14 (see task.md; source additional classical Chinese dictionaries).
+- **MOE coverage gap (closed by #14)**: ~29% of entries (3,519 of
+  12,051) carry LLM-generated Traditional Chinese glosses tagged
+  `source: 'llm-v1'` (claude-haiku-4-5-20251001 + prompt v3, see
+  Closed Parked Items #14). 22 transient fetch-failure entries still
+  display English CC-CEDICT fallback (`llm_v1_failures` in
+  `drill4-corpus-meta.json`); future re-run with the same prompt
+  closes them.
 
 ### Rebuild
 
@@ -2280,6 +2284,7 @@ Chronological log of completed parked-queue work. Open items live in
 - #22 Simp↔Trad toggle — closed `83f54c7`. Global 繁/簡 display toggle via opencc-js. New users.prefers_simplified column synced with user_trainer_state.ui_language on toggle (en-bilingual respected). PreferencesContext + 5 sticky-header SimpTradToggle. Display-only conversion across analyzer, trainer drills 1-4 + foundation + rhyme detail + tier view, wenyan poem reader/list/pairing, admin audio review. Edit fields stay canon (EditModal cells, AudioReview gen-text inputs). Curated tw block in wenyan-strings.ts.
 - #7 簡↔繁 rhyme-merger annotations (this commit) — Documents 89 simp chars whose multiple 繁 forms classically belong to different 平水韻 rhyme groups (丰/豐 pattern). Build script at `scripts/build-merger-annotations.mjs` reads pingshui.json + opencc-js and emits `src/data/merger-annotations.ts`. Surfaces in EditModal (full banner with "目前默認" tag on opencc default) and RhymeCharCard (compact inline note). Informational only — no analyzer logic changes, no picker UX. Meaning-distinct same-rhyme mergers (后/後, 发/髮, etc) are categorically different and stay deferred to a future ticket.
 - **#15** Unihan-based variant detection (this commit) — Systematic variant fallback in the analyzer's `rhymesOf` (rhyme.ts:41-48) and `lookup` (tone.ts:16-21) for chars absent from pingshui under both their typed AND traditional forms. New `scripts/build-unihan-variants.mjs` (~210 lines, in-tree zip reader using `node:zlib`, **no new deps**) fetches Unihan.zip (cached at `~/.cache/peiwen/unihan/`, manual `--refresh` re-downloads), extracts `Unihan_Variants.txt` + `Unihan_IRGSources.txt`, parses 4 fields (`kZVariant` + `kCompatibilityVariant` + `kSemanticVariant` + `kSpecializedSemanticVariant`), and BFS-resolves each non-pingshui variant char to its closest pingshui-attested canonical (depth ≤ 3, codepoint-ascending tie-break, cycle detection). Generated artifact `src/data/unihan-variants.ts` is 1,908 entries (51,659 bytes ≈ 51 KB, bundled). **Rhyme-equivalence filter** (the design pivot from Stage 1.2): when BFS reaches multiple pingshui canonicals at the same depth, emit only if their rhyme sets share ≥1 rhyme group; otherwise skip. Filter excluded 31 genuine meaning-distinct mergers (扵/栢/冣 etc) that would have caused rhyme drift. Stats: 1,939 BFS-proposed → 1,810 single-canonical (Case 4) + 98 multi-canonical rhyme-safe (Case 3 emit) + 31 multi-canonical rhyme-distinct (Case 3 skip). Build is fully deterministic (re-run produces byte-identical output, verified by md5). Manual invocation only — NOT chained into `npm run data` (Unihan release is annual; silent network fetch in CI would surprise contributors). Silent-normalization UX: UI shows the user's typed glyph; analyzer treats variant as canonical for classification only — no UI changes, no new i18n strings. Tests at `src/analysis/__tests__/variant-fallback.test.ts` (15 tests via `node --test` using Node 25's native TS support; `tsconfig.json` excludes `__tests__/` since tests aren't bundled by parcel and node:test can't follow extensionless analyzer imports without a transpiler dep). Out of scope (separate future tickets): (a) `patch-pingshui.mjs`'s Group D `variantPairs` cleanup — once #15 is in production, audit which manual entries are subsumed; (b) `moedict.ts` variant fallback (different data shape, "no def" not "wrong rhyme"); (c) 攟 (U+651F) and similar chars where Unihan declares no variant edge at all.
+- **#14** v1 MOE coverage gap fill via LLM-generated glosses (this commit) — Filled the 28% MOE gap in `src/data/pingshui/drill4-corpus.json` with Traditional Chinese glosses for 3,401 unique compounds (3,519 corpus entries after fan-out across blank positions). Anthropic API claude-haiku-4-5-20251001 with prompt v3 (translation framing — feeds CC-CEDICT English as source rather than asking LLM to recall meanings). v1 + v2 prompts attempted recall and failed: v1 produced 22% simp contamination, v2 produced ~40% meaning errors on technical compounds. v3 with English-as-source eliminated both failure modes. 30-sample spot-check 30/30 PASS. Cost $1.99, 5h 56m generation time. Provenance: `source: 'llm-v1'` field on each generated entry; sibling `drill4-corpus-meta.json` records counts/model/prompt-version/timestamp. 22 fetch failures (sub-1%) remain English-only, counted in `llm_v1_failures` rather than `moe_count`. Tests at `src/data/__tests__/drill4-corpus-coverage.test.ts` (3/3 pass via `node --test`). Out of scope (future tickets): UI flagging of LLM-generated glosses, two-pass verdict pipeline, additional dictionary sourcing (path A: 漢語大詞典 etc), retry of the 22 fetch failures.
 
 ### Pre-Tier-2 cleanup
 
