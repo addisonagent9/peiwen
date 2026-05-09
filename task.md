@@ -128,12 +128,6 @@ Wiktionary Chinese, manual curation) for the 28% of Drill 4 corpus 词语 not
 covered by MOE. Until shipped, those 词语 display English CC-CEDICT glosses
 as temporary fallback.
 
-### #15 — Unihan-based variant detection
-A systematic source (Unihan `kCompatibilityVariant` / `kTraditionalVariant`)
-would replace pattern-matching but isn't currently sourced. Surfaces in §6
-of CLAUDE.md (Group D variant-mirror sweep) where ad-hoc per-batch user
-pattern-matching produces ~99% false positives without a systematic source.
-
 ### #16 — Multi-tone must have multi-card (need strengthen Library)
 Today the popup card on the rhyme reference page (§11.C, shipped in
 `7a37b8a` + `0dbe9b2`) shows a single card per char with shared 字義 / 词语

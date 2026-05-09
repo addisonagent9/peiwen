@@ -1,5 +1,6 @@
 import { PINGSHUI_CHAR, PINGSHUI_RHYME } from "../data/pingshui";
 import { toTraditional } from "./s2t";
+import { UNIHAN_VARIANTS } from "../data/unihan-variants";
 
 // 鄰韻 groups from §7.2 (孤雁出群格). Names use the canonical 平水韻 labels.
 // Upper 平 = 上平, Lower 平 = 下平. All department names are prefixed with 上平/下平 in the CSV
@@ -43,6 +44,12 @@ export function rhymesOf(char: string): string[] {
   if (entries.length === 0) {
     const trad = toTraditional(char);
     if (trad !== char) entries = PINGSHUI_CHAR[trad] ?? [];
+  }
+  // #15: Unihan variant fallback. Silent normalization — UI shows the
+  // user's input; analyzer treats variant as canonical for classification.
+  if (entries.length === 0) {
+    const canonical = UNIHAN_VARIANTS[char];
+    if (canonical) entries = PINGSHUI_CHAR[canonical] ?? [];
   }
   return Array.from(new Set(entries.map(e => e.rhyme)));
 }

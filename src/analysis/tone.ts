@@ -1,6 +1,7 @@
 import { PINGSHUI_CHAR, type PSEntry } from "../data/pingshui";
 import type { Tone } from "../patterns/types";
 import { toTraditional } from "./s2t";
+import { UNIHAN_VARIANTS } from "../data/unihan-variants";
 
 export interface ToneInfo {
   char: string;
@@ -18,6 +19,12 @@ export function lookup(char: string): ToneInfo {
   let entries = PINGSHUI_CHAR[char] ?? [];
   if (entries.length === 0 && trad !== char) {
     entries = PINGSHUI_CHAR[trad] ?? [];
+  }
+  // #15: Unihan variant fallback. Silent normalization — UI shows the
+  // user's input; analyzer treats variant as canonical for classification.
+  if (entries.length === 0) {
+    const canonical = UNIHAN_VARIANTS[char];
+    if (canonical) entries = PINGSHUI_CHAR[canonical] ?? [];
   }
   if (entries.length === 0) {
     return { char, entries, chosen: null, tone: null, isRu: false, ambiguous: false, unknown: true };
