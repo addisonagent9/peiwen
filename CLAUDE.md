@@ -2249,6 +2249,10 @@ Chronological log of completed parked-queue work. Open items live in
 3. Remove entry from task.md
 4. Add entry here with task #, commit SHA(s), one-line outcome
 
+### In-progress tickets
+
+- **#16** v1 multi-tone multi-card — Part 2B (data layer) committed `(this commit)`. New `scripts/build-reading-content.mjs` produces `src/data/reading-content.json` (151 multi-tone curriculum chars × per-pingshui-reading entries; 162 KB; tone-mark NFC pinyin; MOE heteronym defs + per-pinyin-filtered CEDICT compounds). Resolution chain: direct → yiti regex (`「X」的異體字`) → opencc cn-to-tw (50 chars rerouted). Heteronym matching: tone filter + empirical rhyme→finals heuristic (built at runtime from single-reading pingshui chars) + codepoint tie-break; **Rule Z** for 入 readings (claim-then-fallback by tone preference 3>4>2>1, 仄 reuse with `merged_tone: true` if all heteronyms claimed). Type A modern-merged-tone case flagged: 63 chars carry `merged_tone: true`. Build deterministic (md5 stable across re-runs), ~1.2s wall, ~1 GB peak memory; wired into `npm run data` after build-moedict. Part 2C (RhymeCharCard consumer rewrite + visual smoke) pending; full ticket stays open in task.md until that lands.
+
 ### Numbered tickets
 
 - **#3** Bjork tier filtering inside Drill 4 round-robin — closed `8e19693` + `3157d90`. Corpus re-grading activated the queue logic.
