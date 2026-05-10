@@ -1,5 +1,47 @@
 # Next session handover
 
+## How to bootstrap a new session
+
+Read these files in this order. Each has a different role; don't skip.
+
+1. **`next-session.md`** (THIS FILE) — start here. Last session's
+   shipped tickets, open tickets, parked observations, active
+   conventions, next-session candidates. Authoritative for "what state
+   is the project in right now."
+
+2. **`task.md`** — current open ticket queue with full prose. The "##
+   Deferred / Parked items" section lists numbered tickets and parked
+   observations not yet started. Authoritative for "what could we work
+   on next."
+
+3. **`CLAUDE.md`** — project memory + closed-ticket archive. Read the
+   `## Closed parked items` → `### Numbered tickets` section near the
+   bottom for context on recently shipped work; read `## Known Gaps`
+   for outstanding caveats. Authoritative for "how does the project
+   work" and "what's been done."
+
+4. **`SKILL.md`** — project conventions and three-actor workflow rules.
+   Authoritative for "how should I behave in this project."
+
+5. **`README.md`** — minimal high-level pointer; usually skipped.
+
+If files conflict (e.g. `task.md` lists a ticket as open but
+`CLAUDE.md` shows it closed): trust `CLAUDE.md`'s closed-tickets
+section as the most recent record. Surface the conflict to the user.
+
+Use the `view` tool to read these files directly from `/mnt/project/`
+or `project_knowledge_search` for broad queries. The full files are
+authoritative; chunked search results are partial.
+
+After reading, confirm understanding by listing:
+- Last session's shipped tickets (count + SHAs)
+- Open numbered tickets remaining
+- Parked observations carried forward (count)
+- Active conventions you noticed
+- Any questions before starting work
+
+Then the user will tell you which ticket or task this session targets.
+
 Generated end of session 2026-05-10.
 
 ## Last session shipped
