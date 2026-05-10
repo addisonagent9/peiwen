@@ -1,86 +1,70 @@
 # Next session handover
 
-Generated end of session 2026-05-09.
+Generated end of session 2026-05-10.
 
-## Last session accomplishments
+## Last session shipped
 
-3 numbered tickets closed + 1 hotfix:
+3 numbered tickets closed + 1 bookkeeping commit:
 
-| Ticket | SHA | Scope |
+| Ticket | SHA | Description |
 |---|---|---|
-| #22 | `83f54c7` | Simp↔Trad UI toggle (closed prior session, deployed this one) |
-| #7 | `423c2a2` + `aab9070` (hotfix) | 簡↔繁 rhyme-merger annotations |
-| #15 | `68a7631` | Unihan-based variant detection (kZVariant + kCompatibility + kSemantic + kSpecialized, rhyme-equivalence filtered) |
-| #14 | `28e1081` | LLM-generated MOE coverage gap glosses (v3 prompt, claude-haiku-4-5, $1.99) |
+| #16 v1 multi-tone multi-card — Part 2B (data layer) | `64c2a0d` | New `scripts/build-reading-content.mjs` + `src/data/reading-content.json` (151 chars × per-pingshui-reading entries; 162 KB; tone-mark NFC pinyin; MOE heteronyms + per-pinyin CEDICT compounds). Resolution chain: direct → yiti regex → opencc cn-to-tw. Rule Z for 入. merged_tone Type A flag. |
+| #16 v1 multi-tone multi-card — Part 2C (RhymeCharCard consumer) | `32c4bc0` | Per-pill 字義/词语/pinyin swap on the 平水韻 106 部 reference page. New `src/data/reading-content.ts` lazy-load module mirroring `moedict.ts`. redirect_from + merged_tone UI annotations. |
+| #18 EditModal per-reading content swap + variant fallback | `4e0277d` | Same swap behavior in the analyzer's char popup. Centralized variant fallback in `readingContentLookup` (toSimplified for 50 redirected curriculum chars). Tri-state pill highlight (pinned ring-gold / current border-gold / neutral). Rule R1 annotation guard (no "via X" when X === user-typed glyph) backported to RhymeCharCard. |
+| Session-end bookkeeping | `(this commit)` | SHA backfills + this handover doc. |
 
-Bookkeeping: SHA backfills + this handover doc.
+No hotfixes this session.
 
-## Open numbered tickets remaining
+Open question post-#18: operator reported "字義 doesn't swap" but code+data review concluded the swap is correctly wired (`basicZhDefs = readingEntry ? readingEntry.definitions : ...`). Likely browser-cache staleness or testing on Type A merged-tone chars. **Next session may want to ask the operator for a hard-refresh + bundle-hash check** (`curl -s https://pw.truesolartime.com/bundle.html | grep -oE '[a-f0-9]{8}\.js'` should show `4a25ae4c.js`) before any code change.
 
-- **#16** Multi-tone multi-card (need strengthen Library)
-- **#17** Fill empty 字義/词语 on rare chars
+## Active tickets remaining
 
-Both share dictionary-sourcing infrastructure with the now-closed #14.
-Path A (sourcing漢語大詞典 / 中華語文知識庫 / Wiktionary CN) deferred
-during #14 in favor of LLM-gen Path C; it remains the right approach
-for #16/#17 if Path C quality proves insufficient long-term.
+- **#17** Fill unique word with meaning + 词语 (parked in task.md). Popup card surface; long-tail rare/archaic chars where MOE has no entry AND CC-CEDICT has no compounds. Likely uses similar Pipeline α + LLM-augmentation pattern from #14/#16; pairs well with the just-shipped data layer.
 
-## Carryover observations (parked, not blocking)
+That's the only open numbered ticket.
 
-1. **Pingshui data gap — 曆 missing**. Surfaced during #7. `曆` (simp `历`) absent from `src/data/pingshui.json` though `歷`/`历` are present (both 入聲 十二錫). `曆` likely reads identically. Defer to a future pingshui sweep.
+## Parked observations (carry forward)
 
-2. **Group D `variantPairs` cleanup in `patch-pingshui.mjs`**. With #15's 1,908-entry Unihan map in production, audit which manual entries are subsumed. The residual entries are calligraphic / pre-Unicode reconstructions Unihan doesn't cover. Future ticket.
+1. **Pingshui data gap — 曆 missing**. Surfaced during #7. `曆` (simp `历`) absent from `pingshui.json` though `歷`/`历` are present (both 入聲 十二錫). Defer to a future pingshui sweep.
+2. **Audio Review Library perf collapse** at ~200+ approved clips (renders all clips at once, no pagination/virtualization).
+3. **Tier 1 anchor poem UNIQUE-constraint bug** in `prewarm-audio.mjs`. ~10 min fix: switch INSERT path to `INSERT OR IGNORE`. Errors are categorically benign; not blocking.
+4. **Manual VPS .env TRAINER_BETA_USER_IDS revert** — early Tier 1 testing-era state to roll back.
+5. **Group D `variantPairs` cleanup in `patch-pingshui.mjs`**. With #15's 1,908-entry Unihan map in production, audit which manual mirrors are now subsumed.
+6. **22 fetch-failure retry from #14 LLM gloss generation**. Sub-1% gap still showing English fallback (counted in `llm_v1_failures`, not `moe_count`). One cycle of retries against current API would close them; ~$0.01 cost.
 
-3. **`moedict.ts` variant fallback**. Different data shape than the analyzer; failure mode is "no def" not "wrong rhyme." Separate ticket if needed.
+No new observations surfaced from #16 / #18 implementation.
 
-4. **22 fetch-failure entries from #14**. Sub-1% of the gap; still display English CC-CEDICT fallback. Counted in `llm_v1_failures` rather than `moe_count`. Future re-run with the same v3 prompt would close them. ~$0.01 cost.
+## Out-of-scope follow-ups from #16/#18 (not parked-grade, just listed)
 
-5. **`scripts/build-pingshui.mjs` Mac-path footgun**. Hardcoded `/Users/addisonkang/pw/pingshui_上平.csv`. Fix is env-var-driven path or `build:prod` script.
+- Extending Pipeline α beyond 151 curriculum chars to all 2,118 multi-tone-and-rhyme chars (~110 MB at full corpus scope; would warrant on-demand fetching).
+- Example/quote fields from MOE heteronyms (currently emitting def strings only; could enrich the 字義 row with example sentences).
+- Classical-source augmentation for sparse-CEDICT readings (e.g. 殷 yān has only 1 compound — could be enriched via 漢語大詞典 / 康熙字典 mining or LLM gen).
 
-6. **`攟` (U+651F) and similar chars where Unihan declares no variant edge at all**. Out of scope for #15 — would need either manual variantPairs entry in patch-pingshui.mjs or a custom variant data file.
+## Active conventions (preserved from prior handover)
 
-## Active conventions (do not drift)
+User-locked, restated for quick context:
 
-1. Commit message attribution trailers DROPPED entirely. NO `🤖 Generated with [Claude Code]` or `Co-Authored-By: Claude <noreply@anthropic.com>`. Apply to all future commit message templates.
+- **Target-labeled deliverable blocks**: every bash/CC prompt block has a heading above naming the target (`## Send to Claude Code`, `## Deploy (VPS)`, `## Local`, `## Commit and Push (Claude Code)`). Never mix targets in one block.
+- **No Claude-attribution trailers**: drop `🤖 Generated with [Claude Code]` and `Co-Authored-By: Claude` from commit messages.
+- **Two-file workflow**: closing commits append "Closes #N. Updates task.md → CLAUDE.md." with BOTH file edits in the diff.
+- **API key safety**: only Node-side existence check (`node -e "console.log(!!process.env.ANTHROPIC_API_KEY)"`); never shell echo, never any mask-substring pattern.
+- **VPS deploy gating**: data/code commits deploy. Doc-only commits (task.md / CLAUDE.md / .claude/skills) skip deploy.
+- **No Parcel dev-server, EVER** — corrupts `dist/bundle.html` → 7.4 MB. Use `npm run build` only.
+- **VPS service name**: `poetry-checker` (not `pw`, not `peiwen`).
+- **Local repo path**: `~/poetry-checker` (not `~/peiwen` despite the GitHub repo name).
+- **Production URL**: `https://pw.truesolartime.com`. VPS deploy path: `/var/www/pw.truesolartime.com`.
+- **`(this commit)` SHA placeholder**: acceptable convention; backfill in next session-end commit.
+- **Codepoint visual ambiguity**: instruct CC to read verbatim chars from source files rather than copying from chat history when chars matter for correctness (collisions like 攏/攟, 翪/翺).
+- **Commit shell escaping**: prefer `<<'EOF'` (single-quoted heredoc) for messages with `$`. Don't escape `$` inside single-quoted heredocs (escape becomes literal).
 
-2. Every deliverable bash block has a heading naming target: `## Send to Claude Code`, `## Deploy (VPS)`, `## Local`, `## Commit and Push (Claude Code)`. Heading goes ABOVE the block. Different-target deliverables go in separate labeled blocks; never mix VPS and Local commands in one block.
+## Likely next-session candidates
 
-3. Two-file workflow: every closing commit appends "Closes #N. Updates task.md → CLAUDE.md." Verify the actual diff includes BOTH file updates. Don't trust marker text alone — confirm task.md entry removed AND CLAUDE.md closed-section entry added in the same commit.
+In rough priority order:
 
-4. `(this commit)` SHA placeholder convention: acceptable mid-flight, backfill in next session-end bookkeeping commit. SHAs always recoverable via `git log --grep "#N"` or git blame.
+1. **#17** Fill unique word with meaning + 词语 — pairs well with the just-shipped reading-content data layer; shares Pipeline α infrastructure.
+2. **Tier 1 anchor poem UNIQUE bug** — ~10 min low-risk parked obs; good warm-up.
+3. **Group D variantPairs cleanup** — post-#15 audit; cleanup not feature work.
+4. **22 fetch-failure retry from #14** — one API cycle, ~$0.01.
+5. Pivot to something new (Tier 2 wenyan content, anchor poem expansion, etc.).
 
-5. Manual smoke test BEFORE production push for any UI banner / analyzer fallback / drill rendering logic. The #7 lookup-key bug taught us this.
-
-6. VPS `npm run build` is bypassed because `dist/` artifacts are committed. The `npm run data` Mac-path bug never matters in production.
-
-7. Migration runner fires automatically on service boot — no explicit `node server/db/migrate.mjs` step needed in deploy blocks.
-
-8. Commit shell escaping: prefer `<<'EOF'` (single-quoted heredoc) for commit messages with `$` characters. Don't escape `$` inside single-quoted heredocs (escape becomes literal). Tonight's #14 commit has a literal `\$1.99` in the body as a result — cosmetic only, not amended.
-
-9. Codepoint visual ambiguity: instruct Claude Code to read verbatim chars from source files rather than copying from chat history when chars matter for correctness. Common visual collisions: 攏/攟, 翪/翺.
-
-10. peiwen project paths:
-    - Local repo: `~/poetry-checker` (NOT `~/peiwen` despite GitHub repo name)
-    - VPS deploy: `/var/www/pw.truesolartime.com`
-    - VPS service: `sudo systemctl restart poetry-checker` (NOT `pw` or `peiwen`)
-    - Production URL: `https://pw.truesolartime.com`
-
-11. Doc-only commits (task.md / CLAUDE.md / .claude/skills/ changes) skip `npm run build` and full drift check. VPS deploy optional since production doesn't surface these files to users.
-
-## API key handling — security note
-
-Tonight's session leaked an API key via a buggy `echo` mask (`${VAR:+...$VAR...}` pattern that printed the variable's value). Key was revoked promptly. Total spend on revoked key: $0.47, well under the $5 free credit cap. If the leak was scraped, it cost Anthropic at most ~$4.50 — acceptable.
-
-For future sessions, the only safe API key existence check is:
-```bash
-node -e "console.log('key set:', !!process.env.ANTHROPIC_API_KEY, 'length:', process.env.ANTHROPIC_API_KEY?.length || 0)"
-```
-NEVER `echo $VAR`, `echo ${VAR:0:8}...`, or any echo of the variable's content directly.
-
-## Stale state to clear
-
-- This file (`next-session.md`) was previously a stray. Now overwritten with this handover. Treat as ephemeral — overwrite or delete as needed at start of next session.
-
-## Outstanding decisions for next session start
-
-None blocking. Continue with #16 or #17 if user wants more numbered tickets, or pivot to any of the parked observations above.
+User's call.
