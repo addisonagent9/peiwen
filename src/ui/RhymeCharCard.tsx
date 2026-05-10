@@ -6,6 +6,11 @@ import { moedictLookup, loadMoedict, isMoedictLoaded } from "../analysis/moedict
 import { pinyin, convert } from "pinyin-pro";
 import { AMBIGUOUS_READINGS } from "../data/ambiguous-readings";
 import { MERGER_ANNOTATIONS } from "../data/merger-annotations";
+import {
+  readingContentLookup,
+  loadReadingContent,
+  isReadingContentLoaded,
+} from "../data/reading-content";
 import { RHYMES_PINGSHENG } from "../data/pingshui/trainer-curriculum";
 import type { Locale, Translations } from "../i18n";
 
@@ -41,11 +46,13 @@ interface Props {
 }
 
 export function RhymeCharCard({ char, currentRhyme, locale, t, onClose, onRhymeChange }: Props) {
-  const [dictsReady, setDictsReady] = useState(isCedictLoaded() && isMoedictLoaded());
+  const [dictsReady, setDictsReady] = useState(
+    isCedictLoaded() && isMoedictLoaded() && isReadingContentLoaded()
+  );
 
   useEffect(() => {
     if (dictsReady) return;
-    Promise.all([loadCedict(), loadMoedict()])
+    Promise.all([loadCedict(), loadMoedict(), loadReadingContent()])
       .then(() => setDictsReady(true))
       .catch(() => {});
   }, [dictsReady]);
@@ -70,8 +77,17 @@ export function RhymeCharCard({ char, currentRhyme, locale, t, onClose, onRhymeC
 
   const jyut = JYUTPING_MAP.get(char) ?? null;
 
-  const zhDefs = dictsReady ? moedictLookup(char) : [];
-  const compounds = dictsReady ? cedictCompounds(char) : [];
+  // #16: per-reading content swap. When (char, currentRhyme) is in the
+  // 151-char curriculum scope, derive 字義/词语/pinyin from reading-content;
+  // otherwise fall back to flat moedict + cedict by char alone.
+  const readingEntry = dictsReady ? readingContentLookup(char, currentRhyme) : null;
+
+  const zhDefs = readingEntry
+    ? readingEntry.definitions
+    : (dictsReady ? moedictLookup(char) : []);
+  const compounds: { word: string; pinyin: string; gloss: string }[] = readingEntry
+    ? readingEntry.compounds
+    : (dictsReady ? cedictCompounds(char) : []);
 
   const ar = AMBIGUOUS_READINGS[char];
   const charNote = ar ? (locale === "繁" ? ar.note_zh_tw : ar.note_zh_cn) : null;
@@ -95,6 +111,14 @@ export function RhymeCharCard({ char, currentRhyme, locale, t, onClose, onRhymeC
           {!sameForm && (
             <div className="text-xs text-creamDim font-sans mt-1">{trad} / {simp}</div>
           )}
+          {readingEntry?.redirect_from && (
+            <div className="text-[11px] text-creamDim font-sans mt-1">
+              via <span className="text-gold">{readingEntry.redirect_from}</span>
+            </div>
+          )}
+          {readingEntry?.merged_tone && (
+            <div className="text-[10px] text-creamDim italic mt-1">今音合流</div>
+          )}
         </div>
 
         <div className="text-sm font-sans space-y-3">
@@ -111,7 +135,7 @@ export function RhymeCharCard({ char, currentRhyme, locale, t, onClose, onRhymeC
           <div className="grid grid-cols-2 gap-4">
             <div>
               <div className="text-creamDim text-xs">{t.pinyin}</div>
-              <div className="mt-1 font-serif text-lg text-gold">{py}</div>
+              <div className="mt-1 font-serif text-lg text-gold">{readingEntry ? readingEntry.pinyin : py}</div>
             </div>
             {jyut ? (
               <div>
@@ -180,7 +204,7 @@ export function RhymeCharCard({ char, currentRhyme, locale, t, onClose, onRhymeC
                 {compounds.map((c, i) => (
                   <div key={i} className="text-cream leading-[1.6]">
                     <span className="font-serif">{c.word}</span>
-                    <span className="text-gold ml-2 text-xs">{toneMarkPinyin(c.pinyin)}</span>
+                    <span className="text-gold ml-2 text-xs">{readingEntry ? c.pinyin : toneMarkPinyin(c.pinyin)}</span>
                     <span className="text-creamDim ml-2 text-xs">{c.gloss}</span>
                   </div>
                 ))}
