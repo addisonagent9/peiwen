@@ -5,6 +5,12 @@
 // lookup. Curriculum-scoped: only the 151 multi-tone curriculum chars
 // have entries; consumers fall back to moedictLookup + cedictCompounds
 // for everything else.
+//
+// #18: variant fallback. The 50 redirected curriculum chars are keyed by
+// their simp form (过, 难, 单, etc.); when callers pass the trad form
+// (過, 難, 單) the lookup falls through via toSimplified.
+
+import { toSimplified } from "../analysis/s2t";
 
 export interface ReadingCompound {
   word: string;
@@ -46,5 +52,9 @@ export function isReadingContentLoaded(): boolean {
 
 export function readingContentLookup(char: string, rhyme: string): ReadingEntry | null {
   if (!DATA) return null;
-  return DATA[char]?.[rhyme] ?? null;
+  const direct = DATA[char]?.[rhyme];
+  if (direct) return direct;
+  const simp = toSimplified(char);
+  if (simp !== char) return DATA[simp]?.[rhyme] ?? null;
+  return null;
 }

@@ -8,6 +8,11 @@ import { rhymesOf, charsInRhyme } from "../analysis/rhyme";
 import type { Locale, Translations } from "../i18n";
 import { AMBIGUOUS_READINGS } from "../data/ambiguous-readings";
 import { MERGER_ANNOTATIONS } from "../data/merger-annotations";
+import {
+  readingContentLookup,
+  loadReadingContent,
+  isReadingContentLoaded,
+} from "../data/reading-content";
 
 type Tone = "平" | "仄";
 
@@ -97,7 +102,9 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
   const [inputVal, setInputVal] = useState(initial);
   const isComposing = useRef(false);
   const fetchReqId = useRef(0);
-  const [dictsReady, setDictsReady] = useState(isCedictLoaded() && isMoedictLoaded());
+  const [dictsReady, setDictsReady] = useState(
+    isCedictLoaded() && isMoedictLoaded() && isReadingContentLoaded()
+  );
   const [dictError, setDictError] = useState<string | null>(null);
   const [view, setView] = useState<"edit" | "suggest">("edit");
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
@@ -119,7 +126,7 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
     if (!open || dictsReady) return;
     let cancelled = false;
     setDictError(null);
-    Promise.all([loadCedict(), loadMoedict()])
+    Promise.all([loadCedict(), loadMoedict(), loadReadingContent()])
       .then(() => { if (!cancelled) setDictsReady(true); })
       .catch(err => { if (!cancelled) setDictError(String(err.message ?? err)); });
     return () => { cancelled = true; };
@@ -261,17 +268,30 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
   const trad = val ? toTraditional(val) : "";
   const simp = val ? toSimplified(val) : "";
   const sameForm = trad === simp;
-  const py = val
-    ? Array.from(new Set(
-        (pinyin(val, { toneType: "symbol", multiple: true, type: "array" }) as string[])
-          .map(s => s.trim())
-          .filter(Boolean)
-      )).join(" / ")
-    : "";
+
+  // #18: per-reading content swap. currentRhyme = pinned > analyzer-chosen.
+  // readingEntry is non-null only for the 151-char curriculum scope (with
+  // simp variant fallback inside readingContentLookup).
+  const currentRhyme = pinnedReading?.rhyme ?? info?.chosen?.rhyme ?? null;
+  const readingEntry = (val && currentRhyme && dictsReady)
+    ? readingContentLookup(val, currentRhyme)
+    : null;
+
+  const py = readingEntry
+    ? readingEntry.pinyin
+    : val
+      ? Array.from(new Set(
+          (pinyin(val, { toneType: "symbol", multiple: true, type: "array" }) as string[])
+            .map(s => s.trim())
+            .filter(Boolean)
+        )).join(" / ")
+      : "";
 
   const charEntry = val && dictsReady ? cedictLookup(val) : null;
   const basicEnDefs = charEntry ? charEntry.definitions.slice(0, 2) : [];
-  const basicZhDefs = val && dictsReady ? moedictLookup(val) : [];
+  const basicZhDefs = readingEntry
+    ? readingEntry.definitions
+    : (val && dictsReady ? moedictLookup(val) : []);
   const ctx = val && dictsReady ? cedictContext(prevChar, val, nextChar) : null;
   const ctxWord = ctx ? ctx.word : (prevChar ? prevChar + val : (nextChar ? val + nextChar : ""));
   const ctxEnDefs = ctx ? ctx.entry.definitions.slice(0, 2) : [];
@@ -333,6 +353,20 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
                   </div>
                 </div>
 
+                {/* #18: redirect_from + merged_tone annotations from
+                    reading-content. Rule R1: skip the "via X" subtitle when
+                    the redirect target is the same glyph the user typed
+                    (variant-fallback case where caller passed trad and
+                    lookup hit the simp-keyed entry). */}
+                {readingEntry?.redirect_from && readingEntry.redirect_from !== val && (
+                  <div className="text-[11px] text-creamDim font-sans -mt-2">
+                    via <span className="text-gold">{readingEntry.redirect_from}</span>
+                  </div>
+                )}
+                {readingEntry?.merged_tone && (
+                  <div className="text-[10px] text-creamDim italic -mt-2">今音合流</div>
+                )}
+
                 {/* #7: 簡↔繁 rhyme-merger annotation. Renders only when this
                     char is a documented rhyme-distinct merger. Informational
                     only — no picker (deferred to a future ticket).
@@ -380,13 +414,21 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
                       {info.entries.map((e, i) => {
                         const rn = AMBIGUOUS_READINGS[val]?.per_reading_notes?.find(n => n.rhyme === e.rhyme);
                         const isPinned = pinnedReading?.tone === e.tone && pinnedReading?.rhyme === e.rhyme;
+                        // #18: tri-state highlight. Pinned (commitment) > current (analyzer-chosen
+                        // displayed reading, no commitment) > neutral.
+                        const isCurrent = !isPinned && !!readingEntry && currentRhyme === e.rhyme;
+                        const borderClass = isPinned
+                          ? 'border-gold ring-2 ring-gold'
+                          : isCurrent
+                            ? 'border-gold'
+                            : 'border-ink-line';
                         return (
                           <span
                             key={i}
                             role={info.entries.length > 1 && onPinReading ? 'button' : undefined}
                             tabIndex={info.entries.length > 1 && onPinReading ? 0 : undefined}
                             onClick={info.entries.length > 1 && onPinReading ? () => onPinReading(lineIdx, pos, { tone: e.tone, rhyme: e.rhyme }) : undefined}
-                            className={`px-2 py-1 rounded bg-ink-bg border ${isPinned ? 'border-gold ring-2 ring-gold' : 'border-ink-line'} ${info.entries.length > 1 && onPinReading ? 'cursor-pointer' : ''}`}
+                            className={`px-2 py-1 rounded bg-ink-bg border ${borderClass} ${info.entries.length > 1 && onPinReading ? 'cursor-pointer' : ''}`}
                           >
                             {rn && (
                               <span className={`mr-1 ${rn.status === "attested" ? "text-teal" : "text-amber"}`}>
@@ -500,6 +542,24 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
                         {ctxEnDefs.join("; ")}
                       </div>
                     )}
+                  </div>
+                )}
+
+                {/* #18: per-reading 詞語. Mirrors RhymeCharCard's compounds
+                    block byte-for-byte. Hidden when readingEntry is null
+                    (non-curriculum chars) or compounds list is empty. */}
+                {readingEntry && readingEntry.compounds.length > 0 && (
+                  <div>
+                    <div className="text-creamDim text-xs">{t.refCompounds}</div>
+                    <div className="mt-1 space-y-1">
+                      {readingEntry.compounds.map((c, i) => (
+                        <div key={i} className="text-cream leading-[1.6]">
+                          <span className="font-serif">{c.word}</span>
+                          <span className="text-gold ml-2 text-xs">{c.pinyin}</span>
+                          <span className="text-creamDim ml-2 text-xs">{c.gloss}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>

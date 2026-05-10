@@ -111,7 +111,7 @@ export function RhymeCharCard({ char, currentRhyme, locale, t, onClose, onRhymeC
           {!sameForm && (
             <div className="text-xs text-creamDim font-sans mt-1">{trad} / {simp}</div>
           )}
-          {readingEntry?.redirect_from && (
+          {readingEntry?.redirect_from && readingEntry.redirect_from !== char && (
             <div className="text-[11px] text-creamDim font-sans mt-1">
               via <span className="text-gold">{readingEntry.redirect_from}</span>
             </div>
