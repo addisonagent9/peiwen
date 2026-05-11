@@ -153,6 +153,13 @@ silently truncate large files. When reading CLAUDE.md (~2000 lines),
 check the final lines of the response to confirm you received the full
 file. If truncated, fetch specific line ranges.
 
+**Cache-lag check first.** `/mnt/project/` project-knowledge can be
+days stale. Before trusting cached bootstrap files, fetch the GitHub
+raw URL of `next-session.md` and diff the first 50 lines. If they
+differ, read all bootstrap files from raw URLs instead. See the
+`### Cache-lag check` subsection in `next-session.md` for the exact
+URLs.
+
 **tool_search before claiming missing.** The visible tool list in a
 Claude.ai session is partial. Many tools (Chrome extension, MCP
 integrations) load via tool_search and don't appear initially. Run

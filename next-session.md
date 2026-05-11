@@ -42,6 +42,39 @@ After reading, confirm understanding by listing:
 
 Then the user will tell you which ticket or task this session targets.
 
+### Cache-lag check (do this BEFORE trusting /mnt/project/)
+
+The `/mnt/project/` project-knowledge cache refreshes on a delayed
+schedule and may be days old. Symptoms: `next-session.md` doesn't
+match this protocol, closed tickets appear open, or ticket SHAs
+don't match recent commits.
+
+Before reading the rest of the bootstrap files from `/mnt/project/`,
+fetch the GitHub raw URL of this file and diff the first 50 lines
+against the `/mnt/project/` copy:
+
+  https://raw.githubusercontent.com/addisonagent9/peiwen/main/next-session.md
+
+If they match: project-knowledge is current; read from
+`/mnt/project/` for all bootstrap files.
+
+If they differ: project-knowledge is stale. Read ALL bootstrap
+files from GitHub raw URLs instead:
+
+  https://raw.githubusercontent.com/addisonagent9/peiwen/main/next-session.md
+  https://raw.githubusercontent.com/addisonagent9/peiwen/main/task.md
+  https://raw.githubusercontent.com/addisonagent9/peiwen/main/CLAUDE.md
+  https://raw.githubusercontent.com/addisonagent9/peiwen/main/SKILL.md
+
+Note on web_fetch quirks (per SKILL.md §5):
+- First fetch to the repo may return PERMISSIONS_ERROR. Seed by
+  fetching the README raw URL first, then retry.
+- web_fetch has a default token cap that silently truncates large
+  files. CLAUDE.md is the usual victim (~2000+ lines). If the tail
+  of CLAUDE.md is missing (e.g. no `## Closed parked items` section
+  visible), ask Addison to paste the needed section rather than
+  guessing.
+
 Generated end of session 2026-05-10.
 
 ## Last session shipped
