@@ -78,7 +78,7 @@ async function main() {
     "SELECT id, status FROM audio_clips WHERE text = ? AND voice_kind = ? AND provider = ? AND voice_id = ? AND status IN ('pending','approved')"
   );
   const sInsert = db.prepare(`
-    INSERT INTO audio_clips (text, voice_kind, provider, voice_id, status, file_path, generation_text, usage_context)
+    INSERT OR IGNORE INTO audio_clips (text, voice_kind, provider, voice_id, status, file_path, generation_text, usage_context)
     VALUES (?, ?, ?, ?, 'pending', ?, ?, ?)
   `);
 

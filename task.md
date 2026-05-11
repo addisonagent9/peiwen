@@ -163,22 +163,6 @@ at once). Pagination or collapse-by-default solution sketched in earlier
 briefings; not yet built. Trigger: when audio review page first feels
 sluggish, or before the next large TTS batch lands.
 
-### Tier 1 anchor poem unique-constraint bug
-
-The prewarm-audio.mjs script reports UNIQUE constraint failures on each run
-for already-inserted Tier 1/2/3 anchor poem rows. As manifest grows, error
-count grows: ~8 in early Tier 1, 14 after Tier 2 二冬/四支, 41 after Tier 3.
-All errors share the same SQL signature:
-`UNIQUE constraint failed: audio_clips.text, audio_clips.voice_kind, audio_clips.provider, audio_clips.voice_id`
-
-Fix: change script's INSERT path to `INSERT OR IGNORE` (SQLite) or
-equivalent ON CONFLICT DO NOTHING.
-
-Effort: ~10 minute fix + verification on next prewarm run.
-
-Not blocking; errors are categorically benign (same signature every time =
-parked bug, per audio batch Lesson 2).
-
 ### Manual VPS .env TRAINER_BETA_USER_IDS revert
 A manual VPS-side `.env` modification was made during early Tier 1 testing;
 should be reverted to whatever the canonical state is now that production
