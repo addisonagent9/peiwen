@@ -1,0 +1,28 @@
+{
+  "phases": {
+    "一東": {
+      "phase": "一東",
+      "ranAt": "2026-05-12T10:15:19.146Z",
+      "totalGapCount": 218,
+      "extracted": 218,
+      "byConfidence": {
+        "HIGH": 194,
+        "MEDIUM": 24,
+        "LOW": 0
+      },
+      "bySource": {
+        "zdic": 194,
+        "wiktionary": 0,
+        "llm-grounded": 24,
+        "llm-only-audit": 0
+      },
+      "llmCallCount": 24,
+      "llmTokensIn": 8715,
+      "llmTokensOut": 1755,
+      "llmCostUSD": "$0.0140",
+      "wallTimeMinutes": 4.73,
+      "throttleMs": 500,
+      "model": "claude-haiku-4-5-20251001"
+    }
+  }
+}

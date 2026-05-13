@@ -122,38 +122,27 @@ from `src/data/pingshui.json`. `歷` and `历` are present, both reading
 analysis but closes a completeness gap. Defer to a future pingshui
 sweep. Not blocking.
 
-### #17 — Fill unique word with meaning and 词语
-The popup card on the rhyme reference page (§11.C, shipped in `7a37b8a`)
-shows empty 字義 row and empty 词语 section for chars where MOE has no
-entry AND CC-CEDICT has no 2-char compounds containing the char. Most
-visible on rare/archaic chars surfaced via the 显示僻字 toggle (e.g. 簽 in
-一東 area shows char + pinyin only — no meaning, no compounds). Affected
-surface is the popup card; affected chars are the long tail of pingshui's
-~19,600-char corpus that modern dictionaries don't cover.
+## Active multi-part tickets
 
-Distinct from #14 — #14 scopes to Drill 4's `drill4-corpus.json` (compound
-glosses for the trainer corpus). #17 scopes to per-char meaning + compound
-coverage on the reference page. Same family of "fill the dictionary gap"
-work; different surfaces, different remediation deliverables.
+### #17 — Fill unique word with meaning + 词语 (multi-part)
 
-Distinct from #16 — #16 is per-reading content for multi-音字 chars with
-multiple meanings. #17 is single-meaning chars that simply lack any meaning
-entry today.
+- ✅ Part 1: 一東 pilot (cheerio extractor, 218 chars) — this commit
+- ⬜ Part 2: rest of 平韵 sweep (~4,273 chars, 29 rhymes)
+- ⬜ Part 3: 仄韵 上聲 + 去聲 sweep (~4,490 chars, 59 rhymes)
+- ⬜ Part 4: 入聲 sweep (~2,195 chars, 17 rhymes)
+- ⬜ Part 5: UI consumer — split 字義 row into 文言/今義 in
+  EditModal + RhymeCharCard, i18n strings
 
-Sources to evaluate (overlap with #14 + #16): 康熙字典 OCR/digital corpus,
-漢語大詞典, Wiktionary Chinese, 教育部異體字字典, 中華語文知識庫. Pipeline:
-per-char triangulation across sources, user verdict on disagreements,
-auto-merge on consensus, ship as a patch file consumed by the reference
-card's lookup chain (probably extends moedict.ts to fall back to a
-supplement table when MOE returns empty).
+Per-phase invocation:
+  node scripts/build-unique-char-content.mjs --phase=<rhyme-name>
 
-CC tooling angle: have CC search candidate sources online per char, surface
-findings in audit-batch-N.md format (current readings vs candidate gloss vs
-source per source), user verdicts, batch-patch. Same shape as the
-dictionary-audit-v2 sweep that closed in May 2026.
+Currently shipped: src/data/unique-char-content.json (一東 only,
+218 entries). Data file ships but NOT yet read by frontend until
+Part 5.
 
-Multi-session arc. Likely sequence: source-candidate evaluation → pilot
-batch (~20 chars) → verdict-pipeline shape settles → corpus-wide sweep.
+Note: Wiktionary cascade path UNEXERCISED in Part 1 (zdic was
+comprehensive enough that no chars cascaded to Wiktionary). Will
+be ratified by real data in Part 2+ as rhyme groups vary.
 
 ## Deferred (no scheduled work)
 
