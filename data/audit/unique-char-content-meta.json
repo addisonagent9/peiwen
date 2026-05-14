@@ -23,6 +23,344 @@
       "wallTimeMinutes": 4.73,
       "throttleMs": 500,
       "model": "claude-haiku-4-5-20251001"
+    },
+    "二冬": {
+      "phase": "二冬",
+      "ranAt": "2026-05-14T01:23:16.939Z",
+      "totalGapCount": 147,
+      "extracted": 146,
+      "byConfidence": {
+        "HIGH": 134,
+        "MEDIUM": 12,
+        "LOW": 1
+      },
+      "bySource": {
+        "zdic": 134,
+        "wiktionary": 0,
+        "llm-grounded": 12,
+        "llm-only-audit": 1
+      },
+      "llmCallCount": 13,
+      "llmTokensIn": 4559,
+      "llmTokensOut": 916,
+      "llmCostUSD": "$0.0073",
+      "wallTimeMinutes": 3.48,
+      "throttleMs": 500,
+      "model": "claude-haiku-4-5-20251001"
+    },
+    "三江": {
+      "phase": "三江",
+      "ranAt": "2026-05-14T01:24:15.461Z",
+      "totalGapCount": 45,
+      "extracted": 45,
+      "byConfidence": {
+        "HIGH": 43,
+        "MEDIUM": 2,
+        "LOW": 0
+      },
+      "bySource": {
+        "zdic": 43,
+        "wiktionary": 0,
+        "llm-grounded": 2,
+        "llm-only-audit": 0
+      },
+      "llmCallCount": 2,
+      "llmTokensIn": 696,
+      "llmTokensOut": 159,
+      "llmCostUSD": "$0.0012",
+      "wallTimeMinutes": 0.97,
+      "throttleMs": 500,
+      "model": "claude-haiku-4-5-20251001"
+    },
+    "四支": {
+      "phase": "四支",
+      "ranAt": "2026-05-14T01:35:59.100Z",
+      "totalGapCount": 501,
+      "extracted": 499,
+      "byConfidence": {
+        "HIGH": 472,
+        "MEDIUM": 27,
+        "LOW": 2
+      },
+      "bySource": {
+        "zdic": 472,
+        "wiktionary": 0,
+        "llm-grounded": 27,
+        "llm-only-audit": 2
+      },
+      "llmCallCount": 29,
+      "llmTokensIn": 10512,
+      "llmTokensOut": 2161,
+      "llmCostUSD": "$0.0171",
+      "wallTimeMinutes": 11.72,
+      "throttleMs": 500,
+      "model": "claude-haiku-4-5-20251001"
+    },
+    "五微": {
+      "phase": "五微",
+      "ranAt": "2026-05-14T02:32:54.718Z",
+      "totalGapCount": 71,
+      "extracted": 71,
+      "byConfidence": {
+        "HIGH": 65,
+        "MEDIUM": 6,
+        "LOW": 0
+      },
+      "bySource": {
+        "zdic": 65,
+        "wiktionary": 0,
+        "llm-grounded": 6,
+        "llm-only-audit": 0
+      },
+      "llmCallCount": 6,
+      "llmTokensIn": 2237,
+      "llmTokensOut": 440,
+      "llmCostUSD": "$0.0035",
+      "wallTimeMinutes": 1.4,
+      "throttleMs": 500,
+      "model": "claude-haiku-4-5-20251001"
+    },
+    "六魚": {
+      "phase": "六魚",
+      "ranAt": "2026-05-14T02:35:09.337Z",
+      "totalGapCount": 108,
+      "extracted": 105,
+      "byConfidence": {
+        "HIGH": 96,
+        "MEDIUM": 9,
+        "LOW": 3
+      },
+      "bySource": {
+        "zdic": 96,
+        "wiktionary": 0,
+        "llm-grounded": 9,
+        "llm-only-audit": 3
+      },
+      "llmCallCount": 12,
+      "llmTokensIn": 4166,
+      "llmTokensOut": 877,
+      "llmCostUSD": "$0.0068",
+      "wallTimeMinutes": 2.23,
+      "throttleMs": 500,
+      "model": "claude-haiku-4-5-20251001"
+    },
+    "七虞": {
+      "phase": "七虞",
+      "ranAt": "2026-05-14T02:41:01.551Z",
+      "totalGapCount": 304,
+      "extracted": 301,
+      "byConfidence": {
+        "HIGH": 283,
+        "MEDIUM": 18,
+        "LOW": 3
+      },
+      "bySource": {
+        "zdic": 283,
+        "wiktionary": 0,
+        "llm-grounded": 18,
+        "llm-only-audit": 3
+      },
+      "llmCallCount": 21,
+      "llmTokensIn": 7936,
+      "llmTokensOut": 1560,
+      "llmCostUSD": "$0.0126",
+      "wallTimeMinutes": 5.86,
+      "throttleMs": 500,
+      "model": "claude-haiku-4-5-20251001"
+    },
+    "八齊": {
+      "phase": "八齊",
+      "ranAt": "2026-05-14T02:44:19.769Z",
+      "totalGapCount": 155,
+      "extracted": 153,
+      "byConfidence": {
+        "HIGH": 141,
+        "MEDIUM": 12,
+        "LOW": 2
+      },
+      "bySource": {
+        "zdic": 141,
+        "wiktionary": 0,
+        "llm-grounded": 12,
+        "llm-only-audit": 2
+      },
+      "llmCallCount": 14,
+      "llmTokensIn": 4898,
+      "llmTokensOut": 992,
+      "llmCostUSD": "$0.0079",
+      "wallTimeMinutes": 3.29,
+      "throttleMs": 500,
+      "model": "claude-haiku-4-5-20251001"
+    },
+    "九佳": {
+      "phase": "九佳",
+      "ranAt": "2026-05-14T02:45:45.726Z",
+      "totalGapCount": 69,
+      "extracted": 68,
+      "byConfidence": {
+        "HIGH": 61,
+        "MEDIUM": 7,
+        "LOW": 0
+      },
+      "bySource": {
+        "zdic": 61,
+        "wiktionary": 0,
+        "llm-grounded": 7,
+        "llm-only-audit": 0
+      },
+      "llmCallCount": 7,
+      "llmTokensIn": 2615,
+      "llmTokensOut": 547,
+      "llmCostUSD": "$0.0043",
+      "wallTimeMinutes": 1.42,
+      "throttleMs": 500,
+      "model": "claude-haiku-4-5-20251001",
+      "note": "1 char removed pre-commit (Wiktionary extractor produced Unicode chart navigation text; pending re-extraction in follow-up)."
+    },
+    "十灰": {
+      "phase": "十灰",
+      "ranAt": "2026-05-14T02:48:56.262Z",
+      "totalGapCount": 153,
+      "extracted": 149,
+      "byConfidence": {
+        "HIGH": 138,
+        "MEDIUM": 11,
+        "LOW": 4
+      },
+      "bySource": {
+        "zdic": 138,
+        "wiktionary": 0,
+        "llm-grounded": 11,
+        "llm-only-audit": 4
+      },
+      "llmCallCount": 15,
+      "llmTokensIn": 5261,
+      "llmTokensOut": 1066,
+      "llmCostUSD": "$0.0085",
+      "wallTimeMinutes": 3.17,
+      "throttleMs": 500,
+      "model": "claude-haiku-4-5-20251001"
+    },
+    "十一真": {
+      "phase": "十一真",
+      "ranAt": "2026-05-14T02:53:49.099Z",
+      "totalGapCount": 222,
+      "extracted": 221,
+      "byConfidence": {
+        "HIGH": 193,
+        "MEDIUM": 28,
+        "LOW": 1
+      },
+      "bySource": {
+        "zdic": 193,
+        "wiktionary": 0,
+        "llm-grounded": 28,
+        "llm-only-audit": 1
+      },
+      "llmCallCount": 29,
+      "llmTokensIn": 10191,
+      "llmTokensOut": 2124,
+      "llmCostUSD": "$0.0166",
+      "wallTimeMinutes": 4.87,
+      "throttleMs": 500,
+      "model": "claude-haiku-4-5-20251001"
+    },
+    "十二文": {
+      "phase": "十二文",
+      "ranAt": "2026-05-14T02:55:35.267Z",
+      "totalGapCount": 94,
+      "extracted": 93,
+      "byConfidence": {
+        "HIGH": 87,
+        "MEDIUM": 6,
+        "LOW": 0
+      },
+      "bySource": {
+        "zdic": 87,
+        "wiktionary": 0,
+        "llm-grounded": 6,
+        "llm-only-audit": 0
+      },
+      "llmCallCount": 6,
+      "llmTokensIn": 2125,
+      "llmTokensOut": 495,
+      "llmCostUSD": "$0.0037",
+      "wallTimeMinutes": 1.76,
+      "throttleMs": 500,
+      "model": "claude-haiku-4-5-20251001",
+      "note": "1 char removed pre-commit (Wiktionary extractor produced Unicode chart navigation text; pending re-extraction in follow-up)."
+    },
+    "十三元": {
+      "phase": "十三元",
+      "ranAt": "2026-05-14T02:59:04.267Z",
+      "totalGapCount": 175,
+      "extracted": 173,
+      "byConfidence": {
+        "HIGH": 160,
+        "MEDIUM": 13,
+        "LOW": 2
+      },
+      "bySource": {
+        "zdic": 160,
+        "wiktionary": 0,
+        "llm-grounded": 13,
+        "llm-only-audit": 2
+      },
+      "llmCallCount": 15,
+      "llmTokensIn": 5263,
+      "llmTokensOut": 1053,
+      "llmCostUSD": "$0.0084",
+      "wallTimeMinutes": 3.47,
+      "throttleMs": 500,
+      "model": "claude-haiku-4-5-20251001"
+    },
+    "十四寒": {
+      "phase": "十四寒",
+      "ranAt": "2026-05-14T03:01:35.202Z",
+      "totalGapCount": 132,
+      "extracted": 131,
+      "byConfidence": {
+        "HIGH": 124,
+        "MEDIUM": 7,
+        "LOW": 1
+      },
+      "bySource": {
+        "zdic": 124,
+        "wiktionary": 0,
+        "llm-grounded": 7,
+        "llm-only-audit": 1
+      },
+      "llmCallCount": 8,
+      "llmTokensIn": 2804,
+      "llmTokensOut": 555,
+      "llmCostUSD": "$0.0045",
+      "wallTimeMinutes": 2.51,
+      "throttleMs": 500,
+      "model": "claude-haiku-4-5-20251001"
+    },
+    "十五刪": {
+      "phase": "十五刪",
+      "ranAt": "2026-05-14T03:02:38.017Z",
+      "totalGapCount": 57,
+      "extracted": 57,
+      "byConfidence": {
+        "HIGH": 55,
+        "MEDIUM": 2,
+        "LOW": 0
+      },
+      "bySource": {
+        "zdic": 55,
+        "wiktionary": 0,
+        "llm-grounded": 2,
+        "llm-only-audit": 0
+      },
+      "llmCallCount": 2,
+      "llmTokensIn": 700,
+      "llmTokensOut": 136,
+      "llmCostUSD": "$0.0011",
+      "wallTimeMinutes": 1.04,
+      "throttleMs": 500,
+      "model": "claude-haiku-4-5-20251001"
     }
   }
 }
