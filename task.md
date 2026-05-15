@@ -127,11 +127,11 @@ sweep. Not blocking.
 ### #17 — Fill unique word with meaning + 词语 (multi-part)
 
 - ✅ Part 1: 一東 pilot (cheerio extractor, 218 chars) — this commit
-- ⬜ Part 2: rest of 平韵 sweep (~4,273 chars, 29 rhymes)
+- ✅ Part 2: rest of 平韵 sweep (~4,273 chars, 29 rhymes)
   - ✅ B1 (上平, 14 rhymes, 2,212 chars) — commit 6852805
   - ✅ Part 2 follow-up: Wiktionary extractor tightened, 2 chars
-    re-extracted — this commit
-  - ⬜ B2 (下平, 15 rhymes, ~2,000 chars)
+    re-extracted — commit cd7ad05
+  - ✅ B2 (下平, 15 rhymes, 2,308 chars) — this commit
 - ⬜ Part 3: 仄韵 上聲 + 去聲 sweep (~4,490 chars, 59 rhymes)
 - ⬜ Part 4: 入聲 sweep (~2,195 chars, 17 rhymes)
 - ⬜ Part 5: UI consumer — split 字義 row into 文言/今義 in
