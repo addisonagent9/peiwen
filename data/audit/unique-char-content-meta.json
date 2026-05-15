@@ -194,28 +194,27 @@
     },
     "九佳": {
       "phase": "九佳",
-      "ranAt": "2026-05-14T02:45:45.726Z",
+      "ranAt": "2026-05-15T02:44:47.393Z",
       "totalGapCount": 69,
       "extracted": 68,
       "byConfidence": {
         "HIGH": 61,
         "MEDIUM": 7,
-        "LOW": 0
+        "LOW": 1
       },
       "bySource": {
         "zdic": 61,
         "wiktionary": 0,
         "llm-grounded": 7,
-        "llm-only-audit": 0
+        "llm-only-audit": 1
       },
-      "llmCallCount": 7,
-      "llmTokensIn": 2615,
-      "llmTokensOut": 547,
-      "llmCostUSD": "$0.0043",
+      "llmCallCount": 8,
+      "llmTokensIn": 2954,
+      "llmTokensOut": 577,
+      "llmCostUSD": "$0.0047",
       "wallTimeMinutes": 1.42,
       "throttleMs": 500,
-      "model": "claude-haiku-4-5-20251001",
-      "note": "1 char removed pre-commit (Wiktionary extractor produced Unicode chart navigation text; pending re-extraction in follow-up)."
+      "model": "claude-haiku-4-5-20251001"
     },
     "十灰": {
       "phase": "十灰",
@@ -267,28 +266,27 @@
     },
     "十二文": {
       "phase": "十二文",
-      "ranAt": "2026-05-14T02:55:35.267Z",
+      "ranAt": "2026-05-15T02:44:50.168Z",
       "totalGapCount": 94,
       "extracted": 93,
       "byConfidence": {
         "HIGH": 87,
         "MEDIUM": 6,
-        "LOW": 0
+        "LOW": 1
       },
       "bySource": {
         "zdic": 87,
         "wiktionary": 0,
         "llm-grounded": 6,
-        "llm-only-audit": 0
+        "llm-only-audit": 1
       },
-      "llmCallCount": 6,
-      "llmTokensIn": 2125,
-      "llmTokensOut": 495,
-      "llmCostUSD": "$0.0037",
+      "llmCallCount": 7,
+      "llmTokensIn": 2449,
+      "llmTokensOut": 525,
+      "llmCostUSD": "$0.0041",
       "wallTimeMinutes": 1.76,
       "throttleMs": 500,
-      "model": "claude-haiku-4-5-20251001",
-      "note": "1 char removed pre-commit (Wiktionary extractor produced Unicode chart navigation text; pending re-extraction in follow-up)."
+      "model": "claude-haiku-4-5-20251001"
     },
     "十三元": {
       "phase": "十三元",

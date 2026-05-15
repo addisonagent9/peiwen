@@ -289,7 +289,7 @@ const extractModernGloss = (raw, char) => {
 // when modern carries substantive content (≥ 10 chars). Prevents recursive
 // variant-only entries from shipping as the user-facing 文言 row.
 const validateExtraction = (wenyan, modern, char) => {
-  const blacklist = ['康熙筆画', '部外筆画', '基本解释'];
+  const blacklist = ['康熙筆画', '部外筆画', '基本解释', 'mw-parser'];
   const badStarts = ['●', '·', ' ', '\t', '\n'];
 
   const checkField = (field, name) => {
@@ -297,6 +297,10 @@ const validateExtraction = (wenyan, modern, char) => {
     if (badStarts.some(s => field.startsWith(s))) return `${name} starts with bad prefix: ${JSON.stringify(field.slice(0, 4))}`;
     if (blacklist.some(b => field.includes(b))) return `${name} contains metadata leak`;
     if (field === char) return `${name} equals char itself`;
+    // Wikipedia chart-navigation patterns (defensive insurance after B1).
+    if (/U\+[0-9A-F]{4,5}/i.test(field)) return `${name} contains Unicode codepoint notation`;
+    if (/&#\d+;/.test(field)) return `${name} contains HTML entity escape`;
+    if (/\[U\+[0-9A-F]+\]/i.test(field)) return `${name} contains bracket codepoint navigation`;
     return null;
   };
 
@@ -481,13 +485,24 @@ for (let i = 0; i < toProcess.length; i++) {
   const wikiRes = await fetchHtml(wikiUrl);
   let wikiText = '';
   if (wikiRes.ok && wikiRes.html) {
-    // Cheerio-based extraction. Target the 漢語 section if present;
-    // fall back to the whole #mw-content-text body.
+    // Target the 漢語 section's content (everything from the section
+    // header until the next h2 boundary). Use .closest('h2') to get the
+    // enclosing h2, then .nextUntil('h2') to collect content siblings.
+    // Captures content semantically rather than via .parent() walk,
+    // which surfaced page-chrome (Unicode chart navigation) in B1.
+    //
+    // No #mw-content-text fallback: when #漢語 is absent, the page has
+    // no Chinese-language section worth scraping — cascade to LLM rescue.
     try {
       const $w = loadHtml(wikiRes.html);
-      let target = $w('#漢語').parent();
-      if (!target.length) target = $w('#mw-content-text');
-      wikiText = target.text().replace(/\s+/g, ' ').trim();
+      const hanyuHeading = $w('#漢語').closest('h2');
+      if (hanyuHeading.length) {
+        const sectionNodes = hanyuHeading.nextUntil('h2');
+        wikiText = sectionNodes.map((_, el) => $w(el).text()).get()
+          .join(' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+      }
       if (wikiText.length > 600) wikiText = wikiText.slice(0, 600);
     } catch (err) {
       // best-effort; treat as empty
