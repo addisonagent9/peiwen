@@ -135,7 +135,7 @@ sweep. Not blocking.
 - ✅ Part 3: 仄韵 上聲 + 去聲 sweep (~4,490 chars, 59 rhymes)
   - ✅ C1 (上聲, 29 rhymes, 2,245 chars) — commit f11fa08
   - ✅ C2 (去聲, 30 rhymes, 2,383 chars) — this commit
-- ⬜ Part 4: 入聲 sweep (~2,195 chars, 17 rhymes)
+- ✅ Part 4: 入聲 sweep (~2,195 chars, 17 rhymes) — this commit
 - ⬜ Part 5: UI consumer — split 字義 row into 文言/今義 in
   EditModal + RhymeCharCard, i18n strings
 
