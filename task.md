@@ -124,6 +124,95 @@ sweep. Not blocking.
 
 ## Deferred (no scheduled work)
 
+### VPS npm run data hardcoded Mac path
+
+`scripts/build-pingshui.mjs` (line ~24) reads pingshui CSVs from a
+hardcoded path `/Users/addisonkang/pw/pingshui_*.csv` that only
+exists on Addison's Mac. Breaks `npm run build` on VPS, which
+chains `npm run data` unconditionally. Surfaced during #17 Part 5
+post-deploy on `75384f5`.
+
+Current workaround: deploy by running the build sub-steps manually,
+skipping `npm run data`:
+
+  rm -rf dist
+  npx parcel build src/index.html --public-url ./ --no-source-maps --dist-dir dist
+  node scripts/inline-bundle.mjs
+
+Real fix options: (a) make CSV path configurable via env var with
+sensible Mac default; (b) copy CSVs to VPS and check multiple paths.
+Option (a) is cleaner. Estimated effort: 30 min.
+
+Not blocking — workaround is documented and reproducible. Trigger:
+when the manual workaround becomes annoying enough that fixing it
+saves time.
+
+### Wiktionary cascade in build-unique-char-content.mjs (dead code)
+
+`scripts/build-unique-char-content.mjs` implements a three-tier
+extraction cascade: zdic → Wiktionary → Haiku LLM rescue. After
+processing all 11,727 chars across Parts 1-4 of #17, the Wiktionary
+path produced ZERO ship-grade entries. zdic + Haiku sufficed for
+every rhyme. Sixth and final confirmation in Part 4
+(commit `c8af9d9`): cumulative Wiktionary-source entries = 0/11,727.
+
+The path is architecturally sound but empirically dead code for
+this corpus's gap chars. Candidate for cleanup ticket: remove the
+Wiktionary fetch + extraction + validation logic; cascade becomes
+zdic → Haiku → audit-batch. Verify via dry-run on a small rhyme;
+behavior change should be zero since Wiktionary never fired.
+
+Estimated effort: 30 min. Not urgent — keeping dead code costs
+nothing functionally; ticket exists for cleanliness only.
+
+### Part 0 audit-script gap counts diverge from build script
+
+`scripts/audit-unique-char-gap.mjs` (Part 0 leftover, untracked,
+Mac-only) and the gap-detection logic inside
+`scripts/build-unique-char-content.mjs` report different gap counts
+for the same rhyme. Surfaced during #17 Part 4 cross-check:
+
+  - Part 0 JSON reported 十三職 gap = 287 chars (MOE-only filter)
+  - Build script reported 十三職 gap = 144 chars (MOE + CEDICT
+    2-char-compound filter)
+
+The build script's filter is authoritative — chars with CEDICT
+2-char compounds get content via the readingContent/moedict path
+even without MOE entries; only chars failing BOTH filters are true
+gap chars needing zdic/LLM rescue.
+
+Cleanup: either update `audit-unique-char-gap.mjs` to use the same
+two-filter logic for consistency, or retire the script entirely
+(it's untracked Mac-only and the build script's gap detection is
+sufficient). Decide before next gap-fill arc, if any.
+
+Not blocking; `audit-unique-char-gap.mjs` isn't in production path.
+
+### Post-Part-4 audit-batch triage (#17 followup)
+
+`data/audit/unique-char-audit-batch-*.md` files contain 83 LOW-
+confidence entries accumulated across Parts 2-4 of #17. Each entry
+has the char + rhyme + zdic raw content (often single-line 字書
+fragment) + Wiktionary raw (almost always empty) + Haiku LLM output
+with `uncertain:true` or empty citation.
+
+Triage task: verdict-stamp each as
+  (a) ship LLM wenyan content (variant glyphs, 俗字, name-use chars
+      where Haiku correctly refused to fabricate)
+  (b) skip (genuinely uninformative bare 反切 fragments)
+  (c) manual gloss needed (rare; deferred)
+
+Then write a small script applying verdicts: ship entries get
+appended to `src/data/unique-char-content.json`; skip entries stay
+out; manual entries flag to a separate file.
+
+Expected outcome: 50-70 new entries added (likely most are verdict
+(a)), bringing cumulative coverage closer to 100% (currently
+99.30%).
+
+Estimated effort: 60-90 min (most is triage judgment, not code).
+Natural next-session pickup.
+
 ### Audio Review Library perf
 At ~200+ approved clips the Library tab becomes sluggish (renders all clips
 at once). Pagination or collapse-by-default solution sketched in earlier

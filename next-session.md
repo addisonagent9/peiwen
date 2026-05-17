@@ -1,145 +1,293 @@
-# Next session handover
+# Peiwen — Next Session Bootstrap
 
-## How to bootstrap a new session
+Paste this whole file (or just the bootstrap prompt below) into a fresh
+Claude conversation to load context for the next peiwen working session.
 
-Read these files in this order. Each has a different role; don't skip.
+The structure: one bootstrap section (project state + working conventions),
+then a queue of small follow-up tickets to choose from. Each ticket is
+self-contained; pick whichever fits the time budget.
 
-1. **`next-session.md`** (THIS FILE) — start here. Last session's
-   shipped tickets, open tickets, parked observations, active
-   conventions, next-session candidates. Authoritative for "what state
-   is the project in right now."
+---
 
-2. **`task.md`** — current open ticket queue with full prose. The "##
-   Deferred / Parked items" section lists numbered tickets and parked
-   observations not yet started. Authoritative for "what could we work
-   on next."
+# Bootstrap prompt
 
-3. **`CLAUDE.md`** — project memory + closed-ticket archive. Read the
-   `## Closed parked items` → `### Numbered tickets` section near the
-   bottom for context on recently shipped work; read `## Known Gaps`
-   for outstanding caveats. Authoritative for "how does the project
-   work" and "what's been done."
+Hi Claude. I'm Addison, working on **peiwen 佩文 / 詩律析辨**, a classical
+Chinese 平水韻 prosody trainer and poem analyzer. Production at
+https://pw.truesolartime.com. GitHub: addisonagent9/peiwen.
 
-4. **`SKILL.md`** — project conventions and three-actor workflow rules.
-   Authoritative for "how should I behave in this project."
+Fresh session; no memory of prior work. Bringing you up to speed.
 
-5. **`README.md`** — minimal high-level pointer; usually skipped.
+## What peiwen is
 
-If files conflict (e.g. `task.md` lists a ticket as open but
-`CLAUDE.md` shows it closed): trust `CLAUDE.md`'s closed-tickets
-section as the most recent record. Surface the conflict to the user.
+Two surfaces sharing one codebase:
 
-Use the `view` tool to read these files directly from `/mnt/project/`
-or `project_knowledge_search` for broad queries. The full files are
-authoritative; chunked search results are partial.
+**Analyzer (App.tsx, ~800 lines)** — User pastes a classical poem; the
+app validates rhyme/tone/structure against 五律 / 七律 / 五絕 / 七絕 forms.
+Slot-based UI; each char gets pingshui lookup and tonal annotation.
+EditModal opens for editing; RhymeCharCard surfaces for rhyme browsing.
 
-After reading, confirm understanding by listing:
-- Last session's shipped tickets (count + SHAs)
-- Open numbered tickets remaining
-- Parked observations carried forward (count)
-- Active conventions you noticed
-- Any questions before starting work
+**Trainer (PingshuiTrainer + 4 Drill components)** — Three-tier
+curriculum covering all 30 平聲 韵部. Each tier has 4 drills (識韵 /
+回韵 / 辨韵 / 詞語補齊). Content-complete and end-to-end functional.
 
-Then the user will tell you which ticket or task this session targets.
+**Wenyan module (#26)** — 文言教材 study module (15-poem corpus, audio
+playback, vocab pairing exercises). Mounted at /wenyan, admin-gated.
 
-### Cache-lag check (do this BEFORE trusting /mnt/project/)
+## Three actors
 
-The `/mnt/project/` project-knowledge cache refreshes on a delayed
-schedule and may be days old. Symptoms: `next-session.md` doesn't
-match this protocol, closed tickets appear open, or ticket SHAs
-don't match recent commits.
+- **Me** (Addison) — design decisions, approves changes
+- **You** (Claude conversation) — strategist; we discuss, you draft CC
+  tickets, I send to Claude Code, you review CC's reports
+- **Claude Code (CC)** — implementer running in my local repo at
+  ~/poetry-checker
 
-Before reading the rest of the bootstrap files from `/mnt/project/`,
-fetch the GitHub raw URL of this file and diff the first 50 lines
-against the `/mnt/project/` copy:
+## Working conventions (load these)
 
-  https://raw.githubusercontent.com/addisonagent9/peiwen/main/next-session.md
+- **Every deliverable block gets a heading naming the target**, above
+  the block:
+  - `## Send to Claude Code` — CC ticket / instructions
+  - `## Local` — bash for me to run in my Mac terminal
+  - `## Deploy (VPS)` — bash for me to run on VPS via SSH
+  - `## Commit and Push (Claude Code)` — git operations for CC
+  - Never mix targets in one block. Never put the heading as a comment
+    INSIDE the block.
 
-If they match: project-knowledge is current; read from
-`/mnt/project/` for all bootstrap files.
+- **Repo paths**:
+  - Local: `~/poetry-checker` (NOT `~/peiwen` — folder name differs
+    from repo name; the GitHub repo is `peiwen` but Mac folder is
+    `poetry-checker`)
+  - VPS: `/var/www/pw.truesolartime.com`
+  - Service: `poetry-checker.service` (NOT `peiwen.service` or `pw.service`)
+  - CSV staging on Mac (NOT in repo): `~/pw/pingshui_*.csv`
 
-If they differ: project-knowledge is stale. Read ALL bootstrap
-files from GitHub raw URLs instead:
+- **pingshui.json is auto-generated** from CSVs at `~/pw/pingshui_*.csv`.
+  Edit via `scripts/build-pingshui.mjs` (full rebuild) or
+  `scripts/patch-pingshui.mjs` (per-char corrections). Never edit
+  pingshui.json directly.
 
-  https://raw.githubusercontent.com/addisonagent9/peiwen/main/next-session.md
-  https://raw.githubusercontent.com/addisonagent9/peiwen/main/task.md
-  https://raw.githubusercontent.com/addisonagent9/peiwen/main/CLAUDE.md
-  https://raw.githubusercontent.com/addisonagent9/peiwen/main/SKILL.md
+- **dist/ IS committed** (production runs the bundled artifacts).
+  VPS does NOT run `npm run build` in the normal deploy path.
+  Standard deploy: `git pull` + `sudo systemctl restart poetry-checker`.
 
-Note on web_fetch quirks (per SKILL.md §5):
-- First fetch to the repo may return PERMISSIONS_ERROR. Seed by
-  fetching the README raw URL first, then retry.
-- web_fetch has a default token cap that silently truncates large
-  files. CLAUDE.md is the usual victim (~2000+ lines). If the tail
-  of CLAUDE.md is missing (e.g. no `## Closed parked items` section
-  visible), ask Addison to paste the needed section rather than
-  guessing.
+- **Doc-only commits** (task.md / CLAUDE.md changes) skip build and
+  drift check. VPS deploy optional.
 
-Generated end of session 2026-05-10.
+- **Two-file workflow convention**: closing commits append `Closes #N.
+  Updates task.md → CLAUDE.md.` and actually update BOTH files in the
+  same commit (remove open entry from task.md; add closure entry to
+  CLAUDE.md `## Closed parked items` → `### Numbered tickets`). Verify
+  the diff includes both.
 
-## Last session shipped
+- **SHA placeholders**: `(this commit)` is acceptable in CLAUDE.md for
+  the current commit's SHA; backfill in next session-end bookkeeping
+  commit. Recoverable via `git log --grep "#N"`.
 
-3 numbered tickets closed + 1 bookkeeping commit:
+- **Commit conventions**:
+  - NO 🤖 / `Co-Authored-By: Claude` trailers (Addison dropped these)
+  - Doc-only commits use one-line first line; closing commits use
+    multi-line body with stats
+  - Reference SHAs of prior commits in the multi-part arc when relevant
 
-| Ticket | SHA | Description |
-|---|---|---|
-| #16 v1 multi-tone multi-card — Part 2B (data layer) | `64c2a0d` | New `scripts/build-reading-content.mjs` + `src/data/reading-content.json` (151 chars × per-pingshui-reading entries; 162 KB; tone-mark NFC pinyin; MOE heteronyms + per-pinyin CEDICT compounds). Resolution chain: direct → yiti regex → opencc cn-to-tw. Rule Z for 入. merged_tone Type A flag. |
-| #16 v1 multi-tone multi-card — Part 2C (RhymeCharCard consumer) | `32c4bc0` | Per-pill 字義/词语/pinyin swap on the 平水韻 106 部 reference page. New `src/data/reading-content.ts` lazy-load module mirroring `moedict.ts`. redirect_from + merged_tone UI annotations. |
-| #18 EditModal per-reading content swap + variant fallback | `4e0277d` | Same swap behavior in the analyzer's char popup. Centralized variant fallback in `readingContentLookup` (toSimplified for 50 redirected curriculum chars). Tri-state pill highlight (pinned ring-gold / current border-gold / neutral). Rule R1 annotation guard (no "via X" when X === user-typed glyph) backported to RhymeCharCard. |
-| Session-end bookkeeping | `(this commit)` | SHA backfills + this handover doc. |
+- **API key safety**: only safe existence check is Node-side
+  `node -e "console.log(!!process.env.ANTHROPIC_API_KEY)"`. NEVER
+  shell echo the variable's value or substring-mask it.
 
-No hotfixes this session.
+- **Codepoint hazards**: when passing chars between this chat and CC
+  tickets, instruct CC to read verbatim from source files
+  (`src/data/pingshui.json`, `task.md`, etc.) rather than copying from
+  chat history. Multiple chars look visually identical across font
+  families (筱/篠, 艷/豔, 殻/㱿). Tickets that involve specific chars
+  must include a "use verbatim chars from [source file]" rule.
 
-Open question post-#18: operator reported "字義 doesn't swap" but code+data review concluded the swap is correctly wired (`basicZhDefs = readingEntry ? readingEntry.definitions : ...`). Likely browser-cache staleness or testing on Type A merged-tone chars. **Next session may want to ask the operator for a hard-refresh + bundle-hash check** (`curl -s https://pw.truesolartime.com/bundle.html | grep -oE '[a-f0-9]{8}\.js'` should show `4a25ae4c.js`) before any code change.
+- **Cache-lag check**: `/mnt/project/` is a snapshot of repo files that
+  may lag behind `origin/main` by hours. If the next session needs
+  precise current state of `task.md` or `CLAUDE.md`, fetch the GitHub
+  raw URLs and diff against `/mnt/project/` cache before editing. Or
+  have CC run `git show HEAD:task.md` locally as authoritative.
 
-## Active tickets remaining
+- **Visual verification**: the Claude conversation cannot load the dev
+  server visually. Addison must run `npm run start` in browser for any
+  visual check. Established this in #17 Part 5.
 
-- **#17** Fill unique word with meaning + 词语 (parked in task.md). Popup card surface; long-tail rare/archaic chars where MOE has no entry AND CC-CEDICT has no compounds. Likely uses similar Pipeline α + LLM-augmentation pattern from #14/#16; pairs well with the just-shipped data layer.
+- **VPS deploy nuance**: `npm run data` (which chains into
+  `npm run build`) hardcodes Mac-only CSV paths and fails on VPS. For
+  builds that need to regenerate the bundle (e.g. inline-bundle.mjs
+  config changes), deploy manually:
 
-That's the only open numbered ticket.
+      cd /var/www/pw.truesolartime.com
+      git pull
+      rm -rf dist
+      npx parcel build src/index.html --public-url ./ --no-source-maps --dist-dir dist
+      node scripts/inline-bundle.mjs
+      sudo systemctl restart poetry-checker
 
-## Parked observations (carry forward)
+  For pure code-only commits (no bundle change), just git pull +
+  systemctl restart.
 
-1. **Pingshui data gap — 曆 missing**. Surfaced during #7. `曆` (simp `历`) absent from `pingshui.json` though `歷`/`历` are present (both 入聲 十二錫). Defer to a future pingshui sweep.
-2. **Audio Review Library perf collapse** at ~200+ approved clips (renders all clips at once, no pagination/virtualization).
-3. **Tier 1 anchor poem UNIQUE-constraint bug** in `prewarm-audio.mjs`. ~10 min fix: switch INSERT path to `INSERT OR IGNORE`. Errors are categorically benign; not blocking.
-4. **Manual VPS .env TRAINER_BETA_USER_IDS revert** — early Tier 1 testing-era state to roll back.
-5. **Group D `variantPairs` cleanup in `patch-pingshui.mjs`**. With #15's 1,908-entry Unihan map in production, audit which manual mirrors are now subsumed.
-6. **22 fetch-failure retry from #14 LLM gloss generation**. Sub-1% gap still showing English fallback (counted in `llm_v1_failures`, not `moe_count`). One cycle of retries against current API would close them; ~$0.01 cost.
+## Last session shipped (16 commits, May 16-17 2026)
 
-No new observations surfaced from #16 / #18 implementation.
+Major arc: **#17 multi-part (#17 + #27)** — fill per-(char, rhyme)
+文言/今義 content for all 11,727 gap chars across 106 pingshui rhymes,
+then wire the data into EditModal + RhymeCharCard's lookup cascade.
 
-## Out-of-scope follow-ups from #16/#18 (not parked-grade, just listed)
+| SHA | Scope |
+|-----|-------|
+| 254fb03 | Bootstrap-doc hygiene |
+| 73498d9 | #27 prewarm-audio INSERT OR IGNORE |
+| 0e22437 | #17 Part 1 (一東 pilot, 218 chars) |
+| 6852805 | #17 Part 2 B1 (上平 14 rhymes, 2,212 chars) |
+| cd7ad05 | #17 Part 2 follow-up (Wiktionary extractor fix) |
+| d709ca2 | #17 Part 2 B2 (下平 15 rhymes, 2,308 chars) |
+| f11fa08 | #17 Part 3 C1 (上聲 29 rhymes, 2,245 chars) |
+| 02cb4ea | #17 Part 3 C2 (去聲 30 rhymes, 2,383 chars) |
+| c8af9d9 | #17 Part 4 (入聲 17 rhymes, 2,361 chars) |
+| 84baace | #17 Part 5 (UI consumer, closes #17) |
+| 75384f5 | #17 Part 5 follow-up (CEDICT short-circuit fix) |
 
-- Extending Pipeline α beyond 151 curriculum chars to all 2,118 multi-tone-and-rhyme chars (~110 MB at full corpus scope; would warrant on-demand fetching).
-- Example/quote fields from MOE heteronyms (currently emitting def strings only; could enrich the 字義 row with example sentences).
-- Classical-source augmentation for sparse-CEDICT readings (e.g. 殷 yān has only 1 compound — could be enriched via 漢語大詞典 / 康熙字典 mining or LLM gen).
+HEAD on origin/main as of last session end: **75384f5**.
 
-## Active conventions (preserved from prior handover)
+**Two numbered tickets closed**: #27 + #17 (multi-part).
 
-User-locked, restated for quick context:
+**Cumulative #17 data**: 11,727 entries across 106 rhymes (99.30%
+extraction rate); USD ~0.481 LLM spend; ~262 min cumulative wall time
+across 6 batches.
 
-- **Target-labeled deliverable blocks**: every bash/CC prompt block has a heading above naming the target (`## Send to Claude Code`, `## Deploy (VPS)`, `## Local`, `## Commit and Push (Claude Code)`). Never mix targets in one block.
-- **No Claude-attribution trailers**: drop `🤖 Generated with [Claude Code]` and `Co-Authored-By: Claude` from commit messages.
-- **Two-file workflow**: closing commits append "Closes #N. Updates task.md → CLAUDE.md." with BOTH file edits in the diff.
-- **API key safety**: only Node-side existence check (`node -e "console.log(!!process.env.ANTHROPIC_API_KEY)"`); never shell echo, never any mask-substring pattern.
-- **VPS deploy gating**: data/code commits deploy. Doc-only commits (task.md / CLAUDE.md / .claude/skills) skip deploy.
-- **No Parcel dev-server, EVER** — corrupts `dist/bundle.html` → 7.4 MB. Use `npm run build` only.
-- **VPS service name**: `poetry-checker` (not `pw`, not `peiwen`).
-- **Local repo path**: `~/poetry-checker` (not `~/peiwen` despite the GitHub repo name).
-- **Production URL**: `https://pw.truesolartime.com`. VPS deploy path: `/var/www/pw.truesolartime.com`.
-- **`(this commit)` SHA placeholder**: acceptable convention; backfill in next session-end commit.
-- **Codepoint visual ambiguity**: instruct CC to read verbatim chars from source files rather than copying from chat history when chars matter for correctness (collisions like 攏/攟, 翪/翺).
-- **Commit shell escaping**: prefer `<<'EOF'` (single-quoted heredoc) for messages with `$`. Don't escape `$` inside single-quoted heredocs (escape becomes literal).
+Production deployed and visually verified (崧 in 一東 renders correctly
+with 文言/今義 sub-rows + CEDICT English below).
 
-## Likely next-session candidates
+## Open in task.md
 
-In rough priority order:
+After #17 closure, `task.md` `## Active multi-part tickets` section
+is empty (no active multi-part tickets). All remaining items are in
+`## Deferred (no scheduled work)`:
 
-1. **#17** Fill unique word with meaning + 词语 — pairs well with the just-shipped reading-content data layer; shares Pipeline α infrastructure.
-2. **Tier 1 anchor poem UNIQUE bug** — ~10 min low-risk parked obs; good warm-up.
-3. **Group D variantPairs cleanup** — post-#15 audit; cleanup not feature work.
-4. **22 fetch-failure retry from #14** — one API cycle, ~$0.01.
-5. Pivot to something new (Tier 2 wenyan content, anchor poem expansion, etc.).
+Standing deferred items (older):
+- Audio Review Library perf collapse (at 200+ clips)
+- Tier 1 anchor poem unique-constraint bug
+- Manual VPS .env TRAINER_BETA_USER_IDS revert
+- Pingshui data gap: 曆 missing (歷/历 present)
+- Script: meta.json phase blocks overwrite on re-run
+  (scripts/build-unique-char-content.mjs design issue)
+- 22 fetch-failure retry from #14 LLM gloss generation
+- Group D variantPairs cleanup in patch-pingshui.mjs
 
-User's call.
+New from #17 session:
+- VPS npm run data hardcoded Mac path (workaround documented)
+- Wiktionary cascade in build-unique-char-content.mjs is dead code
+  (0/11,727 entries shipped)
+- Part 0 audit-script gap counts diverge from build script
+- Post-Part-4 audit-batch triage (83 LOW entries)
+
+---
+
+# Suggested next-session tickets
+
+These are queued from #17's closeout. None urgent; pick whichever
+fits the session's time budget and energy level.
+
+## Ticket A — Post-Part-4 audit-batch triage (small, focused)
+
+83 LOW-confidence entries from #17 Parts 2-4 sit in
+`data/audit/unique-char-audit-batch-*.md` across ~50 rhymes. Each
+entry has the char + rhyme + zdic raw content (often single-line
+字書 fragment) + Wiktionary raw (almost always empty) + Haiku LLM
+output with uncertain:true or empty citation.
+
+Triage: verdict-stamp each entry as one of:
+1. Ship LLM wenyan content (no citation needed — variant glyph,
+   俗字, name-use char where Haiku correctly refused to fabricate)
+2. Skip (genuinely uninformative — bare 反切 fragment with no
+   semantic content)
+3. Manual gloss needed (rare — would require separate enrichment)
+
+Then write a small script that reads the verdicts and applies them:
+adds the "ship" entries to src/data/unique-char-content.json, leaves
+"skip" entries out, flags "manual" entries to a separate file.
+
+Expected outcome: 50-70 new entries added to the data file (the
+"ship" verdicts), bringing cumulative coverage closer to 100%.
+
+Estimated effort: 60-90 min (most of it is triage judgment, not code).
+
+## Ticket B — Wiktionary cascade cleanup (small, mechanical)
+
+scripts/build-unique-char-content.mjs includes a Wiktionary fallback
+between zdic and Haiku LLM rescue. After Parts 1-4 (11,727 chars
+processed), the Wiktionary path produced ZERO ship-grade entries.
+The path is architecturally sound but empirically dead code for this
+corpus.
+
+Cleanup: remove the Wiktionary fetch + extraction + validation logic
+from the script. The cascade becomes zdic → Haiku → audit-batch.
+
+Verify by running a dry-run on a small rhyme; confirm zero behavior
+change since Wiktionary never fired anyway.
+
+Estimated effort: 30 min (small script edit + verification dry-run).
+
+This isn't urgent — keeping dead code costs nothing. But if you want
+the script cleaner, this is the ticket.
+
+## Ticket C — VPS data-build path issue (small, structural)
+
+scripts/build-pingshui.mjs (line 24 area) reads CSVs from a
+hardcoded Mac-only path: /Users/addisonkang/pw/pingshui_*.csv. This
+breaks npm run build on the VPS, which is why we deploy by running
+the build sub-steps manually.
+
+Two fix options:
+- (a) Make the CSV path configurable via env var (`PINGSHUI_CSV_DIR=...`)
+  with a sensible default for Mac
+- (b) Copy the CSVs to a path on the VPS and adjust the script to
+  check multiple paths
+
+Option (a) is cleaner. After the fix, npm run build should work on
+both Mac and VPS without modification.
+
+Estimated effort: 30 min.
+
+## Ticket D — Script meta-overwrite design issue
+
+scripts/build-unique-char-content.mjs overwrites the entire phase
+block in data/audit/unique-char-content-meta.json on every run,
+rather than merging stats from prior runs. Surfaced during #17 Part 2
+follow-up when re-running 九佳 + 十二文 for 1 char each erased B1's
+actual 68/93-char phase stats. Worked around manually for that
+commit.
+
+Fix: in persistMeta(), read existing phase block (if any) and ADD
+deltas rather than replace. ~10 line change.
+
+Estimated effort: 20 min.
+
+Not urgent — sweeps typically complete in single shots; only matters
+when a phase is re-run for partial recovery.
+
+## Ticket E — Group D variantPairs cleanup
+
+Per task.md's deferred section, there's a Group D variantPairs
+cleanup pending in scripts/patch-pingshui.mjs from the post-#15
+audit. Was deferred pending a broader pingshui sweep.
+
+Status: Addison needs to look back at this and remember what the
+specific cleanup was. Probably worth starting with CC reading the
+relevant section of patch-pingshui.mjs and surfacing the current
+variantPairs state.
+
+Estimated effort: unknown until investigation.
+
+---
+
+# How to start the next session
+
+1. Open a fresh Claude conversation.
+2. Paste the bootstrap section above (everything from "Hi Claude" to
+   the end of "Open in task.md").
+3. Then say what you want to work on (or paste one of the ticket
+   sections A-E above).
+4. The fresh Claude will load context + start drafting CC tickets.
+
+If you're not sure where to start, **Ticket A (audit-batch triage)
+is the natural next step** — it closes a loop from this session and
+adds value (more chars get content) without introducing new design
+work.
