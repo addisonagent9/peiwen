@@ -37,7 +37,7 @@ console.log(`wrote ${outPath} (${html.length.toLocaleString()} bytes)`);
 
 // Copy lazy-loaded dictionaries next to bundle.html so EditModal can fetch them.
 const SRC_DATA = path.resolve(__dirname, "../src/data");
-for (const f of ["cedict.json", "moedict-map.json", "reading-content.json"]) {
+for (const f of ["cedict.json", "moedict-map.json", "reading-content.json", "unique-char-content.json"]) {
   const from = path.join(SRC_DATA, f);
   const to = path.join(DIST, f);
   if (fs.existsSync(from)) {

@@ -24,6 +24,8 @@ export const T = {
     trad: "繁體", simp: "簡體", pinyin: "漢語拼音",
     reading: "讀音", meaning: "字義", context: "詞語義",
     zhDef: "釋義",
+    wenyanLabel: "文言",
+    modernLabel: "今義",
     noEntry: "無釋義", loading: "載入中…",
     suggest: "字境",
     suggestHeading: (char: string, tone: string) =>
@@ -94,6 +96,8 @@ export const T = {
     trad: "繁体", simp: "简体", pinyin: "汉语拼音",
     reading: "读音", meaning: "字义", context: "词语义",
     zhDef: "释义",
+    wenyanLabel: "文言",
+    modernLabel: "今义",
     noEntry: "无释义", loading: "载入中…",
     suggest: "字境",
     suggestHeading: (char: string, tone: string) =>

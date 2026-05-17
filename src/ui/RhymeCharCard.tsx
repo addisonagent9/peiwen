@@ -11,6 +11,11 @@ import {
   loadReadingContent,
   isReadingContentLoaded,
 } from "../data/reading-content";
+import {
+  uniqueCharContentLookup,
+  loadUniqueCharContent,
+  isUniqueCharContentLoaded,
+} from "../data/unique-char-content";
 import { RHYMES_PINGSHENG } from "../data/pingshui/trainer-curriculum";
 import type { Locale, Translations } from "../i18n";
 
@@ -47,12 +52,12 @@ interface Props {
 
 export function RhymeCharCard({ char, currentRhyme, locale, t, onClose, onRhymeChange }: Props) {
   const [dictsReady, setDictsReady] = useState(
-    isCedictLoaded() && isMoedictLoaded() && isReadingContentLoaded()
+    isCedictLoaded() && isMoedictLoaded() && isReadingContentLoaded() && isUniqueCharContentLoaded()
   );
 
   useEffect(() => {
     if (dictsReady) return;
-    Promise.all([loadCedict(), loadMoedict(), loadReadingContent()])
+    Promise.all([loadCedict(), loadMoedict(), loadReadingContent(), loadUniqueCharContent()])
       .then(() => setDictsReady(true))
       .catch(() => {});
   }, [dictsReady]);
@@ -88,6 +93,10 @@ export function RhymeCharCard({ char, currentRhyme, locale, t, onClose, onRhymeC
   const compounds: { word: string; pinyin: string; gloss: string }[] = readingEntry
     ? readingEntry.compounds
     : (dictsReady ? cedictCompounds(char) : []);
+  // #17 Part 5: tier-3 unique-char-content fallback when readingContent/moedict are empty.
+  const uniqueEntry = (char && currentRhyme && dictsReady && zhDefs.length === 0)
+    ? uniqueCharContentLookup(char, currentRhyme)
+    : null;
 
   const ar = AMBIGUOUS_READINGS[char];
   const charNote = ar ? (locale === "繁" ? ar.note_zh_tw : ar.note_zh_cn) : null;
@@ -122,12 +131,30 @@ export function RhymeCharCard({ char, currentRhyme, locale, t, onClose, onRhymeC
         </div>
 
         <div className="text-sm font-sans space-y-3">
-          {zhDefs.length > 0 && (
+          {zhDefs.length > 0 ? (
             <div>
               <div className="text-creamDim text-xs">{t.refMeaning}</div>
               <div className="mt-1 text-cream leading-[1.6]">{zhDefs.join("；")}</div>
             </div>
-          )}
+          ) : uniqueEntry ? (
+            <div>
+              <div className="text-creamDim text-xs">{t.refMeaning}</div>
+              {uniqueEntry.modern && uniqueEntry.modern.length > 0 ? (
+                <>
+                  <div className="mt-1 text-cream leading-[1.6]">
+                    <span className="text-creamDim">{t.wenyanLabel}：</span>
+                    {uniqueEntry.wenyan}
+                  </div>
+                  <div className="mt-1 text-cream leading-[1.6]">
+                    <span className="text-creamDim">{t.modernLabel}：</span>
+                    {uniqueEntry.modern}
+                  </div>
+                </>
+              ) : (
+                <div className="mt-1 text-cream leading-[1.6]">{uniqueEntry.wenyan}</div>
+              )}
+            </div>
+          ) : null}
           {!dictsReady && (
             <div className="text-creamDim text-xs">{t.loading}</div>
           )}

@@ -13,6 +13,11 @@ import {
   loadReadingContent,
   isReadingContentLoaded,
 } from "../data/reading-content";
+import {
+  uniqueCharContentLookup,
+  loadUniqueCharContent,
+  isUniqueCharContentLoaded,
+} from "../data/unique-char-content";
 
 type Tone = "平" | "仄";
 
@@ -103,7 +108,7 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
   const isComposing = useRef(false);
   const fetchReqId = useRef(0);
   const [dictsReady, setDictsReady] = useState(
-    isCedictLoaded() && isMoedictLoaded() && isReadingContentLoaded()
+    isCedictLoaded() && isMoedictLoaded() && isReadingContentLoaded() && isUniqueCharContentLoaded()
   );
   const [dictError, setDictError] = useState<string | null>(null);
   const [view, setView] = useState<"edit" | "suggest">("edit");
@@ -126,7 +131,7 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
     if (!open || dictsReady) return;
     let cancelled = false;
     setDictError(null);
-    Promise.all([loadCedict(), loadMoedict(), loadReadingContent()])
+    Promise.all([loadCedict(), loadMoedict(), loadReadingContent(), loadUniqueCharContent()])
       .then(() => { if (!cancelled) setDictsReady(true); })
       .catch(err => { if (!cancelled) setDictError(String(err.message ?? err)); });
     return () => { cancelled = true; };
@@ -138,6 +143,9 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
     const zhDefs = moedictLookup(val);
     const enEntry = cedictLookup(val);
     if (zhDefs.length > 0 || (enEntry && enEntry.definitions.length > 0)) return;
+    const info = lookup(val);
+    const currentRhyme = pinnedReading?.rhyme ?? info?.chosen?.rhyme ?? null;
+    if (currentRhyme && uniqueCharContentLookup(val, currentRhyme)) return;
     let cancelled = false;
     setAncientMeaning(null);
     const prompt = `「${val}」是平水韻中的古字。請用簡短中文解釋此字的含義（30字以內），並給出英文釋義（15 words以內）。格式：\n中文：...\nEnglish: ...`;
@@ -153,7 +161,7 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
       })
       .catch(() => {});
     return () => { cancelled = true; };
-  }, [open, val, isAdmin, dictsReady]);
+  }, [open, val, isAdmin, dictsReady, pinnedReading]);
 
   if (!open) return null;
 
@@ -292,6 +300,11 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
   const basicZhDefs = readingEntry
     ? readingEntry.definitions
     : (val && dictsReady ? moedictLookup(val) : []);
+  // #17 Part 5: tier-3 unique-char-content lookup. Fires only when tiers 1+2
+  // produced nothing, gated by currentRhyme since the index is per-(char, rhyme).
+  const uniqueEntry = (val && currentRhyme && dictsReady && basicZhDefs.length === 0)
+    ? uniqueCharContentLookup(val, currentRhyme)
+    : null;
   const ctx = val && dictsReady ? cedictContext(prevChar, val, nextChar) : null;
   const ctxWord = ctx ? ctx.word : (prevChar ? prevChar + val : (nextChar ? val + nextChar : ""));
   const ctxEnDefs = ctx ? ctx.entry.definitions.slice(0, 2) : [];
@@ -496,6 +509,21 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
                         </div>
                       )}
                     </>
+                  ) : uniqueEntry ? (
+                    uniqueEntry.modern && uniqueEntry.modern.length > 0 ? (
+                      <>
+                        <div className="mt-1 text-cream leading-[1.6]">
+                          <span className="text-creamDim">{t.wenyanLabel}：</span>
+                          {uniqueEntry.wenyan}
+                        </div>
+                        <div className="mt-1 text-cream leading-[1.6]">
+                          <span className="text-creamDim">{t.modernLabel}：</span>
+                          {uniqueEntry.modern}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="mt-1 text-cream leading-[1.6]">{uniqueEntry.wenyan}</div>
+                    )
                   ) : classifyChar(val) === "rare" ? (
                     isAdmin ? (
                       ancientMeaning ? (
