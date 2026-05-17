@@ -494,14 +494,12 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
                     <div className="mt-1 text-creamDim">
                       {dictError ? <span className="text-rose text-xs">{dictError}</span> : t.loading}
                     </div>
-                  ) : basicZhDefs.length > 0 || basicEnDefs.length > 0 ? (
+                  ) : basicZhDefs.length > 0 ? (
                     <>
-                      {basicZhDefs.length > 0 && (
-                        <div className="mt-1 text-cream leading-[1.6]">
-                          <span className="text-creamDim">{t.zhDef}：</span>
-                          {basicZhDefs.join("；")}
-                        </div>
-                      )}
+                      <div className="mt-1 text-cream leading-[1.6]">
+                        <span className="text-creamDim">{t.zhDef}：</span>
+                        {basicZhDefs.join("；")}
+                      </div>
                       {basicEnDefs.length > 0 && (
                         <div className="mt-1 text-cream leading-[1.6]">
                           <span className="text-creamDim">{t.enDef}: </span>
@@ -510,20 +508,33 @@ export function EditModal({ open, initial, prevChar = "", nextChar = "", expecte
                       )}
                     </>
                   ) : uniqueEntry ? (
-                    uniqueEntry.modern && uniqueEntry.modern.length > 0 ? (
-                      <>
+                    <>
+                      {uniqueEntry.modern && uniqueEntry.modern.length > 0 ? (
+                        <>
+                          <div className="mt-1 text-cream leading-[1.6]">
+                            <span className="text-creamDim">{t.wenyanLabel}：</span>
+                            {uniqueEntry.wenyan}
+                          </div>
+                          <div className="mt-1 text-cream leading-[1.6]">
+                            <span className="text-creamDim">{t.modernLabel}：</span>
+                            {uniqueEntry.modern}
+                          </div>
+                        </>
+                      ) : (
+                        <div className="mt-1 text-cream leading-[1.6]">{uniqueEntry.wenyan}</div>
+                      )}
+                      {basicEnDefs.length > 0 && (
                         <div className="mt-1 text-cream leading-[1.6]">
-                          <span className="text-creamDim">{t.wenyanLabel}：</span>
-                          {uniqueEntry.wenyan}
+                          <span className="text-creamDim">{t.enDef}: </span>
+                          {basicEnDefs.join("; ")}
                         </div>
-                        <div className="mt-1 text-cream leading-[1.6]">
-                          <span className="text-creamDim">{t.modernLabel}：</span>
-                          {uniqueEntry.modern}
-                        </div>
-                      </>
-                    ) : (
-                      <div className="mt-1 text-cream leading-[1.6]">{uniqueEntry.wenyan}</div>
-                    )
+                      )}
+                    </>
+                  ) : basicEnDefs.length > 0 ? (
+                    <div className="mt-1 text-cream leading-[1.6]">
+                      <span className="text-creamDim">{t.enDef}: </span>
+                      {basicEnDefs.join("; ")}
+                    </div>
                   ) : classifyChar(val) === "rare" ? (
                     isAdmin ? (
                       ancientMeaning ? (
