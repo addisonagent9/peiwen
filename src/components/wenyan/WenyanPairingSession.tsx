@@ -68,8 +68,9 @@ export function WenyanPairingSession({ onExit }: WenyanPairingSessionProps) {
   // Compact mode: when true, drill cards show 2-char pairingHint instead of
   // full ancientMeaning. Results-reveal panel always shows full ancientMeaning
   // regardless of toggle state (pedagogical intent: drill on hints, learn
-  // on full glosses). Default off → existing behavior preserved.
-  const [compactMode, setCompactMode] = useState(false);
+  // on full glosses). Default ON — every drill opens in compact mode; user
+  // can toggle OFF mid-drill to surface full glosses on demand.
+  const [compactMode, setCompactMode] = useState(true);
 
   // Refs for line endpoint computation
   const containerRef = useRef<HTMLDivElement | null>(null);
