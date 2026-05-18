@@ -1,0 +1,41 @@
+{
+  "generated_at": "2026-05-17T12:33:20.886Z",
+  "total_processed": 104,
+  "distribution": {
+    "b": 11,
+    "c": 49,
+    "a": 31,
+    "e": 11,
+    "f": 1,
+    "d": 1
+  },
+  "ship": 94,
+  "skip": 10,
+  "ships_applied": 94,
+  "duplicates_skipped": 0,
+  "migrated_existing_citations": 803,
+  "cost": {
+    "haiku_usd": 0.7739,
+    "web_search_usd": 0.81,
+    "total_usd": 1.5839
+  },
+  "tokens": {
+    "in": 902350,
+    "out": 12993,
+    "web_searches": 81
+  },
+  "wall_sec": 209.9,
+  "fix_b": {
+    "triggered": 7,
+    "succeeded": 7
+  },
+  "p2_d_web_fallback": {
+    "triggered": 1,
+    "succeeded": 1
+  },
+  "verification_gates": {
+    "all_passed": true,
+    "passes": 6,
+    "fails": 0
+  }
+}
