@@ -188,31 +188,6 @@ sufficient). Decide before next gap-fill arc, if any.
 
 Not blocking; `audit-unique-char-gap.mjs` isn't in production path.
 
-### Post-Part-4 audit-batch triage (#17 followup)
-
-`data/audit/unique-char-audit-batch-*.md` files contain 83 LOW-
-confidence entries accumulated across Parts 2-4 of #17. Each entry
-has the char + rhyme + zdic raw content (often single-line 字書
-fragment) + Wiktionary raw (almost always empty) + Haiku LLM output
-with `uncertain:true` or empty citation.
-
-Triage task: verdict-stamp each as
-  (a) ship LLM wenyan content (variant glyphs, 俗字, name-use chars
-      where Haiku correctly refused to fabricate)
-  (b) skip (genuinely uninformative bare 反切 fragments)
-  (c) manual gloss needed (rare; deferred)
-
-Then write a small script applying verdicts: ship entries get
-appended to `src/data/unique-char-content.json`; skip entries stay
-out; manual entries flag to a separate file.
-
-Expected outcome: 50-70 new entries added (likely most are verdict
-(a)), bringing cumulative coverage closer to 100% (currently
-99.30%).
-
-Estimated effort: 60-90 min (most is triage judgment, not code).
-Natural next-session pickup.
-
 ### Audio Review Library perf
 At ~200+ approved clips the Library tab becomes sluggish (renders all clips
 at once). Pagination or collapse-by-default solution sketched in earlier
