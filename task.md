@@ -190,18 +190,3 @@ A manual VPS-side `.env` modification was made during early Tier 1 testing;
 should be reverted to whatever the canonical state is now that production
 has stable beta gating.
 
-### Script: meta.json phase blocks overwrite on re-run
-
-`scripts/build-unique-char-content.mjs` overwrites the entire
-phase block in `data/audit/unique-char-content-meta.json` on
-every run, rather than merging stats from prior runs. Surfaced
-during #17 Part 2 follow-up (re-running 九佳 + 十二文 for 1 char
-each erased B1's actual 68/93-char phase stats). Worked around
-manually for that commit.
-
-Fix would be: in persistMeta(), read existing phase block (if
-any) and ADD deltas rather than replace. ~10 line change in
-the build script. Not urgent — sweeps complete in single shots
-typically; only matters when a phase is re-run for partial
-recovery.
-

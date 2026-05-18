@@ -617,12 +617,52 @@ const meta = {
   throttleMs: currentThrottle,
   model: HAIKU_MODEL,
 };
+// Merge prev + curr phase blocks for re-runs of the same --phase.
+//   max:         totalGapCount (largest universe ever surveyed for this phase)
+//   additive:    extracted, byConfidence.*, bySource.*, llmCallCount,
+//                llmTokensIn, llmTokensOut, llmCostUSD, wallTimeMinutes
+//   latest-wins: phase (identity), ranAt, throttleMs, model
+// Missing prev fields fall through to curr's value (defensive against phase
+// blocks predating any field).
+function mergePhase(prev, curr) {
+  const parseCostUSD = (s) => {
+    if (s == null) return 0;
+    const n = parseFloat(String(s).replace('$', ''));
+    return Number.isFinite(n) ? n : 0;
+  };
+  const addCounts = (a, b) => {
+    const out = {};
+    const keys = new Set([...Object.keys(a || {}), ...Object.keys(b || {})]);
+    for (const k of keys) out[k] = (a?.[k] ?? 0) + (b?.[k] ?? 0);
+    return out;
+  };
+  const sumNum = (a, b) => (a ?? 0) + (b ?? 0);
+  const summedCostUSD = (parseCostUSD(prev.llmCostUSD) + parseCostUSD(curr.llmCostUSD)).toFixed(4);
+  return {
+    phase: curr.phase,
+    ranAt: curr.ranAt,
+    totalGapCount: Math.max(prev.totalGapCount ?? 0, curr.totalGapCount ?? 0),
+    extracted: sumNum(prev.extracted, curr.extracted),
+    byConfidence: addCounts(prev.byConfidence, curr.byConfidence),
+    bySource: addCounts(prev.bySource, curr.bySource),
+    llmCallCount: sumNum(prev.llmCallCount, curr.llmCallCount),
+    llmTokensIn: sumNum(prev.llmTokensIn, curr.llmTokensIn),
+    llmTokensOut: sumNum(prev.llmTokensOut, curr.llmTokensOut),
+    llmCostUSD: `$${summedCostUSD}`,
+    wallTimeMinutes: parseFloat(sumNum(prev.wallTimeMinutes, curr.wallTimeMinutes).toFixed(2)),
+    throttleMs: curr.throttleMs,
+    model: curr.model,
+  };
+}
+
 let existingMeta = {};
 if (fs.existsSync(META_PATH)) {
   try { existingMeta = JSON.parse(fs.readFileSync(META_PATH, 'utf8')); } catch {}
 }
 if (!existingMeta.phases) existingMeta.phases = {};
-existingMeta.phases[PHASE] = meta;
+existingMeta.phases[PHASE] = existingMeta.phases[PHASE]
+  ? mergePhase(existingMeta.phases[PHASE], meta)
+  : meta;
 fs.writeFileSync(META_PATH, JSON.stringify(existingMeta, null, 2));
 
 console.log('');
