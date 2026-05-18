@@ -113,15 +113,6 @@ Set 1 carry the strongest pedagogical value as audio teaching points:
 ### 十五咸 -aam
 衫 saam1 / shān · 岩 ngaam4 / yán · 芟 saam1 / shān · 咸 haam4 / xián
 
-## Deferred / Parked items
-
-### Pingshui data gap — 曆 missing
-Surfaced during #7 implementation: `曆` (simplified `历`) is missing
-from `src/data/pingshui.json`. `歷` and `历` are present, both reading
-入聲 十二錫. `曆` likely reads identically. Adds nothing to rhyme
-analysis but closes a completeness gap. Defer to a future pingshui
-sweep. Not blocking.
-
 ## Deferred (no scheduled work)
 
 ### VPS npm run data hardcoded Mac path
