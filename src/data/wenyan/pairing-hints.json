@@ -1,0 +1,1007 @@
+{
+  "generated_at": "2026-05-18T10:20:40.054Z",
+  "model": "claude-haiku-4-5-20251001",
+  "hints": [
+    {
+      "poemId": "zhang-jiuling-ganyu-1",
+      "senseSlug": "weirui-luxuriant",
+      "word": "葳蕤",
+      "hint": "茂盛",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-1",
+      "senseSlug": "hua-flower",
+      "word": "华",
+      "hint": "鲜花",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-1",
+      "senseSlug": "shengyi-vitality",
+      "word": "生意",
+      "hint": "活力",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-1",
+      "senseSlug": "zier-naturally-so",
+      "word": "自尔",
+      "hint": "天然",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-1",
+      "senseSlug": "linqizhe-mountain-recluse",
+      "word": "林栖者",
+      "hint": "隐者",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-1",
+      "senseSlug": "wenfeng-sense-virtue",
+      "word": "闻风",
+      "hint": "香气",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-1",
+      "senseSlug": "zuo-because",
+      "word": "坐",
+      "hint": "所以",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-1",
+      "senseSlug": "benxin-original-nature",
+      "word": "本心",
+      "hint": "本性",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-1",
+      "senseSlug": "meiren-person-of-power",
+      "word": "美人",
+      "hint": "贤人",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-2",
+      "senseSlug": "you-still",
+      "word": "犹",
+      "hint": "依旧",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-2",
+      "senseSlug": "qiyi-could-it-be-only",
+      "word": "岂伊",
+      "hint": "何止",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-2",
+      "senseSlug": "suihanxin-pine-resilience",
+      "word": "岁寒心",
+      "hint": "气节",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-2",
+      "senseSlug": "jian-offer-upward",
+      "word": "荐",
+      "hint": "奉献",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-2",
+      "senseSlug": "jiake-honored-guest",
+      "word": "嘉客",
+      "hint": "贵宾",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-2",
+      "senseSlug": "zuzhongshen-many-barriers",
+      "word": "阻重深",
+      "hint": "阻碍",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-2",
+      "senseSlug": "xunhuan-cosmic-flux",
+      "word": "循环",
+      "hint": "天理",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-2",
+      "senseSlug": "shu-to-plant",
+      "word": "树",
+      "hint": "种植",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-2",
+      "senseSlug": "yin-shade-not-dark",
+      "word": "阴",
+      "hint": "树荫",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-3",
+      "senseSlug": "guhong-lone-swan",
+      "word": "孤鸿",
+      "hint": "孤身",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-3",
+      "senseSlug": "chihuang-palace-moat",
+      "word": "池潢",
+      "hint": "朝堂",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-3",
+      "senseSlug": "shuangcuiniao-corrupt-courtiers",
+      "word": "双翠鸟",
+      "hint": "奸臣",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-3",
+      "senseSlug": "sanzhushu-mythical-tree",
+      "word": "三珠树",
+      "hint": "高位",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-3",
+      "senseSlug": "jiaojiao-haughty-bearing",
+      "word": "矫矫",
+      "hint": "傲慢",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-3",
+      "senseSlug": "dewu-could-it-not-be",
+      "word": "得无",
+      "hint": "难道",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-3",
+      "senseSlug": "zhi-criticize-not-point",
+      "word": "指",
+      "hint": "指责",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-3",
+      "senseSlug": "gaoming-eminent-position",
+      "word": "高明",
+      "hint": "显贵",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-3",
+      "senseSlug": "mingming-high-heavens",
+      "word": "冥冥",
+      "hint": "远大",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-3",
+      "senseSlug": "yizhe-bird-hunter",
+      "word": "弋者",
+      "hint": "猎手",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-4",
+      "senseSlug": "youren-true-recluse",
+      "word": "幽人",
+      "hint": "逸士",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-4",
+      "senseSlug": "zhilv-stagnant-thoughts",
+      "word": "滞虑",
+      "hint": "烦躁",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-4",
+      "senseSlug": "guqing-solitary-purity",
+      "word": "孤清",
+      "hint": "清正",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-4",
+      "senseSlug": "chici-hold-to-this-state",
+      "word": "持此",
+      "hint": "恪守",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-4",
+      "senseSlug": "xie-bid-farewell-not-thank",
+      "word": "谢",
+      "hint": "作别",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-4",
+      "senseSlug": "yinzhi-by-means-of",
+      "word": "因之",
+      "hint": "凭着",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-4",
+      "senseSlug": "kongyi-empty-pure-heart",
+      "word": "空意",
+      "hint": "谦恭",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-4",
+      "senseSlug": "zhijing-supreme-sincerity",
+      "word": "至精",
+      "hint": "至诚",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "zhang-jiuling-ganyu-4",
+      "senseSlug": "feichen-elite-vs-sunken",
+      "word": "飞沉",
+      "hint": "贫富",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "libai-xia-zhongnan",
+      "senseSlug": "guo-to-visit",
+      "word": "过",
+      "hint": "造访",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "libai-xia-zhongnan",
+      "senseSlug": "shanren-recluse-not-villager",
+      "word": "山人",
+      "hint": "隐士",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "libai-xia-zhongnan",
+      "senseSlug": "quegu-turn-and-look",
+      "word": "却顾",
+      "hint": "回眸",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "libai-xia-zhongnan",
+      "senseSlug": "cuiwei-mountain-azure",
+      "word": "翠微",
+      "hint": "山光",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "libai-xia-zhongnan",
+      "senseSlug": "jingfei-thorn-gate",
+      "word": "荆扉",
+      "hint": "蓬门",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "libai-xia-zhongnan",
+      "senseSlug": "hui-drink-freely-not-wave",
+      "word": "挥",
+      "hint": "豪饮",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "libai-xia-zhongnan",
+      "senseSlug": "wangji-shed-worldly-cunning",
+      "word": "忘机",
+      "hint": "恬淡",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "meng-haoran-chunxiao",
+      "senseSlug": "jue-wake-up",
+      "word": "觉",
+      "hint": "苏醒",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "meng-haoran-chunxiao",
+      "senseSlug": "xiao-dawn",
+      "word": "晓",
+      "hint": "黎明",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "meng-haoran-chunxiao",
+      "senseSlug": "wen-hear",
+      "word": "闻",
+      "hint": "听闻",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "meng-haoran-chunxiao",
+      "senseSlug": "tiniao-bird-cry-inverted",
+      "word": "啼鸟",
+      "hint": "鸟啼",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "meng-haoran-chunxiao",
+      "senseSlug": "zhiduoshao-how-many",
+      "word": "知多少",
+      "hint": "几何",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wang-zhihuan-deng-guanquelou",
+      "senseSlug": "bairi-bright-sun",
+      "word": "白日",
+      "hint": "烈日",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wang-zhihuan-deng-guanquelou",
+      "senseSlug": "yi-along",
+      "word": "依",
+      "hint": "顺着",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wang-zhihuan-deng-guanquelou",
+      "senseSlug": "jin-vanish",
+      "word": "尽",
+      "hint": "沉落",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wang-zhihuan-deng-guanquelou",
+      "senseSlug": "yu-wish-to",
+      "word": "欲",
+      "hint": "即将",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wang-zhihuan-deng-guanquelou",
+      "senseSlug": "qiong-exhaust",
+      "word": "穷",
+      "hint": "穷极",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wang-zhihuan-deng-guanquelou",
+      "senseSlug": "qianlimu-thousand-li-vision",
+      "word": "千里目",
+      "hint": "眺望",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wang-zhihuan-deng-guanquelou",
+      "senseSlug": "geng-further",
+      "word": "更",
+      "hint": "重登",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wang-changling-chusai",
+      "senseSlug": "guan-frontier-pass",
+      "word": "关",
+      "hint": "关隘",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wang-changling-chusai",
+      "senseSlug": "wanlichangzheng-distant-expedition",
+      "word": "万里长征",
+      "hint": "征伐",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wang-changling-chusai",
+      "senseSlug": "danshi-only-if",
+      "word": "但使",
+      "hint": "只需",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wang-changling-chusai",
+      "senseSlug": "longcheng-xiongnu-shrine",
+      "word": "龙城",
+      "hint": "王庭",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wang-changling-chusai",
+      "senseSlug": "feijiang-li-guang",
+      "word": "飞将",
+      "hint": "将领",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wang-changling-chusai",
+      "senseSlug": "huma-barbarian-cavalry",
+      "word": "胡马",
+      "hint": "敌军",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wang-changling-chusai",
+      "senseSlug": "du-cross-over",
+      "word": "度",
+      "hint": "跨越",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wang-changling-chusai",
+      "senseSlug": "yinshan-mountain-range",
+      "word": "阴山",
+      "hint": "北岭",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "libai-wanglushanpubu",
+      "senseSlug": "xianglu-incense-burner-peak",
+      "word": "香炉",
+      "hint": "香鼎",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "libai-wanglushanpubu",
+      "senseSlug": "sheng-emit",
+      "word": "生",
+      "hint": "升起",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "libai-wanglushanpubu",
+      "senseSlug": "ziyan-purple-mist",
+      "word": "紫烟",
+      "hint": "云霞",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "libai-wanglushanpubu",
+      "senseSlug": "yaokan-look-from-afar",
+      "word": "遥看",
+      "hint": "遥望",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "libai-wanglushanpubu",
+      "senseSlug": "gua-hang",
+      "word": "挂",
+      "hint": "悬垂",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "libai-wanglushanpubu",
+      "senseSlug": "qianchuan-river-ahead",
+      "word": "前川",
+      "hint": "前河",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "libai-wanglushanpubu",
+      "senseSlug": "feiliuzhixia-falls-plunge",
+      "word": "飞流直下",
+      "hint": "飞瀑",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "libai-wanglushanpubu",
+      "senseSlug": "sanqianchi-three-thousand-feet",
+      "word": "三千尺",
+      "hint": "极顶",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "libai-wanglushanpubu",
+      "senseSlug": "yi-seems-like",
+      "word": "疑",
+      "hint": "如果",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "libai-wanglushanpubu",
+      "senseSlug": "jiutian-ninth-heaven",
+      "word": "九天",
+      "hint": "九霄",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wang-changling-chusai",
+      "senseSlug": "jiao-cause-let",
+      "word": "教",
+      "hint": "任凭",
+      "confidence": "high",
+      "corrected_by": "user",
+      "note": "causative 使/让 sense per 《出塞》「不教胡马度阴山」; 教导 sense (e.g. 教之以战) would pair to 诲/授/训 in classical prose"
+    },
+    {
+      "poemId": "wangwei-jiuyue-jiuri",
+      "senseSlug": "yixiang-foreign-land",
+      "word": "异乡",
+      "hint": "他乡",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wangwei-jiuyue-jiuri",
+      "senseSlug": "yike-stranger-guest",
+      "word": "异客",
+      "hint": "旅客",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wangwei-jiuyue-jiuri",
+      "senseSlug": "bei-redoubled",
+      "word": "倍",
+      "hint": "加倍",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wangwei-jiuyue-jiuri",
+      "senseSlug": "denggao-ascend-heights",
+      "word": "登高",
+      "hint": "登临",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wangwei-jiuyue-jiuri",
+      "senseSlug": "zhuyu-cornel-plant",
+      "word": "茱萸",
+      "hint": "芳草",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wangwei-jiuyue-jiuri",
+      "senseSlug": "shaoyiren-one-missing",
+      "word": "少一人",
+      "hint": "缺位",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "libai-huanghelou-songmeng",
+      "senseSlug": "guren-old-friend",
+      "word": "故人",
+      "hint": "故交",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "libai-huanghelou-songmeng",
+      "senseSlug": "xici-bid-westward",
+      "word": "西辞",
+      "hint": "告别",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "libai-huanghelou-songmeng",
+      "senseSlug": "zhi-go-to",
+      "word": "之",
+      "hint": "前去",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "libai-huanghelou-songmeng",
+      "senseSlug": "yanhua-spring-mist-flowers",
+      "word": "烟花",
+      "hint": "春色",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "libai-huanghelou-songmeng",
+      "senseSlug": "xia-flow-downstream",
+      "word": "下",
+      "hint": "下流",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "libai-huanghelou-songmeng",
+      "senseSlug": "gufan-lone-sail",
+      "word": "孤帆",
+      "hint": "扁舟",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "libai-huanghelou-songmeng",
+      "senseSlug": "bikongjin-vanish-blue-sky",
+      "word": "碧空尽",
+      "hint": "消失",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "libai-huanghelou-songmeng",
+      "senseSlug": "weijian-only-see",
+      "word": "唯见",
+      "hint": "只见",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "libai-huanghelou-songmeng",
+      "senseSlug": "tianjiliu-flow-to-horizon",
+      "word": "天际流",
+      "hint": "天边",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "dufu-chunye-xiyu",
+      "senseSlug": "nai-thereupon",
+      "word": "乃",
+      "hint": "于是",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "dufu-chunye-xiyu",
+      "senseSlug": "fasheng-cause-growth",
+      "word": "发生",
+      "hint": "萌生",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "dufu-chunye-xiyu",
+      "senseSlug": "qian-stealthily",
+      "word": "潜",
+      "hint": "悄然",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "dufu-chunye-xiyu",
+      "senseSlug": "runwu-moisten-things",
+      "word": "润物",
+      "hint": "润泽",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "dufu-chunye-xiyu",
+      "senseSlug": "yejing-wild-path",
+      "word": "野径",
+      "hint": "小径",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "dufu-chunye-xiyu",
+      "senseSlug": "ju-all",
+      "word": "俱",
+      "hint": "统统",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "dufu-chunye-xiyu",
+      "senseSlug": "hongshichu-red-wet-spot",
+      "word": "红湿处",
+      "hint": "雨花",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "dufu-chunye-xiyu",
+      "senseSlug": "huazhong-flowers-heavy",
+      "word": "花重",
+      "hint": "沉重",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wangwan-cibeigushan-xia",
+      "senseSlug": "ci-moor-stop",
+      "word": "次",
+      "hint": "停靠",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wangwan-cibeigushan-xia",
+      "senseSlug": "kelu-traveler-road",
+      "word": "客路",
+      "hint": "行程",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wangwan-cibeigushan-xia",
+      "senseSlug": "chaoping-tide-level",
+      "word": "潮平",
+      "hint": "潮满",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wangwan-cibeigushan-xia",
+      "senseSlug": "kuo-wide-open",
+      "word": "阔",
+      "hint": "宽广",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wangwan-cibeigushan-xia",
+      "senseSlug": "fengzheng-wind-favorable",
+      "word": "风正",
+      "hint": "顺畅",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wangwan-cibeigushan-xia",
+      "senseSlug": "xuan-suspend",
+      "word": "悬",
+      "hint": "高挂",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wangwan-cibeigushan-xia",
+      "senseSlug": "xiangshu-letter-home",
+      "word": "乡书",
+      "hint": "家书",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wangwan-cibeigushan-xia",
+      "senseSlug": "da-reach-deliver",
+      "word": "达",
+      "hint": "送达",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wangwan-cibeigushan-xia",
+      "senseSlug": "guiyan-returning-geese",
+      "word": "归雁",
+      "hint": "北雁",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wangwei-shanju-qiumin",
+      "senseSlug": "ming-dusk",
+      "word": "暝",
+      "hint": "傍晚",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wangwei-shanju-qiumin",
+      "senseSlug": "kongshan-empty-mountain",
+      "word": "空山",
+      "hint": "清幽",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wangwei-shanju-qiumin",
+      "senseSlug": "xinyu-fresh-rain",
+      "word": "新雨",
+      "hint": "初雨",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wangwei-shanju-qiumin",
+      "senseSlug": "tianqiwanlaiqiu-evening-autumn",
+      "word": "天气晚来秋",
+      "hint": "秋暮",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wangwei-shanju-qiumin",
+      "senseSlug": "zhuxuan-bamboo-laughter",
+      "word": "竹喧",
+      "hint": "喧笑",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wangwei-shanju-qiumin",
+      "senseSlug": "guihuannnu-returning-laundress",
+      "word": "归浣女",
+      "hint": "浣女",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wangwei-shanju-qiumin",
+      "senseSlug": "liandong-lotus-stir",
+      "word": "莲动",
+      "hint": "荷动",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wangwei-shanju-qiumin",
+      "senseSlug": "suiyi-let-it-be",
+      "word": "随意",
+      "hint": "任由",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wangwei-shanju-qiumin",
+      "senseSlug": "chunfang-spring-blossoms",
+      "word": "春芳",
+      "hint": "春华",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wangwei-shanju-qiumin",
+      "senseSlug": "xie-fade-away",
+      "word": "歇",
+      "hint": "凋零",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "wangwei-shanju-qiumin",
+      "senseSlug": "wangsun-noble-self",
+      "word": "王孙",
+      "hint": "公子",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "lishangyin-deng-leyouyuan",
+      "senseSlug": "xiangwan-toward-evening",
+      "word": "向晚",
+      "hint": "近暮",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "lishangyin-deng-leyouyuan",
+      "senseSlug": "yibushi-mood-uneasy",
+      "word": "意不适",
+      "hint": "烦闷",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "lishangyin-deng-leyouyuan",
+      "senseSlug": "quche-drive-cart",
+      "word": "驱车",
+      "hint": "驾车",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "lishangyin-deng-leyouyuan",
+      "senseSlug": "guyuan-ancient-plateau",
+      "word": "古原",
+      "hint": "故地",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "lishangyin-deng-leyouyuan",
+      "senseSlug": "wuxianhao-infinitely-beautiful",
+      "word": "无限好",
+      "hint": "绝佳",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "lishangyin-deng-leyouyuan",
+      "senseSlug": "zhishi-only-alas",
+      "word": "只是",
+      "hint": "只惜",
+      "confidence": "high",
+      "corrected_by": "user"
+    },
+    {
+      "poemId": "lishangyin-deng-leyouyuan",
+      "senseSlug": "jinhuanghun-near-twilight",
+      "word": "近黄昏",
+      "hint": "薄暮",
+      "confidence": "high",
+      "corrected_by": "user"
+    }
+  ]
+}

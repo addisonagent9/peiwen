@@ -65,6 +65,11 @@ export function WenyanPairingSession({ onExit }: WenyanPairingSessionProps) {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [results, setResults] = useState<PairingSubmitResponse | null>(null);
+  // Compact mode: when true, drill cards show 2-char pairingHint instead of
+  // full ancientMeaning. Results-reveal panel always shows full ancientMeaning
+  // regardless of toggle state (pedagogical intent: drill on hints, learn
+  // on full glosses). Default off → existing behavior preserved.
+  const [compactMode, setCompactMode] = useState(false);
 
   // Refs for line endpoint computation
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -260,6 +265,11 @@ export function WenyanPairingSession({ onExit }: WenyanPairingSessionProps) {
   );
   const meaningTextFor = (entryId: number) =>
     meaningsById.get(entryId)?.text ?? '';
+  // Drill-card accessor — respects compactMode. Falls back to text when no
+  // hint is available (defensive; sidecar covers full 125-entry corpus).
+  // Results-reveal panel deliberately uses meaningTextFor (full text) only.
+  const meaningCardText = (m: PairingMeaning) =>
+    compactMode && m.pairingHint != null ? m.pairingHint : m.text;
   const wordById = new Map(queue.words.map(w => [w.entry_id, w]));
   const wordFor = (entryId: number) => wordById.get(entryId);
 
@@ -281,14 +291,28 @@ export function WenyanPairingSession({ onExit }: WenyanPairingSessionProps) {
       </header>
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 pb-32">
-        {/* Status line */}
-        <p className="text-center text-creamDim text-xs mb-6">
-          {results
-            ? s.pairingResultsHeading(results.correct_count, results.total_count)
-            : allPaired
-              ? s.pairingPairsAllSet
-              : s.pairingPairsRemaining(5 - pairs.size)}
-        </p>
+        {/* Status line + compact-mode toggle */}
+        <div className="flex items-center justify-center flex-wrap gap-x-4 gap-y-2 mb-6">
+          <p className="text-creamDim text-xs">
+            {results
+              ? s.pairingResultsHeading(results.correct_count, results.total_count)
+              : allPaired
+                ? s.pairingPairsAllSet
+                : s.pairingPairsRemaining(5 - pairs.size)}
+          </p>
+          <button
+            onClick={() => setCompactMode(v => !v)}
+            aria-label={s.compactModeAria}
+            aria-pressed={compactMode}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs transition-colors ${
+              compactMode
+                ? 'border-gold/60 text-gold'
+                : 'border-ink-line text-creamDim hover:text-cream hover:border-cream/40'
+            }`}
+          >
+            <span>{s.compactModeLabel}</span>
+          </button>
+        </div>
 
         {/* Two-column pairing grid */}
         <div
@@ -362,7 +386,7 @@ export function WenyanPairingSession({ onExit }: WenyanPairingSessionProps) {
                   disabled={!!results || submitting}
                   className={`w-full px-3 sm:px-4 py-3 sm:py-4 border rounded-md text-left transition-colors disabled:cursor-default ${stateClass}`}
                 >
-                  <p className="text-cream text-sm sm:text-base leading-snug">{cv(m.text)}</p>
+                  <p className="text-cream text-sm sm:text-base leading-snug">{cv(meaningCardText(m))}</p>
                 </button>
               );
             })}

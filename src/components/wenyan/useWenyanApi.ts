@@ -13,6 +13,17 @@ import type {
   PairingSubmitRequest,
   PairingSubmitResponse,
 } from '../../data/wenyan/types';
+import pairingHintsData from '../../data/wenyan/pairing-hints.json';
+
+// Module-level lookup: sense_slug → 2-char pairing hint.
+// Built once at import; sidecar is static. The /pairing/queue response
+// is decorated with `pairingHint` per meaning before reaching consumers.
+const PAIRING_HINTS = new Map<string, string>(
+  (pairingHintsData.hints ?? []).map((h: { senseSlug: string; hint: string }) => [
+    h.senseSlug,
+    h.hint,
+  ]),
+);
 
 async function jsonFetch<T>(input: string, init?: RequestInit): Promise<T> {
   const res = await fetch(input, { credentials: 'include', ...init });
@@ -82,7 +93,14 @@ export function useWenyanApi(): UseWenyanApiReturn {
   }, []);
 
   const fetchPairingQueue = useCallback(async (): Promise<PairingQueue> => {
-    return jsonFetch<PairingQueue>('/api/wenyan/pairing/queue');
+    const raw = await jsonFetch<PairingQueue>('/api/wenyan/pairing/queue');
+    return {
+      ...raw,
+      meanings: raw.meanings.map(m => ({
+        ...m,
+        pairingHint: PAIRING_HINTS.get(m.sense_slug) ?? null,
+      })),
+    };
   }, []);
 
   const submitPairing = useCallback(

@@ -147,13 +147,13 @@ export function mountWenyan(app, db, requireAuth) {
     ORDER BY completed_at DESC LIMIT 3
   `);
   const stmtVocabFromRecent = db.prepare(`
-    SELECT v.entry_id, e.word, e.pinyin, e.ancient_meaning
+    SELECT v.entry_id, e.word, e.pinyin, e.ancient_meaning, e.sense_slug
     FROM wenyan_user_vocab v
     JOIN wenyan_dict_entries e ON e.entry_id = v.entry_id
     WHERE v.user_id = ? AND v.first_seen_poem_id IN (SELECT value FROM json_each(?))
   `);
   const stmtVocabAll = db.prepare(`
-    SELECT v.entry_id, e.word, e.pinyin, e.ancient_meaning
+    SELECT v.entry_id, e.word, e.pinyin, e.ancient_meaning, e.sense_slug
     FROM wenyan_user_vocab v
     JOIN wenyan_dict_entries e ON e.entry_id = v.entry_id
     WHERE v.user_id = ?
@@ -183,7 +183,11 @@ export function mountWenyan(app, db, requireAuth) {
       pinyin: p.pinyin,
     }));
     const meanings = shuffle(
-      picked.map(p => ({ entry_id: p.entry_id, text: p.ancient_meaning })),
+      picked.map(p => ({
+        entry_id: p.entry_id,
+        text: p.ancient_meaning,
+        sense_slug: p.sense_slug,
+      })),
     );
 
     res.json({

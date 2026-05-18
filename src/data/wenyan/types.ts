@@ -67,6 +67,11 @@ export interface PairingWord {
 export interface PairingMeaning {
   entry_id: number;
   text: string;
+  sense_slug: string;
+  // Client-side augmentation: 2-char modern pairing hint joined via sense_slug
+  // from src/data/wenyan/pairing-hints.json. null when no match in sidecar
+  // (defensive; current 125-entry sidecar covers full corpus).
+  pairingHint?: string | null;
 }
 
 export interface PairingQueue {

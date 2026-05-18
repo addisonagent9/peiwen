@@ -39,6 +39,9 @@ export const wenyanStrings = {
     pairingPairsAllSet: '5 对已配齐 — 可提交',
     practicePairingButton: '练习配对',
     practicePairingHint: '需先完成至少 5 个生词',
+    // Pairing compact-mode toggle (2-char modern-pairing hints)
+    compactModeLabel: '简洁模式',
+    compactModeAria: '切换简洁模式 (2字提示)',
     // Audio playback (#26 Stage D-2)
     audioPlay: '播放音频',
     audioPause: '暂停播放',
@@ -86,6 +89,8 @@ export const wenyanStrings = {
     pairingPairsAllSet: '5 對已配齊 — 可提交',
     practicePairingButton: '練習配對',
     practicePairingHint: '需先完成至少 5 個生詞',
+    compactModeLabel: '簡潔模式',
+    compactModeAria: '切換簡潔模式 (2字提示)',
     audioPlay: '播放音頻',
     audioPause: '暫停播放',
     audioUnavailable: '音頻不可用',
@@ -130,6 +135,8 @@ export const wenyanStrings = {
     pairingPairsAllSet: 'All 5 paired — ready to submit',
     practicePairingButton: 'Practice Pairing',
     practicePairingHint: 'Requires at least 5 vocabulary entries',
+    compactModeLabel: 'Compact mode',
+    compactModeAria: 'Toggle compact mode (2-char hints)',
     // Audio playback (#26 Stage D-2)
     audioPlay: 'Play audio',
     audioPause: 'Pause',

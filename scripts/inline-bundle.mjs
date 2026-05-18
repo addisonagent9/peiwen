@@ -45,3 +45,16 @@ for (const f of ["cedict.json", "moedict-map.json", "reading-content.json", "uni
     console.log(`copied ${f} (${fs.statSync(to).size.toLocaleString()} bytes)`);
   }
 }
+
+// Wenyan pairing-hints sidecar. Statically imported by useWenyanApi.ts
+// (Parcel inlines into JS bundle), but also copied here for parity with
+// the lazy-loaded dictionary convention and inspection convenience.
+const WENYAN_DATA = path.resolve(__dirname, "../src/data/wenyan");
+for (const f of ["pairing-hints.json"]) {
+  const from = path.join(WENYAN_DATA, f);
+  const to = path.join(DIST, f);
+  if (fs.existsSync(from)) {
+    fs.copyFileSync(from, to);
+    console.log(`copied wenyan/${f} (${fs.statSync(to).size.toLocaleString()} bytes)`);
+  }
+}
